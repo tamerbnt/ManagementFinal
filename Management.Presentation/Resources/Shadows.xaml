@@ -1,0 +1,10 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <DropShadowEffect x:Key="Shadow1" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="12" ShadowDepth="3" Opacity="0.06"/>
+    <DropShadowEffect x:Key="Shadow2" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="20" ShadowDepth="6" Opacity="0.10"/>
+    <DropShadowEffect x:Key="Shadow3" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="24" ShadowDepth="10" Opacity="0.16"/>
+</ResourceDictionary>

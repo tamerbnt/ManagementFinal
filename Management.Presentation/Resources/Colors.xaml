@@ -1,0 +1,90 @@
+<!--
+    GymManagement.Presentation.Resources.Colors.xaml
+    Design System v1.2 Final – LOCKED & PRODUCTION-READY
+    November 2025 | Senior WPF Implementation
+    STRICT COMPLIANCE VERSION
+    • 100% match with COMPLETED SYSTEM DESIGN v1.2 Section 1.1 & 1.2
+    • PURE color dictionary – NO Styles, NO Triggers, NO Converters
+    • Zero frozen brushes – 100% safe for future ThemeService dictionary swapping
+    • Focus ring strictly #5B8AB8 as mandated (no deviations allowed)
+    • Ready for multi-facility theming (Gym, Pool, Spa, etc.)
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<!-- ============================================================= -->
+	<!-- 1. CORE PALETTE – EXACT v1.2 FINAL VALUES (LIGHT MODE ONLY) -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="SidebarBackground" Color="#052659"/>
+	<SolidColorBrush x:Key="SidebarHover" Color="#0F3D92"/>
+	<SolidColorBrush x:Key="ContentBackground" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="CardBackground" Color="#FAFBFD"/>
+	<SolidColorBrush x:Key="PrimaryAccent" Color="#5B8AB8"/>
+	<SolidColorBrush x:Key="AccentLight" Color="#A8D8F0"/>
+	<SolidColorBrush x:Key="Success" Color="#00E676"/>
+	<SolidColorBrush x:Key="Warning" Color="#FFB300"/>
+	<SolidColorBrush x:Key="Error" Color="#FF5252"/>
+	<SolidColorBrush x:Key="TextPrimary" Color="#1A1A1A"/>
+	<SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
+	<SolidColorBrush x:Key="TextTertiary" Color="#757575"/>
+	<SolidColorBrush x:Key="TextOnDark" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="TextDimOnDark" Color="#B0BEC5"/>
+	<SolidColorBrush x:Key="Separator" Color="#E5E7EB"/>
+	<SolidColorBrush x:Key="OverlayBackdrop" Color="#80000000"/>
+	<!-- ============================================================= -->
+	<!-- 2. SEMANTIC DERIVATIVES -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="HoverLightBg" Color="#F5F7FA"/>
+	<SolidColorBrush x:Key="SelectionBg" Color="#A8D8F0" Opacity="0.20"/>
+	<Color x:Key="SelectionBgColor">#33A8D8F0</Color>
+	<Color x:Key="OverlayBackdropColor">#80000000</Color>
+	<Color x:Key="ContentBackgroundColor">#FFFFFF</Color>
+	<Color x:Key="HoverLightColor">#F5F7FA</Color>
+	<SolidColorBrush x:Key="SidebarHoverOverlay" Color="#0F3D92" Opacity="0.06"/>
+	<SolidColorBrush x:Key="ActiveSidebarBorder" Color="#5B8AB8"/>
+	<!-- ============================================================= -->
+	<!-- 3. FOCUS RING -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="FocusRingColor" Color="#5B8AB8"/>
+	<!-- ============================================================= -->
+	<!-- 4. REAL-WORLD STATUS COLORS -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="StatusFrozen" Color="#9E9E9E"/>
+	<SolidColorBrush x:Key="StatusSuspended" Color="#FF8A65"/>
+	<SolidColorBrush x:Key="StatusNoShow" Color="#78909C"/>
+	<SolidColorBrush x:Key="StatusOutOfOrder" Color="#B0BEC5"/>
+	<SolidColorBrush x:Key="SyncPending" Color="#FFB300"/>
+	<!-- ============================================================= -->
+	<!-- 4.5. SHADOW COLORS -->
+	<!-- ============================================================= -->
+	<Color x:Key="ShadowColor">#000000</Color>
+	<SolidColorBrush x:Key="ShadowLevel1Brush" Color="#000000" Opacity="0.06"/>
+	<SolidColorBrush x:Key="ShadowLevel2Brush" Color="#000000" Opacity="0.10"/>
+	<SolidColorBrush x:Key="ShadowLevel3Brush" Color="#000000" Opacity="0.16"/>
+	<!-- ============================================================= -->
+	<!-- 5. HIGH-CONTRAST FALLBACKS -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="PrimaryAccentHC" Color="#0052A3"/>
+	<SolidColorBrush x:Key="TextSecondaryHC" Color="#4D4D4D"/>
+	<!-- ============================================================= -->
+	<!-- 6. BRUSH ALIASES (Hardcoded duplicates for reliability) -->
+	<!-- ============================================================= -->
+	<SolidColorBrush x:Key="PrimaryAccentBrush" Color="#5B8AB8"/>
+	<SolidColorBrush x:Key="AccentLightBrush" Color="#A8D8F0"/>
+	<SolidColorBrush x:Key="SeparatorBrush" Color="#E5E7EB"/>
+	<SolidColorBrush x:Key="TextPrimaryBrush" Color="#1A1A1A"/>
+	<SolidColorBrush x:Key="TextSecondaryBrush" Color="#666666"/>
+	<SolidColorBrush x:Key="TextTertiaryBrush" Color="#757575"/>
+	<SolidColorBrush x:Key="TextOnDarkBrush" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="TextDimOnDarkBrush" Color="#B0BEC5"/>
+	<SolidColorBrush x:Key="StatusSuccessBrush" Color="#00E676"/>
+	<SolidColorBrush x:Key="StatusWarningBrush" Color="#FFB300"/>
+	<SolidColorBrush x:Key="StatusErrorBrush" Color="#FF5252"/>
+	<SolidColorBrush x:Key="CardBackgroundBrush" Color="#FAFBFD"/>
+	<SolidColorBrush x:Key="ContentBackgroundBrush" Color="#FFFFFF"/>
+	<SolidColorBrush x:Key="SidebarHoverBrush" Color="#0F3D92"/>
+	<SolidColorBrush x:Key="FocusRingBrush" Color="#5B8AB8"/>
+	<SolidColorBrush x:Key="SelectionBackgroundBrush" Color="#A8D8F0" Opacity="0.2"/>
+	<SolidColorBrush x:Key="ActiveNavigationBorderBrush" Color="#5B8AB8"/>
+	<SolidColorBrush x:Key="HoverLightBgBrush" Color="#F5F7FA"/>
+	<SolidColorBrush x:Key="IllustrationBackgroundBrush" Color="#F0F4F8"/>
+</ResourceDictionary>

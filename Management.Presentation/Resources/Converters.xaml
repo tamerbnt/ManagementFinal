@@ -1,0 +1,35 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="clr-namespace:Management.Presentation.Converters">
+
+    <!-- Group 1: Logic & Visibility -->
+    <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
+    <!-- Reusing logic via param usually, or separate instance -->
+    <converters:IntToVisibilityConverter x:Key="InverseZeroIsVisibleConverter" />
+
+    <!-- Group 2: Responsive Layout -->
+    <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
+    <converters:WindowWidthToPaddingConverter x:Key="WindowWidthToPaddingConverter"/>
+    <converters:WindowWidthToMarginConverter x:Key="WindowWidthToMarginConverter"/>
+
+    <!-- Group 3: Text & Formatting -->
+    <converters:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
+    <converters:ResourceKeyToIconConverter x:Key="ResourceKeyToIconConverter"/>
+    <converters:BoolToConnectionTextConverter x:Key="BoolToConnectionTextConverter"/>
+    <converters:TurnstileStatusToTextConverter x:Key="TurnstileStatusToTextConverter"/>
+
+    <!-- Group 4: Semantic Colors -->
+    <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>
+    <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
+    <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
+    <converters:TrendToBrushConverter x:Key="TrendToBrushConverter"/>
+    <converters:BoolToSuccessErrorBrushConverter x:Key="BoolToSuccessErrorBrushConverter"/>
+    <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConverter"/>
+    <converters:PlanStatusToBrushConverter x:Key="PlanStatusToBrushConverter"/>
+    <converters:TurnstileStatusToBrushConverter x:Key="TurnstileStatusToBrushConverter"/>
+
+</ResourceDictionary>

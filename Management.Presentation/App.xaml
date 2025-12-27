@@ -1,0 +1,25 @@
+﻿<Application x:Class="Management.Presentation.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+
+    xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
+
+
+    xmlns:access="clr-namespace:Management.Presentation.Views.AccessControl">
+
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 
+                    THE SMOKE TEST MERGE
+                    This attempts to load your Resource architecture.
+                    If this fails, the app will crash immediately on startup.
+                    If this works, your file structure is perfect.
+                -->
+                <ResourceDictionary Source="pack://application:,,,/Management.Presentation;component/Resources/Theme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
