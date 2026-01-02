@@ -13,7 +13,7 @@ namespace Management.Application.Stores
     public class SaleStore
     {
         // Fired whenever items are added/removed/updated so the UI can refresh totals
-        public event Action CartChanged;
+        public event Action? CartChanged;
 
         private readonly List<CartItem> _items = new List<CartItem>();
         private const decimal TaxRate = 0.05m; // 5% Standard Tax

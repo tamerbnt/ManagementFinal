@@ -1,0 +1,166 @@
+<UserControl x:Class="Management.Presentation.Views.Restaurant.TablesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        
+        <Style x:Key="InverseBoolToVisStyle" TargetType="FrameworkElement">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsLoading}" Value="False">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Pulsing Animation for Cleaning State -->
+        <Storyboard x:Key="PulseCleaning" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="1.0" To="0.4" Duration="0:0:1" AutoReverse="True"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBg}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header / Toggle -->
+        <Grid Margin="48,24,48,24">
+            <TextBlock Text="Floor Management" Style="{StaticResource SectionHeader}"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Grid View" Style="{StaticResource PrimaryButton}" 
+                        Background="{Binding IsFloorPlanMode, Converter={StaticResource InverseBoolToBrushConverter}}"
+                        Command="{Binding ToggleViewModeCommand}" Margin="0,0,8,0"/>
+                <Button Content="Floor Plan" Style="{StaticResource PrimaryButton}"
+                        Background="{Binding IsFloorPlanMode, Converter={StaticResource BoolToBrushConverter}}"
+                        Command="{Binding ToggleViewModeCommand}"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="48,0">
+                <!-- Shimmer Overlay -->
+                <ItemsControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Margin="0,0,-16,-16"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemsSource>
+                        <x:Array Type="{x:Type sys:Int32}">
+                            <sys:Int32>1</sys:Int32><sys:Int32>2</sys:Int32><sys:Int32>3</sys:Int32><sys:Int32>4</sys:Int32>
+                            <sys:Int32>5</sys:Int32><sys:Int32>6</sys:Int32><sys:Int32>7</sys:Int32><sys:Int32>8</sys:Int32>
+                        </x:Array>
+                    </ItemsControl.ItemsSource>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Rectangle Style="{StaticResource ShimmerPlaceholder}" 
+                                       Width="180" Height="220" Margin="0,0,16,16"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Grid Mode -->
+                <ItemsControl ItemsSource="{Binding Tables}" 
+                              Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVis}}">
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                        <Condition Binding="{Binding IsFloorPlanMode}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Margin="0,0,-16,-16"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ContentControl Content="{Binding}" Margin="0,0,16,16"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Floor Plan Mode (Canvas) -->
+                <ItemsControl ItemsSource="{Binding Tables}"
+                              Visibility="{Binding IsFloorPlanMode, Converter={StaticResource BoolToVis}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="2000" Height="2000" Background="{DynamicResource WindowBg}" ClipToBounds="True"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid x:Name="TableRoot" Width="180" Height="220">
+                                <Border x:Name="TableBorder" Background="{DynamicResource SurfaceBg}" CornerRadius="20"
+                                        BorderThickness="2" BorderBrush="{DynamicResource SeparatorStroke}">
+                                    <Grid Margin="20">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Text="{Binding Number}" Foreground="{DynamicResource TextPrimaryBrush}" 
+                                                   FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                        
+                                        <!-- Occupancy Dots -->
+                                        <ItemsControl Grid.Row="1" ItemsSource="{Binding OccupancyDots}" 
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Ellipse Width="8" Height="8" Margin="2" 
+                                                             Fill="{DynamicResource TextTertiaryBrush}"/> <!-- Simplified dot for now -->
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <TextBlock Grid.Row="2" Text="{Binding Status}" 
+                                                   HorizontalAlignment="Center" FontSize="12"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Status}" Value="Occupied">
+                                    <Setter TargetName="TableBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status}" Value="Cleaning">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard Storyboard="{StaticResource PulseCleaning}"/>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -15,13 +15,24 @@ namespace Management.Infrastructure.Data
 
             var optionsBuilder = new DbContextOptionsBuilder<GymDbContext>();
 
-            // REPLACE WITH YOUR SUPABASE CONNECTION STRING
-            // Format: "Host=db.supabase.co;Port=5432;Database=postgres;User Id=postgres;Password=YOUR_PASSWORD;"
-            string connectionString = "Host=localhost;Database=GymDb;Username=postgres;Password=password";
+            // Local SQLite for offline-first capability
+            string connectionString = "Data Source=GymManagement.db";
 
-            optionsBuilder.UseNpgsql(connectionString);
+            optionsBuilder.UseSqlite(connectionString);
 
-            return new GymDbContext(optionsBuilder.Options);
+            return new GymDbContext(optionsBuilder.Options, new MockTenantService());
+        }
+
+        private class MockTenantService : Domain.Services.ITenantService
+        {
+            public Guid? GetTenantId() => Guid.Empty;
+            public void SetTenantId(Guid tenantId) { }
+            public Guid? GetUserId() => Guid.Empty;
+            public void SetUserId(Guid userId) { }
+            public string? GetRole() => null;
+            public void SetRole(string role) { }
+            public string GetHardwareId() => "DESIGN-TIME";
+            public void Clear() { }
         }
     }
 }

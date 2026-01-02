@@ -1,0 +1,89 @@
+<Window x:Class="Management.Presentation.Views.Salon.BookingModal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+        mc:Ignorable="d"
+        Title="New Appointment" Height="600" Width="880"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner">
+    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="24" BorderBrush="{DynamicResource FacilityAccentBrush}" BorderThickness="1">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock Text="{DynamicResource TerminologyNewAppointmentLabel}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="Schedule a salon service for a client" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- Content -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource TerminologyClientLabel}" Style="{StaticResource InputLabel}"/>
+                    <ComboBox ItemsSource="{Binding Clients}" 
+                              SelectedValue="{Binding SelectedClientId}" 
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="FullName"
+                              Style="{StaticResource PremiumComboBox}"
+                              Margin="0,0,0,20"/>
+
+                    <TextBlock Text="{DynamicResource TerminologyServiceLabel}" Style="{StaticResource InputLabel}"/>
+                    <ComboBox ItemsSource="{Binding Services}" 
+                              SelectedValue="{Binding SelectedServiceId}" 
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              Style="{StaticResource PremiumComboBox}"
+                              Margin="0,0,0,20"/>
+
+                    <TextBlock Text="STAFF" Style="{StaticResource InputLabel}"/>
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox ItemsSource="{Binding QualifiedStaff}" 
+                                  SelectedValue="{Binding SelectedStaffId}" 
+                                  SelectedValuePath="Id"
+                                  DisplayMemberPath="FullName"
+                                  Style="{StaticResource PremiumComboBox}"
+                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <Button Grid.Column="1" Command="{Binding AutoAssignCommand}" 
+                                Style="{StaticResource GhostButton}" Margin="8,0,0,0" ToolTip="Auto Assign">
+                            <Path Data="M12 2L9.19 8.63 2 12l7.19 3.37L12 22l2.81-6.63L22 12l-7.19-3.37L12 2z" 
+                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Width="16" Height="16"/>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="DATE" Style="{StaticResource InputLabel}"/>
+                    <DatePicker SelectedDate="{Binding BookingDate}" Style="{StaticResource PremiumDatePicker}" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="TIME" Style="{StaticResource InputLabel}"/>
+                    <TextBox Text="{Binding BookingTime, StringFormat=\{0:hh\\:mm\}}" Style="{StaticResource PremiumTextBox}" Margin="0,0,0,20"/>
+
+                    <TextBlock Text="NOTES" Style="{StaticResource InputLabel}"/>
+                    <TextBox Text="{Binding Notes}" Style="{StaticResource PremiumTextBox}" Height="100" AcceptsReturn="True" VerticalContentAlignment="Top"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Footer -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+                <Button Content="CANCEL" Command="{Binding CancelCommand}" Style="{StaticResource GhostButton}" Margin="0,0,12,0"/>
+                <Button Content="BOOK APPOINTMENT" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" Background="{DynamicResource FacilityAccentBrush}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

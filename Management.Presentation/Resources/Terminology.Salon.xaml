@@ -1,0 +1,79 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <!-- SALON TERMINOLOGY -->
+    
+    <!-- Core Entities -->
+    <sys:String x:Key="TerminologyMemberLabel">Client</sys:String>
+    <sys:String x:Key="TerminologyMembersLabel">Clients</sys:String>
+    <sys:String x:Key="TerminologyAddMemberLabel">Add Client</sys:String>
+    <sys:String x:Key="TerminologyMemberManagementLabel">Client Management</sys:String>
+    <sys:String x:Key="TerminologyNoMembersFoundLabel">No clients added</sys:String>
+    <sys:String x:Key="TerminologyAddMemberHintLabel">Add a client to track styles and appointments.</sys:String>
+    
+    <!-- Actions &amp; Events -->
+    <sys:String x:Key="TerminologyCheckInLabel">Arrival</sys:String>
+    <sys:String x:Key="TerminologyAttendanceLabel">Appointments</sys:String>
+    <sys:String x:Key="TerminologyAllCaughtUpLabel">Schedule Cleared</sys:String>
+    <sys:String x:Key="TerminologyNoPendingRegistrationsLabel">No booking requests at the moment.</sys:String>
+    <sys:String x:Key="TerminologyApproveRegistrationAction">Confirm Appointment</sys:String>
+    <sys:String x:Key="TerminologyDeclineLabel">Cancel</sys:String>
+    
+    <!-- Shop / Inventory -->
+    <sys:String x:Key="TerminologyShopTitle">Salon Inventory</sys:String>
+    <sys:String x:Key="TerminologyProductsTab">Retail Products</sys:String>
+    <sys:String x:Key="TerminologySearchProductsPlaceholder">Search shampoos...</sys:String>
+    <sys:String x:Key="TerminologyFilterSupplementsLabel">Haircare</sys:String>
+    <sys:String x:Key="TerminologyFilterApparelLabel">Skincare</sys:String>
+    <sys:String x:Key="TerminologyFilterEquipmentLabel">Styling Tools</sys:String>
+    <sys:String x:Key="TerminologyProductImageLabel">Product Image</sys:String>
+    <sys:String x:Key="TerminologyDragDropImagePlaceholder">Drag &amp; Drop Image</sys:String>
+    <sys:String x:Key="TerminologyProductDetailsHeader">Product Info</sys:String>
+    <sys:String x:Key="TerminologyProductNameLabel">Name</sys:String>
+    <sys:String x:Key="TerminologySKULabel">SKU</sys:String>
+    <sys:String x:Key="TerminologyCategoryLabel">Type</sys:String>
+    <sys:String x:Key="TerminologyPricingInventoryHeader">Retail &amp; Stock</sys:String>
+    <sys:String x:Key="TerminologyPriceLabel">Retail Price</sys:String>
+    <sys:String x:Key="TerminologyCostLabel">Wholesale Cost</sys:String>
+    <sys:String x:Key="TerminologyCurrentStockLabel">On Shelf</sys:String>
+    <sys:String x:Key="TerminologyReorderLevelLabel">Low Stock Alert at</sys:String>
+    <sys:String x:Key="TerminologyDescriptionLabel">Notes</sys:String>
+    <sys:String x:Key="TerminologySaveProductLabel">Save Product</sys:String>
+    <sys:String x:Key="TerminologyLowStockCountFormat">{0} retail items low in stock</sys:String>
+    <sys:String x:Key="TerminologyEditProductLabel">Edit Product</sys:String>
+    <sys:String x:Key="TerminologyDeleteProductLabel">Delete Product</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptyTitle">No retail stock</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptySubtitle">Add retail products to start tracking sales stock.</sys:String>
+    
+    <!-- Finance &amp; Reporting -->
+    <sys:String x:Key="TerminologyMonthlyRevenueLabel">MONTHLY REVENUE</sys:String>
+    <sys:String x:Key="TerminologyWeeklyRevenueLabel">WEEKLY REVENUE</sys:String>
+    <sys:String x:Key="TerminologyTotalRevenueLabel">TOTAL REVENUE (MTD)</sys:String>
+    <sys:String x:Key="TerminologyMRRLabel">Retainers</sys:String>
+    <sys:String x:Key="TerminologyARPULabel">Avg. Ticket</sys:String>
+    <sys:String x:Key="TerminologyChurnRateLabel">Client Churn</sys:String>
+    <sys:String x:Key="TerminologyPaymentSuccessLabel">Service Paid</sys:String>
+    <sys:String x:Key="TerminologyRevenueTrendLabel">Revenue Trend</sys:String>
+    <sys:String x:Key="TerminologyPaymentMethodsLabel">Payment Distribution</sys:String>
+    <sys:String x:Key="TerminologyFailedPaymentsLabel">Outstanding Payments</sys:String>
+    <sys:String x:Key="TerminologyFinancialIntelligenceLabel">Salon Analytics</sys:String>
+    <sys:String x:Key="TerminologyNewMembersLabel">New Clients</sys:String>
+    <sys:String x:Key="TerminologyTotalMembersLabel">Total Clients</sys:String>
+    
+    <!-- Staff &amp; Payroll -->
+    <sys:String x:Key="TerminologyStaffManagementLabel">Stylist Management</sys:String>
+    <sys:String x:Key="TerminologyNoStaffFoundLabel">No stylists added</sys:String>
+    <sys:String x:Key="TerminologyAddStaffHintLabel">Add stylists and assistants.</sys:String>
+    <sys:String x:Key="TerminologySystemPermissionsLabel">Access Rights</sys:String>
+    <sys:String x:Key="TerminologySalaryRestrictedLabel">Commission data hidden.</sys:String>
+    <sys:String x:Key="TerminologyNoUpcomingShiftsLabel">No upcoming appointments scheduled.</sys:String>
+    <sys:String x:Key="TerminologyCompensationLabel">Pay &amp; Commission</sys:String>
+    <sys:String x:Key="TerminologyBaseSalaryLabel">Comm. Rate</sys:String>
+    <sys:String x:Key="TerminologyNextPaydayLabel">Next Pay Cycle:</sys:String>
+    <sys:String x:Key="TerminologyEditConfigLabel">Edit Commission</sys:String>
+    <sys:String x:Key="TerminologyAddBonusLabel">Add Tips/Bonus</sys:String>
+    <sys:String x:Key="TerminologyPaymentHistoryLabel">Pay History</sys:String>
+    <sys:String x:Key="TerminologyNoPaymentHistoryLabel">No pay record found.</sys:String>
+
+</ResourceDictionary>

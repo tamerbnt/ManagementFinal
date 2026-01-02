@@ -1,23 +1,20 @@
 ﻿using System;
-using Management.Domain.Enums; // Required for RegistrationStatus
+using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class RegistrationDto
+    public record RegistrationDto
     {
         public Guid Id { get; set; }
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Source { get; set; } // "Web", "Walk-in"
-
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-
-        // FIX: Added missing Status property
         public RegistrationStatus Status { get; set; }
-
-        public string PreferredPlanName { get; set; }
+        public string PreferredPlanName { get; set; } = string.Empty;
+        public Guid? PreferredPlanId { get; set; }
         public DateTime? PreferredStartDate { get; set; }
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
     }
 }

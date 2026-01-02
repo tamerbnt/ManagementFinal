@@ -1,0 +1,139 @@
+<UserControl x:Class="Management.Presentation.Views.Auth.LicenseEntryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True"
+             Background="{DynamicResource WindowBg}">
+
+    <UserControl.Resources>
+        <Storyboard x:Key="ShimmerAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="ShimmerBrushTransform" 
+                             Storyboard.TargetProperty="X"
+                             From="-1" To="1" Duration="0:0:1.5"/>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- Full Screen Layout (No Card Border) -->
+        <Grid VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520">
+            
+            <!-- ... (ContentStack remains same) -->
+            <StackPanel x:Name="ContentStack">
+                <!-- Razor Illustration: Security Character (Lucide Line Art) -->
+                <Grid Width="96" Height="96" HorizontalAlignment="Center" Margin="0,0,0,32">
+                    <!-- Polka Dot Pattern Decoration -->
+                    <Ellipse Width="80" Height="80" Fill="{DynamicResource PatternPolkaDots}" Opacity="0.1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    
+                    <!-- Security Illustration -->
+                    <Canvas Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <Canvas.RenderTransform>
+                            <ScaleTransform ScaleX="3" ScaleY="3"/>
+                        </Canvas.RenderTransform>
+                        <Path Style="{DynamicResource IconBase}" 
+                              Stroke="#2A2A2A"
+                              Data="{DynamicResource ArtCharacterSecurityOutline}"/>
+                    </Canvas>
+                </Grid>
+
+                <!-- Professional Typography -->
+                <TextBlock Text="{Binding TitleLabel}" 
+                           Style="{DynamicResource Title2}"
+                           Foreground="#1A1A1A"
+                           HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                
+                <TextBlock Text="{Binding DescriptionLabel}" 
+                           Style="{DynamicResource BodySecondary}"
+                           Foreground="#6B7280"
+                           HorizontalAlignment="Center" Margin="0,0,0,32" 
+                           TextWrapping="Wrap" TextAlignment="Center"/>
+
+                <!-- Input Section (8px Grid) -->
+                <StackPanel Margin="0,0,0,32">
+                    <TextBlock Text="{Binding InputHeaderLabel}" 
+                               Style="{DynamicResource Micro}"
+                               Foreground="#9CA3AF"
+                               Margin="0,0,0,8"/>
+                    
+                    <TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource UnderlineTextBox}"
+                             Foreground="#1A1A1A"
+                             FontSize="17" FontWeight="Medium"
+                             Padding="0,0,0,8"
+                             CaretBrush="{DynamicResource FacilityAccentBrush}"
+                             AutomationProperties.Name="License Key Input"/>
+                </StackPanel>
+
+                <!-- Action Button -->
+                <Button Content="{Binding ActionButtonLabel}" 
+                        Command="{Binding ActivateCommand}"
+                        Height="56"
+                        Style="{DynamicResource PrimaryButton}"
+                        FontSize="17" FontWeight="SemiBold"
+                        Cursor="Hand"/>
+                
+                <!-- Footer -->
+                <TextBlock Text="{Binding FooterLabel}" 
+                           Style="{DynamicResource Micro}"
+                           Foreground="#9CA3AF"
+                           HorizontalAlignment="Center" Margin="0,24,0,0"/>
+            </StackPanel>
+
+            <!-- Loading / Shimmer Overlay (Restored & Robust) -->
+            <Grid x:Name="SkeletonOverlay" Visibility="Collapsed" Background="{DynamicResource WindowBg}">
+                <StackPanel>
+                    <!-- Icon Skeleton -->
+                    <Rectangle Width="96" Height="96" RadiusX="48" RadiusY="48" HorizontalAlignment="Center" Margin="0,0,0,32">
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <LinearGradientBrush.RelativeTransform>
+                                    <TranslateTransform x:Name="ShimmerBrushTransform" X="-1"/>
+                                </LinearGradientBrush.RelativeTransform>
+                                <GradientStop Color="#F3F4F6" Offset="0"/>
+                                <GradientStop Color="#E5E7EB" Offset="0.5"/>
+                                <GradientStop Color="#F3F4F6" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    
+                    <!-- Text Skeleton -->
+                    <Rectangle Width="200" Height="24" RadiusX="4" RadiusY="4" HorizontalAlignment="Center" Margin="0,0,0,8" Fill="#F3F4F6"/>
+                    <Rectangle Width="300" Height="16" RadiusX="4" RadiusY="4" HorizontalAlignment="Center" Margin="0,0,0,32" Fill="#F3F4F6"/>
+                    
+                    <!-- Input Skeleton -->
+                    <Rectangle Width="520" Height="56" RadiusX="8" RadiusY="8" Margin="0,0,0,32" Fill="#F3F4F6"/>
+                    
+                    <!-- Button Skeleton -->
+                    <Rectangle Width="520" Height="56" RadiusX="8" RadiusY="8" Fill="#F3F4F6"/>
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+    </Grid>
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="UserControl.Loaded">
+            <BeginStoryboard Storyboard="{StaticResource ShimmerAnimation}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="LoadingStates">
+            <VisualState x:Name="Normal"/>
+            <VisualState x:Name="Loading">
+                <Storyboard>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="SkeletonOverlay" Storyboard.TargetProperty="Visibility">
+                        <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+                    </ObjectAnimationUsingKeyFrames>
+                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentStack" Storyboard.TargetProperty="Visibility">
+                        <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Hidden}"/>
+                    </ObjectAnimationUsingKeyFrames>
+                </Storyboard>
+            </VisualState>
+        </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+</UserControl>

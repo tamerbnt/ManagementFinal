@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Management.Domain.DTOs;
+using Management.Domain.Primitives;
 
 namespace Management.Domain.Services
 {
@@ -15,18 +16,23 @@ namespace Management.Domain.Services
         /// <param name="email">Staff email address.</param>
         /// <param name="password">User password.</param>
         /// <returns>The authenticated Staff Profile (DTO) if successful.</returns>
-        /// <exception cref="Management.Domain.Exceptions.ValidationException">Thrown if credentials are invalid.</exception>
-        Task<StaffDto> LoginAsync(string email, string password);
+        Task<Result<StaffDto>> LoginAsync(string email, string password);
 
         /// <summary>
         /// Signs the current user out and clears local session data.
         /// </summary>
-        Task LogoutAsync();
+        Task<Result> LogoutAsync();
 
         /// <summary>
         /// Checks if a valid session exists (e.g. on App Startup) and retrieves the profile.
         /// </summary>
         /// <returns>The Staff Profile if logged in, otherwise null.</returns>
-        Task<StaffDto> GetCurrentUserAsync();
+        Task<Result<StaffDto>> GetCurrentUserAsync();
+
+        /// <summary>
+        /// Refreshes the current session tokens.
+        /// </summary>
+        /// <returns>Success if refreshed, Failure otherwise.</returns>
+        Task<Result> RefreshSessionAsync();
     }
 }

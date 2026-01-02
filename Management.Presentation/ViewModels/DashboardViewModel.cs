@@ -6,12 +6,15 @@ using System.Windows; // For Point, PointCollection, Clipboard
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading; // For Live Simulation Timer
-using Management.Application.Services;// Assumed Service Layer
-using Management.Domain.DTOs;            // Assumed DTOs
-using Management.Domain.Services; // Assumed Interface Layer
-using Management.Presentation.Extensions; // For RelayCommand/ViewModelBase
 using Management.Presentation.Services;
-using Management.Presentation.ViewModels; // For sub-VMs (ChartPoint)
+using Management.Domain.DTOs;            // Assumed DTOs
+using Management.Domain.Enums;
+using Management.Domain.Services; // Assumed Interface Layer
+using Management.Presentation.Extensions; 
+using Management.Presentation.ViewModels; 
+using Management.Presentation.Services.Restaurant;
+using MediatR;
+using Management.Application.Features.Dashboard.Queries.GetDashboardMetrics;
 using Clipboard = System.Windows.Clipboard;
 using Point = System.Windows.Point;
 using PointCollection = System.Windows.Media.PointCollection;
@@ -20,12 +23,9 @@ namespace Management.Presentation.ViewModels
 {
     public class DashboardViewModel : ViewModelBase
     {
+        private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
-        private readonly IDialogService _dialogService; // ADD THIS
-        private readonly IMemberService _memberService;
-        private readonly IRegistrationService _registrationService;
-        private readonly IAccessEventService _accessEventService;
-        private readonly DispatcherTimer _liveSimulationTimer;
+        private readonly IDialogService _dialogService;
 
         // --- 1. STATE PROPERTIES (Metrics) ---
 
@@ -64,6 +64,28 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _totalMembers, value);
         }
 
+        // Restaurant Metrics
+        private int _activeOrdersCount;
+        public int ActiveOrdersCount
+        {
+            get => _activeOrdersCount;
+            set => SetProperty(ref _activeOrdersCount, value);
+        }
+
+        private decimal _todayRevenue;
+        public decimal TodayRevenue
+        {
+            get => _todayRevenue;
+            set => SetProperty(ref _todayRevenue, value);
+        }
+
+        private double _occupancyPercentage;
+        public double OccupancyPercentage
+        {
+            get => _occupancyPercentage;
+            set => SetProperty(ref _occupancyPercentage, value);
+        }
+
         private bool _isLoading;
         public bool IsLoading
         {
@@ -83,12 +105,11 @@ namespace Management.Presentation.ViewModels
         public ObservableCollection<AccessEventDto> ActivityFeed { get; }
             = new ObservableCollection<AccessEventDto>();
 
-        // We wrap DTOs in a ViewModel to attach commands (Approve/Decline) per item
         public ObservableCollection<RegistrationItemViewModel> Registrations { get; }
             = new ObservableCollection<RegistrationItemViewModel>();
 
         // Chart Data
-        private PointCollection _occupancyPoints;
+        private PointCollection _occupancyPoints = new();
         public PointCollection OccupancyPoints
         {
             get => _occupancyPoints;
@@ -112,15 +133,12 @@ namespace Management.Presentation.ViewModels
 
         public DashboardViewModel(
             INavigationService navigationService,
-            IDialogService dialogService, // INJECT THIS
-            IMemberService memberService,
-            IRegistrationService registrationService,
-            IAccessEventService accessEventService)
+            IDialogService dialogService,
+            IMediator mediator)
         {
             _navigationService = navigationService;
-            _memberService = memberService;
-            _registrationService = registrationService;
-            _accessEventService = accessEventService;
+            _dialogService = dialogService;
+            _mediator = mediator;
 
             // Initialize Commands
             PrintReportCommand = new RelayCommand(ExecutePrintReport);
@@ -131,18 +149,11 @@ namespace Management.Presentation.ViewModels
             CopyChartDataCommand = new RelayCommand(ExecuteCopyChartData);
             SaveChartImageCommand = new RelayCommand(ExecuteSaveChartImage);
 
-            // Initialize Simulation Timer (Runs every 5s to mimic live entry)
-            _liveSimulationTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(5)
-            };
-            _liveSimulationTimer.Tick += OnSimulationTick;
-
             // Load Data
             LoadDashboardDataAsync();
         }
 
-        // --- 5. DATA LOADING & MOCK LOGIC ---
+        // --- 5. DATA LOADING engine ---
 
         private async void LoadDashboardDataAsync()
         {
@@ -151,18 +162,44 @@ namespace Management.Presentation.ViewModels
 
             try
             {
-                // Simulate Network Latency (Skeleton UI Showcase)
-                await Task.Delay(1500);
+                // ARCHITECTURAL FIX: MediatR Query replaces 7 redundant service injections.
+                // Feature Handler manages multi-tenant context and parallel aggregation internally.
+                var metrics = await _mediator.Send(new GetDashboardMetricsQuery());
 
-                // In a real app, these would be Service calls. 
-                // Here we generate realistic Mock Data for the prototype.
-                GenerateMockMetrics();
-                GenerateMockFeed();
-                GenerateMockRegistrations();
-                GenerateMockChartData();
+                TotalActiveMembers = metrics.TotalActiveMembers;
+                PendingRegistrationsCount = metrics.PendingRegistrationsCount;
+                ActivePeopleCount = metrics.ActivePeopleCount;
+                
+                // Facility-specific metrics (Resolved in Application Layer)
+                ActiveOrdersCount = metrics.ActiveOrdersCount;
+                TodayRevenue = metrics.TodayRevenue;
+                OccupancyPercentage = metrics.OccupancyPercentage;
+
+                Registrations.Clear();
+                foreach (var reg in metrics.RecentRegistrations)
+                {
+                    var vm = new RegistrationItemViewModel
+                    {
+                        Id = reg.Id,
+                        FullName = reg.FullName,
+                        Source = reg.Source,
+                        PhoneNumber = reg.PhoneNumber,
+                        CreatedAt = reg.CreatedAt
+                    };
+                    vm.ViewDetailsCommand = new AsyncRelayCommand(async () =>
+                        await _dialogService.ShowCustomDialogAsync<RegistrationDetailViewModel>(vm.Id));
+                    
+                    Registrations.Add(vm);
+                }
+
+                ActivityFeed.Clear();
+                foreach (var evt in metrics.ActivityFeed) ActivityFeed.Add(evt);
 
                 HasData = true;
-                _liveSimulationTimer.Start();
+            }
+            catch (Exception)
+            {
+                // Handle error
             }
             finally
             {
@@ -170,111 +207,10 @@ namespace Management.Presentation.ViewModels
             }
         }
 
-        private void GenerateMockMetrics()
-        {
-            ActivePeopleCount = 42;
-            TotalActiveMembers = 245;
-            ExpiringSoonCount = 12;
-            PendingRegistrationsCount = 5;
-            TotalMembers = 310; // >0 triggers "Content" state instead of "Welcome" state
-        }
-
-        private void GenerateMockFeed()
-        {
-            ActivityFeed.Clear();
-            ActivityFeed.Add(new AccessEventDto { MemberName = "John Doe", FacilityName = "Main Gym", AccessStatus = "Granted", IsAccessGranted = true, Timestamp = DateTime.Now.AddMinutes(-2) });
-            ActivityFeed.Add(new AccessEventDto { MemberName = "Sarah Connor", FacilityName = "Pool", AccessStatus = "Granted", IsAccessGranted = true, Timestamp = DateTime.Now.AddMinutes(-15) });
-            ActivityFeed.Add(new AccessEventDto { MemberName = "Mike Ross", FacilityName = "Main Gym", AccessStatus = "Denied", IsAccessGranted = false, Timestamp = DateTime.Now.AddMinutes(-45) });
-        }
-
-        private void GenerateMockRegistrations()
-        {
-            Registrations.Clear();
-            var mocks = new RegistrationItemViewModel[] { /* ... */ };
-
-            foreach (var item in mocks)
-            {
-                // FIX: Update the command to use DialogService
-                item.ViewDetailsCommand = new AsyncRelayCommand(async () =>
-                    await _dialogService.ShowCustomDialogAsync<RegistrationDetailViewModel>(item.Id));
-
-                Registrations.Add(item);
-            }
-        }
-
-        private void GenerateMockChartData()
-        {
-            // Chart Dimensions (Virtual Canvas)
-            double canvasWidth = 1000;
-            double canvasHeight = 320;
-            double xStep = canvasWidth / 24; // 24 hours
-
-            var rawPoints = new PointCollection();
-            DataPoints.Clear();
-
-            // Simulate Bell Curve Occupancy (Peak at 18:00)
-            for (int hour = 0; hour <= 24; hour++)
-            {
-                double occupancy = 0;
-
-                // Simple bell curve math
-                if (hour >= 6 && hour <= 22)
-                {
-                    double x = hour - 14; // Shift peak
-                    occupancy = 50 * Math.Exp(-(x * x) / 50); // Gaussian
-                }
-
-                // Add some noise
-                occupancy = Math.Max(0, occupancy + (new Random().Next(-2, 3)));
-
-                // Map to Canvas Coords (Y is inverted in WPF)
-                double plotX = hour * xStep;
-                double plotY = canvasHeight - (occupancy * (canvasHeight / 60)); // 60 is max scale
-
-                rawPoints.Add(new Point(plotX, plotY));
-
-                // Add Tooltip Dots for even hours
-                if (hour % 6 == 0)
-                {
-                    DataPoints.Add(new ChartPointViewModel
-                    {
-                        X = plotX,
-                        Y = plotY,
-                        TooltipText = $"{hour:00}:00 - {(int)occupancy} people"
-                    });
-                }
-            }
-
-            OccupancyPoints = rawPoints;
-        }
-
         // --- 6. LIVE SIMULATION LOGIC ---
-
-        private void OnSimulationTick(object sender, EventArgs e)
-        {
-            // Add a new random event to top of list
-            var names = new[] { "Bruce Wayne", "Diana Prince", "Clark Kent", "Barry Allen" };
-            var rnd = new Random();
-            var isGranted = rnd.NextDouble() > 0.1; // 90% success
-
-            var newEvent = new AccessEventDto
-            {
-                MemberName = names[rnd.Next(names.Length)],
-                FacilityName = "Main Gym",
-                AccessStatus = isGranted ? "Granted" : "Denied",
-                IsAccessGranted = isGranted,
-                Timestamp = DateTime.Now
-            };
-
-            // Insert at 0 to trigger SlideDown animation in View
-            ActivityFeed.Insert(0, newEvent);
-
-            // Keep list size manageable
-            if (ActivityFeed.Count > 50) ActivityFeed.RemoveAt(ActivityFeed.Count - 1);
-
-            // Update Counter
-            if (isGranted) ActivePeopleCount++;
-        }
+        // REMOVED FOR PRODUCTION
+        // Real-time updates should be handled via SignalR or Polling in a real Service
+        // For now, checks are manual or periodic via LoadDashboardDataAsync
 
         // --- 7. ACTION HANDLERS ---
 
@@ -284,15 +220,15 @@ namespace Management.Presentation.ViewModels
             // DialogService.ShowToast("Printer", "Sending report to printer...");
         }
 
-        private void ExecuteAddMember()
+        private async void ExecuteAddMember()
         {
-            // Open Modal
-            // _modalService.Show<AddMemberViewModel>();
+             // Open Modal for New Member (Pass null ID)
+             await _dialogService.ShowCustomDialogAsync<MemberDetailViewModel>(null);
         }
 
-        private void ExecuteQuickCheckIn()
+        private async void ExecuteQuickCheckIn()
         {
-            // _modalService.Show<QuickCheckInViewModel>();
+            await _dialogService.ShowCustomDialogAsync<CheckInViewModel>();
         }
 
         private void ExecuteCopyChartData()
@@ -326,20 +262,20 @@ namespace Management.Presentation.ViewModels
     public class RegistrationItemViewModel : ViewModelBase
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-        public string FullName { get; set; }
-        public string Source { get; set; }
-        public string PhoneNumber { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Source { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
 
-        public ICommand ApproveCommand { get; set; }
-        public ICommand DeclineCommand { get; set; }
-        public ICommand ViewDetailsCommand { get; set; }
+        public ICommand? ApproveCommand { get; set; }
+        public ICommand? DeclineCommand { get; set; }
+        public ICommand? ViewDetailsCommand { get; set; }
     }
 
     public class ChartPointViewModel
     {
         public double X { get; set; }
         public double Y { get; set; }
-        public string TooltipText { get; set; }
+        public string TooltipText { get; set; } = string.Empty;
     }
 }

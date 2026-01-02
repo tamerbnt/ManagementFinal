@@ -11,17 +11,17 @@ namespace Management.Application.Stores
     public class ProductStore
     {
         // Fired when a new product is added to the catalog
-        public event Action<ProductDto> ProductAdded;
+        public event Action<ProductDto>? ProductAdded;
 
         // Fired when product details (Name, Price, Category) are modified
-        public event Action<ProductDto> ProductUpdated;
+        public event Action<ProductDto>? ProductUpdated;
 
         // Fired specifically when stock quantities change (e.g. after a Sale or Restock)
         // Subscribers can use this to update just the StockLevel property without re-rendering the whole card.
-        public event Action<ProductDto> StockUpdated;
+        public event Action<ProductDto>? StockUpdated;
 
         // Fired when a product is soft-deleted/archived
-        public event Action<Guid> ProductDeleted;
+        public event Action<Guid>? ProductDeleted;
 
         /// <summary>
         /// Broadcasts the addition of a new product.

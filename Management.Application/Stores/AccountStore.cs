@@ -10,16 +10,23 @@ namespace Management.Application.Stores
     /// </summary>
     public class AccountStore
     {
-        // Event raised when the user logs in, logs out, or profile updates
-        public event Action CurrentAccountChanged;
+        private readonly Domain.Services.ITenantService _tenantService;
 
-        private StaffDto _currentAccount;
+        public AccountStore(Domain.Services.ITenantService tenantService)
+        {
+            _tenantService = tenantService;
+        }
+
+        // Event raised when the user logs in, logs out, or profile updates
+        public event Action? CurrentAccountChanged;
+
+        private StaffDto? _currentAccount;
 
         /// <summary>
         /// The profile of the currently logged-in staff member.
         /// Null if no user is authenticated.
         /// </summary>
-        public StaffDto CurrentAccount
+        public StaffDto? CurrentAccount
         {
             get => _currentAccount;
             private set
@@ -40,6 +47,10 @@ namespace Management.Application.Stores
         public void Login(StaffDto account)
         {
             CurrentAccount = account;
+            if (account != null)
+            {
+                _tenantService.SetTenantId(account.TenantId);
+            }
         }
 
         /// <summary>
@@ -48,6 +59,7 @@ namespace Management.Application.Stores
         public void Logout()
         {
             CurrentAccount = null;
+            _tenantService.Clear();
         }
 
         /// <summary>
@@ -60,7 +72,7 @@ namespace Management.Application.Stores
             if (!IsLoggedIn) return false;
 
             // Assuming StaffDto has a List<PermissionDto> as defined in Domain layer
-            return CurrentAccount.Permissions != null &&
+            return CurrentAccount?.Permissions != null &&
                    CurrentAccount.Permissions.Any(p => p.Name.Equals(permissionName, StringComparison.OrdinalIgnoreCase) && p.IsGranted);
         }
 

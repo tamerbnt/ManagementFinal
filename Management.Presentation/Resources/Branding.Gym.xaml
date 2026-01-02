@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Identity Layer: GYM FACILITY -->
+    
+    <!-- Sidebar -->
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#052659"/>
+    
+    <!-- Accents -->
+    <Color x:Key="FacilityAccentColor">#5B8AB8</Color>
+    <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
+    
+    <!-- Contrast Tokens (Safety) -->
+    <SolidColorBrush x:Key="OnAccentPrimary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OnAccentSecondary" Color="#E0E7FF"/>
+    
+    <!-- Identity Elevation (Dark Mode Glow) -->
+    <Color x:Key="ElevationColor">#5B8AB8</Color>
+    
+    <!-- Aliases for compatibility/semantic naming -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#5B8AB8"/>
+    
+    <!-- Terminology -->
+    <sys:String x:Key="TerminologyLabel" xmlns:sys="clr-namespace:System;assembly=mscorlib">Member</sys:String>
+</ResourceDictionary>

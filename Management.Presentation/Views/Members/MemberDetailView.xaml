@@ -1,0 +1,203 @@
+<UserControl x:Class="Management.Presentation.Views.Members.MemberDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1000"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource WindowBg}"
+             KeyboardNavigation.TabNavigation="Cycle"
+             FocusManager.FocusedElement="{Binding ElementName=FirstFocusableElement}">
+
+    <UserControl.Resources>
+        <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>
+    </UserControl.Resources>
+
+    <!-- Main Layout -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="Auto"/>
+            <!-- Tabs -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+            <RowDefinition Height="Auto"/>
+            <!-- Sticky Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. PROFILE HEADER (Section 26.5) -->
+        <StackPanel Grid.Row="0" 
+                    HorizontalAlignment="Center" 
+                    Margin="{StaticResource MarginSectionVertical}">
+
+            <!-- Avatar (128px Hero) -->
+            <Ellipse Width="{StaticResource SizeAvatarHero}" 
+                     Height="{StaticResource SizeAvatarHero}"
+                     Margin="{StaticResource MarginCardBottom}">
+                <Ellipse.Fill>
+                    <SolidColorBrush Color="{DynamicResource FacilityAccentColor}"/>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- Name -->
+            <TextBlock Text="{Binding FullName}" 
+                       Style="{StaticResource Title2}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+
+            <!-- Meta Data (ID + Status) -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="{StaticResource MarginTextTop}">
+
+                <TextBlock Text="{Binding CardId}" 
+                           Style="{StaticResource BodySecondary}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="{StaticResource MarginSmallRight}"/>
+
+                <TextBlock Text=" &#x2022; " 
+                           Style="{StaticResource BodySecondary}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Status Pill (Global Style) -->
+                <Border Style="{StaticResource StatusBadgeStyle}"
+                        Background="{Binding Status, Converter={StaticResource MemberStatusToBrushConverter}}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Status}" 
+                               Style="{StaticResource Micro}" 
+                               Foreground="{DynamicResource OnAccentPrimary}"
+                               FontWeight="Bold"
+                              />
+                </Border>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 2. NAVIGATION TABS (Section 17.1) -->
+        <!-- Uses Global Styles strictly -->
+        <TabControl Grid.Row="1" 
+                    Background="Transparent" 
+                    BorderThickness="0"
+                    Padding="0"
+                    HorizontalContentAlignment="Center">
+            <TabControl.Resources>
+                <Style TargetType="TabPanel">
+                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                </Style>
+            </TabControl.Resources>
+
+            <!-- Tab 1: Info -->
+            <TabItem Header="Info" Style="{StaticResource GlobalDetailTabStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="{StaticResource MarginSectionTop}">
+                    <Grid MaxWidth="{StaticResource MaxWidthForm}" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{StaticResource WidthFormLabel}"/>
+                            <!-- 160px -->
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- Rows use resource height (e.g. 48px) -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Phone -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource TerminologyPhoneLabel}" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PhoneNumber}" Style="{StaticResource FormValue}"/>
+
+                        <!-- Email -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TerminologyEmailLabel}" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Email}" Style="{StaticResource FormValue}"/>
+
+                        <!-- Membership Start -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource TerminologyStartDateLabel}" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding StartDate, StringFormat='{}{0:MMM dd, yyyy}'}" Style="{StaticResource FormValue}"/>
+
+                        <!-- Membership Expiration -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TerminologyExpirationLabel}" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ExpirationDate, StringFormat='{}{0:MMM dd, yyyy}'}" Style="{StaticResource FormValue}"/>
+
+                        <!-- Emergency Contact -->
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource TerminologyEmergencyLabel}" Style="{StaticResource FormLabel}"/>
+                        <StackPanel Grid.Row="4" Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding EmergencyContactName}" Style="{StaticResource FormValue}"/>
+                            <TextBlock Text="{Binding EmergencyContactPhone}" Style="{StaticResource Caption}" Foreground="{StaticResource TextSecondaryBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 2: History -->
+            <TabItem Header="{DynamicResource TerminologyHistoryLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+                <Grid Margin="{StaticResource MarginSectionTop}">
+                    <!-- Placeholder for AccessEventList Component -->
+                    <TextBlock Text="{DynamicResource TerminologyRecentAccessHistoryLabel}"
+                               Style="{StaticResource BodySecondary}"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 3: Notes -->
+            <TabItem Header="Notes" Style="{StaticResource GlobalDetailTabStyle}">
+                <Grid Margin="{StaticResource MarginSectionTop}" MaxWidth="{StaticResource MaxWidthForm}">
+                    <TextBox Style="{StaticResource UnderlineTextBox}"
+                             Text="{Binding Notes}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             MinHeight="200"
+                             VerticalAlignment="Top"
+                             Tag="Add internal notes here..."/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 3. STICKY FOOTER (Section 26.5) -->
+        <Border Grid.Row="3" 
+                Background="{DynamicResource WindowBg}"
+                BorderBrush="{StaticResource SeparatorBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="{StaticResource PaddingCard}">
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Close/Back -->
+                <Button x:Name="FirstFocusableElement"
+                        Content="{DynamicResource TerminologyCloseLabel}" 
+                        Command="{Binding CloseCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Edit -->
+                <Button Content="{DynamicResource TerminologyEditDetailsLabel}" 
+                        Command="{Binding EditCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Renew -->
+                <Button Content="{DynamicResource TerminologyRenewMembershipLabel}" 
+                        Command="{Binding RenewCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Deactivate (Destructive Global Style) -->
+                <Button Content="{DynamicResource TerminologyDeactivateLabel}" 
+                        Command="{Binding DeactivateCommand}"
+                        Style="{StaticResource DestructiveButtonStyle}"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

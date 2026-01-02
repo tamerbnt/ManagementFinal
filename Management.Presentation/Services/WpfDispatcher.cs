@@ -33,5 +33,10 @@ namespace Management.Presentation.Services
 
         public Task InvokeAsync(Action action, DispatcherPriority priority) =>
             _dispatcher.InvokeAsync(action, priority).Task;
+
+        public Task InvokeAsync(Func<Task> function)
+        {
+            return _dispatcher.InvokeAsync(function).Task.Unwrap();
+        }
     }
 }

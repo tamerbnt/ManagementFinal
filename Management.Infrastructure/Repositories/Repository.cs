@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Management.Domain.Interfaces; // Keeping consistency with previous step
 using Management.Domain.Models;
+using Management.Domain.Primitives;
 using Management.Infrastructure.Data;
 using Management.Domain.Exceptions;
 

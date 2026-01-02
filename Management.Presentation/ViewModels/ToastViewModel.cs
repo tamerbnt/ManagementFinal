@@ -1,47 +1,79 @@
 ﻿// Management.Presentation/ViewModels/ToastViewModel.cs
 using System;
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Management.Presentation.Extensions;
 
 namespace Management.Presentation.ViewModels
 {
     // Ensure this Enum exists in your namespace, or move it here
     public enum ToastType { Success, Error, Warning, Info }
 
-    public partial class ToastViewModel : ObservableObject
+    public class ToastViewModel : ViewModelBase
     {
-        // 1. Existing Observable Properties
-        [ObservableProperty]
+        // 1. Observable Properties with manual backing fields
         private string _message = string.Empty;
+        public string Message
+        {
+            get => _message;
+            set => SetProperty(ref _message, value);
+        }
 
-        [ObservableProperty]
         private string _styleKey = "ToastInfoStyle";
+        public string StyleKey
+        {
+            get => _styleKey;
+            set => SetProperty(ref _styleKey, value);
+        }
 
-        [ObservableProperty]
         private bool _isMouseOver;
+        public bool IsMouseOver
+        {
+            get => _isMouseOver;
+            set
+            {
+                if (SetProperty(ref _isMouseOver, value))
+                {
+                    OnIsMouseOverChanged(value);
+                }
+            }
+        }
 
-        [ObservableProperty]
         private bool _isExiting;
+        public bool IsExiting
+        {
+            get => _isExiting;
+            set => SetProperty(ref _isExiting, value);
+        }
 
-        [ObservableProperty]
         private bool _isPaused;
+        public bool IsPaused
+        {
+            get => _isPaused;
+            set => SetProperty(ref _isPaused, value);
+        }
 
-        [ObservableProperty]
         private DateTime _createdAt = DateTime.Now;
+        public DateTime CreatedAt
+        {
+            get => _createdAt;
+            set => SetProperty(ref _createdAt, value);
+        }
 
-        // 2. Added Type property as requested
-        [ObservableProperty]
+        // 2. Type property
         private ToastType _type;
+        public ToastType Type
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
+        }
 
-        // 3. FIX: Changed from { get; } to { get; set; } 
-        // This allows NotificationService to overwrite it with its own logic.
-        public ICommand DismissCommand { get; set; }
+        // 3. Command property - allows NotificationService to overwrite it
+        public ICommand DismissCommand { get; set; } = null!;
 
+        public string Number { get; set; } = string.Empty;
         public Guid Id { get; set; } = Guid.NewGuid();
 
-        // 4. FIX: Added Empty Constructor
-        // This fixes the "No argument corresponds..." error in your Service
+        // 4. Empty Constructor
         public ToastViewModel()
         {
             // Default command if none is injected
@@ -63,7 +95,7 @@ namespace Management.Presentation.ViewModels
             OnDismissRequested?.Invoke(this);
         }
 
-        partial void OnIsMouseOverChanged(bool value)
+        private void OnIsMouseOverChanged(bool value)
         {
             // Logic handled by binding in Service
         }

@@ -100,12 +100,12 @@
 								<!-- Facility/Time -->
 							</Grid.ColumnDefinitions>
 
-							<!-- Status Strip (Left Edge) -->
+							<!-- Status Strip (Left Edge) - 4px Width mandated -->
 							<Rectangle Grid.Column="0"
                                        Fill="{Binding IsAccessGranted, Converter={StaticResource BoolToSuccessErrorBrushConverter}}"
                                        RadiusX="2" RadiusY="2"
                                        HorizontalAlignment="Left"
-                                       Width="6"/>
+                                       Width="4"/>
 
 							<!-- Avatar -->
 							<Ellipse Grid.Column="1"
@@ -113,7 +113,7 @@
                                      Height="{StaticResource SizeAvatarMedium}"
                                      Margin="16,0,16,0">
 								<Ellipse.Fill>
-									<SolidColorBrush Color="{StaticResource AccentLight}"/>
+									<SolidColorBrush Color="{DynamicResource AccentColor}"/>
 								</Ellipse.Fill>
 								<!-- Image Binding would go here -->
 							</Ellipse>
@@ -122,10 +122,10 @@
 							<StackPanel Grid.Column="2" VerticalAlignment="Center">
 								<TextBlock Text="{Binding MemberName}"
                                            Style="{StaticResource BodyMedium}"
-                                           Foreground="{StaticResource TextPrimary}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
 								<TextBlock Text="{Binding CardId}"
                                            Style="{StaticResource Caption}"
-                                           Foreground="{StaticResource TextSecondary}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="{StaticResource MarginTextTop}"/>
 							</StackPanel>
 
@@ -136,11 +136,11 @@
                                         Margin="{StaticResource MarginCardRight}">
 								<TextBlock Text="{Binding FacilityName}"
                                            Style="{StaticResource Body}"
-                                           Foreground="{StaticResource TextPrimary}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            HorizontalAlignment="Right"/>
 								<TextBlock Text="{Binding Timestamp, Converter={StaticResource RelativeTimeConverter}}"
                                            Style="{StaticResource Caption}"
-                                           Foreground="{StaticResource TextTertiary}"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            HorizontalAlignment="Right"
                                            Margin="{StaticResource MarginTextTop}"/>
 							</StackPanel>
@@ -151,7 +151,7 @@
                                 Uses Semantic Brush (NewItemFlashBrush).
                             -->
 							<Rectangle x:Name="FlashOverlay"
-                                       Fill="{StaticResource NewItemFlashBrush}"
+                                       Fill="{DynamicResource NewItemFlashBrush}"
                                        Opacity="0"
                                        IsHitTestVisible="False"
                                        RadiusX="{StaticResource RadiusCardStandardDouble}"
@@ -177,13 +177,13 @@
                       Margin="{StaticResource MarginSectionBottom}"
                       HorizontalAlignment="Center"/>
 
-				<TextBlock Text="No activity yet today"
+				<TextBlock Text="{DynamicResource TerminologyNoActivityYetLabel}"
                            Style="{StaticResource Title2}"
                            Foreground="{StaticResource TextSecondary}"
                            HorizontalAlignment="Center"
                            Margin="{StaticResource MarginTextBottom}"/>
 
-				<TextBlock Text="Access events will appear here in real-time"
+				<TextBlock Text="{DynamicResource TerminologyAccessEventsWillAppearLabel}"
                            Style="{StaticResource Body}"
                            Foreground="{StaticResource TextTertiary}"
                            HorizontalAlignment="Center"/>

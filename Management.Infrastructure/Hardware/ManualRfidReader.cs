@@ -11,7 +11,7 @@ namespace Management.Infrastructure.Hardware
     /// </summary>
     public class ManualRfidReader : IRfidReader
     {
-        public event Action<string> CardScanned;
+        public event Action<string>? CardScanned;
 
         public bool IsConnected { get; private set; }
 

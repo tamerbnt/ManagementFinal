@@ -33,9 +33,9 @@ namespace Management.Presentation.Converters
                 else if (s == "pending") key = "StatusWarningBrush";
             }
 
-            return System.Windows.Application.Current.TryFindResource(key) as Brush;
+            return (System.Windows.Application.Current.TryFindResource(key) as Brush)!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

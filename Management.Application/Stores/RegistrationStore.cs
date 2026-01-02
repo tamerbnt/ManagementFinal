@@ -11,14 +11,14 @@ namespace Management.Application.Stores
     public class RegistrationStore
     {
         // Fired when a new lead is created (e.g. via API sync or manual add)
-        public event Action<RegistrationDto> RegistrationAdded;
+        public event Action<RegistrationDto>? RegistrationAdded;
 
         // Fired when lead details (Notes, Plan) are edited
-        public event Action<RegistrationDto> RegistrationUpdated;
+        public event Action<RegistrationDto>? RegistrationUpdated;
 
         // Fired when a lead is Approved (Converted) or Declined (Removed).
         // The ID is passed so subscribers can remove it from their local lists.
-        public event Action<Guid> RegistrationProcessed;
+        public event Action<Guid>? RegistrationProcessed;
 
         /// <summary>
         /// Broadcasts that a new registration has entered the system.

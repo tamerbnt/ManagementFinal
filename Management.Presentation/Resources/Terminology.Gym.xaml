@@ -1,0 +1,95 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <!-- GYM TERMINOLOGY -->
+    
+    <!-- Core Entities -->
+    <sys:String x:Key="TerminologyMemberLabel">Member</sys:String>
+    <sys:String x:Key="TerminologyMembersLabel">Members</sys:String>
+    <sys:String x:Key="TerminologyAddMemberLabel">Add Member</sys:String>
+    <sys:String x:Key="TerminologyMemberManagementLabel">Member Management</sys:String>
+    <sys:String x:Key="TerminologyNoMembersFoundLabel">No members added</sys:String>
+    <sys:String x:Key="TerminologyAddMemberHintLabel">Add a member to start tracking attendance and plans.</sys:String>
+    
+    <!-- Actions &amp; Events -->
+    <sys:String x:Key="TerminologyCheckInLabel">Check-In</sys:String>
+    <sys:String x:Key="TerminologyAttendanceLabel">Attendance</sys:String>
+    <sys:String x:Key="TerminologyAllCaughtUpLabel">All Caught Up!</sys:String>
+    <sys:String x:Key="TerminologyNoPendingRegistrationsLabel">No pending registrations at the moment.</sys:String>
+    <sys:String x:Key="TerminologyApproveRegistrationAction">Approve Registration</sys:String>
+    <sys:String x:Key="TerminologyDeclineLabel">Decline</sys:String>
+    
+    <!-- Shop / Inventory -->
+    <sys:String x:Key="TerminologyShopTitle">Gym Pro Shop</sys:String>
+    <sys:String x:Key="TerminologyProductsTab">Supplements &amp; Apparel</sys:String>
+    <sys:String x:Key="TerminologySearchProductsPlaceholder">Search equipment...</sys:String>
+    <sys:String x:Key="TerminologyFilterSupplementsLabel">Supplements</sys:String>
+    <sys:String x:Key="TerminologyFilterApparelLabel">Apparel</sys:String>
+    <sys:String x:Key="TerminologyFilterEquipmentLabel">Equipment</sys:String>
+    <sys:String x:Key="TerminologyProductImageLabel">Product Image</sys:String>
+    <sys:String x:Key="TerminologyDragDropImagePlaceholder">Drag &amp; Drop Image</sys:String>
+    <sys:String x:Key="TerminologyProductDetailsHeader">Product Details</sys:String>
+    <sys:String x:Key="TerminologyProductNameLabel">Product Name</sys:String>
+    <sys:String x:Key="TerminologySKULabel">SKU</sys:String>
+    <sys:String x:Key="TerminologyCategoryLabel">Category</sys:String>
+    <sys:String x:Key="TerminologyPricingInventoryHeader">Pricing &amp; Inventory</sys:String>
+    <sys:String x:Key="TerminologyPriceLabel">Price</sys:String>
+    <sys:String x:Key="TerminologyCostLabel">Cost</sys:String>
+    <sys:String x:Key="TerminologyCurrentStockLabel">In Stock</sys:String>
+    <sys:String x:Key="TerminologyReorderLevelLabel">Low Stock Alert at</sys:String>
+    <sys:String x:Key="TerminologyDescriptionLabel">Description</sys:String>
+    <sys:String x:Key="TerminologySaveProductLabel">Save Product</sys:String>
+    <sys:String x:Key="TerminologyLowStockCountFormat">{0} items low in stock</sys:String>
+    <sys:String x:Key="TerminologyEditProductLabel">Edit Product</sys:String>
+    <sys:String x:Key="TerminologyDeleteProductLabel">Delete Product</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptyTitle">No inventory tracked</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptySubtitle">Add products to start tracking gym stock.</sys:String>
+    
+    <!-- POS / Checkout -->
+    <sys:String x:Key="TerminologyCheckoutTitle">Member Checkout</sys:String>
+    <sys:String x:Key="TerminologyTotalDueLabel">Total Due</sys:String>
+    <sys:String x:Key="TerminologyPaymentCash">Cash Payment</sys:String>
+    <sys:String x:Key="TerminologyPaymentCard">Card / Terminal</sys:String>
+    <sys:String x:Key="TerminologyPaymentAccount">Charge to Account</sys:String>
+    <sys:String x:Key="TerminologyAmountTenderedLabel">Amount Received</sys:String>
+    <sys:String x:Key="TerminologyChangeDueLabel">Change to Member</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountPrefix">This will charge </sys:String>
+    <sys:String x:Key="TerminologyAccountLabel">Member Account</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountSuffix"> directly.</sys:String>
+    <sys:String x:Key="TerminologyAccountBalanceNote">Available balance is checked on completion.</sys:String>
+    <sys:String x:Key="TerminologyCompleteSaleLabel">Complete Member Sale</sys:String>
+    <sys:String x:Key="TerminologyCurrentSaleLabel">Active Member Sale</sys:String>
+    <sys:String x:Key="TerminologySubtotalLabel">Subtotal</sys:String>
+    
+    <!-- Finance &amp; Reporting -->
+    <sys:String x:Key="TerminologyMonthlyRevenueLabel">MONTHLY REVENUE</sys:String>
+    <sys:String x:Key="TerminologyWeeklyRevenueLabel">WEEKLY REVENUE</sys:String>
+    <sys:String x:Key="TerminologyTotalRevenueLabel">TOTAL REVENUE (MTD)</sys:String>
+    <sys:String x:Key="TerminologyMRRLabel">MRR</sys:String>
+    <sys:String x:Key="TerminologyARPULabel">ARPU</sys:String>
+    <sys:String x:Key="TerminologyChurnRateLabel">Churn Rate</sys:String>
+    <sys:String x:Key="TerminologyPaymentSuccessLabel">Payment Success</sys:String>
+    <sys:String x:Key="TerminologyRevenueTrendLabel">Revenue Trend</sys:String>
+    <sys:String x:Key="TerminologyPaymentMethodsLabel">Payment Methods</sys:String>
+    <sys:String x:Key="TerminologyFailedPaymentsLabel">Failed Payments</sys:String>
+    <sys:String x:Key="TerminologyFinancialIntelligenceLabel">Financial Intelligence</sys:String>
+    <sys:String x:Key="TerminologyNewMembersLabel">New Members</sys:String>
+    <sys:String x:Key="TerminologyTotalMembersLabel">Total Members</sys:String>
+    
+    <!-- Staff &amp; Payroll -->
+    <sys:String x:Key="TerminologyStaffManagementLabel">Staff Management</sys:String>
+    <sys:String x:Key="TerminologyNoStaffFoundLabel">No staff members added</sys:String>
+    <sys:String x:Key="TerminologyAddStaffHintLabel">Add staff to assign roles and permissions.</sys:String>
+    <sys:String x:Key="TerminologySystemPermissionsLabel">System Permissions</sys:String>
+    <sys:String x:Key="TerminologySalaryRestrictedLabel">Salary history restricted.</sys:String>
+    <sys:String x:Key="TerminologyNoUpcomingShiftsLabel">No upcoming shifts.</sys:String>
+    <sys:String x:Key="TerminologyCompensationLabel">Compensation</sys:String>
+    <sys:String x:Key="TerminologyBaseSalaryLabel">Base Salary</sys:String>
+    <sys:String x:Key="TerminologyNextPaydayLabel">Next Payday:</sys:String>
+    <sys:String x:Key="TerminologyEditConfigLabel">Edit Config</sys:String>
+    <sys:String x:Key="TerminologyAddBonusLabel">Add Bonus</sys:String>
+    <sys:String x:Key="TerminologyPaymentHistoryLabel">Payment History</sys:String>
+    <sys:String x:Key="TerminologyNoPaymentHistoryLabel">No payment history found.</sys:String>
+
+</ResourceDictionary>

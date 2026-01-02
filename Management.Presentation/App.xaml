@@ -1,25 +1,119 @@
 ﻿<Application x:Class="Management.Presentation.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-
-
-    xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
-
-
-    xmlns:access="clr-namespace:Management.Presentation.Views.AccessControl">
-
+             xmlns:local="clr-namespace:Management.Presentation"
+             xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
+             xmlns:dashboard="clr-namespace:Management.Presentation.Views.Dashboard" 
+             xmlns:access="clr-namespace:Management.Presentation.Views.AccessControl" 
+             xmlns:members="clr-namespace:Management.Presentation.Views.Members" 
+             xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations" 
+             xmlns:history="clr-namespace:Management.Presentation.Views.History"
+             xmlns:finance="clr-namespace:Management.Presentation.Views.FinanceAndStaff"
+             xmlns:shop="clr-namespace:Management.Presentation.Views.Shop" 
+             xmlns:settings="clr-namespace:Management.Presentation.Views.Settings" 
+             xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+             xmlns:restaurant="clr-namespace:Management.Presentation.Views.Restaurant"
+             xmlns:salon="clr-namespace:Management.Presentation.Views.Salon"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters">
 
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- 
-                    THE SMOKE TEST MERGE
-                    This attempts to load your Resource architecture.
-                    If this fails, the app will crash immediately on startup.
-                    If this works, your file structure is perfect.
-                -->
-                <ResourceDictionary Source="pack://application:,,,/Management.Presentation;component/Resources/Theme.xaml"/>
+
+
+                <!-- 1. BASE PRIMITIVES -->
+                <ResourceDictionary Source="Resources/Spacing.xaml"/>
+                <ResourceDictionary Source="Resources/Typography.xaml"/>
+                <ResourceDictionary Source="Resources/Iconography.xaml"/>
+                <ResourceDictionary Source="Resources/Colors.Base.xaml"/>
+                <ResourceDictionary Source="Resources/Animations.xaml"/>
+                <ResourceDictionary Source="Resources/Shadows.xaml"/>
+                <ResourceDictionary Source="Resources/Converters.xaml"/>
+                
+                <!-- 2. WORKSPACE LAYER (Theme) -->
+                <ResourceDictionary Source="Resources/Theme.Light.xaml"/>
+
+                <!-- 3. IDENTITY LAYER (Branding) -->
+                <ResourceDictionary Source="Resources/Branding.Gym.xaml"/>
+                <ResourceDictionary Source="Resources/Terminology.Base.xaml"/>
+                <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
+
+                <!-- 4. COMPONENTS & SHARED -->
+                <ResourceDictionary Source="Resources/Components.xaml"/>
+                <ResourceDictionary Source="Resources/SharedResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <DataTemplate DataType="{x:Type viewmodels:DashboardViewModel}">
+                <dashboard:DashboardView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:AccessControlViewModel}">
+                <access:AccessControlView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:MembersViewModel}">
+                <members:MembersView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:RegistrationsViewModel}">
+                <reg:RegistrationsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:HistoryViewModel}">
+                <history:HistoryView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:FinanceAndStaffViewModel}">
+                <finance:FinanceAndStaffView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ShopViewModel}">
+                <shop:ShopView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
+                <settings:SettingsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+                <auth:LoginView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:SessionExpiredViewModel}">
+                <auth:SessionExpiredView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:MemberDetailViewModel}">
+                <members:MemberDetailView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:RegistrationDetailViewModel}">
+                <reg:RegistrationDetailView/>
+            </DataTemplate>
+            <converters:FacilityToVisibilityConverter x:Key="FacilityToVis"/>
+            <converters:IntToVisibilityConverter x:Key="IntToVis"/>
+            <converters:TimeSpanToOverdueBrushConverter x:Key="TimeSpanToOverdueBrush"/>
+            <converters:DensityToHeightConverter x:Key="DensityToHeight"/>
+            <converters:MinuteToPixelConverter x:Key="MinuteToPixel"/>
+            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
+                <reg:ConfirmDeclineModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ProductDetailViewModel}">
+                <shop:ProductDetailView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:CheckoutViewModel}">
+                <shop:CheckoutView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurant:TablesViewModel}">
+                <restaurant:TablesView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurant:KitchenDisplayViewModel}">
+                <restaurant:KitchenDisplayView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type salon:AppointmentsViewModel}">
+                <salon:AppointmentsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type salon:ServicesViewModel}">
+                <salon:ServicesView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:LicenseEntryViewModel}">
+                <auth:LicenseEntryView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:OnboardingOwnerViewModel}">
+                <auth:OnboardingOwnerView/>
+            </DataTemplate>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

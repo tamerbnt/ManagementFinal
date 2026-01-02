@@ -38,7 +38,8 @@
                 Height="{StaticResource SizeStatTileHeight}"
                 Padding="{StaticResource PaddingCard}"
                 Margin="{StaticResource MarginCardGap}"
-                AutomationProperties.Name="People Inside">
+                AutomationProperties.Name="People Inside"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=!Restaurant}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -49,10 +50,10 @@
                 <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Ellipse Width="{StaticResource SizeIconCircleLarge}" 
                              Height="{StaticResource SizeIconCircleLarge}" 
-                             Fill="{StaticResource PrimaryAccentBrush}" 
+                          Fill="{DynamicResource FacilityAccentBrush}" 
                              Opacity="0.3"/>
                     <Path Data="{StaticResource IconRunner}" 
-                          Fill="{StaticResource PrimaryAccentBrush}" 
+                          Fill="{DynamicResource FacilityAccentBrush}" 
                           Style="{StaticResource IconLarge}"
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Center"/>
@@ -62,11 +63,11 @@
                 <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
                     <TextBlock Text="{Binding ActivePeopleCount, FallbackValue='0'}" 
                                Style="{StaticResource Hero}" 
-                               Foreground="{StaticResource TextPrimary}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                AutomationProperties.LiveSetting="Polite"/>
                     <TextBlock Text="Currently Active" 
                                Style="{StaticResource BodySecondary}" 
-                               Foreground="{StaticResource TextSecondary}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
                                Margin="{StaticResource MarginTextTop}"/>
                 </StackPanel>
             </Grid>
@@ -80,7 +81,8 @@
                 Height="{StaticResource SizeStatTileHeight}"
                 Padding="{StaticResource PaddingCard}"
                 Margin="{StaticResource MarginCardGap}"
-                AutomationProperties.Name="Total Active Members">
+                AutomationProperties.Name="Total Active Members"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=Gym}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -90,10 +92,10 @@
                 <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Ellipse Width="{StaticResource SizeIconCircleLarge}" 
                              Height="{StaticResource SizeIconCircleLarge}" 
-                             Fill="{StaticResource StatusSuccessBrush}" 
+                             Fill="{DynamicResource StatusSuccessBrush}" 
                              Opacity="0.3"/>
                     <Path Data="{StaticResource IconCheck}" 
-                          Fill="{StaticResource StatusSuccessBrush}" 
+                          Fill="{DynamicResource StatusSuccessBrush}" 
                           Style="{StaticResource IconLarge}"
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Center"/>
@@ -102,11 +104,11 @@
                 <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
                     <TextBlock Text="{Binding TotalActiveMembers, FallbackValue='0'}" 
                                Style="{StaticResource Hero}" 
-                               Foreground="{StaticResource TextPrimary}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                AutomationProperties.LiveSetting="Polite"/>
                     <TextBlock Text="Total Active" 
                                Style="{StaticResource BodySecondary}" 
-                               Foreground="{StaticResource TextSecondary}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
                                Margin="{StaticResource MarginTextTop}"/>
                 </StackPanel>
             </Grid>
@@ -120,7 +122,8 @@
                 Height="{StaticResource SizeStatTileHeight}"
                 Padding="{StaticResource PaddingCard}"
                 Margin="{StaticResource MarginCardGap}"
-                AutomationProperties.Name="Members Expiring Soon">
+                AutomationProperties.Name="Members Expiring Soon"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=Gym}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -130,10 +133,10 @@
                 <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Ellipse Width="{StaticResource SizeIconCircleLarge}" 
                              Height="{StaticResource SizeIconCircleLarge}" 
-                             Fill="{StaticResource StatusWarningBrush}" 
+                             Fill="{DynamicResource StatusWarningBrush}" 
                              Opacity="0.3"/>
                     <Path Data="{StaticResource IconClock}" 
-                          Fill="{StaticResource StatusWarningBrush}" 
+                          Fill="{DynamicResource StatusWarningBrush}" 
                           Style="{StaticResource IconLarge}"
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Center"/>
@@ -142,17 +145,91 @@
                 <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
                     <TextBlock Text="{Binding ExpiringSoonCount, FallbackValue='0'}" 
                                Style="{StaticResource Hero}" 
-                               Foreground="{StaticResource TextPrimary}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                AutomationProperties.LiveSetting="Polite"/>
                     <TextBlock Text="Next 7 Days" 
                                Style="{StaticResource BodySecondary}" 
-                               Foreground="{StaticResource TextSecondary}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
                                Margin="{StaticResource MarginTextTop}"/>
                 </StackPanel>
             </Grid>
             <Border.ToolTip>
                 <ToolTip Content="Memberships expiring within the next 7 days"/>
             </Border.ToolTip>
+        </Border>
+
+        <!-- RESTAURANT TILES -->
+
+        <!-- 1. Active Orders (Blue) -->
+        <Border Style="{StaticResource ElevatedCardStyle}"
+                Height="{StaticResource SizeStatTileHeight}"
+                Padding="{StaticResource PaddingCard}"
+                Margin="{StaticResource MarginCardGap}"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=Restaurant}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Ellipse Width="{StaticResource SizeIconCircleLarge}" Height="{StaticResource SizeIconCircleLarge}" 
+                             Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.3"/>
+                    <Path Data="{StaticResource IconCart}" Fill="{DynamicResource FacilityAccentBrush}" Style="{StaticResource IconLarge}"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                    <TextBlock Text="{Binding ActiveOrdersCount, FallbackValue='0'}" Style="{StaticResource Hero}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Active Orders" Style="{StaticResource BodySecondary}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="{StaticResource MarginTextTop}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. Today's Revenue (Success/Green) -->
+        <Border Style="{StaticResource ElevatedCardStyle}"
+                Height="{StaticResource SizeStatTileHeight}"
+                Padding="{StaticResource PaddingCard}"
+                Margin="{StaticResource MarginCardGap}"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=Restaurant}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Ellipse Width="{StaticResource SizeIconCircleLarge}" Height="{StaticResource SizeIconCircleLarge}" 
+                             Fill="{DynamicResource StatusSuccessBrush}" Opacity="0.3"/>
+                    <Path Data="{StaticResource IconCheck}" Fill="{DynamicResource StatusSuccessBrush}" Style="{StaticResource IconLarge}"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                    <TextBlock Text="{Binding TodayRevenue, StringFormat={}{0:C}}" Style="{StaticResource Hero}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Today's Revenue" Style="{StaticResource BodySecondary}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="{StaticResource MarginTextTop}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 3. Occupancy % (Warning/Yellow) -->
+        <Border Style="{StaticResource ElevatedCardStyle}"
+                Height="{StaticResource SizeStatTileHeight}"
+                Padding="{StaticResource PaddingCard}"
+                Margin="{StaticResource MarginCardGap}"
+                Visibility="{Binding CurrentFacility, Converter={StaticResource FacilityToVis}, ConverterParameter=Restaurant}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Ellipse Width="{StaticResource SizeIconCircleLarge}" Height="{StaticResource SizeIconCircleLarge}" 
+                             Fill="{DynamicResource StatusWarningBrush}" Opacity="0.3"/>
+                    <Path Data="{StaticResource IconClock}" Fill="{DynamicResource StatusWarningBrush}" Style="{StaticResource IconLarge}"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                    <TextBlock Text="{Binding OccupancyPercentage, StringFormat={}{0}%}" Style="{StaticResource Hero}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Table Occupancy" Style="{StaticResource BodySecondary}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="{StaticResource MarginTextTop}"/>
+                </StackPanel>
+            </Grid>
         </Border>
 
         <!-- 4. Pending Registrations (Red) - INTERACTIVE -->
@@ -177,10 +254,10 @@
                 <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
                     <Ellipse Width="{StaticResource SizeIconCircleLarge}" 
                              Height="{StaticResource SizeIconCircleLarge}" 
-                             Fill="{StaticResource StatusErrorBrush}" 
+                             Fill="{DynamicResource StatusErrorBrush}" 
                              Opacity="0.3"/>
                     <Path Data="{StaticResource IconFileText}" 
-                          Fill="{StaticResource StatusErrorBrush}" 
+                          Fill="{DynamicResource StatusErrorBrush}" 
                           Style="{StaticResource IconLarge}"
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Center"/>
@@ -189,11 +266,11 @@
                 <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
                     <TextBlock Text="{Binding PendingRegistrationsCount, FallbackValue='0'}" 
                                Style="{StaticResource Hero}" 
-                               Foreground="{StaticResource TextPrimary}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
                                AutomationProperties.LiveSetting="Polite"/>
                     <TextBlock Text="Awaiting Review" 
                                Style="{StaticResource BodySecondary}" 
-                               Foreground="{StaticResource TextSecondary}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
                                Margin="{StaticResource MarginTextTop}"/>
                 </StackPanel>
             </Grid>

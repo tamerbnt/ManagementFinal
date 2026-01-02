@@ -1,0 +1,169 @@
+<UserControl x:Class="Management.Presentation.Views.Registrations.RegistrationDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="600"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource WindowBg}">
+
+    <UserControl.Resources>
+        <!-- 
+            Note: Converters for Source/Status colors assumed global or 
+            passed via ViewModel properties for the Badge Background 
+        -->
+        <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+            <RowDefinition Height="Auto"/>
+            <!-- Sticky Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. HEADER (Profile Summary) -->
+        <StackPanel Grid.Row="0" 
+                    HorizontalAlignment="Center" 
+                    Margin="{StaticResource MarginSectionVertical}">
+
+            <!-- Avatar (96px) -->
+            <Ellipse Width="{StaticResource SizeAvatarLarge}" 
+                     Height="{StaticResource SizeAvatarLarge}"
+                     Fill="{DynamicResource FacilityAccentBrush}"
+                     Margin="{StaticResource MarginCardBottom}"/>
+
+            <!-- Name -->
+            <TextBlock Text="{Binding FullName}" 
+                       Style="{StaticResource Title2}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"/>
+
+            <!-- Metadata Row -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="{StaticResource MarginTextTop}">
+
+                <!-- Source Badge -->
+                <Border Style="{StaticResource StatusBadgeStyle}"
+                        Background="{DynamicResource SurfaceBg}"
+                        VerticalAlignment="Center"
+                        Margin="{StaticResource MarginSmallRight}">
+                    <TextBlock Text="{Binding Source}" 
+                               Style="{StaticResource Micro}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontWeight="Bold"/>
+                               
+                </Border>
+
+                <!-- Time Ago -->
+                <TextBlock Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" 
+                           Style="{StaticResource Caption}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- 2. DETAIL CONTENT -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled">
+
+            <Grid MaxWidth="{StaticResource MaxWidthForm}" 
+                  HorizontalAlignment="Center"
+                  Margin="{StaticResource PaddingCard}">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="{StaticResource WidthFormLabel}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <!-- Contact Info -->
+                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                    <RowDefinition Height="{StaticResource SizeFormRowGap}"/>
+
+                    <!-- Request Details -->
+                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                    <RowDefinition Height="{StaticResource SizeFormRowGap}"/>
+
+                    <!-- Notes -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Phone -->
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource TerminologyPhoneLabel}" Style="{StaticResource FormLabel}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PhoneNumber}" Style="{StaticResource FormValue}"/>
+
+                <!-- Email -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TerminologyEmailLabel}" Style="{StaticResource FormLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Email}" Style="{StaticResource FormValue}"/>
+
+                <!-- Plan Request -->
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TerminologyRequestedPlanLabel}" Style="{StaticResource FormLabel}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RequestedPlanName}" Style="{StaticResource FormValue}" FontWeight="Medium"/>
+
+                <!-- Preferred Start -->
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource TerminologyPreferredStartLabel}" Style="{StaticResource FormLabel}"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding PreferredStartDate, StringFormat='{}{0:MMM dd, yyyy}'}" Style="{StaticResource FormValue}"/>
+
+                <!-- Notes / Comments -->
+                <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource TerminologyUserNotesLabel}" Style="{StaticResource FormLabel}" VerticalAlignment="Top" Margin="0,8,0,0"/>
+                <TextBlock Grid.Row="6" Grid.Column="1" 
+                           Text="{Binding Notes}" 
+                           Style="{StaticResource FormValue}" 
+                           TextWrapping="Wrap"
+                           LineHeight="24"
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- 3. STICKY ACTION FOOTER -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource SurfaceBg}"
+                BorderBrush="{StaticResource SeparatorBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="{StaticResource PaddingCard}">
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+
+                <!-- Close -->
+                <Button Content="{DynamicResource TerminologyCloseLabel}" 
+                        Command="{Binding CloseCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Decline (Destructive) -->
+                <Button Content="{DynamicResource TerminologyDeclineLabel}" 
+                        Command="{Binding DeclineCommand}"
+                        Style="{StaticResource DestructiveButtonStyle}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <!-- Approve (Success) -->
+                <Button Style="{StaticResource SuccessButtonStyle}"
+                        Command="{Binding ApproveCommand}"
+                        MinWidth="{StaticResource SizeButtonMinWidth}">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconCheck}" 
+                              Fill="{DynamicResource TextOnAccentBrush}" 
+                              Style="{StaticResource IconSmall}"
+                              Margin="{StaticResource MarginIconRight}"/>
+                        <TextBlock Text="{DynamicResource TerminologyApproveRegistrationAction}"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</UserControl>

@@ -12,13 +12,11 @@ namespace Management.Presentation.Converters
         {
             if (value is int stock)
             {
-                if (stock == 0) return System.Windows.Application.Current.TryFindResource("StatusErrorBrush");
-                if (stock <= 10) return System.Windows.Application.Current.TryFindResource("StatusWarningBrush");
-                return System.Windows.Application.Current.TryFindResource("StatusSuccessBrush"); // Or TextPrimary
+                return (System.Windows.Application.Current.TryFindResource(stock == 0 ? "StatusErrorBrush" : (stock <= 10 ? "StatusWarningBrush" : "StatusSuccessBrush")) as Brush)!;
             }
-            return null;
+            return null!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

@@ -1,6 +1,6 @@
 using System.Windows.Controls;
 
-namespace Management.Presentation.Dashboard.Sections
+namespace Management.Presentation.Views.Dashboard.Sections
 {
     /// <summary>
     /// Interaction logic for OccupancyChartSection.xaml

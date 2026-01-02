@@ -8,7 +8,7 @@ namespace Management.Presentation.Converters
     public class BoolToVisibilityConverter : IValueConverter
     {
         // Allow setting a default parameter on the converter instance (so XAML can set ConverterParameter on the resource)
-        public string ConverterParameter { get; set; }
+        public string? ConverterParameter { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

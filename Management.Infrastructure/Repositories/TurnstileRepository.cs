@@ -10,7 +10,7 @@ namespace Management.Infrastructure.Repositories
     {
         public TurnstileRepository(GymDbContext context) : base(context) { }
 
-        public async Task<Turnstile> GetByHardwareIdAsync(string hardwareId)
+        public async Task<Turnstile?> GetByHardwareIdAsync(string hardwareId)
         {
             // Returns null if not found, allowing service to handle registration logic
             return await _dbSet.FirstOrDefaultAsync(t => t.HardwareId == hardwareId);

@@ -8,7 +8,7 @@ namespace Management.Domain.Interfaces
     public interface IRegistrationRepository : IRepository<Registration>
     {
         // For Inbox (RegistrationsView)
-        Task<IEnumerable<Registration>> GetPendingAsync();
+        Task<IEnumerable<Registration>> GetPendingRegistrationsAsync();
 
         // For Dashboard Badge
         Task<int> GetCountByStatusAsync(RegistrationStatus status);

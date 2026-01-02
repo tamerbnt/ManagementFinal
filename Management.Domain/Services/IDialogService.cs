@@ -21,12 +21,13 @@ namespace Management.Domain.Services
         Task ShowAlertAsync(
             string title,
             string message,
-            string buttonText = "OK");
+            string buttonText = "OK",
+            bool isSuccess = false);
 
         /// <summary>
         /// Shows a custom content modal (e.g., Product Form, Checkout).
         /// </summary>
-        Task ShowCustomDialogAsync<TViewModel>(object parameter = null)
+        Task ShowCustomDialogAsync<TViewModel>(object? parameter = null)
             where TViewModel : class;
 
         /// <summary>

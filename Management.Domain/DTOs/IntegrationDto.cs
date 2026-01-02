@@ -1,10 +1,11 @@
 ﻿namespace Management.Domain.DTOs
 {
-    public class IntegrationDto
+    public record IntegrationDto
     {
-        public string Name { get; set; } // "Stripe"
-        public string Description { get; set; }
-        public string IconKey { get; set; } // "IconCreditCard"
-        public bool IsConnected { get; set; }
+        public Guid Id { get; set; }
+        public string ProviderName { get; set; } = string.Empty;
+        public string ApiKey { get; set; } = string.Empty;
+        public string ApiUrl { get; set; } = string.Empty;
+        public bool IsEnabled { get; set; }
     }
 }

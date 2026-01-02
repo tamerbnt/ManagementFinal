@@ -141,7 +141,7 @@ namespace Management.Presentation.Behaviors
             AssociatedObject.BeginAnimation(UIElement.OpacityProperty, fadeAnim);
         }
 
-        private UIElement GetFlashOverlay()
+        private UIElement? GetFlashOverlay()
         {
             if (string.IsNullOrEmpty(FlashOverlayName)) return null;
             return AssociatedObject.FindName(FlashOverlayName) as UIElement;

@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Dashboard.Sections.RecentRegistrationsSection"
+<UserControl x:Class="Management.Presentation.Views.Dashboard.Sections.RecentRegistrationsSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -157,7 +157,7 @@
                                             ToolTip="Approve Registration">
                                         <StackPanel Orientation="Horizontal">
                                             <Path Data="{StaticResource IconCheck}" 
-                                                  Fill="{StaticResource TextOnDark}"
+                                                  Fill="{DynamicResource OnAccentPrimary}"
                                                   Style="{StaticResource IconSmall}"
                                                   Margin="{StaticResource MarginIconRight}"/>
                                             <TextBlock Text="Approve"/>
@@ -170,7 +170,7 @@
                                             ToolTip="Decline Registration">
                                         <StackPanel Orientation="Horizontal">
                                             <Path Data="{StaticResource IconClose}" 
-                                                  Fill="{StaticResource TextOnDark}"
+                                                  Fill="{DynamicResource OnAccentPrimary}"
                                                   Style="{StaticResource IconSmall}"
                                                   Margin="{StaticResource MarginIconRight}"/>
                                             <TextBlock Text="Decline"/>
@@ -189,7 +189,7 @@
               Visibility="{Binding Registrations.Count, Converter={StaticResource ZeroIsVisibleConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Path Data="{StaticResource IconCelebration}"
-                      Fill="{StaticResource PrimaryAccentBrush}"
+                      Fill="{DynamicResource FacilityAccentBrush}"
                       Width="64" Height="64"
                       Stretch="Uniform"
                       Margin="{StaticResource MarginSectionBottom}"

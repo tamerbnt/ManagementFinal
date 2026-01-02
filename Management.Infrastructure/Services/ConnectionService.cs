@@ -9,7 +9,7 @@ namespace Management.Infrastructure.Services
     public class ConnectionService : IConnectionService, IDisposable
     {
         // Event required by MainViewModel
-        public event Action<bool> ConnectionStatusChanged;
+        public event Action<bool>? ConnectionStatusChanged;
 
         // Configuration
         private const string PingTarget = "8.8.8.8"; // Google DNS
@@ -24,7 +24,7 @@ namespace Management.Infrastructure.Services
             _ = CheckAndNotifyAsync();
         }
 
-        private async void OnNetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        private async void OnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
         {
             // OS says network changed, verify actual internet access
             await CheckAndNotifyAsync();

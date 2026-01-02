@@ -10,7 +10,7 @@ namespace Management.Infrastructure.Repositories
     {
         public IntegrationRepository(GymDbContext context) : base(context) { }
 
-        public async Task<IntegrationConfig> GetByProviderAsync(string providerName)
+        public async Task<IntegrationConfig?> GetByProviderAsync(string providerName)
         {
             return await _dbSet.FirstOrDefaultAsync(i => i.ProviderName == providerName);
         }

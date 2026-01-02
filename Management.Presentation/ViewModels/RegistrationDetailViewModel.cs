@@ -2,12 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services;
-using Management.Application.Stores; // If you have RegistrationStore here
 using Management.Domain.DTOs;
 using Management.Domain.Services;
-using Management.Presentation.Extensions;
 using Management.Presentation.Services;
+using Management.Presentation.Extensions;
 
 namespace Management.Presentation.ViewModels
 {
@@ -17,7 +15,7 @@ namespace Management.Presentation.ViewModels
         private readonly IDialogService _dialogService; // Used to close itself
         // private readonly RegistrationStore _registrationStore; // Optional if you need store updates
 
-        private RegistrationDto _registration;
+        private RegistrationDto _registration = null!;
         public RegistrationDto Registration
         {
             get => _registration;
@@ -50,26 +48,41 @@ namespace Management.Presentation.ViewModels
             DeclineCommand = new AsyncRelayCommand(ExecuteDecline);
         }
 
-        public async Task OnNavigatedToAsync(object parameter, CancellationToken cancellationToken = default)
+        public async Task OnNavigatedTo(object parameter)
         {
             if (parameter is Guid id)
             {
-                Registration = await _registrationService.GetRegistrationAsync(id);
+                var result = await _registrationService.GetRegistrationAsync(id);
+                if (result.IsSuccess)
+                {
+                    Registration = result.Value;
+                }
             }
+        }
+
+        public Task OnNavigatedFrom()
+        {
+            return Task.CompletedTask;
         }
 
         private async Task ExecuteApprove()
         {
             if (Registration == null) return;
-            await _registrationService.ApproveRegistrationAsync(Registration.Id);
-            // Close after action
+            var result = await _registrationService.ApproveRegistrationAsync(Registration.Id);
+            if (result.IsSuccess)
+            {
+                // Signify success/close
+            }
         }
 
         private async Task ExecuteDecline()
         {
             if (Registration == null) return;
-            await _registrationService.DeclineRegistrationAsync(Registration.Id);
-            // Close after action
+            var result = await _registrationService.DeclineRegistrationAsync(Registration.Id);
+            if (result.IsSuccess)
+            {
+                // Signify success/close
+            }
         }
     }
 }

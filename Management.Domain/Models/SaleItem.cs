@@ -1,17 +1,39 @@
 ﻿using System;
+using Management.Domain.Primitives;
+using Management.Domain.ValueObjects;
 
 namespace Management.Domain.Models
 {
     public class SaleItem : Entity
     {
-        public Guid SaleId { get; set; }
-        public Guid ProductId { get; set; }
+        public Guid SaleId { get; private set; }
+        public Guid ProductId { get; private set; }
+        public string ProductNameSnapshot { get; private set; }
+        
+        // Storing as Money
+        public Money UnitPriceSnapshot { get; private set; }
+        public int Quantity { get; private set; }
 
-        // Snapshot Data (Price changes over time, historical records must not change)
-        public string ProductNameSnapshot { get; set; }
-        public decimal UnitPriceSnapshot { get; set; }
+        public Money TotalLinePrice => new Money(UnitPriceSnapshot.Amount * Quantity, UnitPriceSnapshot.Currency);
 
-        public int Quantity { get; set; }
-        public decimal TotalLinePrice => UnitPriceSnapshot * Quantity;
+        private SaleItem(Guid id, Guid saleId, Guid productId, string productNameSnapshot, Money unitPriceSnapshot, int quantity)
+            : base(id)
+        {
+            SaleId = saleId;
+            ProductId = productId;
+            ProductNameSnapshot = productNameSnapshot;
+            UnitPriceSnapshot = unitPriceSnapshot;
+            Quantity = quantity;
+        }
+
+        private SaleItem() { ProductNameSnapshot = string.Empty; UnitPriceSnapshot = null!; }
+
+        public static Result<SaleItem> Create(Guid saleId, Guid productId, string productName, Money unitPrice, int quantity)
+        {
+            if (quantity <= 0)
+                return Result.Failure<SaleItem>(new Error("SaleItem.InvalidQuantity", "Quantity must be greater than zero"));
+
+            return Result.Success(new SaleItem(Guid.NewGuid(), saleId, productId, productName, unitPrice, quantity));
+        }
     }
 }

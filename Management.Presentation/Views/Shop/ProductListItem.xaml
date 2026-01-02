@@ -1,0 +1,122 @@
+<UserControl x:Class="Management.Presentation.Views.Shop.ProductListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="320" d:DesignWidth="240"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <!-- FIX 1: Removed invalid 'ConverterParameter' from Resource definition -->
+    </UserControl.Resources>
+
+    <!-- Main Card Container -->
+    <Border Style="{StaticResource ElevatedCardStyleInteractive}"
+            Height="{StaticResource SizeProductCardHeight}"
+            Padding="0"
+            AutomationProperties.Name="{Binding Name, StringFormat='Product: {0}'}">
+
+        <Border.InputBindings>
+            <MouseBinding MouseAction="LeftClick" Command="{Binding AddToCartCommand}"/>
+        </Border.InputBindings>
+
+        <!-- Hover Reveal -->
+        <i:Interaction.Behaviors>
+            <behaviors:HoverRevealBehavior TargetName="ManagementOverlay"
+                                           Duration="{StaticResource DurationStandard}"/>
+        </i:Interaction.Behaviors>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{StaticResource SizeProductImageHeight}"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. PRODUCT IMAGE AREA -->
+            <Grid Grid.Row="0">
+                <!-- Fallback Icon -->
+                <!-- FIX 2: Hardcoded CornerRadius to "24,24,0,0" (Top Left, Top Right, Bot Right, Bot Left) -->
+                <!-- FIX 3: Added ConverterParameter='Inverse' to Binding -->
+                <Border Background="{DynamicResource CardBackgroundBrush}"
+                        CornerRadius="{DynamicResource RadiusCardStandardTop}"
+                        Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter='Inverse'}">
+                    <Path Data="{StaticResource IconShoppingBag}"
+                          Fill="{DynamicResource TextTertiaryBrush}"
+                          Style="{StaticResource IconHero}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Opacity="0.5"/>
+                </Border>
+
+                <!-- Actual Image -->
+                <Border CornerRadius="{DynamicResource RadiusCardStandardTop}"
+                        Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}}">
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding ImageUrl}" Stretch="UniformToFill"/>
+                    </Border.Background>
+                </Border>
+
+                <!-- GLOBAL MANAGEMENT OVERLAY -->
+                <!-- Note: Ensure 'GlobalManagementOverlayStyle' exists in Components.xaml, otherwise remove this Style attribute -->
+                <ContentControl x:Name="ManagementOverlay"
+                                IsHitTestVisible="False">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button Command="{Binding EditProductCommand}"
+                                ToolTip="{DynamicResource TerminologyEditProductLabel}"
+                                Style="{StaticResource IconButtonStyle}"
+                                Margin="4">
+                            <Path Data="{StaticResource IconEdit}" Fill="White" Style="{StaticResource IconSmall}"/>
+                        </Button>
+                        <Button Command="{Binding DeleteProductCommand}"
+                                ToolTip="{DynamicResource TerminologyDeleteProductLabel}"
+                                Style="{StaticResource IconButtonStyle}"
+                                Margin="4">
+                            <Path Data="{StaticResource IconDelete}" Fill="White" Style="{StaticResource IconSmall}"/>
+                        </Button>
+                    </StackPanel>
+                </ContentControl>
+            </Grid>
+
+            <!-- 2. CONTENT AREA -->
+            <StackPanel Grid.Row="1"
+                        Margin="{StaticResource PaddingCardCompact}"
+                        VerticalAlignment="Center">
+
+                <!-- Name -->
+                <TextBlock Text="{Binding Name}"
+                           Style="{StaticResource BodyMedium}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           TextTrimming="CharacterEllipsis"
+                           MaxHeight="48"/>
+
+                <!-- Price -->
+                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}"
+                           Style="{StaticResource Title3}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Margin="{StaticResource MarginTextTop}"/>
+
+                <!-- Stock Indicator -->
+                <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginSmallTop}">
+                    <Ellipse Width="{DynamicResource SizeStockIndicator}"
+                             Height="{DynamicResource SizeStockIndicator}"
+                             Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}"
+                             VerticalAlignment="Center"
+                             Margin="{StaticResource MarginSmallRight}"/>
+
+                    <TextBlock Text="{Binding StockStatusText}"
+                               Style="{StaticResource Caption}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,4 +1,6 @@
 using Management.Domain.Models;
+using Management.Domain.Models.Resilience;
+using Management.Domain.Primitives;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,22 @@ namespace Management.Infrastructure.Data
 {
     public class GymDbContext : DbContext
     {
+        private readonly Domain.Services.ITenantService _tenantService;
+
+        public GymDbContext(DbContextOptions<GymDbContext> options, Domain.Services.ITenantService tenantService) : base(options)
+        {
+            _tenantService = tenantService;
+        }
+
+        // Helper for Query Filter to access Service dynamically per-context
+        internal Guid? GetCurrentTenantId() => _tenantService.GetTenantId();
+
+        // Helper method to apply filter via reflection
+        void ConfigureGlobalFilters<T>(ModelBuilder builder) where T : Entity
+        {
+            builder.Entity<T>().HasQueryFilter(e => !e.IsDeleted && e.TenantId == _tenantService.GetTenantId());
+        }
+
         // --- 1. CORE ENTITIES ---
         public DbSet<Member> Members { get; set; }
         public DbSet<StaffMember> StaffMembers { get; set; }
@@ -31,38 +49,65 @@ namespace Management.Infrastructure.Data
         // --- 4. CONFIGURATION ---
         public DbSet<GymSettings> GymSettings { get; set; }
         public DbSet<FacilityZone> FacilityZones { get; set; }
-        public DbSet<IntegrationConfig> IntegrationConfigs { get; set; }
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
+        public DbSet<OfflineAction> OfflineActions { get; set; }
 
-        public GymDbContext(DbContextOptions<GymDbContext> options) : base(options)
-        {
-        }
+
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var entries = ChangeTracker.Entries<Entity>();
+            var currentTenantId = _tenantService.GetTenantId();
+            var entries = ChangeTracker.Entries<Entity>().ToList();
+            var outboxItems = new List<OutboxMessage>();
 
             foreach (var entry in entries)
             {
-                // 1. Automatic Auditing
+                // 1. Automatic Auditing & Sync Tracking
+                string? action = null;
+
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdateTimestamp(); // Assuming we use the method or setting property
+                    if (entry.Entity.TenantId == Guid.Empty && currentTenantId.HasValue)
+                    {
+                        entry.Entity.TenantId = currentTenantId.Value;
+                    }
+                    action = "Insert";
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdateTimestamp();
+                    action = "Update";
                 }
-
-                // 2. Intercept Deletes for Soft-Delete (Shadow Property)
-                // Note: Only applies to entities where we enabled the shadow property below
-                if (entry.State == EntityState.Deleted)
+                else if (entry.State == EntityState.Deleted)
                 {
+                    action = "Delete";
                     if (entry.Metadata.FindProperty("IsDeleted") != null)
                     {
                         entry.State = EntityState.Modified;
                         entry.CurrentValues["IsDeleted"] = true;
                     }
                 }
+
+                if (action != null)
+                {
+                    var outbox = new OutboxMessage
+                    {
+                        EntityType = entry.Entity.GetType().Name,
+                        EntityId = entry.Entity.Id.ToString(),
+                        Action = action,
+                        ContentJson = System.Text.Json.JsonSerializer.Serialize(entry.Entity),
+                        CreatedBy = _tenantService.GetUserId(), // Captured from Tenant Context
+                        IsProcessed = false
+                    };
+                    if (currentTenantId.HasValue) outbox.TenantId = currentTenantId.Value;
+                    outboxItems.Add(outbox);
+                }
+            }
+
+            if (outboxItems.Any())
+            {
+                OutboxMessages.AddRange(outboxItems);
             }
 
             return base.SaveChangesAsync(cancellationToken);
@@ -71,6 +116,22 @@ namespace Management.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Ignore Supabase types that might be accidentally discovered
+            modelBuilder.Ignore<Supabase.Gotrue.ClientOptions>();
+            modelBuilder.Ignore<Supabase.Postgrest.ClientOptions>();
+            modelBuilder.Ignore<Supabase.Realtime.ClientOptions>();
+            modelBuilder.Ignore<Supabase.Storage.ClientOptions>();
+            modelBuilder.Ignore<Supabase.SupabaseOptions>();
+
+            // Fail-safe: Ignore any type named 'ClientOptions' that might have been discovered transitively
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes().ToList())
+            {
+                if (entityType.Name.Contains("ClientOptions") || entityType.Name.Contains("SupabaseOptions"))
+                {
+                    modelBuilder.Ignore(entityType.ClrType);
+                }
+            }
 
             // --- DECIMAL PRECISION (Financials) ---
             var decimalProps = new[]
@@ -82,14 +143,42 @@ namespace Management.Infrastructure.Data
                 (typeof(Sale), nameof(Sale.SubtotalAmount)),
                 (typeof(Sale), nameof(Sale.TaxAmount)),
                 (typeof(SaleItem), nameof(SaleItem.UnitPriceSnapshot)),
-                (typeof(PayrollEntry), nameof(PayrollEntry.Amount)),
-                (typeof(PayrollEntry), nameof(PayrollEntry.Bonus))
+                (typeof(PayrollEntry), nameof(PayrollEntry.Amount))
             };
 
             foreach (var (type, prop) in decimalProps)
             {
-                modelBuilder.Entity(type).Property(prop).HasColumnType("decimal(18,2)");
+                // If it's a Money VO, we map the underlying Amount
+                if (prop == "Price" || prop == "Cost" || prop == "TotalAmount" || prop == "SubtotalAmount" || prop == "TaxAmount" || prop == "UnitPriceSnapshot" || prop == "Amount")
+                {
+                    modelBuilder.Entity(type).OwnsOne(type.GetProperty(prop)!.PropertyType, prop)
+                        .Property("Amount").HasColumnType("decimal(18,2)");
+                }
+                else
+                {
+                    modelBuilder.Entity(type).Property(prop).HasColumnType("decimal(18,2)");
+                }
             }
+
+            // --- VALUE OBJECT MAPPING (Email, Phone) ---
+            // --- VALUE OBJECT MAPPING (Email, Phone) ---
+            modelBuilder.Entity<Member>().OwnsOne(m => m.Email, e => 
+            {
+                e.Property(x => x.Value).HasColumnName("Email");
+                e.HasIndex(x => x.Value).IsUnique(); 
+            });
+            modelBuilder.Entity<Member>().OwnsOne(m => m.PhoneNumber, p => p.Property(x => x.Value).HasColumnName("PhoneNumber"));
+            modelBuilder.Entity<Member>().OwnsOne(m => m.EmergencyContactPhone, p => p.Property(x => x.Value).HasColumnName("EmergencyContactPhone"));
+
+            modelBuilder.Entity<StaffMember>().OwnsOne(s => s.Email, e => 
+            {
+                e.Property(x => x.Value).HasColumnName("Email");
+                e.HasIndex(x => x.Value).IsUnique();
+            });
+            modelBuilder.Entity<StaffMember>().OwnsOne(s => s.PhoneNumber, p => p.Property(x => x.Value).HasColumnName("PhoneNumber"));
+
+            modelBuilder.Entity<Registration>().OwnsOne(r => r.Email, e => e.Property(x => x.Value).HasColumnName("Email"));
+            modelBuilder.Entity<Registration>().OwnsOne(r => r.PhoneNumber, p => p.Property(x => x.Value).HasColumnName("PhoneNumber"));
 
             // --- RELATIONSHIPS ---
             modelBuilder.Entity<Sale>()
@@ -107,33 +196,35 @@ namespace Management.Infrastructure.Data
             // --- INDEXING ---
             modelBuilder.Entity<AccessEvent>().HasIndex(e => e.Timestamp);
             modelBuilder.Entity<Sale>().HasIndex(e => e.Timestamp);
-            modelBuilder.Entity<Member>().HasIndex(m => m.Email).IsUnique();
-            modelBuilder.Entity<StaffMember>().HasIndex(s => s.Email).IsUnique();
+            // Member.Email and StaffMember.Email indexes moved to OwnsOne block above
             modelBuilder.Entity<Product>().HasIndex(p => p.SKU).IsUnique();
 
-            // --- SOFT DELETE CONFIGURATION (Shadow Property) ---
-            // Apply to specific entities that require history preservation
-            var softDeleteEntities = new[]
+            // --- MULTI-TENANCY & SOFT DELETE ---
+            var configureMethod = typeof(GymDbContext).GetMethod(nameof(ConfigureGlobalFilters), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                typeof(Member), typeof(StaffMember), typeof(Product),
-                typeof(MembershipPlan), typeof(Registration)
-            };
+                if (typeof(Entity).IsAssignableFrom(entityType.ClrType))
+                {
+                    // 1. Configure "IsDeleted" and "TenantId"
+                    modelBuilder.Entity(entityType.ClrType).Property(nameof(Entity.IsDeleted));
+                    modelBuilder.Entity(entityType.ClrType).Property(nameof(Entity.TenantId));
 
-            foreach (var entityType in softDeleteEntities)
+                    // 2. Global Query Filter via Helper Method
+                    // This ensures the Lambda is compiled effectively accessing 'this._tenantService'
+                    configureMethod!.MakeGenericMethod(entityType.ClrType).Invoke(this, new object[] { modelBuilder });
+                }
+            }
+
+            // --- CONCURRENCY ---
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                // 1. Add "IsDeleted" boolean shadow property
-                modelBuilder.Entity(entityType).Property<bool>("IsDeleted");
-
-                // 2. Add Global Query Filter
-                // Logic: "SELECT * FROM Table WHERE IsDeleted = false"
-                var param = System.Linq.Expressions.Expression.Parameter(entityType, "e");
-                var prop = System.Linq.Expressions.Expression.PropertyOrField(param, "IsDeleted");
-                var falseConst = System.Linq.Expressions.Expression.Constant(false);
-                var lambda = System.Linq.Expressions.Expression.Lambda(
-                    System.Linq.Expressions.Expression.Equal(prop, falseConst),
-                    param);
-
-                modelBuilder.Entity(entityType).HasQueryFilter(lambda);
+                if (typeof(Entity).IsAssignableFrom(entityType.ClrType))
+                {
+                    modelBuilder.Entity(entityType.ClrType)
+                        .Property("RowVersion")
+                        .IsRowVersion();
+                }
             }
         }
     }

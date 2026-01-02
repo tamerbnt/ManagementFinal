@@ -11,7 +11,7 @@
 
 
 <UserControl.Resources>
-	<converters:WindowWidthToMarginConverter x:Key="WindowWidthToMarginConverter"/>
+	<!-- Removed redundant WindowWidthToMarginConverter -->
 </UserControl.Resources>
 
 <!-- Global Screen Entrance Animation -->
@@ -32,8 +32,8 @@
 </UserControl.Triggers>
 
 <Grid>
-	<!-- 1. Main Content Layout (Responsive Margins) -->
-	<Grid Margin="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource WindowWidthToMarginConverter}}">
+	<!-- 1. Main Content Layout (Fixed 48px Padding) -->
+	<Grid Margin="48,0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<!-- Header -->
@@ -47,15 +47,16 @@
 
 		<!-- Header -->
 		<TextBlock Grid.Row="0"
-                   Text="Access Control"
+                   Text="{DynamicResource TerminologyAccessControlLabel}"
                    Style="{StaticResource Title1}"
+                   Foreground="{DynamicResource TextPrimaryBrush}"
                    Margin="{StaticResource MarginSectionBottom}"/>
 
 		<!-- 
             Hero Counter Card 
             Uses global style 'HeroLiveCounterCardStyle' which encapsulates:
             - Width 400px
-            - Shadow Level 3
+            - Shadow Level 3 (Glow)
             - Corner Radius 24px
             - Padding 48px
         -->
@@ -65,17 +66,17 @@
 
 			<StackPanel HorizontalAlignment="Center">
 				<!-- Label -->
-				<TextBlock Text="PEOPLE INSIDE"
+				<TextBlock Text="{DynamicResource TerminologyPeopleInsideLabel}"
                            Style="{StaticResource Micro}"
-                           Foreground="{StaticResource TextTertiary}"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
                            HorizontalAlignment="Center"
-                           
                            FontWeight="Medium"/>
 
-				<!-- Count (Uses global 'HeroLive' style for 96pt sizing) -->
+				<!-- Count (Uses global 'HeroLive' style for 96pt sizing + Tabular Alignment) -->
 				<TextBlock Text="{Binding PeopleInsideCount}"
                            Style="{StaticResource HeroLive}"
-                           Foreground="{StaticResource TextPrimary}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Typography.NumeralAlignment="Tabular"
                            HorizontalAlignment="Center"
                            Margin="{StaticResource MarginTextVertical}"/>
 
@@ -90,9 +91,9 @@
 					<Ellipse Style="{StaticResource LiveIndicatorStyle}"
                              Margin="{StaticResource MarginSmallRight}"/>
 
-					<TextBlock Text="Live"
+					<TextBlock Text="{DynamicResource TerminologyLiveLabel}"
                                Style="{StaticResource Caption}"
-                               Foreground="{StaticResource StatusSuccessBrush}"
+                               Foreground="{DynamicResource StatusSuccessBrush}"
                                VerticalAlignment="Center"/>
 				</StackPanel>
 			</StackPanel>
@@ -113,6 +114,7 @@
 			<TextBlock Grid.Row="0"
                        Text="Real-Time Feed"
                        Style="{StaticResource Title3}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
                        Margin="{StaticResource MarginHeaderBottom}"/>
 
 			<!-- Injected Feed Component -->
@@ -131,10 +133,11 @@
 	<Button Style="{StaticResource FloatingActionButtonStyle}"
             Command="{Binding SimulateScanCommand}">
 		<StackPanel Orientation="Horizontal">
-			<TextBlock Text="⚡"
-                       FontSize="20"
-                       Margin="{StaticResource MarginSmallRight}"/>
-			<TextBlock Text="Simulate Scan"
+			<Path Data="{StaticResource IconBolt}"
+                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                  Style="{StaticResource IconSmall}"
+                  Margin="{StaticResource MarginSmallRight}"/>
+			<TextBlock Text="{DynamicResource TerminologySimulateScanLabel}"
                        FontSize="15"
                        FontWeight="Medium"/>
 		</StackPanel>

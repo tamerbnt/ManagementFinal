@@ -17,7 +17,7 @@ namespace Management.Infrastructure.Repositories
         {
             return await _dbSet.AsNoTracking()
                 .Where(p => p.StaffMemberId == staffId)
-                .OrderByDescending(p => p.PayDate)
+                .OrderByDescending(p => p.PayPeriodEnd)
                 .ToListAsync();
         }
     }

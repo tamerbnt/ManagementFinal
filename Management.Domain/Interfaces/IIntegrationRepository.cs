@@ -5,6 +5,6 @@ namespace Management.Domain.Interfaces
 {
     public interface IIntegrationRepository : IRepository<IntegrationConfig>
     {
-        Task<IntegrationConfig> GetByProviderAsync(string providerName);
+        Task<IntegrationConfig?> GetByProviderAsync(string providerName);
     }
 }

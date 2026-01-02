@@ -1,0 +1,135 @@
+<UserControl x:Class="Management.Presentation.Views.Settings.SettingsPopup"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Width="720" Height="600">
+    
+    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="24" BorderThickness="1" BorderBrush="{DynamicResource SeparatorStroke}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Title -->
+                <RowDefinition Height="*"/>    <!-- Tabs -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{DynamicResource TerminologySystemSettingsLabel}" Style="{StaticResource Title2}" Margin="32,32,32,16"/>
+
+            <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0" Margin="16,0">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                        <Setter Property="Padding" Value="16,8"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border x:Name="TabBorder" Background="{TemplateBinding Background}" CornerRadius="8" Margin="0,0,4,0">
+                                        <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource SeparatorStroke}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Resources>
+
+                <!-- General Tab -->
+                <TabItem Header="{DynamicResource TerminologyGeneralLabel}">
+                    <StackPanel Margin="16,24">
+                        <TextBlock Text="{DynamicResource TerminologyFacilityDetailsLabel}" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="{DynamicResource TerminologyFacilityNameLabel}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding FacilityName}" HorizontalAlignment="Right" Width="200" Style="{StaticResource UnderlineTextBox}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="{DynamicResource TerminologyDateFormatLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <ComboBox SelectedIndex="0" HorizontalAlignment="Right" Width="200">
+                                <ComboBoxItem Content="DD/MM/YYYY"/>
+                                <ComboBoxItem Content="MM/DD/YYYY"/>
+                            </ComboBox>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+                <!-- Appearance Tab -->
+                <TabItem Header="{DynamicResource TerminologyAppearanceLabel}">
+                    <StackPanel Margin="16,24">
+                        <TextBlock Text="{DynamicResource TerminologyVisualPreferencesLabel}" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="{DynamicResource TerminologyDarkModeLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <CheckBox IsChecked="True" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="{DynamicResource TerminologyDataDensityLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <RadioButton Content="{DynamicResource TerminologyComfortableLabel}" IsChecked="True" Margin="0,0,12,0"/>
+                                <RadioButton Content="{DynamicResource TerminologyCompactLabel}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </TabItem>
+
+                <!-- Notifications Tab -->
+                <TabItem Header="{DynamicResource TerminologyNotificationsLabel}">
+                    <StackPanel Margin="16,24">
+                        <TextBlock Text="{DynamicResource TerminologySoundAndAlertsLabel}" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <TextBlock Text="{DynamicResource TerminologyMasterVolumeLabel}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                        <Slider Value="80" Minimum="0" Maximum="100" Margin="0,0,0,24"/>
+                        <TextBlock Text="{DynamicResource TerminologyFacilityChimesLabel}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
+                        <CheckBox Content="{DynamicResource TerminologyEnableSoundAlertsLabel}" IsChecked="True"/>
+                    </StackPanel>
+                </TabItem>
+
+                <!-- Staff Permissions Tab -->
+                <TabItem Header="{DynamicResource TerminologyPermissionsLabel}">
+                    <Grid Margin="16,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{DynamicResource TerminologyAccessMatrixLabel}" FontWeight="Bold" Margin="0,0,0,16"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <Border Background="{DynamicResource SeparatorBrush}" Padding="12" CornerRadius="8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <TextBlock Text="{DynamicResource TerminologyFinancialDataLabel}" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <CheckBox Content="{DynamicResource TerminologyAdminLabel}" IsChecked="True" Margin="0,0,8,0"/>
+                                            <CheckBox Content="{DynamicResource TerminologyManagerLabel}"/>
+                                            <CheckBox Content="{DynamicResource TerminologyStaffLabel}" Margin="8,0,0,0" IsEnabled="False"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Background="{DynamicResource SeparatorBrush}" Padding="12" CornerRadius="8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <TextBlock Text="{DynamicResource TerminologyStaffManagementLabel}" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <CheckBox Content="{DynamicResource TerminologyAdminLabel}" IsChecked="True" Margin="0,0,8,0"/>
+                                            <CheckBox Content="{DynamicResource TerminologyManagerLabel}"/>
+                                            <CheckBox Content="{DynamicResource TerminologyStaffLabel}" Margin="8,0,0,0" IsEnabled="False"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <Border Grid.Row="2" Background="{DynamicResource SeparatorBrush}" Height="64" CornerRadius="0,0,24,24" Padding="32,0">
+                <Grid>
+                    <TextBlock Text="{DynamicResource TerminologyChangesAutoSaveLabel}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" FontSize="11"/>
+                    <Button Content="{DynamicResource TerminologyCloseLabel}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Width="100"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+
+</UserControl>

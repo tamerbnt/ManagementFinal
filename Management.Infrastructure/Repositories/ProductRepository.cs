@@ -13,7 +13,7 @@ namespace Management.Infrastructure.Repositories
     {
         public ProductRepository(GymDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<Product>> SearchAsync(string searchTerm, ProductCategory? category = null)
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm, ProductCategory? category = null)
         {
             var query = _dbSet.AsNoTracking().Where(p => p.IsActive);
 
@@ -38,6 +38,28 @@ namespace Management.Infrastructure.Repositories
             return await _dbSet.AsNoTracking()
                 .Where(p => p.IsActive && p.StockQuantity <= p.ReorderLevel)
                 .OrderBy(p => p.StockQuantity)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetActiveProductsAsync()
+        {
+            return await _dbSet.AsNoTracking()
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetInventoryStatusAsync()
+        {
+             // For Inventory Dashboard, return all active products sorted by stock level implicitly?
+             // Or maybe even inactive ones if managing inventory?
+             // Let's return Active ones for now, sorted by name.
+             // Or better, sorted by StockQuantity to see what's low/high? LowStockAsync does that.
+             // Let's sort by Category then Name.
+             return await _dbSet.AsNoTracking()
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.Category)
+                .ThenBy(p => p.Name)
                 .ToListAsync();
         }
     }

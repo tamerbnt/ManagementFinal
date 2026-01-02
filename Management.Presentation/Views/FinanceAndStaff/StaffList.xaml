@@ -1,0 +1,152 @@
+<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.StaffList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
+        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <!-- 1. Responsive Staff Grid with 48px Margin -->
+        <Grid Margin="48,0">
+             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+             </Grid.RowDefinitions>
+            
+             <TextBlock Text="{DynamicResource TerminologyStaffManagementLabel}" 
+                       Style="{StaticResource Title1}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       Margin="{StaticResource MarginSectionBottom}"
+                       Grid.Row="0"/>
+
+        <ListBox Grid.Row="1" ItemsSource="{Binding StaffMembers}"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 VirtualizingPanel.IsVirtualizing="True"
+                 VirtualizingPanel.VirtualizationMode="Recycling"
+                 ScrollViewer.CanContentScroll="True">
+
+            <!-- Layout: Responsive UniformGrid (3 cols < 1440px, 4 cols >= 1440px) -->
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid VerticalAlignment="Top">
+                        <UniformGrid.Columns>
+                            <Binding Path="ActualWidth" 
+                                     RelativeSource="{RelativeSource AncestorType=Window}" 
+                                     Converter="{StaticResource WindowWidthToColumnsConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Double>1440</sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </UniformGrid.Columns>
+                    </UniformGrid>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
+                    <!-- Global Gutter Resource -->
+                    <Setter Property="Margin" Value="{StaticResource MarginCardGridGutter}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <!-- 
+                        Staff Card Container (Section 29.4)
+                        - Height: 180px ({StaticResource SizeStaffCardHeight})
+                        - Padding: 24px ({StaticResource PaddingCardCompact})
+                        - Style: Global Interactive Style (Shadow L2 -> Lift)
+                    -->
+                    <Border Style="{StaticResource ElevatedCardStyleInteractive}"
+                            Height="{StaticResource SizeStaffCardHeight}"
+                            Padding="{StaticResource PaddingCardCompact}"
+                            AutomationProperties.Name="{Binding FullName}">
+
+                        <!-- Click to Select Staff -->
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding SelectStaffCommand}"/>
+                        </Border.InputBindings>
+
+                        <!-- Centered Profile Layout -->
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                            <!-- Avatar: 96px (Section 29.4) -->
+                            <Ellipse Width="{StaticResource SizeAvatarLarge}" 
+                                     Height="{StaticResource SizeAvatarLarge}"
+                                     Fill="{DynamicResource FacilityAccentBrush}"
+                                     Margin="{StaticResource MarginCardBottom}"/>
+
+                            <!-- Name: Body Medium -->
+                            <TextBlock Text="{Binding FullName}" 
+                                       Style="{StaticResource BodyMedium}" 
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextAlignment="Center"/>
+
+                            <!-- 
+                                Role Badge: Global Component
+                                - Replaced manual Border with ContentControl using GlobalRoleBadgeStyle
+                                - Style handles Background, Radius, Padding, and Typography
+                            -->
+                            <ContentControl Content="{Binding Role}"
+                                            Style="{StaticResource GlobalRoleBadgeStyle}"
+                                            Margin="{StaticResource MarginTextVertical}"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        </Grid>
+
+        <!-- 2. Empty State Overlay (Section 29.5) -->
+        <Grid Visibility="{Binding StaffMembers.Count, Converter={StaticResource ZeroIsVisibleConverter}}"
+              IsHitTestVisible="False">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,64">
+                <!-- Team Icon -->
+                <Path Data="{StaticResource IconUsers}"
+                      Fill="{DynamicResource IllustrationBackgroundBrush}"
+                      Width="256" Height="256"
+                      Stretch="Uniform"
+                      Margin="{StaticResource MarginSectionBottom}"
+                      HorizontalAlignment="Center"/>
+
+                <TextBlock Text="{DynamicResource TerminologyNoStaffFoundLabel}" 
+                           Style="{StaticResource Title2}" 
+                           Foreground="{DynamicResource TextSecondaryBrush}"  
+                           HorizontalAlignment="Center"
+                           Margin="{StaticResource MarginTextBottom}"/>
+
+                <TextBlock Text="{DynamicResource TerminologyAddStaffHintLabel}" 
+                           Style="{StaticResource Body}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"  
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,137 @@
+<Window x:Class="Management.Presentation.Views.ConflictResolutionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:ConflictResolutionViewModel}"
+             WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+             Title="Conflict Resolution" Height="450" Width="800">
+    <Border Background="{DynamicResource Neutral50Brush}" 
+            CornerRadius="8"
+            Padding="24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="Auto"/> <!-- Message -->
+                <RowDefinition Height="*"/>    <!-- Comparison -->
+                <RowDefinition Height="Auto"/> <!-- Actions -->
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                <Path Data="{StaticResource IconWarning}" 
+                      Fill="{StaticResource Error500Brush}" 
+                      Style="{StaticResource IconMedium}"
+                      Margin="0,0,12,0"/>
+                <TextBlock Text="Sync Conflict Detected" 
+                           Style="{DynamicResource Header3Style}"/>
+            </StackPanel>
+
+            <!-- Message -->
+            <TextBlock Grid.Row="1" 
+                       Text="{Binding ConflictMessage}" 
+                       Style="{DynamicResource BodyStyle}" 
+                       Foreground="{StaticResource Neutral600Brush}"
+                       Margin="0,0,0,24"/>
+
+            <!-- Comparison Area -->
+            <Grid Grid.Row="2" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Local Version -->
+                <Border Grid.Column="0" 
+                        BorderThickness="1" 
+                        BorderBrush="{StaticResource Neutral300Brush}" 
+                        CornerRadius="4" 
+                        Background="White">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Label Content="Your Change (Local)" 
+                               Background="{StaticResource Neutral100Brush}" 
+                               FontWeight="SemiBold"
+                               Padding="12,8"/>
+                        
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding LocalContent}" 
+                                       Style="{DynamicResource BodyStyle}" 
+                                       Margin="12"
+                                       FontFamily="Consolas"
+                                       TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Separator -->
+                <Path Grid.Column="1" 
+                      Data="M 0 0 L 10 10 M 0 10 L 10 0" 
+                      Stroke="{StaticResource Neutral400Brush}" 
+                      StrokeThickness="2" 
+                      VerticalAlignment="Center" 
+                      HorizontalAlignment="Center" 
+                      Width="12" Height="12"
+                      Visibility="Collapsed"/> <!-- Simplified separator -->
+
+                <!-- Remote Version -->
+                <Border Grid.Column="2" 
+                        BorderThickness="1" 
+                        BorderBrush="{StaticResource Neutral300Brush}" 
+                        CornerRadius="4" 
+                        Background="White">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Content="Server Version (Remote)" 
+                               Background="{StaticResource Neutral100Brush}" 
+                               FontWeight="SemiBold"
+                               Padding="12,8"/>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <TextBlock Text="{Binding RemoteContent}" 
+                                       Style="{DynamicResource BodyStyle}" 
+                                       Margin="12"
+                                       FontFamily="Consolas"
+                                       TextWrapping="Wrap"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Actions -->
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Keep Local" 
+                        Command="{Binding UseLocalCommand}" 
+                        Style="{DynamicResource PrimaryButtonStyle}"
+                        Width="120"
+                        Margin="0,0,12,0"
+                        ToolTip="Overwrite server with your changes"/>
+                
+                <Button Content="Keep Server" 
+                        Command="{Binding UseRemoteCommand}" 
+                        Style="{DynamicResource SecondaryButtonStyle}"
+                         Width="120"
+                         Margin="0,0,12,0"
+                         ToolTip="Discard local changes and accept server version"/>
+
+                <Button Content="Cancel" 
+                        Command="{Binding CancelCommand}" 
+                        Style="{DynamicResource OutlineButtonStyle}"
+                         Width="100"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

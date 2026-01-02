@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Management.Presentation.Services
 {
@@ -190,6 +189,11 @@ namespace Management.Presentation.Services
         /// <param name="force">Force close bypassing unsaved changes check</param>
         /// <returns>True if modal closed</returns>
         Task<bool> CloseCurrentModalAsync(bool force = false);
+
+        /// <summary>
+        /// Backward compatibility alias for CloseCurrentModalAsync (Fire and forget).
+        /// </summary>
+        void CloseModal();
 
         /// <summary>
         /// Closes all modals

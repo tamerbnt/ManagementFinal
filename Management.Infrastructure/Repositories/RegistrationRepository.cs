@@ -13,7 +13,7 @@ namespace Management.Infrastructure.Repositories
     {
         public RegistrationRepository(GymDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<Registration>> GetPendingAsync()
+        public async Task<IEnumerable<Registration>> GetPendingRegistrationsAsync()
         {
             return await _dbSet.AsNoTracking()
                 .Where(r => r.Status == RegistrationStatus.Pending)

@@ -17,8 +17,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Management.Application.Services;
+using Management.Presentation.Extensions;
+// using Management.Presentation.Services; (Namespace is already this)
 using Microsoft.Extensions.Logging;
 using Color = System.Windows.Media.Color;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -48,7 +48,7 @@ namespace Management.Presentation.Services
     /// <summary>
     /// Production ModalNavigationService - Design System compliant modal management
     /// </summary>
-    public sealed class ModalNavigationService : ObservableObject, IModalNavigationService
+    public sealed class ModalNavigationService : ViewModelBase, IModalNavigationService
     {
         #region Constants
 
@@ -89,7 +89,7 @@ namespace Management.Presentation.Services
         private bool _isDisposed;
 
         // Design System §33.1: Z-index layers
-        private int _nextZIndex = 1000; // Base modal: 1000, Stacked: 1010, etc.
+        // Removed unused _nextZIndex
 
         #endregion
 
@@ -121,15 +121,15 @@ namespace Management.Presentation.Services
         public event EventHandler<ModalNavigationEventArgs>? ModalClosed;
         public event EventHandler<ModalNavigationEventArgs>? ModalOperationFailed;
 
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        private void RaisePropertyChanged(string propertyName)
         {
             if (_dispatcher.CheckAccess())
             {
-                base.OnPropertyChanged(e);
+                OnPropertyChanged(propertyName);
             }
             else
             {
-                _dispatcher.InvokeAsync(() => base.OnPropertyChanged(e));
+                _dispatcher.InvokeAsync(() => OnPropertyChanged(propertyName));
             }
         }
 
@@ -155,6 +155,11 @@ namespace Management.Presentation.Services
         #endregion
 
         #region Public API - IModalNavigationService
+
+        public void CloseModal()
+        {
+            _ = CloseCurrentModalAsync();
+        }
 
         public async Task<bool> OpenModalAsync<TViewModel>(
             ModalSize? size = null,
@@ -569,7 +574,7 @@ namespace Management.Presentation.Services
 
         #region Event Handlers
 
-        private void OnModalWindowClosed(object sender, EventArgs e)
+        private void OnModalWindowClosed(object? sender, EventArgs e)
         {
             var window = sender as Window;
             if (window == null) return;
@@ -664,7 +669,7 @@ namespace Management.Presentation.Services
             }
 
             // Reset z-index
-            _nextZIndex = 1000;
+            // Reset z-index removed
         }
 
         private async Task ShowMaxDepthErrorAsync()
@@ -674,14 +679,10 @@ namespace Management.Presentation.Services
             {
                 // Would typically show a toast notification
                 // For now, we'll just log and show a message box
-                var message = "Close the current modal first";
+                // Variable message removed
 
-                MessageBox.Show(
-                    System.Windows.Application.Current.MainWindow,
-                    message,
-                    "Too Many Modals",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                // Removed MessageBox to comply with No-MessageBox rule.
+                _logger?.LogWarning("Modal stack depth exceeded maximum {MaxDepth}", MaxStackDepth);
 
                 _logger?.LogWarning("Modal stack depth exceeded maximum {MaxDepth}", MaxStackDepth);
             });
@@ -799,7 +800,7 @@ namespace Management.Presentation.Services
     #region Supporting Internal Classes
 
     // Internal classes for unsaved changes dialog (Design System §33.4)
-    internal sealed class UnsavedChangesDialogViewModel : ObservableObject
+    internal sealed class UnsavedChangesDialogViewModel : ViewModelBase
     {
         private readonly Action _discardCallback;
         private readonly Action _cancelCallback;
@@ -812,8 +813,8 @@ namespace Management.Presentation.Services
             _discardCallback = discardCallback;
             _cancelCallback = cancelCallback;
 
-            DiscardCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteDiscard);
-            CancelCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteCancel);
+            DiscardCommand = new RelayCommand(ExecuteDiscard);
+            CancelCommand = new RelayCommand(ExecuteCancel);
         }
 
         private void ExecuteDiscard() => _discardCallback();

@@ -9,14 +9,14 @@ namespace Management.Application.Stores
     public class NavigationStore
     {
         // Event raised whenever the view changes, notifying MainViewModel to update the UI
-        public event Action CurrentViewModelChanged;
+        public event Action? CurrentViewModelChanged;
 
-        private object _currentViewModel;
+        private object? _currentViewModel;
 
         /// <summary>
         /// The currently active ViewModel (e.g., DashboardViewModel, MembersViewModel).
         /// </summary>
-        public object CurrentViewModel
+        public object? CurrentViewModel
         {
             get => _currentViewModel;
             set

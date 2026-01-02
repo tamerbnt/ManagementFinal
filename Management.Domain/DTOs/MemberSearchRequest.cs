@@ -2,9 +2,8 @@
 
 namespace Management.Domain.DTOs
 {
-    public class MemberSearchRequest
-    {
-        public string SearchTerm { get; set; }
-        public MemberFilterType FilterType { get; set; } = MemberFilterType.All;
-    }
+    public record MemberSearchRequest(
+        string SearchTerm,
+        MemberFilterType FilterType = MemberFilterType.All
+    );
 }

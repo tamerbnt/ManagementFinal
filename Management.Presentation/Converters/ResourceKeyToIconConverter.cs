@@ -16,9 +16,9 @@ namespace Management.Presentation.Converters
         {
             if (value is string resourceKey && !string.IsNullOrEmpty(resourceKey))
             {
-                return System.Windows.Application.Current.TryFindResource(resourceKey) as Geometry;
+                return (System.Windows.Application.Current.TryFindResource(resourceKey) as Geometry)!;
             }
-            return null;
+            return null!;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

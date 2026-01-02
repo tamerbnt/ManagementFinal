@@ -20,6 +20,8 @@ namespace Management.Presentation.ViewModels
         // Hides the Cancel button for Info/Alerts
         public bool IsAlert { get; }
 
+        public bool IsSuccess { get; }
+
         public ICommand ConfirmCommand { get; }
         public ICommand CancelCommand { get; }
 
@@ -30,7 +32,8 @@ namespace Management.Presentation.ViewModels
             string cancelText,
             bool isDestructive,
             bool isAlert,
-            Action<bool> resultCallback)
+            Action<bool> resultCallback,
+            bool isSuccess = false)
         {
             Title = title;
             Message = message;
@@ -38,6 +41,7 @@ namespace Management.Presentation.ViewModels
             CancelText = cancelText;
             IsDestructive = isDestructive;
             IsAlert = isAlert;
+            IsSuccess = isSuccess;
             _resultCallback = resultCallback;
 
             ConfirmCommand = new RelayCommand(() => _resultCallback(true));

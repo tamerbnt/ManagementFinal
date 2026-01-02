@@ -22,9 +22,9 @@ namespace Management.Presentation.Converters
                     case TurnstileStatus.Maintenance: key = "StatusWarningBrush"; break;
                 }
             }
-            return System.Windows.Application.Current.TryFindResource(key) as Brush;
+            return (System.Windows.Application.Current.TryFindResource(key) as Brush)!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

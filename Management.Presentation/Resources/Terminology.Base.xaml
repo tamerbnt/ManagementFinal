@@ -1,0 +1,62 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <!-- COMMON TERMINOLOGY (Facility Neutral) -->
+    
+    <!-- Actions -->
+    <sys:String x:Key="TerminologyCloseLabel">Close</sys:String>
+    <sys:String x:Key="TerminologyCancelLabel">Cancel</sys:String>
+    <sys:String x:Key="TerminologySaveLabel">Save</sys:String>
+    <sys:String x:Key="TerminologyEditLabel">Edit</sys:String>
+    <sys:String x:Key="TerminologyRemoveLabel">Remove</sys:String>
+    <sys:String x:Key="TerminologyDeleteLabel">Delete</sys:String>
+    <sys:String x:Key="TerminologyRetryLabel">Retry</sys:String>
+    <sys:String x:Key="TerminologyConfirmLabel">Confirm</sys:String>
+    <sys:String x:Key="TerminologyViewDetailsLabel">View Details</sys:String>
+    
+    <!-- Filters & Selection -->
+    <sys:String x:Key="TerminologyFilterAllLabel">All</sys:String>
+    <sys:String x:Key="TerminologyAllLabel">All</sys:String>
+    <sys:String x:Key="TerminologyFilterFacilityLabel">Filter Facility</sys:String>
+    <sys:String x:Key="TerminologySelectionCountLabel">{0} Selected</sys:String>
+    
+    <!-- Common Statuses -->
+    <sys:String x:Key="TerminologyStatusLabel">Status</sys:String>
+    <sys:String x:Key="TerminologySuccessRateLabel">Success Rate</sys:String>
+    
+    <!-- Common Fields -->
+    <sys:String x:Key="TerminologyPhoneLabel">Phone</sys:String>
+    <sys:String x:Key="TerminologyEmailLabel">Email</sys:String>
+    <sys:String x:Key="TerminologyHiredLabel">Hired</sys:String>
+    
+    <!-- Tabs -->
+    <sys:String x:Key="TerminologyInfoTabLabel">Info</sys:String>
+    <sys:String x:Key="TerminologyAccessTabLabel">Access</sys:String>
+    <sys:String x:Key="TerminologySalaryTabLabel">Salary</sys:String>
+    <sys:String x:Key="TerminologyScheduleTabLabel">Schedule</sys:String>
+    <sys:String x:Key="TerminologyInventoryTab">Inventory</sys:String>
+
+    <!-- Table Headers -->
+    <sys:String x:Key="TerminologyTableHeaderProduct">Product</sys:String>
+    <sys:String x:Key="TerminologyTableHeaderSKU">SKU</sys:String>
+    <sys:String x:Key="TerminologyTableHeaderStock">Stock</sys:String>
+    <sys:String x:Key="TerminologyTableHeaderReorder">Reorder</sys:String>
+    <sys:String x:Key="TerminologyTableHeaderUpdated">Updated</sys:String>
+    <sys:String x:Key="TerminologyTableHeaderActions">Actions</sys:String>
+
+    <!-- Shell / Versioning -->
+    <sys:String x:Key="TerminologyManagementLabel">Management</sys:String>
+    <sys:String x:Key="TerminologyVersionLabel">Version 2.0.4 - Alpha</sys:String>
+
+    <!-- History -->
+    <sys:String x:Key="TerminologyHistoryLabel">Activity History</sys:String>
+    <sys:String x:Key="TerminologyPrintHistoryLabel">Print Report</sys:String>
+    <sys:String x:Key="TerminologySelectDatesLabel">Select Date Range</sys:String>
+    <sys:String x:Key="TerminologyExportLabel">Export CSV</sys:String>
+    <sys:String x:Key="TerminologyNoHistoryYetLabel">No activity found</sys:String>
+    <sys:String x:Key="TerminologyActivityEventsRecordedLabel">Events will appear here once recorded.</sys:String>
+    <sys:String x:Key="TerminologyPaymentHistoryName">Payment for {0}</sys:String>
+    <sys:String x:Key="TerminologyCopyReceiptLabel">Copy Receipt Details</sys:String>
+
+</ResourceDictionary>

@@ -3,12 +3,14 @@ using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class TurnstileDto
+    public record TurnstileDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string HardwareId { get; set; }
-        public TurnstileStatus Status { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public string HardwareId { get; set; } = string.Empty;
+        public bool IsLocked { get; set; }
+        public TurnstileStatus Status { get; set; } = TurnstileStatus.Operational;
         public DateTime LastHeartbeat { get; set; }
     }
 }

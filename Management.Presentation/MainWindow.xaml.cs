@@ -1,24 +1,20 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using Management.Presentation.ViewModels; // Add this namespace
 
 namespace Management.Presentation
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        // 1. Default Constructor (Required by XAML Designer)
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        // 2. Injection Constructor (Used by App.xaml.cs)
+        public MainWindow(MainViewModel viewModel) : this()
+        {
+            DataContext = viewModel;
         }
     }
 }

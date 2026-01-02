@@ -17,7 +17,7 @@ namespace Management.Application.Stores
         /// Fired when a hardware unit reports a status change (e.g. Locked, Error) 
         /// or a heartbeat update.
         /// </summary>
-        public event Action<TurnstileDto> TurnstileUpdated;
+        public event Action<TurnstileDto>? TurnstileUpdated;
 
         /// <summary>
         /// Broadcasts a hardware state change to the application.

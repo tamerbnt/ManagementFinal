@@ -1,0 +1,25 @@
+DI FAILURE: 'La valeur fournie sur 'System.Windows.StaticResourceExtension' a levé une exception.' numéro de ligne '59' et position de ligne '23'.
+   at System.Windows.Markup.XamlReader.RewrapException(Exception e, IXamlLineInfo lineInfo, Uri baseUri)
+   at System.Windows.Markup.WpfXamlLoader.Load(XamlReader xamlReader, IXamlObjectWriterFactory writerFactory, Boolean skipJournaledProperties, Object rootObject, XamlObjectWriterSettings settings, Uri baseUri)
+   at System.Windows.Markup.WpfXamlLoader.LoadBaml(XamlReader xamlReader, Boolean skipJournaledProperties, Object rootObject, XamlAccessLevel accessLevel, Uri baseUri)
+   at System.Windows.Markup.XamlReader.LoadBaml(Stream stream, ParserContext parserContext, Object parent, Boolean closeStream)
+   at System.Windows.Application.LoadComponent(Object component, Uri resourceLocator)
+   at Management.Presentation.MainWindow.InitializeComponent() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml:line 1
+   at Management.Presentation.MainWindow..ctor() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml.cs:line 11
+   at Management.Presentation.MainWindow..ctor(MainViewModel viewModel) in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml.cs:line 15
+   at Management.Presentation.App.<>c.<ConfigureServices>b__14_8(IServiceProvider s) in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\App.xaml.cs:line 410
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitFactory(FactoryCallSite factoryCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
+   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Management.Presentation.App.<RunInitializationSequenceAsync>b__12_0() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\App.xaml.cs:line 176
+INNER: Impossible de trouver la ressource nommée'TextPrimaryBrush'. Les noms de ressources respectent la casse.
+   at System.Windows.StaticResourceExtension.ProvideValueInternal(IServiceProvider serviceProvider, Boolean allowDeferredReference)
+   at MS.Internal.Xaml.Runtime.ClrObjectRuntime.CallProvideValue(MarkupExtension me, IServiceProvider serviceProvider)

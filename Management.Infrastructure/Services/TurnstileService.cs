@@ -2,6 +2,7 @@
 using Management.Domain.Enums;
 using Management.Domain.Interfaces;
 using Management.Domain.Services;
+using Management.Domain.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,52 +19,43 @@ namespace Management.Infrastructure.Services
             _turnstileRepository = turnstileRepository;
         }
 
-        public async Task<List<TurnstileDto>> GetAllTurnstilesAsync()
+        public async Task<Result<List<TurnstileDto>>> GetAllTurnstilesAsync()
         {
             var entities = await _turnstileRepository.GetAllAsync();
 
-            // Map Entity -> DTO
-            return entities.Select(t => new TurnstileDto
+            var dtos = entities.Select(t => new TurnstileDto
             {
                 Id = t.Id,
                 Name = t.Name,
-                Status = t.Status,
-                HardwareId = t.HardwareId,
-                LastHeartbeat = t.LastHeartbeat
+                Location = t.Location,
+                IsLocked = t.IsLocked,
+                Status = t.Status
             }).ToList();
+
+            return Result.Success(dtos);
         }
 
-        public async Task UpdateStatusAsync(Guid id, TurnstileStatus status)
-        {
-            // GetByIdAsync throws EntityNotFoundException if missing
-            var turnstile = await _turnstileRepository.GetByIdAsync(id);
-
-            if (turnstile.Status != status)
-            {
-                turnstile.Status = status;
-                await _turnstileRepository.UpdateAsync(turnstile);
-            }
-        }
-
-        public async Task ForceOpenAsync(Guid id)
+        public async Task<Result> UpdateStatusAsync(Guid id, TurnstileStatus status)
         {
             var turnstile = await _turnstileRepository.GetByIdAsync(id);
 
-            // Logic: Simulate a "Open" signal sent to hardware
-            // We update the Heartbeat to show connectivity
-            turnstile.LastHeartbeat = DateTime.UtcNow;
-
-            // If it was in an Error state, we might auto-reset it to Operational
-            if (turnstile.Status == TurnstileStatus.OutOfOrder || turnstile.Status == TurnstileStatus.Unknown)
-            {
-                turnstile.Status = TurnstileStatus.Operational;
-            }
-
+            turnstile.UpdateStatus(status);
             await _turnstileRepository.UpdateAsync(turnstile);
 
-            // In a real implementation with TCP/Serial hardware, 
-            // the command would be sent here:
+            return Result.Success();
+        }
+
+        public async Task<Result> ForceOpenAsync(Guid id)
+        {
+            var turnstile = await _turnstileRepository.GetByIdAsync(id);
+
+            turnstile.Unlock();
+            await _turnstileRepository.UpdateAsync(turnstile);
+
+            // In a real implementation:
             // await _hardwareClient.SendSignalAsync(turnstile.HardwareId, "OPEN");
+
+            return Result.Success();
         }
     }
 }

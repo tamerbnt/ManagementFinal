@@ -1,0 +1,198 @@
+<UserControl x:Class="Management.Presentation.Views.Shop.CheckoutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="700" d:DesignWidth="600"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <!-- 
+        Modal Container 
+        - Style: GlobalModalContainerStyle (Shadow L3, Radius 24px)
+        - Behavior: ModalEntranceBehavior (Zoom/Fade)
+        - Fixed Width: 600px
+    -->
+    <Border Style="{StaticResource GlobalModalContainerStyle}"
+            Width="{StaticResource SizeModalWidthLarge}"
+            Padding="{StaticResource PaddingModal}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            AutomationProperties.Name="Checkout Terminal">
+        <i:Interaction.Behaviors>
+            <behaviors:ModalEntranceBehavior IsOpen="True"/>
+        </i:Interaction.Behaviors>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Total Due -->
+                <RowDefinition Height="Auto"/>
+                <!-- Payment Methods -->
+                <RowDefinition Height="*"/>
+                <!-- Dynamic Input Area -->
+                <RowDefinition Height="Auto"/>
+                <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. HEADER -->
+            <TextBlock Grid.Row="0" 
+                       Text="{DynamicResource TerminologyCheckoutTitle}" 
+                       Style="{StaticResource Title2}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"/>
+
+            <!-- 2. HERO TOTAL -->
+            <StackPanel Grid.Row="1" Margin="{StaticResource MarginSectionVertical}" HorizontalAlignment="Center">
+                <TextBlock Text="{DynamicResource TerminologyTotalDueLabel}" 
+                           Style="{StaticResource Micro}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"
+                         />
+
+                <TextBlock Text="{Binding TotalDue, StringFormat='{}{0:C}'}" 
+                           Style="{StaticResource HeroLive}" 
+                           Foreground="{DynamicResource FacilityAccentBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="{StaticResource MarginTextTop}"/>
+            </StackPanel>
+
+            <!-- 3. PAYMENT METHODS -->
+            <!-- Uses GlobalPaymentMethodTileStyle -->
+            <UniformGrid Grid.Row="2" Columns="3" Margin="{StaticResource MarginSectionBottom}">
+                <!-- Cash -->
+                <RadioButton Content="{DynamicResource TerminologyPaymentCash}"
+                             Tag="{StaticResource IconMoney}"
+                             IsChecked="{Binding IsCashSelected}"
+                             Style="{StaticResource GlobalPaymentMethodTileStyle}"
+                             Height="{StaticResource SizePaymentTileHeight}"
+                             Margin="{StaticResource MarginCardGap}"/>
+
+                <!-- Card -->
+                <RadioButton Content="{DynamicResource TerminologyPaymentCard}"
+                             Tag="{StaticResource IconCreditCard}"
+                             IsChecked="{Binding IsCardSelected}"
+                             Style="{StaticResource GlobalPaymentMethodTileStyle}"
+                             Height="{StaticResource SizePaymentTileHeight}"
+                             Margin="{StaticResource MarginCardGap}"/>
+
+                <!-- Account -->
+                <RadioButton Content="{DynamicResource TerminologyPaymentAccount}"
+                             Tag="{StaticResource IconUser}"
+                             IsChecked="{Binding IsAccountSelected}"
+                             Style="{StaticResource GlobalPaymentMethodTileStyle}"
+                             Height="{StaticResource SizePaymentTileHeight}"
+                             Margin="0"/>
+                <!-- Last item no margin -->
+            </UniformGrid>
+
+            <!-- 4. DYNAMIC INPUT AREA -->
+            <Grid Grid.Row="3" Margin="{StaticResource MarginSectionBottom}">
+
+                <!-- CASH MODE -->
+                <StackPanel Visibility="{Binding IsCashSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <Grid Margin="{StaticResource MarginSectionBottom}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="{StaticResource MarginMedium}"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Amount Tendered -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{DynamicResource TerminologyAmountTenderedLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBox Text="{Binding AmountTendered, StringFormat=N2, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource UnderlineTextBox}"
+                                     FontSize="24"
+                                     FontWeight="Medium"/>
+                        </StackPanel>
+
+                        <!-- Change Due -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="{DynamicResource TerminologyChangeDueLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Text="{Binding ChangeDue, StringFormat='{}{0:C}'}" 
+                                       Style="{StaticResource Title2}"
+                                       Foreground="{DynamicResource StatusSuccessBrush}"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,6"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Quick Tender Suggestions (Data-Driven) -->
+                    <ItemsControl ItemsSource="{Binding QuickTenderOptions}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding DisplayAmount}" 
+                                        Command="{Binding DataContext.QuickTenderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                                        CommandParameter="{Binding Amount}"
+                                        Style="{StaticResource SecondaryButton}" 
+                                        Margin="{StaticResource MarginSmallRight}"
+                                        MinWidth="64"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <!-- CARD MODE -->
+                <StackPanel Visibility="{Binding IsCardSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- Global Terminal Waiting State Component -->
+                    <ContentControl Style="{StaticResource GlobalTerminalWaitingStateStyle}"/>
+                </StackPanel>
+
+                <!-- ACCOUNT MODE -->
+                <StackPanel Visibility="{Binding IsAccountSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Style="{StaticResource FormLabel}">
+                        <Run Text="{DynamicResource TerminologyChargeToAccountPrefix}"/>
+                        <Run Text="{DynamicResource TerminologyAccountLabel}"/>
+                        <Run Text="{DynamicResource TerminologyChargeToAccountSuffix}"/>
+                    </TextBlock>
+                    <ComboBox Style="{StaticResource GlobalComboBoxStyle}"
+                              ItemsSource="{Binding Members}"
+                              DisplayMemberPath="FullName"
+                              SelectedItem="{Binding SelectedMemberForCharge}"
+                              Margin="{StaticResource MarginSmallTop}"/>
+                    <TextBlock Text="{DynamicResource TerminologyAccountBalanceNote}" 
+                               Style="{StaticResource Caption}" 
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               Margin="{StaticResource MarginSmallTop}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- 5. FOOTER -->
+            <StackPanel Grid.Row="4" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right">
+
+                <Button Content="{DynamicResource TerminologyCancelLabel}"
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Margin="{StaticResource MarginSmallRight}"/>
+
+                <Button Content="{DynamicResource TerminologyCompleteSaleLabel}"
+                        Command="{Binding CompleteSaleCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        MinWidth="{StaticResource SizeButtonMinWidth}"/>
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</UserControl>

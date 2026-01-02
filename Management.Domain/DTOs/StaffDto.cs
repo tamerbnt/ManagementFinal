@@ -4,16 +4,16 @@ using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class StaffDto
+    public record StaffDto
     {
         public Guid Id { get; set; }
-        public string FullName { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
+        public Guid TenantId { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
         public StaffRole Role { get; set; }
         public DateTime HireDate { get; set; }
-        public string Status { get; set; } // "Active", "On Leave"
-
-        public List<PermissionDto> Permissions { get; set; } = new List<PermissionDto>();
+        public string Status { get; set; } = "Active";
+        public List<PermissionDto> Permissions { get; set; } = new();
     }
 }

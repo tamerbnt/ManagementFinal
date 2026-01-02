@@ -2,199 +2,96 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
+    <!-- 
+        APPLE 2025 SPACING SYSTEM
+        Grid Base: 8px
+        Precision: 1px (BorderThickness)
+    -->
+
     <!-- ============================================================= -->
     <!-- 1. CORE LAYOUT DIMENSIONS                                     -->
     <!-- ============================================================= -->
+    
+    <!-- Sidebar (Expanded/Collapsed) -->
     <sys:Double x:Key="SizeSidebarWidth">288</sys:Double>
+    <sys:Double x:Key="SizeSidebarWidthCollapsed">72</sys:Double>
+    
+    <!-- Table Rhythm -->
+    <sys:Double x:Key="SizeTableRowHeightComfortable">72</sys:Double>
+    <sys:Double x:Key="SizeTableRowHeightCompact">48</sys:Double>
+    
+    <!-- Component Heights -->
     <sys:Double x:Key="SizeTopBarHeight">80</sys:Double>
+    <sys:Double x:Key="SizeTopBarIconButton">40</sys:Double>
+    <sys:Double x:Key="SizeButtonHeight">48</sys:Double>
+    <sys:Double x:Key="SizeButtonMinWidth">120</sys:Double>
+    <sys:Double x:Key="SizeInputHeight">48</sys:Double>
+    
+    <!-- Component Widths -->
     <sys:Double x:Key="SizeSidePanelWidth">400</sys:Double>
     <sys:Double x:Key="SizeModalWidth">480</sys:Double>
     <sys:Double x:Key="SizeModalWidthLarge">600</sys:Double>
 
-    <!-- ============================================================= -->
-    <!-- 2. COMPONENT BASELINES                                        -->
-    <!-- ============================================================= -->
-    <sys:Double x:Key="SizeButtonHeight">48</sys:Double>
-    <sys:Double x:Key="SizeButtonMinWidth">120</sys:Double>
-    <!-- Default min -->
-    <sys:Double x:Key="SizeLargeButtonHeight">64</sys:Double>
-
-    <sys:Double x:Key="SizeInputHeight">48</sys:Double>
-    <sys:Double x:Key="SizeInputMinWidth">240</sys:Double>
-    <sys:Double x:Key="SizeSearchBarWidth">480</sys:Double>
-
-    <sys:Double x:Key="SizeSidebarItemHeight">64</sys:Double>
-    <sys:Double x:Key="SizeSettingsHeaderHeight">64</sys:Double>
-    <sys:Double x:Key="SizeSelectionBarHeight">64</sys:Double>
-    <sys:Double x:Key="SizeTableRowHeight">72</sys:Double>
-    <sys:Double x:Key="SizeTableHeaderHeight">56</sys:Double>
-
-    <sys:Double x:Key="SizeFormRowHeight">48</sys:Double>
-    <sys:Double x:Key="SizeFormRowGap">24</sys:Double>
-
-    <!-- ============================================================= -->
-    <!-- 3. SPECIFIC CARD HEIGHTS (Grid Rhythm)                        -->
-    <!-- ============================================================= -->
-    <sys:Double x:Key="SizeStatTileHeight">180</sys:Double>
-    <!-- Dashboard -->
+    <!-- Chart/Card Heights -->
     <sys:Double x:Key="SizeHeroCardHeight">240</sys:Double>
-    <!-- Access/Finance -->
-    <sys:Double x:Key="SizeMemberCardHeight">240</sys:Double>
-    <!-- Members -->
-    <sys:Double x:Key="SizeStaffCardHeight">180</sys:Double>
-    <!-- Staff -->
-    <sys:Double x:Key="SizeProductCardHeight">320</sys:Double>
-    <!-- Shop -->
-    <sys:Double x:Key="SizeProductImageHeight">180</sys:Double>
-    <!-- Shop Image -->
-    <sys:Double x:Key="SizePricingCardHeight">160</sys:Double>
-    <!-- Settings Plans -->
-    <sys:Double x:Key="SizeRegistrationItemHeight">96</sys:Double>
-    <!-- Registration Inbox -->
-    <sys:Double x:Key="SizeHistoryItemHeight">80</sys:Double>
-    <!-- History/Logs -->
-    <sys:Double x:Key="SizeAccessItemHeight">88</sys:Double>
-    <!-- Access Feed -->
-    <sys:Double x:Key="SizeIntegrationCardHeight">80</sys:Double>
-    <!-- Settings Integrations -->
-    <sys:Double x:Key="SizeUploadZoneHeight">200</sys:Double>
-    <!-- File Upload -->
-    <sys:Double x:Key="SizePaymentTileHeight">100</sys:Double>
-    <!-- Checkout -->
-
-    <!-- ============================================================= -->
-    <!-- 4. CHART DIMENSIONS                                           -->
-    <!-- ============================================================= -->
     <sys:Double x:Key="SizeChartHeightStandard">320</sys:Double>
-    <sys:Double x:Key="SizeChartHeightLarge">400</sys:Double>
-    <sys:Double x:Key="SizeGridGap">24</sys:Double>
 
     <!-- ============================================================= -->
-    <!-- 5. ICONOGRAPHY & AVATARS                                      -->
+    <!-- 2. THICKNESS PRESETS (Margins & Padding)                      -->
     <!-- ============================================================= -->
-    <!-- Icons -->
+    
+    <!-- Border Precision -->
+    <Thickness x:Key="ThicknessBorderPrecision">1</Thickness>
+    <Thickness x:Key="ThicknessFocusRing">2</Thickness>
+
+    <!-- Page Margins (Sequoia Safe-Area) -->
+    <!-- Left: 48, Top: 40, Right: 48, Bottom: 32 -->
+    <Thickness x:Key="MarginPage">48,40,48,32</Thickness>
+    
+    <!-- Section Margins (Vertical Rhythm) -->
+    <Thickness x:Key="MarginSectionBottom">0,0,0,48</Thickness>
+    <Thickness x:Key="MarginSectionTop">0,48,0,0</Thickness>
+    <Thickness x:Key="MarginHeaderBottom">0,0,0,24</Thickness>
+    
+    <!-- Component Gaps -->
+    <Thickness x:Key="MarginCardGap">0,0,24,24</Thickness>
+    <Thickness x:Key="MarginFormRow">0,0,0,24</Thickness>
+    <Thickness x:Key="MarginSmallRight">0,0,8,0</Thickness>
+    <Thickness x:Key="MarginMediumRight">0,0,16,0</Thickness>
+    <Thickness x:Key="MarginIconRight">0,0,12,0</Thickness>
+
+    <!-- Padding Tokens -->
+    <Thickness x:Key="PaddingCard">32</Thickness>
+    <Thickness x:Key="PaddingCardCompact">24</Thickness>
+    <Thickness x:Key="PaddingModal">40</Thickness>
+    <Thickness x:Key="PaddingInput">16,0</Thickness>
+    <Thickness x:Key="PaddingButton">24,0</Thickness>
+
+    <!-- ============================================================= -->
+    <!-- 3. CORNER RADII (Hierarchy)                                   -->
+    <!-- ============================================================= -->
+    
+    <!-- Layer 3: Modals / Floating Sheets -->
+    <CornerRadius x:Key="RadiusModal">24</CornerRadius>
+    
+    <!-- Layer 2: Cards / Content Containers -->
+    <CornerRadius x:Key="RadiusCardStandard">20</CornerRadius>
+    
+    <!-- Layer 1: Inputs / Search Bars -->
+    <CornerRadius x:Key="RadiusInput">18</CornerRadius>
+    <CornerRadius x:Key="RadiusSearchBar">18</CornerRadius>
+    
+    <!-- Layer 0: Buttons / Interactive Elements -->
+    <CornerRadius x:Key="RadiusButton">12</CornerRadius>
+    <CornerRadius x:Key="RadiusPill">14</CornerRadius>
+
+    <!-- ============================================================= -->
+    <!-- 4. ICON SIZES                                                 -->
+    <!-- ============================================================= -->
     <sys:Double x:Key="SizeIconMicro">12</sys:Double>
     <sys:Double x:Key="SizeIconSmall">16</sys:Double>
     <sys:Double x:Key="SizeIconStandard">24</sys:Double>
     <sys:Double x:Key="SizeIconLarge">32</sys:Double>
     <sys:Double x:Key="SizeIconHero">48</sys:Double>
-
-    <!-- Containers -->
-    <sys:Double x:Key="SizeIconContainer">40</sys:Double>
-    <!-- History Timeline Circles -->
-    <sys:Double x:Key="SizeIconCircleLarge">64</sys:Double>
-    <!-- Dashboard Stat Circles -->
-    <sys:Double x:Key="SizeTopBarIconButton">48</sys:Double>
-    <!-- TopBar Actions -->
-    <sys:Double x:Key="SizeQuantityButton">32</sys:Double>
-    <!-- Cart +/- -->
-    <sys:Double x:Key="SizeColorSwatch">32</sys:Double>
-    <!-- Settings -->
-    <sys:Double x:Key="SizeBadgeMinHeight">24</sys:Double>
-
-    <!-- Avatars -->
-    <sys:Double x:Key="SizeAvatarSmall">40</sys:Double>
-    <sys:Double x:Key="SizeAvatarMedium">56</sys:Double>
-    <sys:Double x:Key="SizeAvatarStandard">64</sys:Double>
-    <sys:Double x:Key="SizeAvatarLarge">96</sys:Double>
-    <sys:Double x:Key="SizeAvatarHero">128</sys:Double>
-
-    <!-- ============================================================= -->
-    <!-- 6. CORNER RADII                                               -->
-    <!-- ============================================================= -->
-    <CornerRadius x:Key="RadiusCardLarge">24</CornerRadius>
-    <!-- Modals, Hero Cards -->
-    <CornerRadius x:Key="RadiusCardStandard">20</CornerRadius>
-    <!-- Standard Cards -->
-    <CornerRadius x:Key="RadiusSearchBar">18</CornerRadius>
-    <!-- Search Inputs -->
-    <CornerRadius x:Key="RadiusButton">16</CornerRadius>
-    <!-- Buttons -->
-    <CornerRadius x:Key="RadiusPill">14</CornerRadius>
-    <!-- Badges, Tags -->
-    <CornerRadius x:Key="RadiusSmall">8</CornerRadius>
-    <!-- Tooltips, Small Elements -->
-    <CornerRadius x:Key="RadiusTooltip">8</CornerRadius>
-
-    <sys:Double x:Key="RadiusCardStandardDouble">20</sys:Double>
-
-    <!-- ============================================================= -->
-    <!-- 7. PADDING (Thickness)                                        -->
-    <!-- ============================================================= -->
-    <Thickness x:Key="PaddingCard">32</Thickness>
-    <Thickness x:Key="PaddingCardCompact">24</Thickness>
-    <Thickness x:Key="PaddingCardList">16,0</Thickness>
-    <Thickness x:Key="PaddingHeroCard">48</Thickness>
-    <Thickness x:Key="PaddingSidebarItem">24,0</Thickness>
-    <Thickness x:Key="PaddingModal">40</Thickness>
-    <Thickness x:Key="PaddingPill">12,4</Thickness>
-    <Thickness x:Key="PaddingFormRow">0,12</Thickness>
-
-    <!-- ============================================================= -->
-    <!-- 8. MARGINS (Thickness)                                        -->
-    <!-- ============================================================= -->
-
-    <!-- Page & Section Layout -->
-    <Thickness x:Key="MarginPage">48,40,48,32</Thickness>
-    <Thickness x:Key="MarginPageBottom">0,0,0,64</Thickness>
-    <Thickness x:Key="MarginSectionBottom">0,0,0,48</Thickness>
-    <Thickness x:Key="MarginSectionTop">0,48,0,0</Thickness>
-    <Thickness x:Key="MarginSectionVertical">0,48</Thickness>
-
-    <!-- Headers & Grids -->
-    <Thickness x:Key="MarginHeaderBottom">0,0,0,24</Thickness>
-    <Thickness x:Key="MarginCardGap">0,0,24,24</Thickness>
-    <!-- WrapPanels -->
-    <Thickness x:Key="MarginCardGridGutter">0,0,24,24</Thickness>
-    <!-- UniformGrids -->
-    <Thickness x:Key="MarginListVertical">0,0,0,4</Thickness>
-    <!-- List Items -->
-
-    <!-- Micro Spacing (Small) -->
-    <Thickness x:Key="MarginSmall">8</Thickness>
-    <Thickness x:Key="MarginSmallRight">0,0,8,0</Thickness>
-    <Thickness x:Key="MarginSmallLeft">8,0,0,0</Thickness>
-    <Thickness x:Key="MarginSmallTop">0,8,0,0</Thickness>
-    <Thickness x:Key="MarginSmallBottom">0,0,0,8</Thickness>
-
-    <!-- Micro Spacing (Medium) -->
-    <Thickness x:Key="MarginMedium">24</Thickness>
-    <Thickness x:Key="MarginMediumRight">0,0,16,0</Thickness>
-    <Thickness x:Key="MarginMediumLeft">16,0,0,0</Thickness>
-    <Thickness x:Key="MarginMediumTop">0,16,0,0</Thickness>
-    <Thickness x:Key="MarginMediumBottom">0,0,0,16</Thickness>
-
-    <!-- Specific Element Offsets -->
-    <Thickness x:Key="MarginIconRight">0,0,12,0</Thickness>
-    <Thickness x:Key="MarginAvatarRight">0,0,16,0</Thickness>
-    <Thickness x:Key="MarginCardRight">0,0,24,0</Thickness>
-    <Thickness x:Key="MarginTextTop">0,4,0,0</Thickness>
-    <Thickness x:Key="MarginTextVertical">0,8</Thickness>
-    <Thickness x:Key="MarginTextBottom">0,0,0,16</Thickness>
-    <Thickness x:Key="MarginLabelBottom">0,0,0,8</Thickness>
-    <Thickness x:Key="MarginFormRow">0,0,0,24</Thickness>
-
-    <!-- TopBar Specifics -->
-    <Thickness x:Key="MarginTopBarLeft">32,0,0,0</Thickness>
-    <Thickness x:Key="MarginTopBarRight">0,0,32,0</Thickness>
-    <Thickness x:Key="MarginTopBarActionGap">0,0,16,0</Thickness>
-    <Thickness x:Key="MarginTopBarIconGap">0,0,8,0</Thickness>
-    <Thickness x:Key="MarginInputIcon">16,0,12,0</Thickness>
-
-    <!-- Floating Action Button -->
-    <Thickness x:Key="MarginFAB">32</Thickness>
-
-    <!-- Notification Badge Offset -->
-    <Thickness x:Key="BadgeOffset">-4,-4,0,0</Thickness>
-
-
-    <!-- Grid Column Spacing (Creates a 24px gap between columns) -->
-    <Thickness x:Key="MarginColumnRight">0,0,12,0</Thickness>
-    <Thickness x:Key="MarginColumnLeft">12,0,0,0</Thickness>
-
-    <!-- ============================================================= -->
-    <!-- 9. GRID LENGTHS                                               -->
-    <!-- ============================================================= -->
-    <GridLength x:Key="WidthFormLabel">160</GridLength>
 
 </ResourceDictionary>

@@ -1,35 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using Management.Domain.Enums; // Requires TrendDirection enum
+﻿using System.Collections.Generic;
+using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class FinancialMetricsDto
-    {
-        // Revenue Stats
-        public decimal MonthlyRevenue { get; set; }
-        public double RevenueGrowth { get; set; } // Percentage (e.g. 15.5)
-        public TrendDirection Trend { get; set; } // Up, Down, Stable
+    public record FinancialMetricsDto(
+        decimal MonthlyRevenue,
+        double RevenueGrowth,
+        TrendDirection Trend,
+        decimal MRR,
+        decimal ARPU,
+        double ChurnRate,
+        int NewMembers,
+        int TotalMembers,
+        double SuccessRate,
+        List<ChartPointDto> RevenueSparkline
+    );
 
-        // KPIs
-        public decimal MRR { get; set; } // Monthly Recurring Revenue
-        public decimal ARPU { get; set; } // Average Revenue Per User
-        public double ChurnRate { get; set; } // Percentage
-
-        // Operational Stats
-        public int NewMembers { get; set; }
-        public int TotalMembers { get; set; }
-        public double SuccessRate { get; set; } // Payment Success Rate
-
-        // Visualization Data
-        public List<ChartPointDto> RevenueSparkline { get; set; } = new List<ChartPointDto>();
-    }
-
-    // Shared DTO for charting
-    public class ChartPointDto
-    {
-        public double X { get; set; } // Time axis (or index)
-        public double Y { get; set; } // Value axis
-    }
+    public record ChartPointDto(double X, double Y);
 }
 

@@ -11,13 +11,13 @@ namespace Management.Application.Stores
     public class MemberStore
     {
         // Fired when a new member is successfully created in the database
-        public event Action<MemberDto> MemberAdded;
+        public event Action<MemberDto>? MemberAdded;
 
         // Fired when an existing member's profile is modified
-        public event Action<MemberDto> MemberUpdated;
+        public event Action<MemberDto>? MemberUpdated;
 
         // Fired when a member is soft-deleted or removed
-        public event Action<Guid> MemberDeleted;
+        public event Action<Guid>? MemberDeleted;
 
         /// <summary>
         /// Broadcasts the addition of a new member.

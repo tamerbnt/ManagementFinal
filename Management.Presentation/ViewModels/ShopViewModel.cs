@@ -4,13 +4,15 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services; // Updated namespace
+// using Management.Presentation.Services; (Already below)
 using Management.Application.Stores;     // Added for ProductStore
 using Management.Domain.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Services;
 using Management.Presentation.Extensions; // Using Custom Extensions
 using Management.Presentation.Services;
+using MediatR;
+using Management.Application.Features.Shop.Queries.CalculateShopTotals;
 
 namespace Management.Presentation.ViewModels
 {
@@ -21,8 +23,9 @@ namespace Management.Presentation.ViewModels
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
 
-        // FIX: Inject Store to handle stock updates correctly
+        private readonly IMediator _mediator;
         private readonly ProductStore _productStore;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
 
         private List<ProductItemViewModel> _allProducts = new List<ProductItemViewModel>();
 
@@ -110,10 +113,11 @@ namespace Management.Presentation.ViewModels
         private decimal _totalAmount;
         public decimal TotalAmount { get => _totalAmount; set => SetProperty(ref _totalAmount, value); }
 
+        private string _taxRateDisplay = "(5%)";
+        public string TaxRateDisplay { get => _taxRateDisplay; set => SetProperty(ref _taxRateDisplay, value); }
+
         private int _cartItemCount;
         public int CartItemCount { get => _cartItemCount; set => SetProperty(ref _cartItemCount, value); }
-
-        public string TaxRateDisplay => "(5%)";
 
         // --- 4. INVENTORY STATE ---
 
@@ -138,13 +142,17 @@ namespace Management.Presentation.ViewModels
             ISaleService saleService,
             IDialogService dialogService,
             INotificationService notificationService,
-            ProductStore productStore) // Added Store injection
+            ProductStore productStore,
+            Management.Domain.Services.IFacilityContextService facilityContext,
+            IMediator mediator) 
         {
             _productService = productService;
             _saleService = saleService;
             _dialogService = dialogService;
             _notificationService = notificationService;
             _productStore = productStore;
+            _facilityContext = facilityContext;
+            _mediator = mediator;
 
             CheckoutCommand = new RelayCommand(ExecuteCheckout, CanExecuteCheckout);
             ClearCartCommand = new RelayCommand(ExecuteClearCart);
@@ -167,10 +175,16 @@ namespace Management.Presentation.ViewModels
 
         private async Task LoadCatalogAsync()
         {
-            var dtos = await _productService.GetActiveProductsAsync();
+            var facilityId = _facilityContext.CurrentFacilityId;
+            var result = await _productService.GetActiveProductsAsync(facilityId);
+            if (result.IsFailure)
+            {
+                _notificationService.ShowError("Error loading product catalog.");
+                return;
+            }
 
             _allProducts.Clear();
-            foreach (var dto in dtos)
+            foreach (var dto in result.Value)
             {
                 var vm = new ProductItemViewModel(dto, OnAddToCart);
                 vm.EditProductCommand = new AsyncRelayCommand(async () => await ExecuteEditProduct(vm.Id));
@@ -184,10 +198,16 @@ namespace Management.Presentation.ViewModels
 
         private async Task LoadInventoryAsync()
         {
-            var dtos = await _productService.GetInventoryStatusAsync();
+            var facilityId = _facilityContext.CurrentFacilityId;
+            var result = await _productService.GetInventoryStatusAsync(facilityId);
+            if (result.IsFailure)
+            {
+                _notificationService.ShowError("Error loading inventory info.");
+                return;
+            }
 
             InventoryItems.Clear();
-            foreach (var dto in dtos)
+            foreach (var dto in result.Value)
             {
                 var vm = new InventoryItemViewModel(dto);
                 vm.EditCommand = new AsyncRelayCommand(async () => await ExecuteEditProduct(vm.Id));
@@ -232,12 +252,20 @@ namespace Management.Presentation.ViewModels
             RecalculateTotals();
         }
 
-        private void RecalculateTotals()
+        private async void RecalculateTotals()
         {
-            Subtotal = CartItems.Sum(x => x.TotalLinePrice);
-            TaxAmount = Subtotal * 0.05m;
-            TotalAmount = Subtotal + TaxAmount;
-            CartItemCount = CartItems.Sum(x => x.Quantity);
+            // ARCHITECTURAL FIX: Logic moved to Application Layer
+            var query = new CalculateShopTotalsQuery(
+                CartItems.Select(x => new CartItemDto(x.ProductId, x.UnitPrice, x.Quantity)).ToList()
+            );
+
+            var totals = await _mediator.Send(query);
+
+            Subtotal = totals.Subtotal;
+            TaxAmount = totals.TaxAmount;
+            TotalAmount = totals.TotalAmount;
+            CartItemCount = totals.CartItemCount;
+            TaxRateDisplay = totals.TaxRateDisplay;
 
             (CheckoutCommand as RelayCommand)?.RaiseCanExecuteChanged();
         }
@@ -271,9 +299,29 @@ namespace Management.Presentation.ViewModels
             await _dialogService.ShowCustomDialogAsync<ProductDetailViewModel>(productId);
         }
 
-        private void ExecuteDeleteProduct(Guid productId)
+        private async void ExecuteDeleteProduct(Guid productId)
         {
-            // Implementation omitted for brevity
+            var result = await _dialogService.ShowConfirmationAsync(
+                "Delete Product",
+                "Are you sure you want to delete this product? This action cannot be undone.",
+                "Delete",
+                "Cancel",
+                isDestructive: true);
+
+            if (result)
+            {
+                var facilityId = _facilityContext.CurrentFacilityId;
+                var deleteResult = await _productService.DeleteProductAsync(facilityId, productId);
+                if (deleteResult.IsSuccess)
+                {
+                    _notificationService.ShowSuccess("Product deleted successfully.");
+                    await LoadDataAsync();
+                }
+                else
+                {
+                    _notificationService.ShowError(deleteResult.Error.Message);
+                }
+            }
         }
 
         private void ExecuteFilterLowStock()
@@ -293,13 +341,13 @@ namespace Management.Presentation.ViewModels
         public decimal Price => _dto.Price;
         public int StockLevel => _dto.StockQuantity;
         public string ImageUrl => _dto.ImageUrl;
-        public ProductCategory Category => _dto.Category;
+        public ProductCategory Category => Enum.TryParse<ProductCategory>(_dto.Category, true, out var c) ? c : ProductCategory.Other;
 
         public string StockStatusText => StockLevel > 10 ? "In Stock" : (StockLevel > 0 ? "Low Stock" : "Out of Stock");
 
         public ICommand AddToCartCommand { get; }
-        public ICommand EditProductCommand { get; set; }
-        public ICommand DeleteProductCommand { get; set; }
+        public ICommand EditProductCommand { get; set; } = null!;
+        public ICommand DeleteProductCommand { get; set; } = null!;
 
         public ProductItemViewModel(ProductDto dto, Action<ProductDto> addCallback)
         {
@@ -350,16 +398,16 @@ namespace Management.Presentation.ViewModels
     public class InventoryItemViewModel : ViewModelBase
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string SKU { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string SKU { get; set; } = string.Empty;
         public int StockCount { get; set; }
         public int ReorderLevel { get; set; }
         public DateTime LastUpdated { get; set; }
-        public string ImageUrl { get; set; }
-
+        public string ImageUrl { get; set; } = string.Empty;
+ 
         public int StockLevel => StockCount;
-
-        public ICommand EditCommand { get; set; }
+ 
+        public ICommand EditCommand { get; set; } = null!;
 
         public InventoryItemViewModel(InventoryDto dto)
         {

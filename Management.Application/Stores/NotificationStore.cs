@@ -11,10 +11,10 @@ namespace Management.Application.Stores
     public class NotificationStore
     {
         // Event raised when the UnreadCount changes (e.g. new alert or mark as read)
-        public event Action UnreadCountChanged;
+        public event Action? UnreadCountChanged;
 
         // Event raised when a new notification is added to history
-        public event Action<NotificationItem> NotificationAdded;
+        public event Action<NotificationItem>? NotificationAdded;
 
         private readonly List<NotificationItem> _notifications = new List<NotificationItem>();
 
@@ -66,7 +66,7 @@ namespace Management.Application.Stores
     public class NotificationItem
     {
         public Guid Id { get; set; }
-        public string Message { get; set; }
+        public required string Message { get; set; }
         public NotificationType Type { get; set; }
         public DateTime Timestamp { get; set; }
         public bool IsRead { get; set; }

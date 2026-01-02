@@ -2,6 +2,7 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Management.Infrastructure.Configuration;
 
 namespace Management.Infrastructure.Hardware
 {
@@ -30,38 +31,31 @@ namespace Management.Infrastructure.Hardware
             {
                 using (var client = new TcpClient())
                 {
-                    // 1. Connect with aggressive timeout (Fail Fast strategy)
+                // 1. Connect with aggressive timeout and retry
+                await ResiliencePolicyRegistry.HardwareRetryPolicy.ExecuteAsync(async () =>
+                {
                     var connectTask = client.ConnectAsync(ipAddress, port);
-                    var timeoutTask = Task.Delay(ConnectionTimeoutMs);
+                    var timeoutTask = Task.Delay(TimeSpan.FromMilliseconds(500));
 
                     var completedTask = await Task.WhenAny(connectTask, timeoutTask);
+                    if (completedTask == timeoutTask) throw new TimeoutException("Hardware connection timed out");
 
-                    if (completedTask == timeoutTask)
-                    {
-                        // Timed out
-                        return false;
-                    }
-
-                    // Await the connect task to bubble up exceptions if any
                     await connectTask;
+                });
 
-                    if (!client.Connected) return false;
+                if (!client.Connected) return false;
 
-                    // 2. Send Trigger Command
-                    using (var stream = client.GetStream())
-                    {
-                        byte[] data = Encoding.ASCII.GetBytes(UnlockCommand);
-                        await stream.WriteAsync(data, 0, data.Length);
-
-                        // Optional: Read acknowledgment if hardware supports it
-                        // byte[] buffer = new byte[256];
-                        // await stream.ReadAsync(buffer, 0, buffer.Length);
-                    }
+                // 2. Send Trigger Command
+                using (var stream = client.GetStream())
+                {
+                    byte[] data = Encoding.ASCII.GetBytes(UnlockCommand);
+                    await stream.WriteAsync(data, 0, data.Length);
+                }
                 }
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log hardware failure (e.g. "Connection Refused")
                 // In production: _logger.LogError($"Turnstile at {ipAddress} failed: {ex.Message}");

@@ -12,9 +12,9 @@ namespace Management.Presentation.Converters
         {
             bool success = value is bool b && b;
             string key = success ? "StatusSuccessBrush" : "StatusErrorBrush";
-            return System.Windows.Application.Current.TryFindResource(key) as System.Windows.Media.Brush;
+            return (System.Windows.Application.Current.TryFindResource(key) as System.Windows.Media.Brush)!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

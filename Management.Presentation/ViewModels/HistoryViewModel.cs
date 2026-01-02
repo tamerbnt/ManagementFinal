@@ -6,21 +6,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data; // For CollectionViewSource
 using System.Windows.Input;
-using CommunityToolkit.Mvvm.Input;
 using Management.Domain.DTOs;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
+using Management.Domain.Enums;
+using System.Windows.Threading;
+using MediatR;
+using Management.Application.Features.History.Queries.GetUnifiedHistory;
+using Management.Domain.Primitives;
 
 namespace Management.Presentation.ViewModels
 {
     public class HistoryViewModel : ViewModelBase
     {
-        private readonly IAccessEventService _accessEventService;
-        private readonly ISaleService _saleService;
-        private readonly IReservationService _reservationService;
+        private readonly IMediator _mediator;
+        private readonly IReservationService _reservationService; // Still needed for cancellation
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
+        private readonly ITerminologyService _terminologyService;
 
         // Master Collection
         private readonly ObservableCollection<HistoryEventItemViewModel> _historyEvents;
@@ -37,7 +41,7 @@ namespace Management.Presentation.ViewModels
             set
             {
                 if (SetProperty(ref _searchText, value))
-                    HistoryEventsView.Refresh(); // Client-side filter
+                    HistoryEventsView.Refresh(); 
             }
         }
 
@@ -55,17 +59,17 @@ namespace Management.Presentation.ViewModels
         // --- 3. CONSTRUCTOR ---
 
         public HistoryViewModel(
-            IAccessEventService accessEventService,
-            ISaleService saleService,
+            IMediator mediator,
             IReservationService reservationService,
             IDialogService dialogService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            ITerminologyService terminologyService)
         {
-            _accessEventService = accessEventService;
-            _saleService = saleService;
+            _mediator = mediator;
             _reservationService = reservationService;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            _terminologyService = terminologyService;
 
             // Default Range: Last 30 Days
             _endDate = DateTime.Now;
@@ -85,9 +89,9 @@ namespace Management.Presentation.ViewModels
             HistoryEventsView.Filter = FilterHistoryEvents;
 
             // Initialize Commands
-            SelectDateRangeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteSelectDateRange);
-            ExportCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteExport);
-            PrintReportCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecutePrint);
+            SelectDateRangeCommand = new RelayCommand(ExecuteSelectDateRange);
+            ExportCommand = new RelayCommand(ExecuteExport);
+            PrintReportCommand = new RelayCommand(ExecutePrint);
 
             // Initial Load
             _ = LoadDataAsync();
@@ -101,45 +105,36 @@ namespace Management.Presentation.ViewModels
             {
                 _historyEvents.Clear();
 
-                // Fetch all streams in parallel for performance
-                var t1 = _accessEventService.GetEventsByRangeAsync(_startDate, _endDate);
-                var t2 = _saleService.GetSalesByRangeAsync(_startDate, _endDate);
-                var t3 = _reservationService.GetReservationsByRangeAsync(_startDate, _endDate);
+                // ARCHITECTURAL FIX: MediatR Query replaces manual service orchestration.
+                // Feature Handler manages multi-tenant context internally.
+                var query = new GetUnifiedHistoryQuery(_startDate, _endDate);
+                var unifiedEvents = await _mediator.Send(query);
 
-                await Task.WhenAll(t1, t2, t3);
-
-                var accessLogs = t1.Result;
-                var salesLogs = t2.Result;
-                var bookingLogs = t3.Result;
-
-                // 1. Map Access Events
-                foreach (var dto in accessLogs)
+                foreach (var ev in unifiedEvents)
                 {
-                    _historyEvents.Add(new AccessEventItemViewModel(dto, _notificationService));
+                    switch (ev.Type)
+                    {
+                        case HistoryEventType.Access:
+                            _historyEvents.Add(new AccessEventItemViewModel(ev.AccessEvent!, _notificationService, _terminologyService));
+                            break;
+                        case HistoryEventType.Sale:
+                            _historyEvents.Add(new PaymentEventItemViewModel(ev.SaleEvent!, _notificationService));
+                            break;
+                        case HistoryEventType.Reservation:
+                            _historyEvents.Add(new ReservationEventItemViewModel(ev.ReservationEvent!, _reservationService, _dialogService, RefreshDataCallback, _terminologyService));
+                            break;
+                    }
                 }
 
-                // 2. Map Sales Events
-                foreach (var dto in salesLogs)
-                {
-                    _historyEvents.Add(new PaymentEventItemViewModel(dto, _notificationService));
-                }
-
-                // 3. Map Reservations
-                foreach (var dto in bookingLogs)
-                {
-                    _historyEvents.Add(new ReservationEventItemViewModel(dto, _reservationService, _dialogService, RefreshDataCallback));
-                }
-
-                // Notify UI of count change (for Empty State binding)
                 OnPropertyChanged(nameof(HistoryEventsView));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // _notificationService.ShowError("Failed to load history.");
+                _notificationService.ShowError($"Failed to load history: {ex.Message}");
             }
         }
 
-        // Callback to refresh data after an action (like Cancel Booking)
+        // Callback to refresh data after an action
         private async void RefreshDataCallback()
         {
             await LoadDataAsync();
@@ -188,22 +183,24 @@ namespace Management.Presentation.ViewModels
         public abstract string Title { get; }
         public abstract string Details { get; }
 
-        // Logic for Group Headers (e.g. "Today", "Yesterday", "Nov 23")
+        protected readonly ITerminologyService _terminologyService;
+
         public string DateGroupHeader
         {
             get
             {
                 var date = Timestamp.Date;
-                if (date == DateTime.Today) return "Today";
-                if (date == DateTime.Today.AddDays(-1)) return "Yesterday";
+                if (date == DateTime.Today) return _terminologyService?.GetTerm("Today") ?? "Today";
+                if (date == DateTime.Today.AddDays(-1)) return _terminologyService?.GetTerm("Yesterday") ?? "Yesterday";
                 return date.ToString("MMMM d, yyyy");
             }
         }
 
-        protected HistoryEventItemViewModel(Guid id, DateTime timestamp)
+        protected HistoryEventItemViewModel(Guid id, DateTime timestamp, ITerminologyService terminologyService)
         {
             Id = id;
             Timestamp = timestamp;
+            _terminologyService = terminologyService;
         }
     }
 
@@ -214,16 +211,16 @@ namespace Management.Presentation.ViewModels
 
         public bool IsSuccessful => _dto.IsAccessGranted;
         public override string Title => _dto.MemberName;
-        public override string Details => $"{_dto.FacilityName} • {_dto.AccessStatus}";
+        public override string Details => $"{_dto.FacilityName}   {_dto.AccessStatus}";
 
         public ICommand CopyDetailsCommand { get; }
 
-        public AccessEventItemViewModel(AccessEventDto dto, INotificationService notificationService)
-            : base(dto.Id, dto.Timestamp)
+        public AccessEventItemViewModel(AccessEventDto dto, INotificationService notificationService, ITerminologyService terminologyService)
+            : base(dto.Id, dto.Timestamp, terminologyService)
         {
             _dto = dto;
             _notificationService = notificationService;
-            CopyDetailsCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteCopy);
+            CopyDetailsCommand = new RelayCommand(ExecuteCopy);
         }
 
         private void ExecuteCopy()
@@ -242,16 +239,16 @@ namespace Management.Presentation.ViewModels
         public string PaymentMethod => _dto.PaymentMethod; // "Visa", "Cash"
 
         public override string Title => _dto.TransactionType; // "Membership Renewal"
-        public override string Details => $"{Amount:C} • {PaymentMethod}";
+        public override string Details => $"{Amount:C}   {PaymentMethod}";
 
         public ICommand CopyReceiptCommand { get; }
 
         public PaymentEventItemViewModel(SaleDto dto, INotificationService notificationService)
-            : base(dto.Id, dto.Timestamp)
+            : base(dto.Id, dto.Timestamp, null!) // Terminology not strictly needed for payments yet
         {
             _dto = dto;
             _notificationService = notificationService;
-            CopyReceiptCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteCopyReceipt);
+            CopyReceiptCommand = new RelayCommand(ExecuteCopyReceipt);
         }
 
         private void ExecuteCopyReceipt()
@@ -272,7 +269,7 @@ namespace Management.Presentation.ViewModels
         public string Location => _dto.Location;
 
         public override string Title => _dto.ActivityName; // "Personal Training"
-        public override string Details => $"with {InstructorName} • {Location}";
+        public override string Details => $"with {InstructorName}   {Location}";
 
         public ICommand ViewDetailsCommand { get; }
         public ICommand CancelBookingCommand { get; }
@@ -281,16 +278,17 @@ namespace Management.Presentation.ViewModels
             ReservationDto dto,
             IReservationService service,
             IDialogService dialogService,
-            Action refreshCallback)
-            : base(dto.Id, dto.StartTime)
+            Action refreshCallback,
+            ITerminologyService terminologyService)
+            : base(dto.Id, dto.StartTime, terminologyService)
         {
             _dto = dto;
             _service = service;
             _dialogService = dialogService;
             _refreshCallback = refreshCallback;
 
-            CancelBookingCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteCancelAsync);
-            ViewDetailsCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => { /* Open Modal */ });
+            CancelBookingCommand = new AsyncRelayCommand(ExecuteCancelAsync);
+            ViewDetailsCommand = new RelayCommand(() => { /* Open Modal */ });
         }
 
         private async Task ExecuteCancelAsync()
@@ -298,8 +296,11 @@ namespace Management.Presentation.ViewModels
             bool confirm = await _dialogService.ShowConfirmationAsync("Cancel Booking?", "Are you sure?");
             if (confirm)
             {
-                await _service.CancelReservationAsync(Id);
-                _refreshCallback?.Invoke(); // Notify Parent to refresh list
+                var result = await _service.CancelReservationAsync(Id);
+                if (result.IsSuccess)
+                {
+                    _refreshCallback?.Invoke(); // Notify Parent to refresh list
+                }
             }
         }
     }

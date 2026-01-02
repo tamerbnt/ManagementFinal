@@ -2,14 +2,10 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using Microsoft.Xaml.Behaviors; // Requires NuGet: Microsoft.Xaml.Behaviors.Wpf
+using Microsoft.Xaml.Behaviors;
 
 namespace Management.Presentation.Behaviors
 {
-    /// <summary>
-    /// Animates a FrameworkElement sliding in/out from the right edge.
-    /// Compliant with Design System Section 5.3 (Motion Physics) and 5.4 (Reduced Motion).
-    /// </summary>
     public class GlobalSidePanelBehavior : Behavior<FrameworkElement>
     {
         // --- Dependency Properties ---
@@ -26,7 +22,7 @@ namespace Management.Presentation.Behaviors
 
         public static readonly DependencyProperty DurationProperty =
             DependencyProperty.Register(nameof(Duration), typeof(Duration), typeof(GlobalSidePanelBehavior),
-                new PropertyMetadata(new Duration(TimeSpan.FromSeconds(0.3)))); // DurationMedium
+                new PropertyMetadata(new Duration(TimeSpan.FromSeconds(0.3))));
 
         public Duration Duration
         {
@@ -39,14 +35,7 @@ namespace Management.Presentation.Behaviors
         protected override void OnAttached()
         {
             base.OnAttached();
-
-            // Prepare the transform
-            if (!(AssociatedObject.RenderTransform is TranslateTransform))
-            {
-                AssociatedObject.RenderTransform = new TranslateTransform();
-            }
-
-            // Hook into lifecycle to handle initial positioning
+            EnsureTransform();
             AssociatedObject.Loaded += OnLoaded;
             AssociatedObject.SizeChanged += OnSizeChanged;
         }
@@ -60,21 +49,23 @@ namespace Management.Presentation.Behaviors
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // Initial State Check:
-            // If not open, force it off-screen immediately so it doesn't flicker visible
-            if (!IsOpen)
-            {
-                var transform = (TranslateTransform)AssociatedObject.RenderTransform;
-                transform.X = AssociatedObject.ActualWidth;
-            }
+            EnsureTransform();
+
+            // Initial State Sync
+            var transform = (TranslateTransform)AssociatedObject.RenderTransform;
+            double targetX = IsOpen ? 0 : AssociatedObject.ActualWidth;
+
+            // Snap immediately on load
+            transform.BeginAnimation(TranslateTransform.XProperty, null);
+            transform.X = targetX;
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            // If the panel resizes while closed (e.g. window resize), 
-            // ensure it stays hidden off-screen by updating the X offset.
+            // If closed and resizing (e.g. window resize), keep hidden off-screen
             if (!IsOpen)
             {
+                EnsureTransform();
                 var transform = (TranslateTransform)AssociatedObject.RenderTransform;
                 transform.X = AssociatedObject.ActualWidth;
             }
@@ -83,35 +74,49 @@ namespace Management.Presentation.Behaviors
         private static void OnIsOpenChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var behavior = (GlobalSidePanelBehavior)d;
-            if (behavior.AssociatedObject == null) return;
-
             behavior.AnimatePanel((bool)e.NewValue);
         }
 
-        // --- Animation Engine ---
+        // --- Logic ---
+
+        private void EnsureTransform()
+        {
+            if (AssociatedObject == null) return;
+
+            // Check if Transform exists, is the wrong type, or is Frozen (Immutable)
+            if (AssociatedObject.RenderTransform == null ||
+                !(AssociatedObject.RenderTransform is TranslateTransform) ||
+                AssociatedObject.RenderTransform.IsFrozen)
+            {
+                // Replace with a new mutable TranslateTransform
+                AssociatedObject.RenderTransform = new TranslateTransform();
+            }
+        }
 
         private void AnimatePanel(bool isOpen)
         {
+            if (AssociatedObject == null) return;
+
+            // 1. Safety check
+            EnsureTransform();
             var transform = (TranslateTransform)AssociatedObject.RenderTransform;
             double targetX = isOpen ? 0 : AssociatedObject.ActualWidth;
 
-            // 1. Accessibility Check (Section 5.4)
-            if (!SystemParameters.MenuAnimation)
+            // 2. Initial Load Safety (Prevents Crash)
+            // If not loaded, or Reduced Motion is on, snap instantly
+            if (!AssociatedObject.IsLoaded || !SystemParameters.MenuAnimation)
             {
-                // Snap instantly
-                transform.BeginAnimation(TranslateTransform.XProperty, null);
+                transform.BeginAnimation(TranslateTransform.XProperty, null); // Stop any running anims
                 transform.X = targetX;
                 return;
             }
 
-            // 2. Configure Physics (Section 5.3)
-            // Open: Decelerate (EaseOut) for entering
-            // Close: Accelerate (EaseIn) for exiting
+            // 3. Configure Physics
             IEasingFunction easing = isOpen
                 ? new CubicEase { EasingMode = EasingMode.EaseOut }
                 : new CubicEase { EasingMode = EasingMode.EaseIn };
 
-            // 3. Create Animation
+            // 4. Animate
             var animation = new DoubleAnimation
             {
                 To = targetX,
@@ -119,7 +124,6 @@ namespace Management.Presentation.Behaviors
                 EasingFunction = easing
             };
 
-            // 4. Execute
             transform.BeginAnimation(TranslateTransform.XProperty, animation);
         }
     }

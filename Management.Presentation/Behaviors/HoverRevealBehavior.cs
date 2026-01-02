@@ -103,11 +103,11 @@ namespace Management.Presentation.Behaviors
             target.BeginAnimation(UIElement.OpacityProperty, animation);
         }
 
-        private UIElement GetTargetElement()
+        private UIElement? GetTargetElement()
         {
             if (string.IsNullOrEmpty(TargetName) || AssociatedObject == null)
                 return null;
-
+ 
             return AssociatedObject.FindName(TargetName) as UIElement;
         }
     }

@@ -10,6 +10,7 @@ using Management.Domain.Enums;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
+using Management.Presentation.Stores;
 using Management.Presentation.ViewModels;
 
 namespace Management.Presentation.ViewModels
@@ -20,6 +21,9 @@ namespace Management.Presentation.ViewModels
         private readonly SaleStore _saleStore;
         private readonly ModalNavigationStore _modalStore;
         private readonly INotificationService _notificationService;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+
+        public string TerminologyTitle => _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Salon ? "Client" : "Member";
 
         // --- STATE ---
         public decimal TotalDue => _saleStore.TotalAmount;
@@ -75,8 +79,8 @@ namespace Management.Presentation.ViewModels
         public decimal ChangeDue => Math.Max(0, AmountTendered - TotalDue);
 
         // Account Logic
-        public MemberDto SelectedMemberForCharge { get; set; } // Bound to ComboBox
-        public IEnumerable<MemberDto> Members { get; private set; } // Populated via Service if Account selected
+        public MemberDto? SelectedMemberForCharge { get; set; } // Bound to ComboBox
+        public IEnumerable<MemberDto> Members { get; private set; } = Enumerable.Empty<MemberDto>(); // Populated via Service if Account selected
 
         // Quick Tender Options
         public List<QuickTenderOption> QuickTenderOptions { get; }
@@ -88,14 +92,16 @@ namespace Management.Presentation.ViewModels
 
         public CheckoutViewModel(
             ISaleService saleService,
-            SaleStore saleStore,
+            SaleStore saleStore, // Added
             ModalNavigationStore modalStore,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            Management.Domain.Services.IFacilityContextService facilityContext) // Added context
         {
             _saleService = saleService;
             _saleStore = saleStore;
             _modalStore = modalStore;
             _notificationService = notificationService;
+            _facilityContext = facilityContext;
 
             CompleteSaleCommand = new AsyncRelayCommand(ExecuteCompleteSaleAsync);
             CancelCommand = new RelayCommand(() => _modalStore.Close());
@@ -111,7 +117,7 @@ namespace Management.Presentation.ViewModels
             };
         }
 
-        public async Task OnNavigatedToAsync(object parameter, CancellationToken cancellationToken = default)
+        public async Task OnNavigatedTo(object parameter)
         {
             // Refresh totals from Store
             OnPropertyChanged(nameof(TotalDue));
@@ -119,6 +125,8 @@ namespace Management.Presentation.ViewModels
             // If parameters passed (e.g. member context), handle here
             await Task.CompletedTask;
         }
+
+        public Task OnNavigatedFrom() => Task.CompletedTask;
 
         private async Task ExecuteCompleteSaleAsync()
         {
@@ -130,19 +138,19 @@ namespace Management.Presentation.ViewModels
             }
 
             // 2. Build Request
-            var request = new CheckoutRequestDto
-            {
-                Method = _currentMethod,
-                AmountTendered = AmountTendered,
-                MemberId = SelectedMemberForCharge?.Id,
-                Items = _saleStore.CurrentItems.ToDictionary(k => k.Product.Id, v => v.Quantity)
-            };
+            var request = new CheckoutRequestDto(
+                _currentMethod,
+                AmountTendered,
+                SelectedMemberForCharge?.Id,
+                _saleStore.CurrentItems.ToDictionary(k => k.Product.Id, v => v.Quantity)
+            );
 
             // 3. Process
             try
             {
-                bool success = await _saleService.ProcessCheckoutAsync(request);
-                if (success)
+                var facilityId = _facilityContext.CurrentFacilityId;
+                var result = await _saleService.ProcessCheckoutAsync(facilityId, request);
+                if (result.IsSuccess)
                 {
                     _saleStore.Clear();
                     _modalStore.Close();
@@ -163,7 +171,7 @@ namespace Management.Presentation.ViewModels
     // Helper for UI Binding
     public class QuickTenderOption
     {
-        public decimal Amount { get; set; }
-        public string DisplayAmount { get; set; }
+        public required decimal Amount { get; set; }
+        public required string DisplayAmount { get; set; }
     }
 }

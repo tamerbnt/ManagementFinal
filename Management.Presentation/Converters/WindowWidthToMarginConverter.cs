@@ -19,6 +19,6 @@ namespace Management.Presentation.Converters
             return new Thickness(48, 40, 48, 32);
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

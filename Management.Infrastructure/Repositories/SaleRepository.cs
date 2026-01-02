@@ -27,7 +27,7 @@ namespace Management.Infrastructure.Repositories
             // Performance: Sum happens in database (SQL), not memory
             return await _dbSet
                 .Where(s => s.Timestamp >= start && s.Timestamp <= end)
-                .SumAsync(s => s.TotalAmount);
+                .SumAsync(s => s.TotalAmount.Amount);
         }
 
         public async Task<IEnumerable<Sale>> GetFailedTransactionsAsync()
@@ -36,7 +36,7 @@ namespace Management.Infrastructure.Repositories
             // (e.g., TotalAmount is 0 but items exist, or a status flag if added to model)
             // For now, we return empty or check for specific failure markers if defined
             return await _dbSet.AsNoTracking()
-                .Where(s => s.TotalAmount == 0) // Placeholder logic for "Failed"
+                .Where(s => s.TotalAmount.Amount == 0) // Placeholder logic for "Failed"
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();
         }

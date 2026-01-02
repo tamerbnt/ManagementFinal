@@ -1,0 +1,25 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Identity Layer: SALON FACILITY -->
+    
+    <!-- Sidebar -->
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#5A189A"/>
+    
+    <!-- Accents -->
+    <Color x:Key="FacilityAccentColor">#D8A7D8</Color>
+    <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
+    
+    <!-- Contrast Tokens (Safety) -->
+    <SolidColorBrush x:Key="OnAccentPrimary" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OnAccentSecondary" Color="#F3E8FF"/>
+
+    <!-- Identity Elevation (Dark Mode Glow) -->
+    <Color x:Key="ElevationColor">#D8A7D8</Color>
+    
+    <!-- Aliases for compatibility -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#D8A7D8"/>
+    
+    <!-- Terminology -->
+    <sys:String x:Key="TerminologyLabel" xmlns:sys="clr-namespace:System;assembly=mscorlib">Client</sys:String>
+</ResourceDictionary>

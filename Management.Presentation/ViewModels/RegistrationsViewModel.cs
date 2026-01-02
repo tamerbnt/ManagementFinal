@@ -3,20 +3,23 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services; // Updated namespace for DialogService/NavigationService
 using Management.Domain.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Services;
-using Management.Presentation.Extensions; // Custom RelayCommands
-using Management.Presentation.Services;   // Ensure DialogService access
+using Management.Presentation.Extensions;
+using Management.Presentation.Services;
+using MediatR;
+using Management.Application.Features.Registrations.Queries.SearchRegistrations;
+using Management.Application.Features.Registrations.Commands.ApproveRegistrations;
 
 namespace Management.Presentation.ViewModels
 {
     public class RegistrationsViewModel : ViewModelBase
     {
-        private readonly IRegistrationService _registrationService;
+        private readonly IMediator _mediator;
+        private readonly IRegistrationService _registrationService; // Still needed for decline for now
         private readonly INavigationService _navigationService;
-        private readonly IDialogService _dialogService; // 1. Using DialogService
+        private readonly IDialogService _dialogService; 
         private readonly INotificationService _notificationService;
 
         // View List (Bound to UI)
@@ -98,11 +101,13 @@ namespace Management.Presentation.ViewModels
         // --- 4. CONSTRUCTOR ---
 
         public RegistrationsViewModel(
+            IMediator mediator,
             IRegistrationService registrationService,
             INavigationService navigationService,
-            IDialogService dialogService, // Injected
+            IDialogService dialogService,
             INotificationService notificationService)
         {
+            _mediator = mediator;
             _registrationService = registrationService;
             _navigationService = navigationService;
             _dialogService = dialogService;
@@ -125,17 +130,18 @@ namespace Management.Presentation.ViewModels
             try
             {
                 // Delegate all logic to Application Layer
-                var pagedResult = await _registrationService.SearchAsync(new RegistrationSearchRequest
+                var result = await _registrationService.SearchAsync(new RegistrationSearchRequest(SearchText, _currentFilter));
+                
+                if (result.IsFailure)
                 {
-                    SearchTerm = SearchText,
-                    FilterType = _currentFilter
-                });
+                    _notificationService.ShowError($"Error loading registrations: {result.Error.Message}");
+                    return;
+                }
 
                 // Update UI Collection
                 Registrations.Clear();
 
-                // FIX 2: Iterate over pagedResult.Items
-                foreach (var dto in pagedResult.Items)
+                foreach (var dto in result.Value.Items)
                 {
                     var vm = new RegistrationListItemViewModel(dto);
 
@@ -162,7 +168,7 @@ namespace Management.Presentation.ViewModels
 
         // --- 6. SELECTION HANDLING ---
 
-        private void OnItemSelectionChanged(object sender, EventArgs e) => RecalculateSelection();
+        private void OnItemSelectionChanged(object? sender, EventArgs e) => RecalculateSelection();
 
         private void RecalculateSelection()
         {
@@ -179,7 +185,7 @@ namespace Management.Presentation.ViewModels
 
         private async Task ExecuteApproveSingleAsync(RegistrationListItemViewModel item)
         {
-            await _registrationService.ApproveRegistrationAsync(item.Id);
+            await _mediator.Send(new ApproveRegistrationsCommand(new List<Guid> { item.Id }));
             _notificationService.ShowSuccess($"✓ {item.FullName} approved");
             await RefreshDataAsync();
         }
@@ -196,7 +202,7 @@ namespace Management.Presentation.ViewModels
             var selectedIds = Registrations.Where(x => x.IsSelected).Select(x => x.Id).ToList();
             if (!selectedIds.Any()) return;
 
-            await _registrationService.ApproveBatchAsync(selectedIds);
+            await _mediator.Send(new ApproveRegistrationsCommand(selectedIds));
 
             _notificationService.ShowSuccess($"✓ {selectedIds.Count} registrations approved");
 
@@ -254,11 +260,11 @@ namespace Management.Presentation.ViewModels
             }
         }
 
-        public ICommand ApproveCommand { get; set; }
-        public ICommand DeclineCommand { get; set; }
-        public ICommand ViewDetailsCommand { get; set; }
-
-        public event EventHandler SelectionChanged;
+        public ICommand ApproveCommand { get; set; } = null!;
+        public ICommand DeclineCommand { get; set; } = null!;
+        public ICommand ViewDetailsCommand { get; set; } = null!;
+ 
+        public event EventHandler? SelectionChanged;
 
         public RegistrationListItemViewModel(RegistrationDto dto)
         {

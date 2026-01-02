@@ -1,0 +1,233 @@
+<UserControl x:Class="Management.Presentation.Views.Shop.CartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="400"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter"/>
+        <converters:IntToVisibilityConverter x:Key="InverseZeroIsVisibleConverter"/>
+    </UserControl.Resources>
+
+    <!-- 
+        Main Container (Sidebar Style)
+        - Background: CardBackgroundBrush (Distinct from main content white)
+        - Border: Left Separator
+    -->
+    <Border Background="{DynamicResource CardBackgroundBrush}"
+            BorderBrush="{DynamicResource SeparatorBrush}"
+            BorderThickness="1,0,0,0">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
+                <RowDefinition Height="*"/>
+                <!-- List -->
+                <RowDefinition Height="Auto"/>
+                <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. HEADER -->
+            <Grid Grid.Row="0" Margin="{StaticResource PaddingCard}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="{DynamicResource TerminologyCurrentSaleLabel}" 
+                           Style="{StaticResource Title3}" 
+                           VerticalAlignment="Center"/>
+
+                <!-- Item Count Badge -->
+                <Border Grid.Column="1"
+                        Background="{DynamicResource FacilityAccentBrush}"
+                        CornerRadius="{StaticResource RadiusPill}"
+                        Padding="{StaticResource PaddingPill}"
+                        Visibility="{Binding CartItemCount, Converter={StaticResource InverseZeroIsVisibleConverter}}">
+                    <TextBlock Text="{Binding CartItemCount}" 
+                               Style="{StaticResource Micro}" 
+                               Foreground="#FFFFFF" 
+                               FontWeight="Bold"/>
+                </Border>
+            </Grid>
+
+            <!-- 2. CART LIST -->
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding CartItems}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Style="{StaticResource GlobalScrollBarStyle}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     Padding="0">
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <!-- Separator Border -->
+                                    <Border BorderBrush="{StaticResource SeparatorBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Background="{TemplateBinding Background}">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="{StaticResource PaddingCardCompact}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <!-- Info -->
+                                <ColumnDefinition Width="Auto"/>
+                                <!-- Controls -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Product Info -->
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ProductName}" 
+                                           Style="{StaticResource BodyMedium}" 
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
+
+                                <TextBlock Text="{Binding UnitPrice, StringFormat='{}{0:C}'}" 
+                                           Style="{StaticResource Caption}" 
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="{StaticResource MarginSmallTop}"/>
+                            </StackPanel>
+
+                            <!-- Quantity Controls -->
+                            <StackPanel Grid.Column="1" 
+                                        Orientation="Horizontal" 
+                                        VerticalAlignment="Center">
+
+                                <!-- Minus -->
+                                <Button Style="{StaticResource CompactIconButtonStyle}"
+                                        Command="{Binding DecrementCommand}"
+                                        Width="{StaticResource SizeQuantityButton}" 
+                                        Height="{StaticResource SizeQuantityButton}">
+                                    <Path Data="{StaticResource IconMinus}" 
+                                          Fill="{DynamicResource TextSecondaryBrush}" 
+                                          Style="{StaticResource IconSmall}"/>
+                                </Button>
+
+                                <!-- Quantity -->
+                                <TextBlock Text="{Binding Quantity}" 
+                                           Style="{StaticResource BodyMedium}" 
+                                           FontWeight="SemiBold"
+                                           Width="{StaticResource SizeQuantityButton}" 
+                                           TextAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Plus -->
+                                <Button Style="{StaticResource CompactIconButtonStyle}"
+                                        Command="{Binding IncrementCommand}"
+                                        Width="{StaticResource SizeQuantityButton}" 
+                                        Height="{StaticResource SizeQuantityButton}">
+                                    <Path Data="{StaticResource IconPlus}" 
+                                          Fill="{DynamicResource FacilityAccentBrush}" 
+                                          Style="{StaticResource IconSmall}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- 3. FINANCIAL FOOTER -->
+            <!-- Visible only when items exist -->
+            <StackPanel Grid.Row="2" 
+                        Background="{DynamicResource WindowBg}"
+                        Visibility="{Binding CartItemCount, Converter={StaticResource InverseZeroIsVisibleConverter}}">
+
+                <!-- Separator Shadow -->
+                <Border Height="1" Background="{DynamicResource SeparatorBrush}" Margin="{StaticResource MarginSectionBottom}"/>
+
+                <StackPanel Margin="{StaticResource PaddingCard}">
+
+                    <!-- Subtotal -->
+                    <Grid Margin="{StaticResource MarginSmallBottom}">
+                        <TextBlock Text="{DynamicResource TerminologySubtotalLabel}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:C}'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
+                    </Grid>
+
+                    <!-- Tax -->
+                    <Grid Margin="{StaticResource MarginMediumBottom}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{DynamicResource TerminologyTaxLabel}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding TaxRateDisplay}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="{StaticResource MarginSmallLeft}"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding TaxAmount, StringFormat='{}{0:C}'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
+                    </Grid>
+
+                    <!-- Total -->
+                    <Grid Margin="{StaticResource MarginSectionBottom}">
+                        <TextBlock Text="{DynamicResource TerminologyTotalLabel}" Style="{StaticResource Title2}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                   Style="{StaticResource Title1}" 
+                                   Foreground="{DynamicResource FacilityAccentBrush}" 
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+
+                    <!-- Actions -->
+                    <Button Content="{DynamicResource TerminologyCheckoutLabel}" 
+                            Command="{Binding CheckoutCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            HorizontalAlignment="Stretch"
+                            Margin="{StaticResource MarginMediumBottom}"/>
+
+                    <Button Content="{DynamicResource TerminologyClearCartLabel}" 
+                            Command="{Binding ClearCartCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            HorizontalAlignment="Stretch"
+                            BorderThickness="0"
+                            Foreground="{DynamicResource TextTertiaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 4. EMPTY STATE OVERLAY -->
+            <Grid Grid.Row="1" Grid.RowSpan="2"
+                  Visibility="{Binding CartItemCount, Converter={StaticResource ZeroIsVisibleConverter}}"
+                  IsHitTestVisible="False">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
+                    <Path Data="{StaticResource IconCart}"
+                          Fill="{DynamicResource TextTertiaryBrush}"
+                          Width="{StaticResource SizeIconHero}" 
+                          Height="{StaticResource SizeIconHero}"
+                          Stretch="Uniform"
+                          Margin="{StaticResource MarginSectionBottom}"/>
+
+                    <TextBlock Text="{DynamicResource TerminologyCartEmptyTitle}" 
+                               Style="{StaticResource Title3}" 
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="{DynamicResource TerminologyCartEmptySubtitle}" 
+                               Style="{StaticResource Body}" 
+                               Foreground="{DynamicResource TextTertiaryBrush}" 
+                               HorizontalAlignment="Center"
+                               Margin="{StaticResource MarginTextTop}"/>
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+    </Border>
+</UserControl>

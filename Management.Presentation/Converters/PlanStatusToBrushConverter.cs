@@ -10,12 +10,12 @@ namespace Management.Presentation.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string status = value?.ToString();
+            string status = value?.ToString() ?? string.Empty;
             // Active -> Green, Archived -> Gray
             string key = (status == "Active") ? "StatusSuccessBrush" : "StatusNeutralBrush";
-            return System.Windows.Application.Current.TryFindResource(key) as Brush;
+            return (System.Windows.Application.Current.TryFindResource(key) as Brush)!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }

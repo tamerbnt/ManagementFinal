@@ -11,14 +11,14 @@ namespace Management.Infrastructure.Hardware
     /// </summary>
     public class RfidReaderDevice : IRfidReader, IDisposable
     {
-        private SerialPort _serialPort;
+        private SerialPort? _serialPort;
         private readonly string _portName;
         private readonly int _baudRate;
 
         // Buffer to hold incoming fragments until a newline is found
         private StringBuilder _buffer = new StringBuilder();
 
-        public event Action<string> CardScanned;
+        public event Action<string>? CardScanned;
 
         public bool IsConnected => _serialPort != null && _serialPort.IsOpen;
 

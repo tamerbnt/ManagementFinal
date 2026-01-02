@@ -16,7 +16,7 @@ namespace Management.Infrastructure.Repositories
         {
             return await _dbSet.AsNoTracking()
                 .Where(p => p.IsActive)
-                .OrderBy(p => p.Price)
+                .OrderBy(p => p.Price.Amount)
                 .ToListAsync();
         }
     }

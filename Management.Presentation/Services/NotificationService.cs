@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
-using CommunityToolkit.Mvvm.Input;
 using Management.Application.Stores;
 using Management.Domain.Interfaces;
 using Management.Presentation.Extensions;
@@ -43,14 +42,98 @@ namespace Management.Presentation.Services
             };
             _autoDismissTimer.Tick += OnAutoDismissTick;
             _autoDismissTimer.Start();
+
+            UndoCommand = new RelayCommand(ExecuteUndo);
+            DismissCommand = new RelayCommand(ExecuteDismiss);
+        }
+
+        // --- Phase 2 Overlay Implementation ---
+
+        private string? _currentMessage;
+        public string? CurrentMessage
+        {
+            get => _currentMessage;
+            private set { _currentMessage = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasUndo;
+        public bool HasUndo
+        {
+            get => _hasUndo;
+            private set { _hasUndo = value; OnPropertyChanged(); }
+        }
+
+        public ICommand UndoCommand { get; }
+        public ICommand DismissCommand { get; }
+
+        private Func<Task>? _pendingUndoAction;
+        private Func<Task>? _pendingFinalAction;
+        private DispatcherTimer? _undoTimer;
+
+        public void ShowUndoNotification(string message, Func<Task> undoAction, Func<Task> finalAction)
+        {
+            CurrentMessage = message;
+            HasUndo = undoAction != null;
+            _pendingUndoAction = undoAction;
+            _pendingFinalAction = finalAction;
+
+            if (_undoTimer != null) _undoTimer.Stop();
+            _undoTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _undoTimer.Tick += async (s, e) =>
+            {
+                _undoTimer.Stop();
+                if (_pendingFinalAction != null) await _pendingFinalAction();
+                ExecuteDismiss();
+            };
+            _undoTimer.Start();
+            
+            // Trigger View Animation (Slide Down)
+            // Implementation detail: MainWindow.xaml notification overlay will bind to this.
+        }
+
+        private async void ExecuteUndo()
+        {
+            _undoTimer?.Stop();
+            if (_pendingUndoAction != null) await _pendingUndoAction();
+            ExecuteDismiss();
+        }
+
+        private void ExecuteDismiss()
+        {
+            _undoTimer?.Stop();
+            CurrentMessage = null;
+            HasUndo = false;
+            _pendingUndoAction = null;
+            _pendingFinalAction = null;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         // --- Interface Implementation ---
 
+
         public void ShowSuccess(string message) => ShowToast(ToastType.Success, message);
         public void ShowError(string message) => ShowToast(ToastType.Error, message);
+        public void ShowError(string title, string message) => ShowToast(ToastType.Error, $"{title}: {message}");
         public void ShowInfo(string message) => ShowToast(ToastType.Info, message);
         public void ShowWarning(string message) => ShowToast(ToastType.Warning, message);
+
+        public void ShowNotification(string message, NotificationType type)
+        {
+            var toastType = type switch
+            {
+                NotificationType.Success => ToastType.Success,
+                NotificationType.Error => ToastType.Error,
+                NotificationType.Warning => ToastType.Warning,
+                NotificationType.Info => ToastType.Info,
+                _ => ToastType.Info
+            };
+            ShowToast(toastType, message);
+        }
 
         // --- Core Logic ---
 
@@ -72,7 +155,7 @@ namespace Management.Presentation.Services
                 };
 
                 // Wire up the Dismiss Command
-                toast.DismissCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => DismissToast(toast.Id));
+                toast.DismissCommand = new RelayCommand(() => DismissToast(toast.Id));
 
                 // Queue Management: If full, force-dismiss the oldest one
                 if (_activeToasts.Count >= MaxVisibleToasts)
@@ -128,7 +211,7 @@ namespace Management.Presentation.Services
             }
         }
 
-        private void OnAutoDismissTick(object sender, EventArgs e)
+        private void OnAutoDismissTick(object? sender, EventArgs e)
         {
             var now = DateTime.Now;
             // Find items that expired AND are not paused AND are not already exiting
@@ -175,9 +258,9 @@ namespace Management.Presentation.Services
     {
         public Guid Id { get; set; }
         public ToastType Type { get; set; }
-        public string Message { get; set; }
+        public required string Message { get; set; }
         public DateTime CreatedAt { get; set; }
-        public ICommand DismissCommand { get; set; }
+        public required ICommand DismissCommand { get; set; }
 
         private bool _isPaused;
         public bool IsPaused

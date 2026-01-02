@@ -1,23 +1,18 @@
 ﻿using System;
-using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class AccessEventDto
+    public record AccessEventDto
     {
         public Guid Id { get; set; }
         public DateTime Timestamp { get; set; }
-
-
-        public Guid? MemberId { get; set; }
-        public string MemberName { get; set; }
-        public string CardId { get; set; }
-
-        public string FacilityName { get; set; } // Flattened from FacilityType
-        public FacilityType FacilityType { get; set; }
-
-        public string AccessStatus { get; set; } // "Granted", "Denied"
-        public bool IsAccessGranted { get; set; } // For Green/Red logic
-        public string FailureReason { get; set; } // Optional detail
+        public Guid TurnstileId { get; set; }
+        public string CardId { get; set; } = string.Empty;
+        public string MemberName { get; set; } = string.Empty;
+        public string FacilityName { get; set; } = string.Empty;
+        public bool IsAccessGranted { get; set; }
+        public string AccessStatus { get; set; } = string.Empty;
+        public string FailureReason { get; set; } = string.Empty;
+        public Management.Domain.Enums.FacilityType FacilityType { get; set; }
     }
 }

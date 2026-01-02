@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- Workspace Layer: LIGHT MODE -->
+    
+    <!-- Backgrounds -->
+    <SolidColorBrush x:Key="WindowBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="ContentAreaBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="TopBarBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceBg" Color="#F5F7FA"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/> <!-- Alias for compatibility -->
+
+    <!-- Borders & Strokes -->
+    <SolidColorBrush x:Key="SeparatorStroke" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
+
+    <!-- Text -->
+    <SolidColorBrush x:Key="TextPrimary" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="#6B7280"/>
+    <SolidColorBrush x:Key="TextTertiary" Color="#9CA3AF"/>
+    
+    <!-- Compatibility Aliases -->
+    <StaticResource x:Key="TextPrimaryBrush" ResourceKey="TextPrimary"/>
+    <StaticResource x:Key="TextSecondaryBrush" ResourceKey="TextSecondary"/>
+    <StaticResource x:Key="TextTertiaryBrush" ResourceKey="TextTertiary"/>
+    
+    <!-- Shadows (Light Mode specific opacity) -->
+    <Color x:Key="ShadowColor">#000000</Color>
+    <Color x:Key="ElevationColor">#000000</Color>
+    <sys:Double x:Key="ShadowOpacity">0.1</sys:Double>
+</ResourceDictionary>

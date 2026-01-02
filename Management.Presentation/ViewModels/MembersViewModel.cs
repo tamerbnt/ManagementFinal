@@ -4,20 +4,34 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services; // For IDialogService, INavigationService
 using Management.Domain.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Services;
-using Management.Presentation.Extensions;// Using custom RelayCommand/AsyncRelayCommand
 using Management.Presentation.Services;
+using Management.Presentation.Extensions;
+using MediatR;
+using Management.Application.Features.Members.Queries.GetMembers;
 
 namespace Management.Presentation.ViewModels
 {
     public class MembersViewModel : ViewModelBase
     {
-        private readonly IMemberService _memberService;
+        private readonly IMediator _mediator;
+        private readonly IMemberService _memberService; // Still needed for specific non-query actions for now
         private readonly INavigationService _navigationService;
-        private readonly IDialogService _dialogService; // 1. Added DialogService
+        private readonly IDialogService _dialogService;
+        private readonly INotificationService _notificationService;
+        private readonly ITerminologyService _terminologyService;
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value);
+        }
+
+        public string TerminologyLabel => _terminologyService.GetTerm("Guest");
+        public string TerminologyPluralLabel => _terminologyService.GetTerm("Guests");
 
         // View List (Bound to Grid)
         public ObservableCollection<MemberListItemViewModel> FilteredMembers { get; }
@@ -107,13 +121,19 @@ namespace Management.Presentation.ViewModels
         // --- 4. CONSTRUCTOR ---
 
         public MembersViewModel(
+            IMediator mediator,
             IMemberService memberService,
             INavigationService navigationService,
-            IDialogService dialogService) // 2. Injected here
+            IDialogService dialogService,
+            INotificationService notificationService,
+            ITerminologyService terminologyService)
         {
+            _mediator = mediator;
             _memberService = memberService;
             _navigationService = navigationService;
             _dialogService = dialogService;
+            _notificationService = notificationService;
+            _terminologyService = terminologyService;
 
             // Initialize Commands (Using local Extensions)
             ClearSelectionCommand = new RelayCommand(ExecuteClearSelection);
@@ -128,38 +148,47 @@ namespace Management.Presentation.ViewModels
 
         private async Task RefreshDataAsync()
         {
+            IsLoading = true;
             try
             {
-                var pagedResult = await _memberService.SearchMembersAsync(new MemberSearchRequest
-                {
-                    SearchTerm = SearchText,
-                    FilterType = _currentFilter
-                });
+                // ARCHITECTURAL FIX: Logic moved to Application Layer
+                var members = await _mediator.Send(new GetMembersQuery(SearchText, _currentFilter));
 
                 FilteredMembers.Clear();
 
-                // 3. Updated Loop Logic
-                foreach (var dto in pagedResult.Items)
+                foreach (var dto in members)
                 {
                     var vm = new MemberListItemViewModel(dto);
                     vm.SelectionChanged += OnMemberSelectionChanged;
 
-                    // FIX: Use DialogService to open the Detail Modal passing the ID
                     vm.ViewDetailsCommand = new AsyncRelayCommand(async () =>
                         await _dialogService.ShowCustomDialogAsync<MemberDetailViewModel>(dto.Id));
+                    
+                    // Hook standard actions
+                    vm.EditCommand = new RelayCommand(() => /* Edit Logic */ { });
+                    vm.DeleteCommand = new AsyncRelayCommand(async () => {
+                        _notificationService.ShowUndoNotification(
+                            $"{TerminologyLabel} {dto.FullName} deleted.",
+                            undoAction: () => Task.CompletedTask, 
+                            finalAction: async () => await _memberService.DeleteMembersAsync(Guid.Empty, new List<Guid> { dto.Id }) // Facility resolution moved to service/handler
+                        );
+                        FilteredMembers.Remove(vm);
+                        RecalculateSelection();
+                    });
 
                     FilteredMembers.Add(vm);
                 }
 
                 RecalculateSelection();
             }
-            catch (Exception ex)
+            catch (Exception) { }
+            finally
             {
-                // Log error
+                IsLoading = false;
             }
         }
 
-        private void OnMemberSelectionChanged(object sender, EventArgs e) => RecalculateSelection();
+        private void OnMemberSelectionChanged(object? sender, EventArgs e) => RecalculateSelection();
 
         private void RecalculateSelection() => SelectedCount = FilteredMembers.Count(m => m.IsSelected);
 
@@ -174,7 +203,7 @@ namespace Management.Presentation.ViewModels
             var selectedIds = FilteredMembers.Where(m => m.IsSelected).Select(m => m.Id).ToList();
             if (!selectedIds.Any()) return;
 
-            await _memberService.RenewMembersAsync(selectedIds);
+            await _memberService.RenewMembersAsync(Guid.Empty, selectedIds);
             await RefreshDataAsync();
             IsSelectionMode = false;
         }
@@ -184,7 +213,7 @@ namespace Management.Presentation.ViewModels
             var selectedIds = FilteredMembers.Where(m => m.IsSelected).Select(m => m.Id).ToList();
             if (!selectedIds.Any()) return;
 
-            await _memberService.DeleteMembersAsync(selectedIds);
+            await _memberService.DeleteMembersAsync(Guid.Empty, selectedIds);
             await RefreshDataAsync();
             IsSelectionMode = false;
         }
@@ -218,8 +247,10 @@ namespace Management.Presentation.ViewModels
             }
         }
 
-        public ICommand ViewDetailsCommand { get; set; }
-        public event EventHandler SelectionChanged;
+        public event EventHandler? SelectionChanged;
+        public ICommand ViewDetailsCommand { get; set; } = null!;
+        public ICommand EditCommand { get; set; } = null!;
+        public ICommand DeleteCommand { get; set; } = null!;
 
         public MemberListItemViewModel(MemberDto dto)
         {

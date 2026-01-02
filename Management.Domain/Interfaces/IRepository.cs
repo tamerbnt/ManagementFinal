@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Management.Domain.Models;
+using Management.Domain.Primitives;
 
 namespace Management.Domain.Interfaces
 {

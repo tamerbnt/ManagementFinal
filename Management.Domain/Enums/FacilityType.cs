@@ -10,6 +10,8 @@
         Pool = 2,
         Sauna = 3,
         Studio = 4,
-        StaffOnly = 99
+        Salon = 5,
+        Restaurant = 6,
+        Admin = 99
     }
 }

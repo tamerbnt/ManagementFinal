@@ -1,0 +1,177 @@
+<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.StaffDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="900" d:DesignWidth="400"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <!-- 
+        Main Panel Container 
+        - Width: 400px (SizeSidePanelWidth)
+        - Background: ContentBackground
+        - Shadow: Level 3 (Casting left to separate from main content)
+    -->
+    <Border Width="{StaticResource SizeSidePanelWidth}"
+            Background="{DynamicResource WindowBg}"
+            BorderBrush="{DynamicResource SeparatorBrush}"
+            BorderThickness="1,0,0,0"
+            Effect="{StaticResource Shadow3}"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Stretch">
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- Tabs -->
+                <RowDefinition Height="*"/>
+                <!-- Content -->
+                <RowDefinition Height="Auto"/>
+                <!-- Sticky Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. PROFILE HEADER (Section 29.4) -->
+            <StackPanel Grid.Row="0" 
+                        HorizontalAlignment="Center" 
+                        Margin="{StaticResource MarginSectionVertical}">
+
+                <!-- Avatar (128px Hero) -->
+                <Ellipse Width="{StaticResource SizeAvatarHero}" 
+                         Height="{StaticResource SizeAvatarHero}"
+                         Fill="{DynamicResource FacilityAccentBrush}"
+                         Margin="{StaticResource MarginCardBottom}"/>
+
+                <!-- Name -->
+                <TextBlock Text="{Binding FullName}" 
+                           Style="{StaticResource Title2}" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"/>
+
+                <!-- Role Badge (Global) -->
+                <ContentControl Content="{Binding Role}"
+                                Style="{StaticResource GlobalRoleBadgeStyle}"
+                                Margin="{StaticResource MarginTextTop}"/>
+            </StackPanel>
+
+            <!-- 2. NAVIGATION TABS -->
+            <TabControl Grid.Row="1" 
+                        Background="Transparent" 
+                        BorderThickness="0"
+                        Padding="0"
+                        HorizontalContentAlignment="Center">
+                <TabControl.Resources>
+                    <Style TargetType="TabPanel">
+                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                    </Style>
+                </TabControl.Resources>
+
+                <!-- Tab 1: Info -->
+                <TabItem Header="{DynamicResource TerminologyInfoTabLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="{StaticResource MarginSectionTop}">
+                        <Grid Margin="{StaticResource PaddingCard}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="{StaticResource GridLengthFormRow}"/>
+                                <RowDefinition Height="{StaticResource GridLengthFormRow}"/>
+                                <RowDefinition Height="{StaticResource GridLengthFormRow}"/>
+                                <RowDefinition Height="{StaticResource GridLengthFormRow}"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource TerminologyPhoneLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PhoneNumber}" Style="{StaticResource FormValue}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TerminologyEmailLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Email}" Style="{StaticResource FormValue}"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource TerminologyHiredLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding HireDate, StringFormat='{}{0:MMM dd, yyyy}'}" Style="{StaticResource FormValue}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TerminologyStatusLabel}" Style="{StaticResource FormLabel}"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding EmploymentStatus}" Style="{StaticResource FormValue}"/>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Tab 2: Permissions -->
+                <TabItem Header="{DynamicResource TerminologyAccessTabLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="{StaticResource MarginSectionTop}">
+                        <StackPanel Margin="{StaticResource PaddingCard}">
+                            <TextBlock Text="{DynamicResource TerminologySystemPermissionsLabel}" Style="{StaticResource Title3}" Margin="{StaticResource MarginHeaderBottom}"/>
+
+                            <ItemsControl ItemsSource="{Binding Permissions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}"
+                                                  IsChecked="{Binding IsGranted}"
+                                                  IsEnabled="False" 
+                                                  Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                                                  Margin="{StaticResource MarginSmallBottom}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Tab 3: Salary -->
+                <TabItem Header="{DynamicResource TerminologySalaryTabLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+                    <Grid Margin="{StaticResource PaddingCard}" VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource TerminologySalaryRestrictedLabel}" 
+                                   Style="{StaticResource BodySecondary}" 
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </Grid>
+                </TabItem>
+
+                <!-- Tab 4: Schedule -->
+                <TabItem Header="{DynamicResource TerminologyScheduleTabLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+                    <Grid Margin="{StaticResource PaddingCard}" VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource TerminologyNoUpcomingShiftsLabel}" 
+                                   Style="{StaticResource BodySecondary}" 
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   HorizontalAlignment="Center"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+
+            <!-- 3. STICKY FOOTER -->
+            <Border Grid.Row="3" 
+                    Background="{DynamicResource SurfaceBg}"
+                    BorderBrush="{DynamicResource SeparatorBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="{StaticResource PaddingCard}">
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <!-- Close -->
+                    <Button Content="{DynamicResource TerminologyCloseLabel}" 
+                            Command="{Binding CloseCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Margin="{StaticResource MarginSmallRight}"/>
+
+                    <!-- Edit -->
+                    <Button Content="{DynamicResource TerminologyEditLabel}" 
+                            Command="{Binding EditCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Margin="{StaticResource MarginSmallRight}"/>
+
+                    <!-- Remove (Destructive) -->
+                    <Button Content="{DynamicResource TerminologyRemoveLabel}" 
+                            Command="{Binding RemoveCommand}"
+                            Style="{StaticResource DestructiveButtonStyle}"/>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+    </Border>
+</UserControl>

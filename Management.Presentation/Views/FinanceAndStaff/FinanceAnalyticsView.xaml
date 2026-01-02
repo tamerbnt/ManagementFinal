@@ -1,0 +1,96 @@
+<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.FinanceAnalyticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1440">
+    
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBg}">
+        <Grid Margin="48,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header & Filter -->
+                <RowDefinition Height="240"/> <!-- Hero Card -->
+                <RowDefinition Height="Auto"/> <!-- Metrics Grid -->
+                <RowDefinition Height="*"/> <!-- Details -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header & Admin Filter -->
+            <Grid Grid.Row="0" Margin="0,0,0,32">
+                <TextBlock Text="{DynamicResource TerminologyFinancialIntelligenceLabel}" Style="{StaticResource Title1}"/>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource TerminologyFilterFacilityLabel}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="20" Padding="4">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="{DynamicResource TerminologyAllLabel}" IsChecked="True" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource TerminologyGymLabel}" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource TerminologySalonLabel}" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource TerminologyHospitalityLabel}" Style="{StaticResource TogglePillStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Row="1" Background="{DynamicResource SurfaceBg}" CornerRadius="24" Padding="48">
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding TotalRevenue, FallbackValue='$0.00'}" Style="{StaticResource HeroLive}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </StackPanel>
+                    
+                    <!-- Sparkline Placeholder (Stroke: Accent) -->
+                    <Path Data="M0,50 L20,40 L40,60 L60,30 L80,45 L100,20 L120,35 L140,5 L160,15 L180,0" 
+                          Stroke="{DynamicResource AccentBrush}" StrokeThickness="4" 
+                          Stretch="Fill" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                          Width="300" Height="80" Opacity="0.5"/>
+                </Grid>
+            </Border>
+
+            <!-- 3. Metrics Grid -->
+            <UniformGrid Grid.Row="2" Columns="3" Margin="0,32,0,0">
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,16" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyMRRLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding MRR, StringFormat='{}{0:C0}'}" Style="{StaticResource Title1}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,16" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyARPULabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ARPU, StringFormat='{}{0:C2}'}" Style="{StaticResource Title1}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,16" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyChurnRateLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ChurnRate, StringFormat='{}{0:P1}'}" Style="{StaticResource Title1}" Foreground="{DynamicResource StatusErrorBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="16" Margin="0,0,16,0" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyNewMembersLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding NewMembersCount}" Style="{StaticResource Title1}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyTotalMembersLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding TotalMembersCount}" Style="{StaticResource Title1}"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Padding="24">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologySuccessRateLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding SuccessRate, StringFormat='{}{0:P1}'}" Style="{StaticResource Title1}" Foreground="{DynamicResource StatusSuccessBrush}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+        </Grid>
+    </Grid>
+</UserControl>

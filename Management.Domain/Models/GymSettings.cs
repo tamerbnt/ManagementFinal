@@ -1,27 +1,30 @@
 ﻿using System;
+using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
-    /// <summary>
-    /// Stores global configuration. Typically only one row exists in this table.
-    /// </summary>
-    public class GymSettings : Entity
+    public class GymSettings : AggregateRoot
     {
-        // General Settings
-        public string GymName { get; set; }
-        public string Address { get; set; }
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Website { get; set; }
-        public string TaxId { get; set; }
-        public string LogoUrl { get; set; }
+        // --- 1. GENERAL ---
+        public string GymName { get; set; } = "My Gym";
+        public string Email { get; set; } = "contact@gym.com";
+        public string PhoneNumber { get; set; } = "555-0100";
+        public string Website { get; set; } = "https://mygym.com";
+        public string TaxId { get; set; } = "TAX123";
+        public string Address { get; set; } = "123 Main St";
+        public string LogoUrl { get; set; } = "";
 
-        // Facility Settings
-        public int MaxOccupancy { get; set; }
-        public bool IsMaintenanceMode { get; set; }
+        // --- 2. FACILITY ---
+        public int MaxOccupancy { get; set; } = 100;
+        public bool IsMaintenanceMode { get; set; } = false;
+        public string OperatingHoursJson { get; set; } = "{}";
 
-        // Serialized JSON for complex nested structures (Schedule, etc.)
-        // This avoids creating 4-5 tiny tables for configuration data.
-        public string OperatingHoursJson { get; set; }
+        // --- 3. APPEARANCE ---
+        public bool IsLightMode { get; set; } = true;
+        public string Language { get; set; } = "en-US";
+        public string DateFormat { get; set; } = "MM/dd/yyyy";
+        public bool HighContrast { get; set; } = false;
+        public bool ReducedMotion { get; set; } = false;
+        public string TextScale { get; set; } = "100%";
     }
 }

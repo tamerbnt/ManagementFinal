@@ -1,0 +1,104 @@
+<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.FinanceAndStaffView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:local="clr-namespace:Management.Presentation.Views.FinanceAndStaff"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d"
+             d:DesignHeight="1080" d:DesignWidth="1440"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="Transparent">
+
+	<UserControl.Resources>
+		<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+	</UserControl.Resources>
+
+	<Grid>
+		<!-- LAYER 0: MAIN CONTENT -->
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<!-- Header -->
+				<RowDefinition Height="*"/>
+				<!-- Tabs -->
+			</Grid.RowDefinitions>
+
+			<!-- 1. Header -->
+			<TextBlock Grid.Row="0"
+                       Text="{DynamicResource TerminologyFinanceStaffLabel}"
+                       Style="{StaticResource Title1}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       Margin="48,0,48,24"/>
+
+			<!-- 2. Top-Level Navigation Tabs -->
+			<TabControl Grid.Row="1"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="0"
+                        SelectedIndex="{Binding SelectedTabIndex}">
+
+				<TabControl.Resources>
+					<!-- Align Tabs to Left -->
+					<Style TargetType="TabPanel">
+						<Setter Property="HorizontalAlignment" Value="Left"/>
+						<Setter Property="Margin" Value="48,0,0,32"/>
+					</Style>
+				</TabControl.Resources>
+
+				<!-- Tab 1: Finance -->
+				<TabItem Header="{DynamicResource TerminologyFinanceLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+					<local:FinancialReportView />
+				</TabItem>
+
+				<!-- Tab 2: Staff -->
+				<TabItem Header="{DynamicResource TerminologyStaffLabel}" Style="{StaticResource GlobalDetailTabStyle}">
+					<local:StaffList />
+				</TabItem>
+			</TabControl>
+		</Grid>
+
+		<!-- LAYER 1: BACKDROP (Dimmer) -->
+		<!-- 
+            Uses Global OverlayBackdropBrush (Handles correct alpha/color).
+            Clicking backdrop triggers CloseDetailCommand.
+        -->
+		<Border Background="{DynamicResource OverlayBackdropBrush}"
+                Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+                Panel.ZIndex="10">
+			<Border.InputBindings>
+				<MouseBinding MouseAction="LeftClick" Command="{Binding CloseDetailCommand}"/>
+			</Border.InputBindings>
+		</Border>
+
+		<!-- LAYER 2: SLIDE-IN DETAIL PANEL -->
+		<!-- 
+            Animation handled entirely by GlobalSidePanelBehavior.
+            No local Storyboards allowed.
+        -->
+        <Grid HorizontalAlignment="Right"
+              VerticalAlignment="Stretch"
+              Panel.ZIndex="20"
+              Width="{StaticResource SizeSidePanelWidth}">
+
+            <Grid.RenderTransform>
+                <TranslateTransform X="{StaticResource SizeSidePanelWidth}"/>
+            </Grid.RenderTransform>
+
+
+            <!-- 2. FIX: CORRECT BEHAVIOR SYNTAX -->
+            <i:Interaction.Behaviors>
+				<behaviors:GlobalSidePanelBehavior IsOpen="{Binding IsDetailOpen}" />
+			</i:Interaction.Behaviors>
+
+			<local:StaffDetailView DataContext="{Binding SelectedStaffViewModel}"/>
+		</Grid>
+
+	</Grid>
+</UserControl>

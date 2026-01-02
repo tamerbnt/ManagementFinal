@@ -1,0 +1,107 @@
+<UserControl x:Class="Management.Presentation.Views.Members.MemberListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="240" d:DesignWidth="280"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>
+    </UserControl.Resources>
+
+    <!-- 
+        Main Card Container (Section 26.4)
+        - Height: 240px ({StaticResource SizeMemberCardHeight})
+        - Padding: 24px ({StaticResource PaddingCardCompact})
+        - Style: Global Interactive Style (Shadow L2 -> Lift)
+        - FIX: AutomationProperties.Name moved here for correct accessibility tree placement
+    -->
+    <Border Style="{StaticResource MemberCardStyleInteractive}"
+            Height="{StaticResource SizeMemberCardHeight}"
+            Padding="{StaticResource PaddingCardCompact}"
+            AutomationProperties.Name="{Binding FullName}">
+
+        <Grid>
+            <!-- 
+                Selection Checkbox (Top Left)
+                - Style: Global Circular Style (Handles Opacity 0->1 transition internally)
+            -->
+            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                      Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      Panel.ZIndex="10"/>
+
+            <!-- Main Content (Centered) -->
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+                <!-- Avatar: 96px (Section 26.4) -->
+                <Ellipse Width="{StaticResource SizeAvatarLarge}" 
+                         Height="{StaticResource SizeAvatarLarge}"
+                         Margin="{StaticResource MarginCardBottom}">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="{DynamicResource ColorFacilityAccent}" Opacity="0.1"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+
+                <!-- Name: 17pt Body Medium (Section 26.4) -->
+                <TextBlock Text="{Binding FullName}" 
+                           Style="{StaticResource BodyMedium}" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           HorizontalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"
+                           TextAlignment="Center"/>
+
+                <!-- Card ID: Caption -->
+                <TextBlock Text="{Binding CardId}" 
+                           Style="{StaticResource Caption}" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="{StaticResource MarginSmallTop}"/>
+
+                <!-- Status Badge: Global Style -->
+                <Border Style="{StaticResource StatusBadgeStyle}"
+                        Background="{Binding Status, Converter={StaticResource MemberStatusToBrushConverter}}"
+                        Margin="{StaticResource MarginTextVertical}"
+                        HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding Status}" 
+                               Style="{StaticResource Micro}" 
+                               Foreground="{DynamicResource TextOnAccentBrush}"
+                               FontWeight="Bold"/>
+                </Border>
+
+                <!-- Expiration -->
+                <TextBlock Text="{Binding ExpirationDate, StringFormat='Expires {0:MMM dd, yyyy}'}" 
+                           Style="{StaticResource Caption}" 
+                           Foreground="{DynamicResource TextSecondary}"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- HOVER ACTIONS OVERLAY (Sequoia Standard) -->
+            <Border Background="{DynamicResource OverlayBackdrop}"
+                    CornerRadius="20"
+                    Style="{StaticResource RowHoverActionsStyle}">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Button Style="{StaticResource IconButtonStyle}" 
+                            Command="{Binding EditCommand}"
+                            ToolTip="{DynamicResource TerminologyEditMemberLabel}"
+                            Margin="8">
+                        <Path Data="{StaticResource IconEdit}" Fill="{DynamicResource TextOnDarkBrush}" Style="{StaticResource IconStandard}"/>
+                    </Button>
+                    <Button Style="{StaticResource IconButtonStyle}" 
+                            Command="{Binding DeleteCommand}"
+                            ToolTip="{DynamicResource TerminologyDeleteMemberLabel}"
+                            Margin="8">
+                        <Path Data="{StaticResource IconTrash}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource IconStandard}"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

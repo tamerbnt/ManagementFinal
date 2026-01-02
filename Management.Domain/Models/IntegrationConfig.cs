@@ -1,4 +1,5 @@
 ﻿using System;
+using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
@@ -7,13 +8,33 @@ namespace Management.Domain.Models
     /// </summary>
     public class IntegrationConfig : Entity
     {
-        public string ProviderName { get; set; } // "Stripe"
-        public bool IsConnected { get; set; }
-        public string ApiKey { get; set; } // Encrypted in DB
-        public string IconKey { get; set; } // Resource Key for UI
-        public string Description { get; set; }
+        public string ProviderName { get; private set; } = string.Empty;
+        public string ApiKey { get; private set; } = string.Empty; // Should look into encryption
+        public string ApiUrl { get; private set; } = string.Empty;
+        public bool IsEnabled { get; private set; }
 
-        // Provider specific config
-        public string AdditionalConfigJson { get; set; }
+        private IntegrationConfig(Guid id, string providerName, string apiKey, string apiUrl) : base(id)
+        {
+            ProviderName = providerName;
+            ApiKey = apiKey;
+            ApiUrl = apiUrl;
+            IsEnabled = true;
+        }
+
+        private IntegrationConfig() { }
+
+        public static Result<IntegrationConfig> Create(string provider, string key, string url)
+        {
+            return Result.Success(new IntegrationConfig(Guid.NewGuid(), provider, key, url));
+        }
+        public void UpdateDetails(string key, string url)
+        {
+            ApiKey = key;
+            ApiUrl = url;
+            UpdateTimestamp();
+        }
+
+        public void Enable() { IsEnabled = true; UpdateTimestamp(); }
+        public void Disable() { IsEnabled = false; UpdateTimestamp(); }
     }
 }

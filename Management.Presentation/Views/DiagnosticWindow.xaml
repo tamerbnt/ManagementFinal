@@ -1,0 +1,338 @@
+<Window x:Class="Management.Presentation.Views.DiagnosticWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="clr-namespace:Management.Presentation.Models"
+        Title="Diagnostic Console - Runtime Errors &amp; Warnings"
+        Width="1200" Height="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBg}">
+
+    <Window.Resources>
+        <!-- Use Global Theme Colors via DynamicResource -->
+        
+        <!-- Button Style -->
+        <Style x:Key="FilterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource SeparatorStroke}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Severity Badge Template -->
+        <DataTemplate x:Key="SeverityBadgeTemplate">
+            <Border CornerRadius="3" Padding="6,2" Margin="0,0,8,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Severity}" Value="Critical">
+                                <Setter Property="Background" Value="{DynamicResource StatusErrorBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                <Setter Property="Background" Value="{DynamicResource StatusErrorBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                <Setter Property="Background" Value="{DynamicResource StatusWarningBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Severity}" Value="Info">
+                                <Setter Property="Background" Value="{DynamicResource StatusInfoBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <TextBlock Text="{Binding SeverityDisplay}" 
+                           FontSize="10" 
+                           FontWeight="Bold"
+                           Foreground="#FFFFFF"/>
+            </Border>
+        </DataTemplate>
+
+        <!-- Category Badge Template -->
+        <DataTemplate x:Key="CategoryBadgeTemplate">
+            <Border Background="{DynamicResource SeparatorStroke}" 
+                    CornerRadius="3" 
+                    Padding="6,2">
+                <TextBlock Text="{Binding CategoryDisplay}" 
+                           FontSize="10"
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="{DynamicResource WindowBg}" 
+                BorderBrush="{DynamicResource SeparatorStroke}"
+                BorderThickness="0,0,0,1"
+                Padding="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title and Actions -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="⚠" 
+                                   FontSize="24" 
+                                   Foreground="{DynamicResource StatusWarningBrush}"
+                                   Margin="0,0,12,0"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Diagnostic Console" 
+                                   FontSize="20" 
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="Export Log" 
+                                Command="{Binding ExportCommand}"
+                                Style="{StaticResource FilterButtonStyle}"/>
+                        <Button Content="Clear All" 
+                                Command="{Binding ClearAllCommand}"
+                                Style="{StaticResource FilterButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Filter Buttons -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="All" 
+                            Command="{Binding ShowAllCommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+                    <Button Content="Binding" 
+                            Command="{Binding ShowBindingCommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+                    <Button Content="DI" 
+                            Command="{Binding ShowDICommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+                    <Button Content="Network" 
+                            Command="{Binding ShowNetworkCommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+                    <Button Content="Theme" 
+                            Command="{Binding ShowThemeCommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+                    <Button Content="Runtime" 
+                            Command="{Binding ShowRuntimeCommand}"
+                            Style="{StaticResource FilterButtonStyle}"/>
+
+                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             Width="200"
+                             Margin="16,0,0,0"
+                             Padding="8,4"
+                             Background="{StaticResource SequoiaGray800}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             BorderBrush="{DynamicResource SeparatorStroke}"
+                             BorderThickness="1"
+                             VerticalContentAlignment="Center"
+                             ToolTip="SOURCE: DIAGNOSTIC_WINDOW">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <VisualBrush Stretch="None" AlignmentX="Left">
+                                                    <VisualBrush.Visual>
+                                                        <TextBlock Text="Search..." 
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                   Margin="8,0,0,0"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Error List -->
+        <ListBox Grid.Row="1"
+                 ItemsSource="{Binding Entries}"
+                 Background="{DynamicResource WindowBg}"
+                 BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource SurfaceBg}"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    <Setter Property="Padding" Value="16,12"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header Row -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ContentPresenter Grid.Column="0" 
+                                            Content="{Binding}"
+                                            ContentTemplate="{StaticResource SeverityBadgeTemplate}"/>
+                            
+                            <ContentPresenter Grid.Column="1" 
+                                            Content="{Binding}"
+                                            ContentTemplate="{StaticResource CategoryBadgeTemplate}"
+                                            Margin="0,0,12,0"/>
+
+                            <TextBlock Grid.Column="2"
+                                     Text="{Binding MethodName}"
+                                     FontWeight="SemiBold"
+                                     FontSize="13"
+                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                     VerticalAlignment="Center"/>
+
+                            <TextBlock Grid.Column="3"
+                                     Text="{Binding TimeDisplay}"
+                                     FontSize="11"
+                                     Foreground="{DynamicResource TextTertiaryBrush}"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Message -->
+                        <TextBlock Grid.Row="1"
+                                 Text="{Binding Message}"
+                                 Foreground="{DynamicResource TextSecondaryBrush}"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"
+                                 Margin="0,6,0,0"/>
+
+                        <!-- Stack Trace (Expandable) -->
+                        <Expander Grid.Row="2"
+                                Header="Stack Trace"
+                                Margin="0,8,0,0"
+                                Foreground="{DynamicResource TextTertiaryBrush}"
+                                Visibility="{Binding HasStackTrace, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border Background="{DynamicResource WindowBg}"
+                                    BorderBrush="{DynamicResource SeparatorStroke}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Padding="12"
+                                    Margin="0,4,0,0">
+                                <TextBlock Text="{Binding StackTrace}"
+                                         FontFamily="Consolas"
+                                         FontSize="10"
+                                         Foreground="{DynamicResource TextSecondaryBrush}"
+                                         TextWrapping="Wrap"/>
+                            </Border>
+                        </Expander>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- Footer -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource WindowBg}"
+                BorderBrush="{DynamicResource SeparatorStroke}"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Total: " 
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               FontSize="11"/>
+                    <TextBlock Text="{Binding TotalCount}" 
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontWeight="SemiBold"
+                               FontSize="11"
+                               Margin="0,0,16,0"/>
+                    
+                    <TextBlock Text="Errors: " 
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               FontSize="11"/>
+                    <TextBlock Text="{Binding ErrorCount}" 
+                               Foreground="{DynamicResource StatusErrorBrush}"
+                               FontWeight="SemiBold"
+                               FontSize="11"
+                               Margin="0,0,16,0"/>
+                    
+                    <TextBlock Text="Warnings: " 
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               FontSize="11"/>
+                    <TextBlock Text="{Binding WarningCount}" 
+                               Foreground="{DynamicResource StatusWarningBrush}"
+                               FontWeight="SemiBold"
+                               FontSize="11"/>
+                </StackPanel>
+
+                <TextBlock Text="Press F5 to refresh • Ctrl+E to export"
+                           HorizontalAlignment="Right"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           FontSize="10"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

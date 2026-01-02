@@ -1,0 +1,9 @@
+using Management.Domain.DTOs;
+using Management.Domain.Primitives;
+using MediatR;
+using System;
+
+namespace Management.Application.Features.Plans.Commands.CreatePlan
+{
+    public record CreatePlanCommand(MembershipPlanDto Plan) : IRequest<Result<Guid>>;
+}

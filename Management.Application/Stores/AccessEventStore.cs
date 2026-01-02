@@ -17,7 +17,7 @@ namespace Management.Application.Stores
         /// Fired immediately when a scan is processed (Granted or Denied).
         /// Subscribers should marshal this to the UI thread if updating Collections.
         /// </summary>
-        public event Action<AccessEventDto> AccessEventLogged;
+        public event Action<AccessEventDto>? AccessEventLogged;
 
         /// <summary>
         /// Broadcasts a new access event to all active screens.

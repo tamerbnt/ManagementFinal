@@ -1,0 +1,284 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Members.MembersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Members"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="1080" d:DesignWidth="1440"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header -->
+            <RowDefinition Height="Auto"/>
+            <!-- Filter / Selection Bar -->
+            <RowDefinition Height="*"/>
+            <!-- Content -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header & Print Action -->
+        <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
+            <TextBlock Text="{Binding DataContext.TerminologyPluralLabel, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
+                       Style="{StaticResource Title1}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       VerticalAlignment="Center"/>
+
+            <!-- Added Print Button (Section 43) -->
+            <Button Style="{StaticResource SecondaryButton}"
+                    HorizontalAlignment="Right"
+                    Command="{Binding PrintReportCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource IconPrinter}" 
+                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          Style="{StaticResource IconSmall}"
+                          Margin="{StaticResource MarginIconRight}"/>
+                    <TextBlock Text="{DynamicResource TerminologyPrintListLabel}"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- 2. Controls Area (Row 1) -->
+        <Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
+
+            <!-- A. Filter Bar (Default State) -->
+            <Grid Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Search -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Spacer -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Filter Pills -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Search Box (Flattened) -->
+                <Border Grid.Column="0"
+                        MinWidth="{StaticResource SizeInputMinWidth}"
+                        MaxWidth="{StaticResource SizeSearchBarWidth}"
+                        Height="{StaticResource SizeInputHeight}"
+                        Background="{DynamicResource SurfaceBg}"
+                        CornerRadius="{StaticResource RadiusSearchBar}"
+                        BorderBrush="{DynamicResource SeparatorStroke}"
+                        BorderThickness="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Path Grid.Column="0"
+                              Data="{StaticResource IconSearch}"
+                              Fill="{DynamicResource TextTertiaryBrush}"
+                              Style="{StaticResource IconStandard}"
+                              Margin="{StaticResource MarginInputIcon}"/>
+
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource UnderlineTextBox}"
+                                 Foreground="{DynamicResource TextPrimaryBrush}"
+                                 BorderThickness="0"
+                                 VerticalAlignment="Center"
+                                 Tag="{Binding DataContext.TerminologyLabel, RelativeSource={RelativeSource AncestorType=local:MembersView}, StringFormat='Search {0}s by name, card ID...'}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Filter Pills (Uses Global TogglePillStyle) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <RadioButton Content="{DynamicResource TerminologyAllLabel}" IsChecked="{Binding FilterAll}" Style="{StaticResource TogglePillStyle}"/>
+                    <RadioButton Content="{DynamicResource TerminologyActiveLabel}" IsChecked="{Binding FilterActive}" Style="{StaticResource TogglePillStyle}"/>
+                    <RadioButton Content="{DynamicResource TerminologyExpiringLabel}" IsChecked="{Binding FilterExpiring}" Style="{StaticResource TogglePillStyle}"/>
+                    <RadioButton Content="{DynamicResource TerminologyExpiredLabel}" IsChecked="{Binding FilterExpired}" Style="{StaticResource TogglePillStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- B. Multi-Selection Context Bar (Overlay State) -->
+            <!-- Uses Global Shadow Level 3 & Colors -->
+            <Border Background="{DynamicResource FacilityAccentBrush}"
+                    CornerRadius="12"
+                    Height="{StaticResource SizeSelectionBarHeight}"
+                    Padding="{StaticResource PaddingCardCompact}"
+                    Effect="{StaticResource Shadow3}"
+                    Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                    RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <TranslateTransform Y="-80"/>
+                </Border.RenderTransform>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Border.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Count -->
+                        <ColumnDefinition Width="*"/>
+                        <!-- Spacer -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Actions -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Close -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Selected Count -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="☑" 
+                                   Foreground="{DynamicResource TextOnAccentBrush}" 
+                                   FontSize="20" 
+                                   Margin="{StaticResource MarginSmallRight}"/>
+                        <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" 
+                                   Style="{StaticResource Title3}" 
+                                   Foreground="{DynamicResource TextOnAccentBrush}"/>
+                    </StackPanel>
+
+                    <!-- Bulk Actions -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Renew: Secondary Button -->
+                        <Button Content="{DynamicResource TerminologyRenewAllLabel}" 
+                                Command="{Binding RenewSelectedCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                BorderBrush="{DynamicResource TextOnDarkBrush}"
+                                Foreground="{DynamicResource TextOnDarkBrush}"
+                                Margin="{StaticResource MarginSmallRight}"/>
+
+                        <!-- Delete: Destructive Button Global Style -->
+                        <Button Content="{DynamicResource TerminologyDeleteLabel}" 
+                                Command="{Binding DeleteSelectedCommand}"
+                                Style="{StaticResource DestructiveButtonStyle}"/>
+                    </StackPanel>
+
+                    <!-- Clear Selection -->
+                    <Button Grid.Column="3"
+                            Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ClearSelectionCommand}"
+                            Foreground="{DynamicResource TextOnAccentBrush}"
+                            Margin="{StaticResource MarginMediumLeft}">
+                        <Path Data="{StaticResource IconClose}" 
+                              Fill="{DynamicResource TextOnDarkBrush}" 
+                              Style="{StaticResource IconStandard}"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 3. Content Area (Row 2) -->
+        <Grid Grid.Row="2">
+
+            <!-- Member Grid -->
+            <ListBox ItemsSource="{Binding FilteredMembers}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     ScrollViewer.CanContentScroll="True">
+
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid VerticalAlignment="Top">
+                            <UniformGrid.Columns>
+                                <!-- Responsive Columns via Converter -->
+                                <Binding Path="ActualWidth" 
+                                         RelativeSource="{RelativeSource AncestorType=Window}" 
+                                         Converter="{StaticResource WindowWidthToColumnsConverter}"/>
+                            </UniformGrid.Columns>
+                        </UniformGrid>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
+                        <!-- Global Gutter Resource -->
+                        <Setter Property="Margin" Value="{StaticResource MarginCardGridGutter}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <local:MemberListItem />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- Skeleton Loader State (Corrected: No Backdrop) -->
+            <Grid Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ListBox ItemsSource="{Binding {x:Static sys:String.Empty}, Converter={StaticResource RangeConverter}, ConverterParameter=8}"
+                         Style="{StaticResource PremiumListBox}">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource SurfaceBg}" 
+                                    CornerRadius="20" 
+                                    Height="240" 
+                                    Margin="12">
+                                <Rectangle Style="{StaticResource ShimmerPlaceholderStyle}" Margin="24"/>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+
+            <!-- Empty State Overlay -->
+            <Grid Visibility="{Binding FilteredMembers.Count, Converter={StaticResource ZeroIsVisibleConverter}}"
+                  IsHitTestVisible="False">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,64">
+                    <Path Data="{StaticResource IconUsers}"
+                          Fill="{DynamicResource IllustrationBackgroundBrush}"
+                          Width="256" Height="256"
+                          Stretch="Uniform"
+                          Margin="{StaticResource MarginSectionBottom}"
+                          HorizontalAlignment="Center"/>
+
+                    <TextBlock Text="{Binding DataContext.TerminologyLabel, RelativeSource={RelativeSource AncestorType=local:MembersView}, StringFormat='No {0}s found'}" 
+                               Style="{StaticResource Title2}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
+                               HorizontalAlignment="Center"
+                               Margin="{StaticResource MarginTextBottom}"/>
+
+                    <TextBlock Text="Try adjusting your filters or search terms." 
+                               Style="{StaticResource Body}" 
+                               Foreground="{DynamicResource TextTertiaryBrush}" 
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

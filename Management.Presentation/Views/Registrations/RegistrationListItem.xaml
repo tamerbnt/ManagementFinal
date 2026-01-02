@@ -1,0 +1,154 @@
+<UserControl x:Class="Management.Presentation.Views.Registrations.RegistrationListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="96" d:DesignWidth="800"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
+        <!-- RelativeTimeConverter is assumed global -->
+    </UserControl.Resources>
+
+    <!-- 
+        Card Container
+        - Style: 'MemberCardStyleInteractive' (Global)
+          Reuse is intentional: handles Shadow L2, Hover Lift, and the specific 
+          "Blue Left Border + Background Tint" state when IsSelected=True.
+        - Height: 96px ({StaticResource SizeRegistrationItemHeight})
+        - Padding: 24px ({StaticResource PaddingCardCompact})
+    -->
+    <Border x:Name="CardBorder"
+            Style="{StaticResource MemberCardStyleInteractive}"
+            Height="{StaticResource SizeRegistrationItemHeight}"
+            Padding="{StaticResource PaddingCardCompact}"
+            AutomationProperties.Name="{Binding FullName}">
+
+        <!-- 
+            GLOBAL BEHAVIOR: Action Button Reveal 
+            Fades in the 'ActionPanel' when mouse enters the card.
+        -->
+        <i:Interaction.Behaviors>
+            <behaviors:HoverRevealBehavior TargetName="ActionPanel" 
+                                           Duration="{StaticResource DurationStandard}"/>
+        </i:Interaction.Behaviors>
+
+        <!-- Command for Row Click (View Detail) -->
+        <Border.InputBindings>
+            <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
+        </Border.InputBindings>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Checkbox -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Avatar -->
+                <ColumnDefinition Width="*"/>
+                <!-- Info -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Timestamp / Actions -->
+            </Grid.ColumnDefinitions>
+
+            <!-- 
+                1. Selection Checkbox (Left)
+                - Style: 'CircularSelectionCheckBoxStyle' (Global)
+                - Behavior: Opacity 0 -> 1 on Hover/Selected (handled by Style triggers)
+                - Margin: Fixed magic number removed, now uses Resource (16px)
+            -->
+            <CheckBox Grid.Column="0"
+                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                      Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                      VerticalAlignment="Center"
+                      Margin="{StaticResource MarginMediumRight}"
+                      Panel.ZIndex="10"/>
+
+            <!-- 2. Avatar (64px Standard) -->
+            <Ellipse Grid.Column="1" 
+                     Width="{StaticResource SizeAvatarStandard}" 
+                     Height="{StaticResource SizeAvatarStandard}"
+                     Fill="{DynamicResource FacilityAccentBrush}"
+                     Margin="{StaticResource MarginCardRight}">
+                <!-- Image Binding: <ImageBrush ImageSource="{Binding AvatarUrl}"/> -->
+            </Ellipse>
+
+            <!-- 3. Text Info -->
+            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                <TextBlock Text="{Binding FullName}" 
+                           Style="{StaticResource BodyMedium}" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginSmallTop}">
+                    <TextBlock Text="{Binding Source}" 
+                               Style="{StaticResource Caption}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{DynamicResource TerminologyInfoSeparator}" 
+                               Style="{StaticResource Caption}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding PhoneNumber}" 
+                               Style="{StaticResource Caption}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- 4. Right Side: Timestamp & Actions -->
+            <Grid Grid.Column="3" VerticalAlignment="Center">
+
+                <!-- Timestamp (Default View) -->
+                <!-- Color-coded by age via Converter (Green < 1h, Red > 24h) -->
+                <TextBlock Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}"
+                           Style="{StaticResource Caption}"
+                           Foreground="{Binding CreatedAt, Converter={StaticResource RegistrationAgeToBrushConverter}}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"/>
+
+                <!-- 
+                    Action Buttons (Hover View)
+                    - Hidden by default (Opacity 0).
+                    - Revealed by HoverRevealBehavior.
+                    - IsHitTestVisible handled by behavior to prevent blocking clicks when hidden.
+                -->
+                <StackPanel x:Name="ActionPanel" 
+                            Orientation="Horizontal" 
+                            Opacity="0"
+                            IsHitTestVisible="False">
+
+                    <!-- Approve (Green, Compact 40px) -->
+                    <Button Style="{StaticResource ButtonCompactSuccess}"
+                            Margin="{StaticResource MarginSmallRight}"
+                            Command="{Binding ApproveCommand}"
+                            ToolTip="{DynamicResource TerminologyApproveLabel}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconCheck}" 
+                                  Fill="{DynamicResource TextOnAccentBrush}"
+                                  Style="{StaticResource IconSmall}"
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource TerminologyApproveLabel}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Decline (Red, Compact 40px) -->
+                    <Button Style="{StaticResource ButtonCompactError}"
+                            Command="{Binding DeclineCommand}"
+                            ToolTip="{DynamicResource TerminologyDeclineLabel}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconClose}" 
+                                  Fill="{DynamicResource TextOnAccentBrush}" 
+                                  Style="{StaticResource IconSmall}"
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource TerminologyDeclineLabel}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

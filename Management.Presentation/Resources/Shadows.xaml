@@ -1,10 +1,42 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Colors.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
 
-    <DropShadowEffect x:Key="Shadow1" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="12" ShadowDepth="3" Opacity="0.06"/>
-    <DropShadowEffect x:Key="Shadow2" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="20" ShadowDepth="6" Opacity="0.10"/>
-    <DropShadowEffect x:Key="Shadow3" Color="{StaticResource ShadowColor}" Direction="270" BlurRadius="24" ShadowDepth="10" Opacity="0.16"/>
+    <!-- 
+        APPLE 2025 DEPTH SYSTEM
+        
+        Logic: Shadows are "Dynamic Glows".
+        - Light Mode: ElevationColor = #000000 (Standard Shadow)
+        - Dark Mode: ElevationColor = {FacilityAccentBrush} (Neon Glow)
+        
+        This file consumes {DynamicResource ElevationColor}.
+        Ensure this key is defined in your Theme files (Theme.Light.xaml / Theme.Dark.xaml).
+    -->
+
+    <!-- Level 1: Subtle (Cards / List Items) -->
+    <!-- 12px Blur, 2px Depth -->
+    <DropShadowEffect x:Key="Shadow1" 
+                      Color="{DynamicResource ElevationColor}" 
+                      Direction="270" 
+                      BlurRadius="12" 
+                      ShadowDepth="2" 
+                      Opacity="0.08"/>
+
+    <!-- Level 2: Standard (Dropdowns / Popovers) -->
+    <!-- 20px Blur, 4px Depth -->
+    <DropShadowEffect x:Key="Shadow2" 
+                      Color="{DynamicResource ElevationColor}" 
+                      Direction="270" 
+                      BlurRadius="20" 
+                      ShadowDepth="4" 
+                      Opacity="0.12"/>
+
+    <!-- Level 3: Floating (Modals / Sticky Headers) -->
+    <!-- 32px Blur, 8px Depth -->
+    <DropShadowEffect x:Key="Shadow3" 
+                      Color="{DynamicResource ElevationColor}" 
+                      Direction="270" 
+                      BlurRadius="32" 
+                      ShadowDepth="8" 
+                      Opacity="0.20"/>
+
 </ResourceDictionary>

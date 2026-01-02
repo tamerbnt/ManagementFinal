@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Dashboard.Sections.OccupancyChartSection"
+<UserControl x:Class="Management.Presentation.Views.Dashboard.Sections.OccupancyChartSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -32,7 +32,7 @@
         <!-- 2. Chart Container -->
         <Border Grid.Row="1" 
                 Height="{StaticResource SizeChartHeightStandard}"
-                Background="{StaticResource ContentBackground}"
+                Background="{DynamicResource WindowBg}"
                 BorderBrush="{StaticResource SeparatorBrush}"
                 BorderThickness="0,0,0,1"
                 Margin="{StaticResource MarginSectionBottom}">
@@ -97,7 +97,7 @@
                 <Grid Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter='Inverse'}">
 
                     <Polyline Points="{Binding OccupancyPoints}"
-                              Stroke="{StaticResource PrimaryAccentBrush}"
+                                         Fill="{DynamicResource FacilityAccentBrush}"
                               StrokeThickness="3"
                               Stretch="Fill"
                               VerticalAlignment="Stretch"
@@ -118,9 +118,10 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <!-- FIX 3: Correct ToolTip Styling -->
+                                <!-- Premium Data Point -->
                                 <Ellipse Width="8" Height="8"
-                                         Fill="{StaticResource PrimaryAccentBrush}"
-                                         Stroke="{StaticResource ContentBackground}"
+                                         Fill="{DynamicResource FacilityAccentBrush}"
+                                         Stroke="{DynamicResource WindowBg}"
                                          StrokeThickness="2"
                                          Margin="-4,-4,0,0">
                                     <ToolTipService.ToolTip>

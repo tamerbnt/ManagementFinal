@@ -1,0 +1,170 @@
+<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.PayrollView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="400"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                  HorizontalScrollBarVisibility="Disabled">
+
+        <StackPanel Margin="{StaticResource PaddingCard}">
+
+            <!-- 1. SALARY SUMMARY CARD -->
+            <TextBlock Text="{DynamicResource TerminologyCompensationLabel}" 
+                       Style="{StaticResource Title3}" 
+                       Margin="{StaticResource MarginHeaderBottom}"/>
+
+            <Border Style="{StaticResource ElevatedCardStyle}"
+                    Padding="{StaticResource PaddingCardCompact}"
+                    Margin="{StaticResource MarginSectionBottom}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="{DynamicResource TerminologyBaseSalaryLabel}" 
+                               Style="{StaticResource Caption}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="{StaticResource MarginTextTop}">
+                        <TextBlock Text="{Binding BaseSalary, StringFormat='{}{0:C0}'}" 
+                                   Style="{StaticResource Title2}" 
+                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="/ year" 
+                                   Style="{StaticResource BodySecondary}" 
+                                   Foreground="{StaticResource TextTertiaryBrush}"
+                                   VerticalAlignment="Bottom"
+                                   Margin="4,0,0,3"/>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <Border Grid.Row="2" 
+                            Height="1" 
+                            Background="{StaticResource SeparatorBrush}" 
+                            Margin="0,16,0,16"/>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal">
+                        <TextBlock Text="{DynamicResource TerminologyNextPaydayLabel}" 
+                                   Style="{StaticResource Caption}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="{StaticResource MarginSmallRight}"/>
+                        <TextBlock Text="{Binding NextPayDate, StringFormat='{}{0:MMM dd, yyyy}'}" 
+                                   Style="{StaticResource Body}" 
+                                   Foreground="{DynamicResource FacilityAccentBrush}"
+                                   FontWeight="Medium"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 2. ACTIONS -->
+            <Grid Margin="{StaticResource MarginSectionBottom}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="{DynamicResource TerminologyEditConfigLabel}"
+                        Command="{Binding EditSalaryCommand}"
+                        Style="{StaticResource SecondaryButton}"/>
+
+                <Button Grid.Column="2"
+                        Content="{DynamicResource TerminologyAddBonusLabel}"
+                        Command="{Binding AddBonusCommand}"
+                        Style="{StaticResource SecondaryButton}"/>
+            </Grid>
+
+            <!-- 3. PAYMENT HISTORY -->
+            <TextBlock Text="{DynamicResource TerminologyPaymentHistoryLabel}" 
+                       Style="{StaticResource Title3}" 
+                       Margin="{StaticResource MarginHeaderBottom}"/>
+
+            <!-- List -->
+            <ItemsControl ItemsSource="{Binding PayrollHistory}"
+                          Background="Transparent"
+                          BorderThickness="0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="{StaticResource SeparatorBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="0,12"
+                                Margin="0,0,0,4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Left: Date & Type -->
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding PayDate, StringFormat='{}{0:MMM dd}'}" 
+                                               Style="{StaticResource BodyMedium}" 
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding PaymentType}" 
+                                               Style="{StaticResource Caption}" 
+                                               Foreground="{StaticResource TextTertiaryBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Right: Amount & Status -->
+                                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding Amount, StringFormat='{}{0:C0}'}" 
+                                               Style="{StaticResource BodyMedium}" 
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               HorizontalAlignment="Right"
+                                               FontWeight="SemiBold"/>
+
+                                    <!-- Status Text with Color Trigger -->
+                                    <TextBlock Text="{Binding Status}" 
+                                               HorizontalAlignment="Right"
+                                               Margin="0,4,0,0">
+                                        <TextBlock.Style>
+                                            <!-- The style is applied here using BasedOn -->
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource Micro}">
+                                                <!-- Default (Pending) -->
+                                                <Setter Property="Foreground" Value="{DynamicResource StatusWarningBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Paid">
+                                                        <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Failed">
+                                                        <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Empty State -->
+            <TextBlock Text="{DynamicResource TerminologyNoPaymentHistoryLabel}"
+                       Style="{StaticResource BodySecondary}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="{StaticResource MarginSectionVertical}"
+                       Visibility="{Binding PayrollHistory.Count, Converter={StaticResource ZeroIsVisibleConverter}}"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

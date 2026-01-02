@@ -1,88 +1,199 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services;
-using Management.Application.Stores;
-using Management.Application.Stores;
-using Management.Domain.DTOs;
-using Management.Domain.DTOs;
-using Management.Domain.Services;
-using Management.Domain.Services;
-using Management.Presentation.Extensions;
 using Management.Presentation.Services;
-using Management.Presentation.ViewModels;
+using Management.Application.Stores;
+using Management.Domain.Enums;
+using Management.Domain.Services;
+using Management.Domain.DTOs;
+using Management.Presentation.Extensions;
 
 namespace Management.Presentation.ViewModels
 {
-    public class MemberDetailViewModel : ViewModelBase, INavigationAware
+    public class MemberDetailViewModel : ViewModelBase, IModalViewModel, IInitializable<object?>
     {
         private readonly IMemberService _memberService;
+        private readonly IMembershipPlanService _planService;
         private readonly IAccessEventService _accessEventService;
-        private readonly ModalNavigationStore _modalStore;
+        private readonly IModalNavigationService _modalService;
         private readonly INotificationService _notificationService;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+
+        public ModalSize PreferredSize => ModalSize.Medium;
+
+        public Task<bool> CanCloseAsync() => Task.FromResult(true);
 
         // --- STATE ---
-        private MemberDto _member;
-        public MemberDto Member { get => _member; set => SetProperty(ref _member, value); }
+        private Guid? _memberId;
+        public bool IsEditMode => _memberId.HasValue;
+        public string Title => IsEditMode ? "Edit Member" : "Add New Member";
 
-        public ObservableCollection<AccessEventDto> RecentHistory { get; }
-            = new ObservableCollection<AccessEventDto>();
+        private string _fullName = string.Empty;
+        public string FullName { get => _fullName; set => SetProperty(ref _fullName, value); }
+
+        private string _email = string.Empty;
+        public string Email { get => _email; set => SetProperty(ref _email, value); }
+
+        private string _phoneNumber = string.Empty;
+        public string PhoneNumber { get => _phoneNumber; set => SetProperty(ref _phoneNumber, value); }
+
+        private string _cardId = string.Empty;
+        public string CardId { get => _cardId; set => SetProperty(ref _cardId, value); }
+
+        private MemberStatus _status = MemberStatus.Active;
+        public MemberStatus Status { get => _status; set => SetProperty(ref _status, value); }
+
+        private string _notes = string.Empty;
+        public string Notes { get => _notes; set => SetProperty(ref _notes, value); }
+
+        private MembershipPlanDto? _selectedPlan;
+        public MembershipPlanDto? SelectedPlan { get => _selectedPlan; set => SetProperty(ref _selectedPlan, value); }
+
+        public ObservableCollection<MembershipPlanDto> AvailablePlans { get; } = new();
+        public ObservableCollection<AccessEventDto> RecentHistory { get; } = new();
+
+        private bool _isBusy;
+        public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
 
         // --- COMMANDS ---
-        public ICommand CloseCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand CancelCommand { get; }
         public ICommand RenewCommand { get; }
-        public ICommand EditCommand { get; }
-        public ICommand DeactivateCommand { get; }
 
         public MemberDetailViewModel(
             IMemberService memberService,
+            IMembershipPlanService planService,
             IAccessEventService accessEventService,
-            ModalNavigationStore modalStore,
-            INotificationService notificationService)
+            IModalNavigationService modalService,
+            INotificationService notificationService,
+            Management.Domain.Services.IFacilityContextService facilityContext)
         {
             _memberService = memberService;
+            _planService = planService;
             _accessEventService = accessEventService;
-            _modalStore = modalStore;
+            _modalService = modalService;
             _notificationService = notificationService;
+            _facilityContext = facilityContext;
 
-            CloseCommand = new RelayCommand(() => _modalStore.Close());
-            RenewCommand = new AsyncRelayCommand(ExecuteRenewAsync);
-            EditCommand = new RelayCommand(() => _notificationService.ShowInfo("Edit feature coming in V1.1"));
-            DeactivateCommand = new RelayCommand(() => _notificationService.ShowWarning("Deactivate feature coming in V1.1"));
+            SaveCommand = new AsyncRelayCommand(ExecuteSaveAsync, CanExecuteSave);
+            CancelCommand = new RelayCommand(async () => await _modalService.CloseCurrentModalAsync());
+            RenewCommand = new AsyncRelayCommand(ExecuteRenewAsync, () => IsEditMode);
         }
 
-        // --- LIFECYCLE ---
-        public async Task OnNavigatedToAsync(object parameter, CancellationToken cancellationToken = default)
+        public async Task InitializeAsync(object? parameter, CancellationToken cancellationToken = default)
         {
-            if (parameter is Guid memberId)
+            IsBusy = true;
+            try
             {
-                // 1. Load Profile
-                Member = await _memberService.GetMemberAsync(memberId);
+                // 1. Load Plans
+                var plansResult = await _planService.GetAllPlansAsync();
+                if (plansResult.IsSuccess)
+                {
+                    AvailablePlans.Clear();
+                    foreach (var plan in plansResult.Value) AvailablePlans.Add(plan);
+                }
 
-                // 2. Load History (Parallel)
-                // In a real app, this might be triggered only when the History tab is clicked
-                // For simplicity, we load recent 20 logs now.
-                var history = await _accessEventService.GetRecentEventsAsync(20);
-                // Filter for this member specifically if service supports it, otherwise mock logic
-                // real implementation: _accessEventService.GetHistoryForMember(id)
+                // 2. Load Member if Editing
+                if (parameter is Guid memberId)
+                {
+                    _memberId = memberId;
+                    var result = await _memberService.GetMemberAsync(_facilityContext.CurrentFacilityId, memberId);
+                    if (result.IsSuccess)
+                    {
+                        var m = result.Value;
+                        FullName = m.FullName;
+                        Email = m.Email;
+                        PhoneNumber = m.PhoneNumber;
+                        CardId = m.CardId;
+                        Status = m.Status;
+                        Notes = m.Notes;
+                        SelectedPlan = AvailablePlans.FirstOrDefault(p => p.Id == m.MembershipPlanId);
+                        
+                        // Load History
+                        var facilityId = _facilityContext.CurrentFacilityId;
+                        var historyResult = await _accessEventService.GetRecentEventsAsync(facilityId, 20);
+                        if (historyResult.IsSuccess)
+                        {
+                            RecentHistory.Clear();
+                            foreach (var item in historyResult.Value) RecentHistory.Add(item);
+                        }
+                    }
+                }
+                else
+                {
+                    _memberId = null;
+                    // Defaults for new member
+                    SelectedPlan = AvailablePlans.FirstOrDefault();
+                }
 
-                RecentHistory.Clear();
-                foreach (var item in history) RecentHistory.Add(item);
+                OnPropertyChanged(nameof(IsEditMode));
+                OnPropertyChanged(nameof(Title));
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        private bool CanExecuteSave() => !string.IsNullOrWhiteSpace(FullName) && !string.IsNullOrWhiteSpace(CardId);
+
+        private async Task ExecuteSaveAsync()
+        {
+            var dto = new MemberDto
+            {
+                Id = _memberId ?? Guid.Empty,
+                FullName = FullName,
+                Email = Email,
+                PhoneNumber = PhoneNumber,
+                CardId = CardId,
+                Status = Status,
+                Notes = Notes,
+                MembershipPlanId = SelectedPlan?.Id
+            };
+
+            IsBusy = true;
+            try
+            {
+                var facilityId = _facilityContext.CurrentFacilityId;
+                var result = IsEditMode 
+                    ? await _memberService.UpdateMemberAsync(facilityId, dto) 
+                    : await _memberService.CreateMemberAsync(facilityId, dto);
+
+                if (result.IsSuccess)
+                {
+                    _notificationService.ShowSuccess($"Member {(IsEditMode ? "updated" : "created")} successfully.");
+                    await _modalService.CloseCurrentModalAsync();
+                }
+                else
+                {
+                    _notificationService.ShowError(result.Error.Message);
+                }
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
 
         private async Task ExecuteRenewAsync()
         {
-            if (Member == null) return;
+            if (!_memberId.HasValue) return;
 
-            // Renew for default duration (e.g. 1 month)
-            await _memberService.RenewMembersAsync(new System.Collections.Generic.List<Guid> { Member.Id });
-
-            // Refresh local data
-            Member = await _memberService.GetMemberAsync(Member.Id);
-            _notificationService.ShowSuccess("Membership renewed successfully.");
+            var renewResult = await _memberService.RenewMembersAsync(_facilityContext.CurrentFacilityId, new List<Guid> { _memberId.Value });
+            if (renewResult.IsSuccess)
+            {
+                _notificationService.ShowSuccess("Membership renewed.");
+                // Update local status/expiration if needed (or just close and refresh list)
+                await InitializeAsync(_memberId.Value);
+            }
+            else
+            {
+                _notificationService.ShowError(renewResult.Error.Message);
+            }
         }
     }
 }

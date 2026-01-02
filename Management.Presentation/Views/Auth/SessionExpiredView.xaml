@@ -1,0 +1,55 @@
+<UserControl x:Class="Management.Presentation.Views.Auth.SessionExpiredView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:SessionExpiredViewModel}"
+             Width="350" Height="200">
+    <Border Background="{DynamicResource SurfaceBg}" 
+            CornerRadius="24"
+            Padding="24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                <Path Data="{StaticResource IconWarning}" 
+                      Fill="{DynamicResource StatusWarningBrush}" 
+                      Style="{StaticResource IconLarge}"
+                      Margin="0,0,12,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Session Expired" 
+                           Style="{DynamicResource Header3Style}" 
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Message -->
+            <TextBlock Grid.Row="1" 
+                       Text="{Binding Message}" 
+                       Style="{DynamicResource BodyStyle}" 
+                       TextWrapping="Wrap" 
+                       HorizontalAlignment="Center" 
+                       TextAlignment="Center"
+                       Margin="0,0,0,24"/>
+
+            <!-- Actions -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="Log Out" 
+                        Command="{Binding CloseCommand}" 
+                        Style="{DynamicResource SecondaryButtonStyle}"
+                        Margin="0,0,12,0"
+                        MinWidth="{StaticResource SizeButtonMinWidth}"/>
+                
+                <Button Content="Log In" 
+                        Command="{Binding LoginCommand}" 
+                        Style="{DynamicResource PrimaryButtonStyle}" 
+                        MinWidth="{StaticResource SizeButtonMinWidth}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

@@ -5,6 +5,6 @@ namespace Management.Domain.Interfaces
 {
     public interface ITurnstileRepository : IRepository<Turnstile>
     {
-        Task<Turnstile> GetByHardwareIdAsync(string hardwareId);
+        Task<Turnstile?> GetByHardwareIdAsync(string hardwareId);
     }
 }

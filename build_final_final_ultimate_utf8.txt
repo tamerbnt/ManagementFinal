@@ -1,0 +1,14 @@
+﻿  Identification des projets ├á restaurer...
+  Tous les projets sont ├á jour pour la restauration.
+  Management.Domain -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\bin\Debug\net8.0\Management.Domain.dll
+  Management.Application -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Application\bin\Debug\net8.0\Management.Application.dll
+  Management.Infrastructure -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Infrastructure\bin\Debug\net8.0\Management.Infrastructure.dll
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Converters\StockToBrushConverter.cs(16,10): error CS1513: } attendue [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Management.Presentation_0elhx3co_wpftmp.csproj]
+
+├ëCHEC de la build.
+
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Converters\StockToBrushConverter.cs(16,10): error CS1513: } attendue [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Management.Presentation_0elhx3co_wpftmp.csproj]
+    0 Avertissement(s)
+    1 Erreur(s)
+
+Temps ├®coul├® 00:00:13.73

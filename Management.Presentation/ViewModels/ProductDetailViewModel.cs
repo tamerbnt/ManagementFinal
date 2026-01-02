@@ -1,47 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Management.Application.Services;
 using Management.Application.Stores;
 using Management.Domain.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
-using Management.Presentation.ViewModels;
 
 namespace Management.Presentation.ViewModels
 {
-    public class ProductDetailViewModel : ViewModelBase, INavigationAware
+    public class ProductDetailViewModel : ViewModelBase, IModalViewModel, IInitializable<object?>
     {
         private readonly IProductService _productService;
         private readonly ProductStore _productStore;
-        private readonly ModalNavigationStore _modalStore;
+        private readonly IModalNavigationService _modalService;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+
+        public ModalSize PreferredSize => ModalSize.Medium;
+
+        public Task<bool> CanCloseAsync() => Task.FromResult(true);
 
         // --- STATE ---
         private Guid? _productId;
         public bool IsEditMode => _productId.HasValue;
         public string Title => IsEditMode ? "Edit Product" : "Add Product";
 
-        // Form Fields
-        public string Name { get; set; }
-        public string SKU { get; set; }
-        public decimal Price { get; set; }
-        public decimal Cost { get; set; }
-        public int StockLevel { get; set; }
-        public int ReorderLevel { get; set; }
-        public string Description { get; set; }
-        public ProductCategory SelectedCategory { get; set; }
-
-        private string _productImage;
+        private string _name = string.Empty;
+        public string Name { get => _name; set => SetProperty(ref _name, value); }
+ 
+        private string _sku = string.Empty;
+        public string SKU { get => _sku; set => SetProperty(ref _sku, value); }
+ 
+        private decimal _price;
+        public decimal Price { get => _price; set => SetProperty(ref _price, value); }
+ 
+        private decimal _cost;
+        public decimal Cost { get => _cost; set => SetProperty(ref _cost, value); }
+ 
+        private int _stockLevel;
+        public int StockLevel { get => _stockLevel; set => SetProperty(ref _stockLevel, value); }
+ 
+        private int _reorderLevel;
+        public int ReorderLevel { get => _reorderLevel; set => SetProperty(ref _reorderLevel, value); }
+ 
+        private string _description = string.Empty;
+        public string Description { get => _description; set => SetProperty(ref _description, value); }
+ 
+        private ProductCategory _selectedCategory;
+        public ProductCategory SelectedCategory { get => _selectedCategory; set => SetProperty(ref _selectedCategory, value); }
+ 
+        private string _productImage = string.Empty;
         public string ProductImage { get => _productImage; set => SetProperty(ref _productImage, value); }
 
-        // Dropdown Source
         public IEnumerable<ProductCategory> Categories => Enum.GetValues(typeof(ProductCategory)).Cast<ProductCategory>();
+
+        private bool _isBusy;
+        public bool IsBusy { get => _isBusy; set => SetProperty(ref _isBusy, value); }
 
         // --- COMMANDS ---
         public ICommand SaveCommand { get; }
@@ -52,48 +72,70 @@ namespace Management.Presentation.ViewModels
         public ProductDetailViewModel(
             IProductService productService,
             ProductStore productStore,
-            ModalNavigationStore modalStore,
+            IModalNavigationService modalService,
             IDialogService dialogService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            Management.Domain.Services.IFacilityContextService facilityContext)
         {
             _productService = productService;
             _productStore = productStore;
-            _modalStore = modalStore;
+            _modalService = modalService;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            _facilityContext = facilityContext;
 
             SaveCommand = new AsyncRelayCommand(ExecuteSaveAsync);
-            CancelCommand = new RelayCommand(() => _modalStore.Close());
+            CancelCommand = new RelayCommand(async () => await _modalService.CloseCurrentModalAsync());
             BrowseImageCommand = new AsyncRelayCommand(ExecuteBrowseImageAsync);
-            RemoveImageCommand = new RelayCommand(() => ProductImage = null);
+            RemoveImageCommand = new RelayCommand(() => ProductImage = string.Empty);
         }
 
-        public async Task OnNavigatedToAsync(object parameter, CancellationToken cancellationToken = default)
+        public async Task InitializeAsync(object? parameter, CancellationToken cancellationToken = default)
         {
-            if (parameter is Guid id)
+            IsBusy = true;
+            try
             {
-                // Edit Mode
-                _productId = id;
-                // Fetch data... (Assuming we have a GetById, or we search)
-                // For V1, we might rely on the caller passing the DTO, but usually ID is safer.
-                // Mock load for structure:
-                // var dto = await _productService.GetProductAsync(id);
-                // MapDtoToFields(dto);
+                if (parameter is Guid id)
+                {
+                    _productId = id;
+                    var facilityId = _facilityContext.CurrentFacilityId;
+                    var result = await _productService.GetProductAsync(facilityId, id);
+                    if (result.IsSuccess)
+                    {
+                        var dto = result.Value;
+                        Name = dto.Name;
+                        SKU = dto.SKU;
+                        Price = dto.Price;
+                        Cost = dto.Cost;
+                        StockLevel = dto.StockQuantity;
+                        ReorderLevel = dto.ReorderLevel;
+                        Description = dto.Description;
+                        ProductImage = dto.ImageUrl;
+                        if (Enum.TryParse<ProductCategory>(dto.Category, true, out var cat))
+                        {
+                            SelectedCategory = cat;
+                        }
+                    }
+                }
+                else
+                {
+                    _productId = null;
+                    SelectedCategory = ProductCategory.Supplements;
+                    StockLevel = 0;
+                    ReorderLevel = 10;
+                }
+
+                OnPropertyChanged(nameof(IsEditMode));
                 OnPropertyChanged(nameof(Title));
             }
-            else
+            finally
             {
-                // Create Mode: Defaults
-                SelectedCategory = ProductCategory.Supplements;
-                StockLevel = 0;
-                ReorderLevel = 10;
-                OnPropertyChanged(nameof(Title));
+                IsBusy = false;
             }
         }
 
         private async Task ExecuteSaveAsync()
         {
-            // Basic Validation
             if (string.IsNullOrWhiteSpace(Name) || Price < 0)
             {
                 _notificationService.ShowError("Please check your inputs.");
@@ -102,36 +144,39 @@ namespace Management.Presentation.ViewModels
 
             var dto = new ProductDto
             {
-                Id = _productId ?? Guid.NewGuid(),
+                Id = _productId ?? Guid.Empty,
                 Name = Name,
                 SKU = SKU,
                 Price = Price,
                 Cost = Cost,
                 StockQuantity = StockLevel,
                 ReorderLevel = ReorderLevel,
-                Category = SelectedCategory,
+                Category = SelectedCategory.ToString(),
                 Description = Description,
                 ImageUrl = ProductImage
             };
 
+            IsBusy = true;
             try
             {
-                if (IsEditMode)
+                var facilityId = _facilityContext.CurrentFacilityId;
+                var result = IsEditMode 
+                    ? await _productService.UpdateProductAsync(facilityId, dto) 
+                    : await _productService.CreateProductAsync(facilityId, dto);
+
+                if (result.IsSuccess)
                 {
-                    await _productService.UpdateProductAsync(dto);
-                    // Store triggers UI update in ShopView automatically
+                    _notificationService.ShowSuccess($"Product {(IsEditMode ? "updated" : "created")} successfully.");
+                    await _modalService.CloseCurrentModalAsync();
                 }
                 else
                 {
-                    await _productService.CreateProductAsync(dto);
+                    _notificationService.ShowError(result.Error.Message);
                 }
-
-                _modalStore.Close();
-                _notificationService.ShowSuccess($"Product {(IsEditMode ? "updated" : "created")} successfully.");
             }
-            catch (Exception ex)
+            finally
             {
-                _notificationService.ShowError($"Error saving product: {ex.Message}");
+                IsBusy = false;
             }
         }
 

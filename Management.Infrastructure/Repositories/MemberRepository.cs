@@ -20,11 +20,11 @@ namespace Management.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                string term = searchTerm.ToLower();
+                string termLower = searchTerm.ToLower();
                 query = query.Where(m =>
-                    m.FullName.ToLower().Contains(term) ||
-                    m.Email.ToLower().Contains(term) ||
-                    m.CardId.ToLower().Contains(term));
+                    m.FullName.ToLower().Contains(termLower) ||
+                    m.Email.Value.ToLower().Contains(termLower) ||
+                    m.CardId.ToLower().Contains(termLower));
             }
 
             if (status.HasValue)

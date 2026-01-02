@@ -3,20 +3,18 @@ using Management.Domain.Enums;
 
 namespace Management.Domain.DTOs
 {
-    public class ProductDto
+    public record ProductDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string SKU { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public decimal Cost { get; set; }
+        public string? Currency { get; set; } = "USD";
         public int StockQuantity { get; set; }
-
-        // FIX: Added missing ReorderLevel property
+        public string SKU { get; set; } = string.Empty;
+        public string Category { get; set; } = "Other";
+        public string ImageUrl { get; set; } = string.Empty;
         public int ReorderLevel { get; set; }
-
-        public string ImageUrl { get; set; }
-        public ProductCategory Category { get; set; }
-        public string Description { get; set; }
     }
 }

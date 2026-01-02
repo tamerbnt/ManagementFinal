@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Management.Application.Stores;
 using Management.Domain.Services;
+using Management.Presentation.Stores;
 using Management.Presentation.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Win32Dialogs = Microsoft.Win32;
@@ -63,7 +64,7 @@ namespace Management.Presentation.Services
             return modalResult.IsSuccess;
         }
 
-        public async Task ShowAlertAsync(string title, string message, string buttonText = "OK")
+        public async Task ShowAlertAsync(string title, string message, string buttonText = "OK", bool isSuccess = false)
         {
             if (!WpfApp.Current.Dispatcher.CheckAccess())
             {
@@ -76,20 +77,21 @@ namespace Management.Presentation.Services
                 title,
                 message,
                 buttonText,
-                null, // No cancel button for alerts
+                string.Empty, // No cancel button for alerts
                 false,
                 isAlert: true,
                 resultCallback: async (result) => // Callback is still needed to close the modal
                 {
                     await _modalNavigationStore.CloseAsync(ModalResult.Success());
-                });
+                },
+                isSuccess: isSuccess);
 
             // FIX: Use the async Open method on the store
             await _modalNavigationStore.OpenAsync(vm);
             // We don't await the result here because ShowAlertAsync is Task (void), not Task<bool>
         }
 
-        public async Task ShowCustomDialogAsync<TViewModel>(object parameter = null)
+        public async Task ShowCustomDialogAsync<TViewModel>(object? parameter = null)
             where TViewModel : class
         {
             if (!WpfApp.Current.Dispatcher.CheckAccess())

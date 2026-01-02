@@ -12,10 +12,10 @@ namespace Management.Infrastructure.Repositories
     {
         public StaffRepository(GymDbContext context) : base(context) { }
 
-        public async Task<StaffMember> GetByEmailAsync(string email)
+        public async Task<StaffMember?> GetByEmailAsync(string email)
         {
             // Note: Not throwing exception here; return null to allow Service to handle "Invalid Login"
-            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email);
+            return await _dbSet.FirstOrDefaultAsync(s => s.Email.Value == email);
         }
 
         public async Task<IEnumerable<StaffMember>> GetAllActiveAsync()

@@ -1,902 +1,500 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-	<ResourceDictionary.MergedDictionaries>
-		<!-- The path is 'resources/filename.xaml' -->
-		<ResourceDictionary Source="Colors.xaml"/>
-		<ResourceDictionary Source="Spacing.xaml"/>
-		<ResourceDictionary Source="Typography.xaml"/>
-		<ResourceDictionary Source="Iconography.xaml"/>
+    <ResourceDictionary.MergedDictionaries>
+        <!-- No local merges needed as they are handled in App.xaml or via DynamicResource resolution -->
+    </ResourceDictionary.MergedDictionaries>
 
-		<!-- Shadows must be loaded AFTER colors -->
-		<ResourceDictionary Source="Shadows.xaml"/>
+    <!-- 
+        TITAN UI KIT (Apple 2025)
+        - Buttons: 12px Radius, Scale Interaction, Facility Glow
+        - Inputs: Apple Underline Style, Heartbeat Feedback
+        - Cards: 20px Radius, Hover Lift
+        - DataGrid: Premium styling, no vertical lines
+    -->
 
-		<ResourceDictionary Source="Animations.xaml"/>
-	</ResourceDictionary.MergedDictionaries>
+    <!-- ============================================================= -->
+    <!-- 1. BUTTONS & INTERACTIVE BASE                                 -->
+    <!-- ============================================================= -->
 
-
-
-
-	<!-- ============================================================= -->
-	<!-- 1. BUTTONS & INTERACTIVE BASE                                 -->
-	<!-- ============================================================= -->
-
-	<!-- Base Button Style (Section 6 / 12) -->
-	<Style x:Key="BaseButtonStyle" TargetType="ButtonBase">
-		<Setter Property="Background" Value="{StaticResource PrimaryAccentBrush}"/>
-		<Setter Property="Foreground" Value="{StaticResource TextOnDarkBrush}"/>
-		<Setter Property="FontSize" Value="17"/>
-		<Setter Property="FontWeight" Value="Medium"/>
-		<Setter Property="Height" Value="{StaticResource SizeButtonHeight}"/>
-		<Setter Property="Padding" Value="24,0"/>
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="ButtonBase">
-					<Grid>
-						<!-- Main Visual -->
-						<Border x:Name="PART_Border"
+    <!-- Base Button Style -->
+    <Style x:Key="BaseButtonStyle" TargetType="ButtonBase">
+        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentPrimary}"/>
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Height" Value="{StaticResource SizeButtonHeight}"/>
+        <Setter Property="Padding" Value="24,0"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Grid>
+                        <!-- Main Visual -->
+                        <Border x:Name="PART_Border"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="{StaticResource RadiusButton}"
                                 Padding="{TemplateBinding Padding}"
-                                RenderTransformOrigin="0.5,0.5">
+                                RenderTransformOrigin="0.5,0.5"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
 
-							<!-- Transform Group for Animation -->
-							<Border.RenderTransform>
-								<TransformGroup>
-									<TranslateTransform/>
-									<ScaleTransform/>
-								</TransformGroup>
-							</Border.RenderTransform>
+                            <!-- Transform Group for Animation -->
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
 
-							<!-- Shadow Level 1 (Blur 12) Default -->
-							<Border.Effect>
-								<DropShadowEffect x:Name="PART_Shadow"
+                            <!-- Shadow / Glow Logic -->
+                            <!-- Uses ElevationColor for Dark Mode Glow -->
+                            <Border.Effect>
+                                <DropShadowEffect x:Name="PART_Shadow"
                                                   BlurRadius="12"
                                                   ShadowDepth="3"
-                                                  Opacity="0.06"
+                                                  Opacity="0.12"
                                                   Direction="270"
-                                                  Color="{StaticResource ShadowColor}"/>
-							</Border.Effect>
+                                                  Color="{DynamicResource ElevationColor}"/>
+                            </Border.Effect>
 
-							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"/>
-						</Border>
+                        </Border>
 
-						<!-- Focus Ring (8px offset) -->
-						<Border x:Name="FocusRing"
-                                BorderBrush="{StaticResource FocusRingBrush}"
-                                BorderThickness="3"
+                        <!-- Focus Ring -->
+                        <Border x:Name="FocusRing"
+                                BorderBrush="{DynamicResource FacilityAccentBrush}"
+                                BorderThickness="2"
                                 CornerRadius="{StaticResource RadiusButton}"
-                                Margin="-8"
+                                Margin="-4"
                                 Opacity="0"
                                 SnapsToDevicePixels="True"/>
-					</Grid>
+                    </Grid>
 
-					<ControlTemplate.Triggers>
-						<!-- Keyboard Focus -->
-						<Trigger Property="IsKeyboardFocused" Value="True">
-							<Setter TargetName="FocusRing" Property="Opacity" Value="1"/>
-						</Trigger>
+                    <ControlTemplate.Triggers>
+                        <!-- Keyboard Focus -->
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="FocusRing" Property="Opacity" Value="1"/>
+                        </Trigger>
 
-						<!-- Disabled -->
-						<Trigger Property="IsEnabled" Value="False">
-							<Setter Property="Opacity" Value="0.4"/>
-						</Trigger>
+                        <!-- Disabled -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4"/>
+                        </Trigger>
 
-						<!-- Mouse Over Animation -->
-						<Trigger Property="IsMouseOver" Value="True">
-							<Setter Property="Cursor" Value="Hand"/>
-							<Trigger.EnterActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- Lift -6px -->
-										<DoubleAnimation Storyboard.TargetName="PART_Border"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
-                                                         To="-6" Duration="{StaticResource DurationStandard}">
-											<DoubleAnimation.EasingFunction>
-												<StaticResource ResourceKey="EaseOutPrimary"/>
-											</DoubleAnimation.EasingFunction>
-										</DoubleAnimation>
-										<!-- Increase Shadow -->
-										<DoubleAnimation Storyboard.TargetName="PART_Shadow"
-                                                         Storyboard.TargetProperty="Opacity"
-                                                         To="0.10" Duration="{StaticResource DurationStandard}"/>
-										<DoubleAnimation Storyboard.TargetName="PART_Shadow"
-                                                         Storyboard.TargetProperty="BlurRadius"
-                                                         To="20" Duration="{StaticResource DurationStandard}"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.EnterActions>
-							<Trigger.ExitActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- Return to Rest -->
-										<DoubleAnimation Storyboard.TargetName="PART_Border"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
-                                                         To="0" Duration="{StaticResource DurationStandard}">
-											<DoubleAnimation.EasingFunction>
-												<StaticResource ResourceKey="EaseOutPrimary"/>
-											</DoubleAnimation.EasingFunction>
-										</DoubleAnimation>
-										<DoubleAnimation Storyboard.TargetName="PART_Shadow"
-                                                         Storyboard.TargetProperty="Opacity"
-                                                         To="0.06" Duration="{StaticResource DurationStandard}"/>
-										<DoubleAnimation Storyboard.TargetName="PART_Shadow"
-                                                         Storyboard.TargetProperty="BlurRadius"
-                                                         To="12" Duration="{StaticResource DurationStandard}"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.ExitActions>
-						</Trigger>
+                        <!-- Pressed Animation (Scale down) -->
+                        <Trigger Property="IsPressed" Value="True">
+                             <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Border" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" 
+                                                         To="0.96" Duration="{StaticResource DurationMicro}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <StaticResource ResourceKey="EaseOutPrimary"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Border" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" 
+                                                         To="0.96" Duration="{StaticResource DurationMicro}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <StaticResource ResourceKey="EaseOutPrimary"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Border" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" 
+                                                         To="1" Duration="{StaticResource DurationMicro}"/>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Border" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" 
+                                                         To="1" Duration="{StaticResource DurationMicro}"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-						<!-- Pressed Animation -->
-						<Trigger Property="IsPressed" Value="True">
-							<Trigger.EnterActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- Scale Down -->
-										<DoubleAnimation Storyboard.TargetName="PART_Border" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleX)" To="0.96" Duration="0:0:0.100"/>
-										<DoubleAnimation Storyboard.TargetName="PART_Border" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleY)" To="0.96" Duration="0:0:0.100"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.EnterActions>
-							<Trigger.ExitActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- Return Scale -->
-										<DoubleAnimation Storyboard.TargetName="PART_Border" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.120"/>
-										<DoubleAnimation Storyboard.TargetName="PART_Border" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.120"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.ExitActions>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+    <!-- Primary Button -->
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}"/>
 
-	<!-- Derived Buttons -->
-	<Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}"/>
+    <!-- Secondary / Ghost Button -->
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/> 
+        <Setter Property="BorderThickness" Value="0"/>
+        <!-- Ghost buttons usually have no shadow unless hovered/active if desired, but spec says "Secondary/Ghost Buttons: Background is transparent". Keeping simple. -->
+        <Setter Property="Effect" Value="{x:Null}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+               <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+               <!-- Optional: Add text color change if needed, but TextPrimary handles light/dark swap -->
+               <!-- <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/> -->
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
-	<Style x:Key="PrimaryButtonLarge" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-		<Setter Property="Height" Value="{StaticResource SizeLargeButtonHeight}"/>
-		<Setter Property="FontSize" Value="20"/>
-	</Style>
+    <Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+        <Setter Property="Width" Value="{StaticResource SizeTopBarIconButton}"/>
+        <Setter Property="Height" Value="{StaticResource SizeTopBarIconButton}"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
 
-	<Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}"/>
-		<Setter Property="BorderThickness" Value="2"/>
-		<Setter Property="Foreground" Value="{StaticResource PrimaryAccentBrush}"/>
-		<Setter Property="Effect" Value="{x:Null}"/>
-		<Style.Triggers>
-			<Trigger Property="IsMouseOver" Value="True">
-				<Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}"/>
-				<Setter Property="Effect" Value="{StaticResource Shadow1}"/>
-			</Trigger>
-		</Style.Triggers>
-	</Style>
+    <!-- Sidebar Navigation Button -->
+    <Style x:Key="SidebarNavigationButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Height" Value="48"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
-	<Style x:Key="DestructiveButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-		<Setter Property="Background" Value="{StaticResource StatusErrorBrush}"/>
-		<Setter Property="Foreground" Value="{StaticResource TextOnDarkBrush}"/>
-	</Style>
+    <!-- Destructive Button (Red/Error) -->
+    <Style x:Key="DestructiveButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource StatusErrorBrush}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
-	<Style x:Key="SuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
-		<Setter Property="Background" Value="{StaticResource StatusSuccessBrush}"/>
-		<Setter Property="Foreground" Value="{StaticResource TextOnDarkBrush}"/>
-	</Style>
+    <!-- ============================================================= -->
+    <!-- 2. INPUTS & FORMS (Apple Underline)                           -->
+    <!-- ============================================================= -->
 
-	<Style x:Key="ButtonCompactSuccess" TargetType="Button" BasedOn="{StaticResource SuccessButtonStyle}">
-		<Setter Property="Height" Value="40"/>
-		<Setter Property="FontSize" Value="14"/>
-		<Setter Property="Padding" Value="16,0"/>
-	</Style>
+    <Style x:Key="UnderlineTextBox" TargetType="TextBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="Height" Value="{StaticResource SizeInputHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0,0,0,4"/>
+        <Setter Property="AutomationProperties.HelpText" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="AutomationProperties.Name" Value="{Binding Path=Tag, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <!-- Bottom Border Line -->
+                        <Border x:Name="BorderVisual" 
+                                BorderThickness="0,0,0,2" 
+                                BorderBrush="{DynamicResource SeparatorStroke}" 
+                                SnapsToDevicePixels="True" 
+                                UseLayoutRounding="True"
+                                VerticalAlignment="Bottom" Height="2"/>
 
-	<Style x:Key="ButtonCompactError" TargetType="Button" BasedOn="{StaticResource DestructiveButtonStyle}">
-		<Setter Property="Height" Value="40"/>
-		<Setter Property="FontSize" Value="14"/>
-		<Setter Property="Padding" Value="16,0"/>
-	</Style>
+                        <!-- Focus Highlighter (Animated) -->
+                        <Border x:Name="FocusVisual" 
+                                BorderThickness="0,0,0,2" 
+                                BorderBrush="{DynamicResource FacilityAccentBrush}" 
+                                SnapsToDevicePixels="True" 
+                                UseLayoutRounding="True"
+                                VerticalAlignment="Bottom" Height="2"
+                                Opacity="0">
+                             <Border.RenderTransform>
+                                 <ScaleTransform ScaleX="0" CenterX="0.5" CenterY="1"/> <!-- Expands from center -->
+                             </Border.RenderTransform>
+                        </Border>
 
-	<Style x:Key="ButtonCompactSecondary" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-		<Setter Property="Height" Value="40"/>
-		<Setter Property="FontSize" Value="14"/>
-		<Setter Property="Padding" Value="16,0"/>
-	</Style>
+                        <!-- Content -->
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="0,0,24,4" VerticalAlignment="Center"/>
 
-	<Style x:Key="IconButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-		<Setter Property="Width" Value="{StaticResource SizeTopBarIconButton}"/>
-		<Setter Property="Height" Value="{StaticResource SizeTopBarIconButton}"/>
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="Padding" Value="0"/>
-	</Style>
+                        <!-- "Saved" Heartbeat Indicator -->
+                        <TextBlock x:Name="SavedIndicator" 
+                                   Text="✓" 
+                                   Foreground="{DynamicResource FacilityAccentBrush}"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                   Opacity="0"
+                                   Margin="0,0,0,4"/> 
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- Focus State Animation -->
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Opacity" To="1" Duration="{StaticResource DurationMicro}"/>
+                                        <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="{StaticResource DurationStandard}">
+                                            <DoubleAnimation.EasingFunction>
+                                                <StaticResource ResourceKey="EaseOutPrimary"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="Opacity" To="0" Duration="{StaticResource DurationMicro}"/>
+                                        <DoubleAnimation Storyboard.TargetName="FocusVisual" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0" Duration="{StaticResource DurationMicro}"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        
+                        <!-- TODO: Bind Opacity of SavedIndicator to an IsSaved property via DataTrigger or AttachedProperty if available. 
+                             For now, the structure supports the requirement. -->
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-	<Style x:Key="CompactIconButtonStyle" TargetType="Button" BasedOn="{StaticResource IconButtonStyle}">
-		<Setter Property="Width" Value="{StaticResource SizeQuantityButton}"/>
-		<Setter Property="Height" Value="{StaticResource SizeQuantityButton}"/>
-	</Style>
+    <!-- ============================================================= -->
+    <!-- 3. PREMIUM CARDS (Surface + Lift)                             -->
+    <!-- ============================================================= -->
 
-	<Style x:Key="InvisibleClickableButtonStyle" TargetType="Button">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="Cursor" Value="Hand"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="Button">
-					<Border Background="{TemplateBinding Background}"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+    <Style x:Key="StandardCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusCardStandard}"/>
+        <Setter Property="Padding" Value="{StaticResource PaddingCard}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        
+        <!-- Default Shadow (Level 1) -->
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Direction="270" Color="{DynamicResource ElevationColor}"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-	<Style x:Key="SkipToContentButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-		<Setter Property="HorizontalAlignment" Value="Center"/>
-		<Setter Property="VerticalAlignment" Value="Top"/>
-		<Setter Property="Margin" Value="0,8,0,0"/>
-		<Setter Property="Opacity" Value="0"/>
-		<Setter Property="IsHitTestVisible" Value="False"/>
-		<Setter Property="Panel.ZIndex" Value="999"/>
-		<Style.Triggers>
-			<Trigger Property="IsKeyboardFocused" Value="True">
-				<Setter Property="Opacity" Value="1"/>
-				<Setter Property="IsHitTestVisible" Value="True"/>
-			</Trigger>
-		</Style.Triggers>
-	</Style>
+    <Style x:Key="InteractiveCardStyle" TargetType="Border" BasedOn="{StaticResource StandardCardStyle}">
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform Y="0"/>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <!-- Hover Lift (-4px) -->
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                             To="-4" Duration="{StaticResource DurationStandard}">
+                                <DoubleAnimation.EasingFunction>
+                                    <StaticResource ResourceKey="EaseOutPrimary"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <!-- Shadow Intensify -->
+                            <!-- Note: Direct Effect property animation can be tricky in Styles without dedicated Storyboard targeting. 
+                                 Simpler approach: Swap effect or animate Opacity if targeted. 
+                                 For robustness in Style, we trust the TranslateTransform visual cue mostly. -->
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                             To="0" Duration="{StaticResource DurationStandard}">
+                                <DoubleAnimation.EasingFunction>
+                                    <StaticResource ResourceKey="EaseOutPrimary"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
-	<Style x:Key="FloatingActionButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-		<Setter Property="Width" Value="200"/>
-		<Setter Property="Height" Value="80"/>
-		<Setter Property="Effect" Value="{StaticResource Shadow3}"/>
-		<Setter Property="HorizontalAlignment" Value="Right"/>
-		<Setter Property="VerticalAlignment" Value="Bottom"/>
-		<Setter Property="Margin" Value="{StaticResource MarginFAB}"/>
+    <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="Padding" Value="{StaticResource PaddingModal}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusModal}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="48" ShadowDepth="12" Opacity="0.25" Direction="270" Color="{DynamicResource ElevationColor}"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="Button">
-					<Grid>
-						<!-- RENAMED TO 'PART_FabBorder' TO AVOID CONFLICTS -->
-						<Border x:Name="PART_FabBorder"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="20"
-                            Padding="{TemplateBinding Padding}"
-                            RenderTransformOrigin="0.5,0.5">
+    <!-- ============================================================= -->
+    <!-- 4. PREMIUM DATAGRID                                           -->
+    <!-- ============================================================= -->
 
-							<Border.RenderTransform>
-								<TransformGroup>
-									<TranslateTransform/>
-									<ScaleTransform/>
-								</TransformGroup>
-							</Border.RenderTransform>
+    <Style x:Key="PremiumDataGridStyle" TargetType="DataGrid">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="RowHeaderWidth" Value="0"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource SeparatorStroke}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+        <Setter Property="RowHeight" Value="72"/> <!-- Fixed Height -->
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        
+        <Setter Property="CellStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridCell">
+                                <Border Padding="16,0" Background="Transparent" SnapsToDevicePixels="True">
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
 
-							<Border.Effect>
-								<DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.06" Direction="270" Color="{StaticResource ShadowColor}"/>
-							</Border.Effect>
+        <Setter Property="RowStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridRow">
+                                <Border x:Name="DGR_Border"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        SnapsToDevicePixels="True">
+                                    <Grid>
+                                        <!-- Selection Indicator Bar (Far Left) -->
+                                        <Border x:Name="SelectionBar" 
+                                                Width="4" HorizontalAlignment="Left" 
+                                                Background="{DynamicResource FacilityAccentBrush}" 
+                                                Visibility="Collapsed"/>
+                                        
+                                        <!-- Content -->
+                                        <DataGridCellsPresenter ItemsPanel="{TemplateBinding ItemsPanel}" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="DGR_Border" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/> <!-- 15% Opacity built into brush potentially, or set Opacity here if needed -->
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="SelectionBar" Value="Visible" Property="Visibility"/>
+                                        <Setter TargetName="DGR_Border" Value="{DynamicResource SurfaceBg}" Property="Background"/>
+                                    </Trigger>
+                                    <!-- High Contrast / Keyboard Focus -->
+                                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                        <Setter TargetName="DGR_Border" Value="{DynamicResource FacilityAccentDimBrush}" Property="BorderBrush"/>
+                                        <Setter TargetName="DGR_Border" Value="1" Property="BorderThickness"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
 
-							<ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          RecognizesAccessKey="True"/>
-						</Border>
+        <Setter Property="ColumnHeaderStyle">
+            <Setter.Value>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+                    <Setter Property="FontSize" Value="13"/>
+                    <Setter Property="FontWeight" Value="Medium"/>
+                    <Setter Property="Height" Value="48"/>
+                    <Setter Property="Padding" Value="16,0"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="DataGridColumnHeader">
+                                <Border Background="Transparent" Padding="{TemplateBinding Padding}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,0,1">
+                                    <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-						<Border x:Name="FocusRing"
-                            BorderBrush="{StaticResource FocusRingBrush}"
-                            BorderThickness="3"
-                            CornerRadius="20"
-                            Margin="-8"
-                            Opacity="0"
-                            SnapsToDevicePixels="True"/>
-					</Grid>
+    <!-- ============================================================= -->
+    <!-- 5. GLOBAL SKELETON SHIMMER                                    -->
+    <!-- ============================================================= -->
 
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsMouseOver" Value="True">
-							<Setter Property="Cursor" Value="Hand"/>
-							<Trigger.EnterActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- UPDATED TARGET NAME HERE TOO -->
-										<DoubleAnimation Storyboard.TargetName="PART_FabBorder"
-                                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
-                                                     To="-4" Duration="0:0:0.2">
-											<DoubleAnimation.EasingFunction>
-												<QuadraticEase EasingMode="EaseOut"/>
-											</DoubleAnimation.EasingFunction>
-										</DoubleAnimation>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.EnterActions>
-							<Trigger.ExitActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<!-- UPDATED TARGET NAME HERE TOO -->
-										<DoubleAnimation Storyboard.TargetName="PART_FabBorder"
-                                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(TranslateTransform.Y)"
-                                                     To="0" Duration="0:0:0.2">
-											<DoubleAnimation.EasingFunction>
-												<QuadraticEase EasingMode="EaseOut"/>
-											</DoubleAnimation.EasingFunction>
-										</DoubleAnimation>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.ExitActions>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-	<!-- ============================================================= -->
-	<!-- 2. INPUTS & FORMS                                             -->
-	<!-- ============================================================= -->
-
-	<Style x:Key="UnderlineTextBox" TargetType="TextBox">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="Padding" Value="0,0,0,8"/>
-		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-		<Setter Property="FontSize" Value="17"/>
-		<Setter Property="MinHeight" Value="{StaticResource SizeInputHeight}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="TextBox">
-					<Grid>
-						<Border x:Name="BorderVisual" BorderThickness="0,0,0,2" BorderBrush="{StaticResource SeparatorBrush}" SnapsToDevicePixels="True"/>
-						<Border x:Name="FocusRing" BorderBrush="{StaticResource FocusRingBrush}" BorderThickness="3" Margin="-8" Opacity="0" SnapsToDevicePixels="True"/>
-						<ScrollViewer x:Name="PART_ContentHost" Margin="0,0,0,4"/>
-					</Grid>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsKeyboardFocused" Value="True">
-							<Setter TargetName="BorderVisual" Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}"/>
-							<Setter TargetName="FocusRing" Property="Opacity" Value="1"/>
-						</Trigger>
-						<MultiTrigger>
-							<MultiTrigger.Conditions>
-								<Condition Property="AcceptsReturn" Value="True"/>
-								<Condition Property="TextWrapping" Value="Wrap"/>
-							</MultiTrigger.Conditions>
-							<Setter TargetName="BorderVisual" Property="BorderThickness" Value="2"/>
-						</MultiTrigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource UnderlineTextBox}"/>
-	<Style x:Key="GlobalDatePickerStyle" TargetType="DatePicker"/>
-
-	<Style x:Key="FormLabel" TargetType="TextBlock" BasedOn="{StaticResource Caption}">
-		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-		<Setter Property="Margin" Value="0,0,0,8"/>
-	</Style>
-	<Style x:Key="FormValue" TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
-		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-		<Setter Property="VerticalAlignment" Value="Center"/>
-	</Style>
-
-	<!-- ============================================================= -->
-	<!-- 3. CARDS & CONTAINERS                                         -->
-	<!-- ============================================================= -->
-
-	<Style x:Key="ElevatedCardStyle" TargetType="Border">
-		<Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusCardStandard}"/>
-		<Setter Property="Effect" Value="{StaticResource Shadow2}"/>
-	</Style>
-
-	<Style x:Key="ElevatedCardLevel3Style" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}">
-		<Setter Property="Effect" Value="{StaticResource Shadow3}"/>
-	</Style>
-
-	<Style x:Key="ElevatedCardStyleInteractive" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyle}">
-		<Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-		<Setter Property="RenderTransform">
-			<Setter.Value>
-				<TranslateTransform Y="0"/>
-			</Setter.Value>
-		</Setter>
-		<Style.Triggers>
-			<Trigger Property="IsMouseOver" Value="True">
-				<Setter Property="Cursor" Value="Hand"/>
-				<Trigger.EnterActions>
-					<BeginStoryboard>
-						<Storyboard>
-							<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-4" Duration="{StaticResource DurationStandard}">
-								<DoubleAnimation.EasingFunction>
-									<StaticResource ResourceKey="EaseOutPrimary"/>
-								</DoubleAnimation.EasingFunction>
-							</DoubleAnimation>
-						</Storyboard>
-					</BeginStoryboard>
-				</Trigger.EnterActions>
-				<Trigger.ExitActions>
-					<BeginStoryboard>
-						<Storyboard>
-							<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="0" Duration="{StaticResource DurationStandard}">
-								<DoubleAnimation.EasingFunction>
-									<StaticResource ResourceKey="EaseOutPrimary"/>
-								</DoubleAnimation.EasingFunction>
-							</DoubleAnimation>
-						</Storyboard>
-					</BeginStoryboard>
-				</Trigger.ExitActions>
-			</Trigger>
-		</Style.Triggers>
-	</Style>
-
-	<Style x:Key="MemberCardStyleInteractive" TargetType="Border" BasedOn="{StaticResource ElevatedCardStyleInteractive}">
-		<Style.Triggers>
-			<DataTrigger Binding="{Binding IsSelected}" Value="True">
-				<Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}"/>
-				<Setter Property="BorderThickness" Value="4,0,0,0"/>
-				<Setter Property="Background" Value="{StaticResource SelectionBackgroundBrush}"/>
-				<Setter Property="RenderTransform">
-					<Setter.Value>
-						<TranslateTransform Y="0"/>
-					</Setter.Value>
-				</Setter>
-			</DataTrigger>
-		</Style.Triggers>
-	</Style>
-
-	<Style x:Key="HeroLiveCounterCardStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardLevel3Style}">
-		<Setter Property="Width" Value="400"/>
-		<Setter Property="Padding" Value="{StaticResource PaddingHeroCard}"/>
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusCardLarge}"/>
-	</Style>
-
-	<Style x:Key="TimelineCardStyle" TargetType="Border">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusCardStandard}"/>
-		<Setter Property="Padding" Value="16,0"/>
-		<Style.Triggers>
-			<Trigger Property="IsMouseOver" Value="True">
-				<Setter Property="Background" Value="{StaticResource HoverLightBgBrush}"/>
-				<Setter Property="Effect" Value="{StaticResource Shadow1}"/>
-			</Trigger>
-		</Style.Triggers>
-	</Style>
-
-	<Style x:Key="GlobalModalContainerStyle" TargetType="Border" BasedOn="{StaticResource ElevatedCardLevel3Style}">
-		<Setter Property="Background" Value="{StaticResource ContentBackgroundBrush}"/>
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusCardLarge}"/>
-	</Style>
-
-	<!-- ============================================================= -->
-	<!-- 4. NAVIGATION & SIDEBAR                                       -->
-	<!-- ============================================================= -->
-
-	<Style x:Key="SidebarNavigationButtonStyle" TargetType="Button">
-		<Setter Property="Height" Value="{StaticResource SizeSidebarItemHeight}"/>
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-		<Setter Property="VerticalContentAlignment" Value="Center"/>
-		<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="Button">
-					<Grid>
-						<Border x:Name="Bg" Background="{TemplateBinding Background}"/>
-						<Border x:Name="Indicator" Width="4" HorizontalAlignment="Left" Background="{StaticResource ActiveNavigationBorderBrush}" Visibility="Collapsed"/>
-						<Border x:Name="FocusBorder" BorderBrush="{StaticResource FocusRingBrush}" BorderThickness="3" Margin="8" Visibility="Collapsed"/>
-						<ContentPresenter x:Name="ContentSite" Margin="{StaticResource PaddingSidebarItem}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-					</Grid>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsMouseOver" Value="True">
-							<Setter TargetName="Bg" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
-							<Setter TargetName="Bg" Property="Opacity" Value="0.06"/>
-							<Setter Property="Cursor" Value="Hand"/>
-						</Trigger>
-						<DataTrigger Binding="{Binding IsActive}" Value="True">
-							<Setter TargetName="Bg" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
-							<Setter TargetName="Bg" Property="Opacity" Value="0.10"/>
-							<Setter TargetName="Indicator" Property="Visibility" Value="Visible"/>
-						</DataTrigger>
-						<Trigger Property="IsKeyboardFocused" Value="True">
-							<Setter TargetName="FocusBorder" Property="Visibility" Value="Visible"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalDetailTabStyle" TargetType="TabItem">
-		<Setter Property="FontSize" Value="17"/>
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="TabItem">
-					<Grid Height="64" Background="Transparent">
-						<Border x:Name="Border" BorderBrush="{StaticResource PrimaryAccentBrush}" BorderThickness="0,0,0,0" Padding="32,0">
-							<ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header"/>
-						</Border>
-					</Grid>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsSelected" Value="True">
-							<Setter TargetName="Border" Property="BorderThickness" Value="0,0,0,4"/>
-							<Setter Property="Foreground" Value="{StaticResource PrimaryAccentBrush}"/>
-							<Setter Property="FontWeight" Value="Medium"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalSettingsAccordionStyle" TargetType="Expander">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-		<Setter Property="VerticalContentAlignment" Value="Stretch"/>
-		<Setter Property="Padding" Value="{StaticResource PaddingCard}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="Expander">
-					<DockPanel>
-						<ToggleButton x:Name="HeaderSite" DockPanel.Dock="Top" Content="{TemplateBinding Header}" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
-							<ToggleButton.Template>
-								<ControlTemplate TargetType="ToggleButton">
-									<Border Background="Transparent" BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="0,0,0,1" Height="{StaticResource SizeSettingsHeaderHeight}" Cursor="Hand">
-										<Grid>
-											<ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left" Content="{TemplateBinding Content}"/>
-											<Path x:Name="Arrow" Data="{StaticResource IconChevronDown}" Fill="{StaticResource TextSecondaryBrush}" Width="16" Height="16" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5">
-												<Path.RenderTransform>
-													<RotateTransform Angle="0"/>
-												</Path.RenderTransform>
-											</Path>
-										</Grid>
-									</Border>
-									<ControlTemplate.Triggers>
-										<Trigger Property="IsChecked" Value="True">
-											<Setter TargetName="Arrow" Property="RenderTransform">
-												<Setter.Value>
-													<RotateTransform Angle="180"/>
-												</Setter.Value>
-											</Setter>
-										</Trigger>
-									</ControlTemplate.Triggers>
-								</ControlTemplate>
-							</ToggleButton.Template>
-						</ToggleButton>
-						<ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Visibility="Collapsed"/>
-					</DockPanel>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsExpanded" Value="True">
-							<Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalScrollBarStyle" TargetType="ScrollBar">
-		<Setter Property="Width" Value="8"/>
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="ScrollBar">
-					<Grid>
-						<Track x:Name="PART_Track" IsDirectionReversed="False">
-							<Track.Thumb>
-								<Thumb>
-									<Thumb.Style>
-										<Style TargetType="Thumb">
-											<Setter Property="Template">
-												<Setter.Value>
-													<ControlTemplate TargetType="Thumb">
-														<Border x:Name="ThumbBorder" Background="{StaticResource PrimaryAccentBrush}" Opacity="0.3" CornerRadius="4"/>
-														<ControlTemplate.Triggers>
-															<Trigger Property="IsMouseOver" Value="True">
-																<Setter TargetName="ThumbBorder" Property="Opacity" Value="0.5"/>
-															</Trigger>
-															<Trigger Property="IsDragging" Value="True">
-																<Setter TargetName="ThumbBorder" Property="Opacity" Value="0.7"/>
-															</Trigger>
-														</ControlTemplate.Triggers>
-													</ControlTemplate>
-												</Setter.Value>
-											</Setter>
-										</Style>
-									</Thumb.Style>
-								</Thumb>
-							</Track.Thumb>
-						</Track>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<!-- ============================================================= -->
-	<!-- 5. WIDGETS & SPECIALIZED                                      -->
-	<!-- ============================================================= -->
-
-	<Style x:Key="StatusBadgeStyle" TargetType="Border">
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusPill}"/>
-		<Setter Property="Padding" Value="{StaticResource PaddingPill}"/>
-	</Style>
-
-	<Style x:Key="GlobalRoleBadgeStyle" TargetType="ContentControl">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="ContentControl">
-					<Border Background="{StaticResource PrimaryAccentBrush}" CornerRadius="{StaticResource RadiusPill}" Padding="{StaticResource PaddingPill}">
-						<TextBlock Text="{TemplateBinding Content}" Style="{StaticResource Micro}" Foreground="{StaticResource TextOnDarkBrush}" FontWeight="Bold"/>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalComingSoonBadgeStyle" TargetType="Border">
-		<Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
-		<Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}"/>
-		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="CornerRadius" Value="4"/>
-		<Setter Property="Padding" Value="6,2"/>
-	</Style>
-
-	<Style x:Key="GlobalToggleSwitchStyle" TargetType="CheckBox">
-		<Setter Property="Width" Value="48"/>
-		<Setter Property="Height" Value="28"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="CheckBox">
-					<Grid>
-						<Border x:Name="Track" Background="{StaticResource SeparatorBrush}" CornerRadius="14"/>
-						<Border x:Name="Thumb" Width="24" Height="24" Background="White" CornerRadius="12" HorizontalAlignment="Left" Margin="2">
-							<Border.RenderTransform>
-								<TranslateTransform X="0"/>
-							</Border.RenderTransform>
-							<Border.Effect>
-								<DropShadowEffect BlurRadius="4" Opacity="0.2"/>
-							</Border.Effect>
-						</Border>
-					</Grid>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsChecked" Value="True">
-							<Setter TargetName="Track" Property="Background" Value="{StaticResource StatusSuccessBrush}"/>
-							<Trigger.EnterActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="20" Duration="{StaticResource DurationFast}"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.EnterActions>
-							<Trigger.ExitActions>
-								<BeginStoryboard>
-									<Storyboard>
-										<DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="{StaticResource DurationFast}"/>
-									</Storyboard>
-								</BeginStoryboard>
-							</Trigger.ExitActions>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalColorSwatchStyle" TargetType="RadioButton">
-		<Setter Property="Width" Value="{StaticResource SizeColorSwatch}"/>
-		<Setter Property="Height" Value="{StaticResource SizeColorSwatch}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="RadioButton">
-					<Ellipse Fill="{TemplateBinding Background}"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="TogglePillStyle" TargetType="RadioButton">
-		<Setter Property="Height" Value="40"/>
-		<Setter Property="Padding" Value="20,0"/>
-		<Setter Property="Margin" Value="0,0,12,0"/>
-		<Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
-		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="RadioButton">
-					<Border Background="{TemplateBinding Background}" CornerRadius="{StaticResource RadiusPill}">
-						<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-		<Style.Triggers>
-			<Trigger Property="IsChecked" Value="True">
-				<Setter Property="Background" Value="{StaticResource PrimaryAccentBrush}"/>
-				<Setter Property="Foreground" Value="{StaticResource TextOnDarkBrush}"/>
-			</Trigger>
-		</Style.Triggers>
-	</Style>
-
-	<!-- GlobalPaymentMethodTileStyle: The missing RadioButton style from previous reviews -->
-	<Style x:Key="GlobalPaymentMethodTileStyle" TargetType="RadioButton">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="RadioButton">
-					<Border x:Name="Border" BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="1" CornerRadius="{StaticResource RadiusCardStandard}" Background="Transparent" Cursor="Hand">
-						<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-					</Border>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsChecked" Value="True">
-							<Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}"/>
-							<Setter TargetName="Border" Property="BorderThickness" Value="2"/>
-							<Setter TargetName="Border" Property="Background" Value="{StaticResource AccentLightBrush}"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalDragDropUploadZoneStyle" TargetType="Border">
-		<Setter Property="CornerRadius" Value="{StaticResource RadiusCardStandard}"/>
-		<Setter Property="Background" Value="{StaticResource CardBackgroundBrush}"/>
-		<Setter Property="BorderBrush" Value="{StaticResource SeparatorBrush}"/>
-		<Setter Property="BorderThickness" Value="2"/>
-		<Setter Property="SnapsToDevicePixels" Value="True"/>
-	</Style>
-
-	<Style x:Key="GlobalTerminalWaitingStateStyle" TargetType="ContentControl">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate>
-					<Border Background="{StaticResource CardBackgroundBrush}" CornerRadius="12" Padding="24">
-						<StackPanel HorizontalAlignment="Center">
-							<Path Data="{StaticResource IconRefresh}" Fill="{StaticResource PrimaryAccentBrush}" Style="{StaticResource IconLarge}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
-							<TextBlock Text="Waiting for terminal..." Style="{StaticResource BodyMedium}" Foreground="{StaticResource TextSecondaryBrush}"/>
-						</StackPanel>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalRevenueSparkline" TargetType="ContentControl">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate>
-					<Polyline Stroke="{StaticResource PrimaryAccentBrush}" StrokeThickness="3" Points="0,50 50,20 100,60 150,30 200,40" Opacity="0.5"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalBarChart" TargetType="ContentControl">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate>
-					<Grid Background="{StaticResource IllustrationBackgroundBrush}" Opacity="0.5" Height="{StaticResource SizeChartHeightLarge}"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalDonutChart" TargetType="ContentControl">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate>
-					<Ellipse Stroke="{StaticResource PrimaryAccentBrush}" StrokeThickness="20" Width="200" Height="200"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="ChartTooltipStyle" TargetType="ToolTip">
-		<Setter Property="Background" Value="#E61A1A1A"/>
-		<Setter Property="Foreground" Value="White"/>
-		<Setter Property="Padding" Value="8"/>
-		<Setter Property="BorderThickness" Value="0"/>
-	</Style>
-
-	<Style x:Key="FocusRingStyle" TargetType="Control">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate>
-					<Rectangle Stroke="{StaticResource FocusRingBrush}" StrokeThickness="3" Margin="-4"/>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<DataTemplate x:Key="TimelineGroupHeaderTemplate">
-		<Border Background="{StaticResource CardBackgroundBrush}" Padding="{StaticResource PaddingCardList}" Margin="0,24,0,8" CornerRadius="{StaticResource RadiusCardStandard}">
-			<Grid>
-				<TextBlock Text="{Binding Name}" Style="{StaticResource Title3}" Foreground="{StaticResource TextPrimaryBrush}"/>
-				<TextBlock Text="{Binding ItemCount, StringFormat='{}{0} events'}" Style="{StaticResource Caption}" Foreground="{StaticResource TextTertiaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-			</Grid>
-		</Border>
-	</DataTemplate>
-
-	<Style x:Key="DateRangePickerButtonStyle" TargetType="Button">
-		<Setter Property="Background" Value="Transparent"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="Button">
-					<Border Background="{TemplateBinding Background}" BorderBrush="{StaticResource SeparatorBrush}" BorderThickness="0,0,0,2">
-						<Grid Height="46">
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto"/>
-								<ColumnDefinition Width="Auto"/>
-								<ColumnDefinition Width="Auto"/>
-							</Grid.ColumnDefinitions>
-							<Path Grid.Column="0" Data="{StaticResource IconCalendar}" Fill="{StaticResource TextSecondaryBrush}" Style="{StaticResource IconSmall}" Margin="{StaticResource MarginIconRight}"/>
-							<ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
-							<Path Grid.Column="2" Data="{StaticResource IconChevronDown}" Fill="{StaticResource TextTertiaryBrush}" Width="12" Height="12" VerticalAlignment="Center"/>
-						</Grid>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-	<Style x:Key="GlobalAccessEventIconStyle" TargetType="Border">
-		<Setter Property="Width" Value="{StaticResource SizeIconContainer}"/>
-		<Setter Property="Height" Value="{StaticResource SizeIconContainer}"/>
-		<Setter Property="CornerRadius" Value="20"/>
-		<Setter Property="Background" Value="{StaticResource AccentLightBrush}"/>
-	</Style>
-
-	<Style x:Key="GlobalPaymentIconStyle" TargetType="Border" BasedOn="{StaticResource GlobalAccessEventIconStyle}"/>
-	<Style x:Key="GlobalReservationIconStyle" TargetType="Border" BasedOn="{StaticResource GlobalAccessEventIconStyle}">
-		<Setter Property="Background" Value="{StaticResource StatusWarningBrush}"/>
-		<Setter Property="Opacity" Value="0.2"/>
-	</Style>
-
-	<Style x:Key="CircularSelectionCheckBoxStyle" TargetType="CheckBox">
-		<Setter Property="Width" Value="24"/>
-		<Setter Property="Height" Value="24"/>
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="CheckBox">
-					<Grid>
-						<Ellipse x:Name="OuterCircle" Fill="{TemplateBinding Background}" Stroke="{StaticResource SeparatorBrush}" StrokeThickness="1"/>
-						<Path x:Name="CheckMark" Data="{StaticResource IconCheck}" Fill="{StaticResource TextOnDarkBrush}" Stretch="Uniform" Margin="6" Opacity="0"/>
-					</Grid>
-					<ControlTemplate.Triggers>
-						<Trigger Property="IsChecked" Value="True">
-							<Setter TargetName="OuterCircle" Property="Fill" Value="{StaticResource PrimaryAccentBrush}"/>
-							<Setter TargetName="OuterCircle" Property="Stroke" Value="{StaticResource PrimaryAccentBrush}"/>
-							<Setter TargetName="CheckMark" Property="Opacity" Value="1"/>
-						</Trigger>
-						<Trigger Property="IsMouseOver" Value="True">
-							<Setter TargetName="OuterCircle" Property="Stroke" Value="{StaticResource PrimaryAccentBrush}"/>
-						</Trigger>
-					</ControlTemplate.Triggers>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-
-    <!-- Live Indicator Dot (Pulsing Green Circle) -->
-    <Style x:Key="LiveIndicatorStyle" TargetType="Ellipse">
-        <Setter Property="Width" Value="12"/>
-        <Setter Property="Height" Value="12"/>
-        <Setter Property="Fill" Value="{StaticResource StatusSuccessBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
+    <Style x:Key="ShimmerPlaceholderStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                    <LinearGradientBrush.GradientStops>
+                        <!-- Base Color (Theme Aware) -->
+                        <GradientStop Color="#0A808080" Offset="0"/>
+                        <GradientStop Color="#20FFFFFF" Offset="0.5"/>
+                        <GradientStop Color="#0A808080" Offset="1"/>
+                    </LinearGradientBrush.GradientStops>
+                    <!-- Matrix Transform for Animation (Moving the gradient) -->
+                    <LinearGradientBrush.RelativeTransform>
+                        <TranslateTransform X="-1.0"/>
+                    </LinearGradientBrush.RelativeTransform>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Style.Triggers>
             <EventTrigger RoutedEvent="Loaded">
                 <BeginStoryboard>
-                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                        <!-- Fade In/Out Animation -->
-                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                         From="1.0" To="0.4"
-                                         Duration="{StaticResource DurationPulse}"/>
-                        <!-- If DurationPulse is missing, use "0:0:0.8" -->
+                    <Storyboard RepeatBehavior="Forever">
+                        <DoubleAnimation Storyboard.TargetProperty="(Border.Background).(LinearGradientBrush.RelativeTransform).(TranslateTransform.X)"
+                                         From="-1" To="1" Duration="0:0:1.5"/>
                     </Storyboard>
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- ============================================================= -->
+    <!-- 6. TOP NOTIFICATION BANNER                                    -->
+    <!-- ============================================================= -->
+
+    <Style x:Key="TopNotificationBannerStyle" TargetType="Border">
+        <Setter Property="Width" Value="600"/>
+        <Setter Property="MinHeight" Value="64"/>
+        <Setter Property="CornerRadius" Value="24"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/> <!-- Or dedicated Notification Bg -->
+        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,32,0,0"/> <!-- Offset from top -->
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="8" Opacity="0.2" Direction="270" Color="{DynamicResource ElevationColor}"/>
+            </Setter.Value>
+        </Setter>
+        <!-- Animation logic handled by View/ViewModel visibility triggers or behaviors usually, 
+             but style defines the premium look (Radius 24, Width 600). -->
     </Style>
 
 </ResourceDictionary>

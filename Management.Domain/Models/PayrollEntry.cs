@@ -1,22 +1,37 @@
 ﻿using System;
-using Management.Domain.Enums;
+using Management.Domain.Primitives;
+using Management.Domain.ValueObjects;
 
 namespace Management.Domain.Models
 {
     public class PayrollEntry : Entity
     {
-        public Guid StaffMemberId { get; set; }
+        public Guid StaffMemberId { get; private set; }
+        public DateTime PayPeriodStart { get; private set; }
+        public DateTime PayPeriodEnd { get; private set; }
+        public Money Amount { get; private set; } = null!;
+        public bool IsPaid { get; private set; }
 
-        public DateTime PayDate { get; set; }
-        public decimal Amount { get; set; }
-        public decimal Bonus { get; set; }
+        private PayrollEntry(Guid id, Guid staffId, DateTime start, DateTime end, Money amount) : base(id)
+        {
+            StaffMemberId = staffId;
+            PayPeriodStart = start;
+            PayPeriodEnd = end;
+            Amount = amount;
+            IsPaid = false;
+        }
 
-        // e.g. "Monthly Salary", "Performance Bonus", "Adjustment"
-        public string PaymentType { get; set; }
+        private PayrollEntry() { }
 
-        // e.g. "Paid", "Pending", "Failed"
-        public string Status { get; set; }
+        public static Result<PayrollEntry> Create(Guid staffId, DateTime start, DateTime end, Money amount)
+        {
+            return Result.Success(new PayrollEntry(Guid.NewGuid(), staffId, start, end, amount));
+        }
 
-        public string TransactionReference { get; set; } // Bank trans ID
+        public void MarkAsPaid()
+        {
+            IsPaid = true;
+            UpdateTimestamp();
+        }
     }
 }

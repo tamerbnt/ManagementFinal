@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Management.Application.Services;
+// using Management.Presentation.Services; (Already below)
 using Management.Domain.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Services;
@@ -25,6 +25,7 @@ namespace Management.Presentation.ViewModels
         private readonly IStaffService _staffService;
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
 
         // --- 1. SHELL STATE ---
 
@@ -42,8 +43,8 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _isDetailOpen, value);
         }
 
-        private StaffItemViewModel _selectedStaffViewModel;
-        public StaffItemViewModel SelectedStaffViewModel
+        private StaffItemViewModel? _selectedStaffViewModel;
+        public StaffItemViewModel? SelectedStaffViewModel
         {
             get => _selectedStaffViewModel;
             set => SetProperty(ref _selectedStaffViewModel, value);
@@ -63,7 +64,7 @@ namespace Management.Presentation.ViewModels
         public int TotalMembersCount { get; set; }
         public double PaymentSuccessRate { get; set; }
 
-        private PointCollection _revenueHistoryPoints;
+        private PointCollection _revenueHistoryPoints = new();
         public PointCollection RevenueHistoryPoints { get => _revenueHistoryPoints; set => SetProperty(ref _revenueHistoryPoints, value); }
 
         public ObservableCollection<BarChartItemViewModel> MonthlyRevenueChartData { get; } = new ObservableCollection<BarChartItemViewModel>();
@@ -82,12 +83,14 @@ namespace Management.Presentation.ViewModels
             IFinanceService financeService,
             IStaffService staffService,
             IDialogService dialogService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            Management.Domain.Services.IFacilityContextService facilityContext)
         {
             _financeService = financeService;
             _staffService = staffService;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            _facilityContext = facilityContext;
 
             // Using Project Extensions RelayCommand
             CloseDetailCommand = new RelayCommand(() => IsDetailOpen = false);
@@ -111,27 +114,36 @@ namespace Management.Presentation.ViewModels
 
         private async Task LoadFinanceDataAsync()
         {
-            var metrics = await _financeService.GetDashboardMetricsAsync();
-            var failed = await _financeService.GetFailedPaymentsAsync();
+            var facilityId = _facilityContext.CurrentFacilityId;
+            var metricsResult = await _financeService.GetDashboardMetricsAsync(facilityId);
+            var failedResult = await _financeService.GetFailedPaymentsAsync(facilityId);
 
-            MonthlyRevenue = metrics.MonthlyRevenue;
-            // ... Map other KPIs ...
+            if (metricsResult.IsSuccess)
+            {
+                var metrics = metricsResult.Value;
+                MonthlyRevenue = metrics.MonthlyRevenue;
+                // ... Map other KPIs ...
 
-            // Mock Point Collection Mapping
-            var points = new PointCollection();
-            foreach (var p in metrics.RevenueSparkline) points.Add(new Point(p.X, p.Y));
-            RevenueHistoryPoints = points;
+                // Mock Point Collection Mapping
+                var points = new PointCollection();
+                foreach (var p in metrics.RevenueSparkline) points.Add(new Point(p.X, p.Y));
+                RevenueHistoryPoints = points;
+            }
 
-            FailedPayments.Clear();
-            foreach (var fp in failed) FailedPayments.Add(new FailedPaymentItemViewModel(fp));
+            if (failedResult.IsSuccess)
+            {
+                FailedPayments.Clear();
+                foreach (var fp in failedResult.Value) FailedPayments.Add(new FailedPaymentItemViewModel(fp));
+            }
         }
 
         private async Task LoadStaffDataAsync()
         {
-            var staffDtos = await _staffService.GetAllStaffAsync();
+            var result = await _staffService.GetAllStaffAsync();
+            if (result.IsFailure) return;
 
             StaffMembers.Clear();
-            foreach (var dto in staffDtos)
+            foreach (var dto in result.Value)
             {
                 var vm = new StaffItemViewModel(dto, _staffService, _dialogService, _notificationService);
 
@@ -153,7 +165,7 @@ namespace Management.Presentation.ViewModels
             IsDetailOpen = true;
         }
 
-        private void OnStaffRemoved(object sender, EventArgs e)
+        private void OnStaffRemoved(object? sender, EventArgs e)
         {
             if (sender is StaffItemViewModel vm)
             {
@@ -173,7 +185,8 @@ namespace Management.Presentation.ViewModels
             if (payment == null) return;
             try
             {
-                if (await _financeService.RetryPaymentAsync(payment.Id))
+                var result = await _financeService.RetryPaymentAsync(_facilityContext.CurrentFacilityId, payment.Id);
+                if (result.IsSuccess)
                 {
                     FailedPayments.Remove(payment);
                     _notificationService.ShowSuccess("Payment retried");
@@ -202,12 +215,12 @@ namespace Management.Presentation.ViewModels
 
         public ObservableCollection<PermissionItemViewModel> Permissions { get; }
 
-        public ICommand SelectStaffCommand { get; set; }
-        public ICommand EditCommand { get; }
-        public ICommand RemoveCommand { get; }
-        public ICommand CloseCommand { get; }
-
-        public event EventHandler StaffRemoved;
+        public ICommand? SelectStaffCommand { get; set; }
+        public ICommand? EditCommand { get; }
+        public ICommand? RemoveCommand { get; }
+        public ICommand? CloseCommand { get; }
+ 
+        public event EventHandler? StaffRemoved;
 
         public StaffItemViewModel(
             StaffDto dto,
@@ -237,9 +250,12 @@ namespace Management.Presentation.ViewModels
 
             if (confirmed)
             {
-                await _service.RemoveStaffAsync(Id);
-                _notify.ShowSuccess($"{FullName} removed.");
-                StaffRemoved?.Invoke(this, EventArgs.Empty);
+                var result = await _service.RemoveStaffAsync(Id);
+                if (result.IsSuccess)
+                {
+                    _notify.ShowSuccess($"{FullName} removed.");
+                    StaffRemoved?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
     }
@@ -260,7 +276,7 @@ namespace Management.Presentation.ViewModels
         }
     }
 
-    public class PermissionItemViewModel { public string Name { get; set; } public bool IsGranted { get; set; } }
+    public class PermissionItemViewModel { public string Name { get; set; } = string.Empty; public bool IsGranted { get; set; } }
     public class BarChartItemViewModel { /* Label, Value */ }
     public class PieChartItemViewModel { /* Label, Percentage */ }
 }

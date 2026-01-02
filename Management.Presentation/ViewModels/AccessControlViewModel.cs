@@ -1,12 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data; // For CollectionSynchronization
 using System.Windows.Input;
 using System.Windows.Threading;
-using Management.Application.Services;
+// using Management.Presentation.Services; (Already below)
+using Management.Application.Stores;
+using Management.Presentation.Services;
 using Management.Domain.DTOs;
 using Management.Domain.Enums; // Assumes TurnstileStatus enum exists here
 using Management.Domain.Services;
@@ -18,6 +19,7 @@ namespace Management.Presentation.ViewModels
     {
         private readonly IAccessEventService _accessEventService;
         private readonly ITurnstileService _turnstileService;
+        private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
 
         // Thread lock for the live feed to safely update from background threads/timers
         private readonly object _feedLock = new object();
@@ -49,10 +51,12 @@ namespace Management.Presentation.ViewModels
 
         public AccessControlViewModel(
             IAccessEventService accessEventService,
-            ITurnstileService turnstileService)
+            ITurnstileService turnstileService,
+            Management.Domain.Services.IFacilityContextService facilityContext)
         {
             _accessEventService = accessEventService;
             _turnstileService = turnstileService;
+            _facilityContext = facilityContext;
 
             // Enable cross-thread updates for the Live Feed (Critical for Real-Time apps)
             BindingOperations.EnableCollectionSynchronization(ActivityFeed, _feedLock);
@@ -76,24 +80,33 @@ namespace Management.Presentation.ViewModels
             try
             {
                 // 1. Fetch Hardware State
-                var hardwareList = await _turnstileService.GetAllTurnstilesAsync();
-                Turnstiles.Clear();
-                foreach (var t in hardwareList)
+                var hardwareResult = await _turnstileService.GetAllTurnstilesAsync();
+                if (hardwareResult.IsSuccess)
                 {
-                    // Map DTO to Interactive Sub-ViewModel
-                    Turnstiles.Add(CreateTurnstileViewModel(t));
+                    Turnstiles.Clear();
+                    foreach (var t in hardwareResult.Value)
+                    {
+                        Turnstiles.Add(CreateTurnstileViewModel(t));
+                    }
                 }
 
                 // 2. Fetch Recent Logs (Last 50)
-                var history = await _accessEventService.GetRecentEventsAsync(50);
-                lock (_feedLock)
+                var historyResult = await _accessEventService.GetRecentEventsAsync(_facilityContext.CurrentFacilityId, 50);
+                if (historyResult.IsSuccess)
                 {
-                    ActivityFeed.Clear();
-                    foreach (var evt in history) ActivityFeed.Add(evt);
+                    lock (_feedLock)
+                    {
+                        ActivityFeed.Clear();
+                        foreach (var evt in historyResult.Value) ActivityFeed.Add(evt);
+                    }
                 }
 
                 // 3. Sync Counters
-                PeopleInsideCount = await _accessEventService.GetCurrentOccupancyAsync();
+                var occupancyResult = await _accessEventService.GetCurrentOccupancyAsync(_facilityContext.CurrentFacilityId);
+                if (occupancyResult.IsSuccess)
+                {
+                    PeopleInsideCount = occupancyResult.Value;
+                }
 
                 // 4. Start Live Monitoring
                 _simulationTimer.Start();
@@ -115,10 +128,13 @@ namespace Management.Presentation.ViewModels
                 Name = dto.Name,
                 Status = dto.Status,
                 HardwareId = dto.HardwareId,
-                LastHeartbeat = dto.LastHeartbeat
+                LastHeartbeat = dto.LastHeartbeat,
+                ForceOpenCommand = new RelayCommand(async () => await ExecuteTurnstileAction(null!, TurnstileStatus.Operational)), // Replaced with VM closure later if needed, but must set now
+                LockDownCommand = new RelayCommand(async () => await ExecuteTurnstileAction(null!, TurnstileStatus.Locked)),
+                ResetErrorCommand = new RelayCommand(async () => await ExecuteTurnstileAction(null!, TurnstileStatus.Operational))
             };
 
-            // Wire up commands using closures to keep logic in the Parent VM
+            // Re-wire with correct VM reference
             vm.ForceOpenCommand = new RelayCommand(async () => await ExecuteTurnstileAction(vm, TurnstileStatus.Operational));
             vm.LockDownCommand = new RelayCommand(async () => await ExecuteTurnstileAction(vm, TurnstileStatus.Locked));
             vm.ResetErrorCommand = new RelayCommand(async () => await ExecuteTurnstileAction(vm, TurnstileStatus.Operational));
@@ -137,7 +153,7 @@ namespace Management.Presentation.ViewModels
 
         // --- 5. LIVE SIMULATION LOGIC (The "Heartbeat") ---
 
-        private void OnSimulationTick(object sender, EventArgs e)
+        private void OnSimulationTick(object? sender, EventArgs e)
         {
             ExecuteSimulateScan();
         }
@@ -190,8 +206,8 @@ namespace Management.Presentation.ViewModels
     public class TurnstileItemViewModel : ViewModelBase
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }
-        public string HardwareId { get; set; }
+        public required string Name { get; set; }
+        public required string HardwareId { get; set; }
         public DateTime LastHeartbeat { get; set; }
 
         private TurnstileStatus _status;
@@ -201,8 +217,8 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _status, value);
         }
 
-        public ICommand ForceOpenCommand { get; set; }
-        public ICommand LockDownCommand { get; set; }
-        public ICommand ResetErrorCommand { get; set; }
+        public required ICommand ForceOpenCommand { get; set; }
+        public required ICommand LockDownCommand { get; set; }
+        public required ICommand ResetErrorCommand { get; set; }
     }
 }

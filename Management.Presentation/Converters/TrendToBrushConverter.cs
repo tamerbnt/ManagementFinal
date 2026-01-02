@@ -30,9 +30,9 @@ namespace Management.Presentation.Converters
                 return faded;
             }
 
-            return brush;
+            return (System.Windows.Application.Current.TryFindResource(key) as Brush)!;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
     }
 }
