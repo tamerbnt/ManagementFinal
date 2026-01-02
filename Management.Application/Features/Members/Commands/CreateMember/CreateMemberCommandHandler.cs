@@ -6,6 +6,7 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Management.Application.DTOs;
 
 namespace Management.Application.Features.Members.Commands.CreateMember
 {

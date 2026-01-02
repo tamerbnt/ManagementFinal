@@ -3,12 +3,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Management.Application.DTOs;
+using Management.Application.Services;
+using Management.Domain.Enums;
 using Management.Domain.Models;
 using Management.Domain.Models.Salon;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
-using Management.Domain.Enums;
 using Management.Presentation.Services.Restaurant;
 using Management.Presentation.Services.Salon;
 
@@ -30,7 +32,7 @@ namespace Management.Presentation.Views.Salon
         public decimal BasePrice { get; }
 
         public ObservableCollection<ProductUsageViewModel> UsedProducts { get; } = new();
-        public ObservableCollection<Management.Domain.DTOs.ProductDto> AvailableProducts { get; } = new();
+        public ObservableCollection<ProductDto> AvailableProducts { get; } = new();
 
         private decimal _totalAmount;
         public decimal TotalAmount
@@ -63,7 +65,7 @@ namespace Management.Presentation.Views.Salon
             var service = _salonService.Services.First(s => s.Id == _appointment.ServiceId);
             BasePrice = service.BasePrice;
 
-            AddProductCommand = new RelayCommand<Management.Domain.DTOs.ProductDto>(ExecuteAddProduct);
+            AddProductCommand = new RelayCommand<ProductDto>(ExecuteAddProduct);
             CompleteCommand = new RelayCommand(async () => await ExecuteComplete());
             CancelCommand = new RelayCommand(() => _modalService.CloseModal());
 
@@ -81,7 +83,7 @@ namespace Management.Presentation.Views.Salon
             }
         }
 
-        private void ExecuteAddProduct(Management.Domain.DTOs.ProductDto product)
+        private void ExecuteAddProduct(ProductDto product)
         {
             if (product == null) return;
             var existing = UsedProducts.FirstOrDefault(u => u.ProductId == product.Id);
@@ -124,7 +126,7 @@ namespace Management.Presentation.Views.Salon
         private int _quantity = 1;
         private Action _onChanged;
 
-        public ProductUsageViewModel(Management.Domain.DTOs.ProductDto p, Action onChanged)
+        public ProductUsageViewModel(ProductDto p, Action onChanged)
         {
             ProductId = p.Id;
             Name = p.Name;

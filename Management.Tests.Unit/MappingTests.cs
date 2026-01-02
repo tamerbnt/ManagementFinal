@@ -1,5 +1,5 @@
 using FluentAssertions;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Models;
 using Management.Domain.ValueObjects;
 using Xunit;

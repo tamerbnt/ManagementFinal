@@ -1,4 +1,4 @@
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Enums;
 using MediatR;
 using System.Collections.Generic;

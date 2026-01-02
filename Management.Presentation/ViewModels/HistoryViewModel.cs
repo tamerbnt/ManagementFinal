@@ -1,20 +1,35 @@
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.ComponentModel; // For ICollectionView
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Data; // For CollectionViewSource
 using System.Windows.Input;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using System.Windows.Threading;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using Management.Application.Features.History.Queries.GetUnifiedHistory;
+using Management.Application.Services;
 using Management.Domain.Primitives;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

@@ -2,7 +2,7 @@ using FluentValidation.TestHelper;
 using Management.Application.Features.Members.Commands.CreateMember;
 using Management.Application.Features.Restaurant.Commands.ProcessOrder;
 using Management.Application.Features.Salon.Commands.BookAppointment;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using System;
 using System.Collections.Generic;
 using Xunit;

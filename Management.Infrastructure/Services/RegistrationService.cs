@@ -1,14 +1,25 @@
 using Management.Application.Features.Registrations.Queries.GetRegistration;
+using Management.Application.Services;
 using Management.Application.Features.Registrations.Queries.GetPendingRegistrations;
+using Management.Application.Services;
 using Management.Application.Features.Registrations.Commands.ApproveRegistration;
+using Management.Application.Services;
 using Management.Application.Features.Registrations.Commands.DeclineRegistration;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Primitives;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {

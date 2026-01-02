@@ -1,23 +1,41 @@
-﻿using System;
+using System;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Windows.Input;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Application.Stores;
+using Management.Application.Services;
 using Management.Presentation.Stores;
+using Management.Application.Services;
 using Microsoft.Extensions.DependencyInjection; // Added for GetRequiredService extension
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Infrastructure.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 using Management.Presentation.ViewModels; // For NavigationItemViewModel
 using Management.Presentation.Views.AccessControl;
+using Management.Application.Services;
 using Management.Presentation.Views.Dashboard;
+using Management.Application.Services;
 using Management.Presentation.Views.FinanceAndStaff;
+using Management.Application.Services;
 using Management.Presentation.Views.Members;
+using Management.Application.Services;
 using Management.Presentation.Views.Shop;
+using Management.Application.Services;
 using Management.Presentation.Views.Restaurant;
+using Management.Application.Services;
 using Management.Presentation.Views.Salon;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

@@ -1,16 +1,29 @@
-﻿using System;
+using System;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Input;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using Management.Application.Features.Registrations.Queries.SearchRegistrations;
+using Management.Application.Services;
 using Management.Application.Features.Registrations.Commands.ApproveRegistrations;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {
@@ -186,7 +199,7 @@ namespace Management.Presentation.ViewModels
         private async Task ExecuteApproveSingleAsync(RegistrationListItemViewModel item)
         {
             await _mediator.Send(new ApproveRegistrationsCommand(new List<Guid> { item.Id }));
-            _notificationService.ShowSuccess($"✓ {item.FullName} approved");
+            _notificationService.ShowSuccess($"? {item.FullName} approved");
             await RefreshDataAsync();
         }
 
@@ -204,7 +217,7 @@ namespace Management.Presentation.ViewModels
 
             await _mediator.Send(new ApproveRegistrationsCommand(selectedIds));
 
-            _notificationService.ShowSuccess($"✓ {selectedIds.Count} registrations approved");
+            _notificationService.ShowSuccess($"? {selectedIds.Count} registrations approved");
 
             IsSelectionMode = false;
             await RefreshDataAsync();

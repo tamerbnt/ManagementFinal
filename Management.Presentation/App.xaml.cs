@@ -1,36 +1,64 @@
-﻿using System;
+using System;
+using Management.Application.Services;
 using System.IO;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows;
+using Management.Application.Services;
 using Microsoft.EntityFrameworkCore;
+using Management.Application.Services;
 using Microsoft.Extensions.Configuration;
+using Management.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Management.Application.Services;
 using Microsoft.Extensions.Logging;
+using Management.Application.Services;
 using Serilog;
+using Management.Application.Services;
 
 using Microsoft.Extensions.Caching.Memory;
+using Management.Application.Services;
 
 
 using Management.Presentation.Stores;
+using Management.Application.Services;
 using Management.Application.Stores;
+using Management.Application.Services;
 using Management.Domain.Interfaces;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Infrastructure.Data;
+using Management.Application.Services;
 using Management.Infrastructure.Hardware;
+using Management.Application.Services;
 using Management.Infrastructure.Repositories;
+using Management.Application.Services;
 using Management.Infrastructure.Services;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Presentation.Services.Restaurant;
+using Management.Application.Services;
 using Management.Presentation.Views.Salon; // Added
 using Management.Presentation.Views.Auth; // Added for LoginView
 using Management.Presentation.Services.Salon;
+using Management.Application.Services;
 using Management.Presentation.Views.Shop;
+using Management.Application.Services;
 using Management.Presentation.Views.Settings;
+using Management.Application.Services;
 using Management.Presentation.Views.Restaurant;
+using Management.Application.Services;
 using Management.Presentation.ViewModels;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 using Management.Presentation.Views;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 
 namespace Management.Presentation
 {
@@ -593,7 +621,7 @@ namespace Management.Presentation
 
                 if (response.Models.Count == 0)
                 {
-                    // STATE 1: No Device Found → Show License Entry
+                    // STATE 1: No Device Found ? Show License Entry
                     Serilog.Log.Warning("Device not found in tenant_devices. Redirecting to License Entry.");
                     await Current.Dispatcher.InvokeAsync(async () => {
                         await navigationService.NavigateToAsync<LicenseEntryViewModel>();
@@ -612,7 +640,7 @@ namespace Management.Presentation
                     var session = supabase.Auth.CurrentSession;
                     if (session == null || session.ExpiresAt() < DateTimeOffset.UtcNow)
                     {
-                        // STATE 2: Device Found, No Session → Show Login (if implemented)
+                        // STATE 2: Device Found, No Session ? Show Login (if implemented)
                         Serilog.Log.Information("Device found but no active session. User needs to log in.");
                         // For now, we'll continue to dashboard since login might not be implemented
                         // TODO: Implement LoginViewModel and navigate here
@@ -622,7 +650,7 @@ namespace Management.Presentation
                         // return false;
                     }
                     
-                    // STATE 3: Device & Session Found → Continue to Dashboard
+                    // STATE 3: Device & Session Found ? Continue to Dashboard
                     Serilog.Log.Information("Device and session verified. Proceeding to main application.");
                     return true;
                 }

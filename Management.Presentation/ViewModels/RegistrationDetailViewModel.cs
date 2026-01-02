@@ -1,11 +1,19 @@
-﻿using System;
+using System;
+using Management.Application.Services;
 using System.Threading;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Input;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

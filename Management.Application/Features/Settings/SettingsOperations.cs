@@ -1,5 +1,5 @@
 using Management.Domain.Primitives;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Models;
 using MediatR;
 

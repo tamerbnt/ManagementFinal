@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Models;
 using Management.Domain.Models.Salon;
 using Management.Domain.Services;
@@ -70,7 +72,7 @@ namespace Management.Presentation.Views.Salon
 
         public ObservableCollection<SalonService> Services => _salonService.Services;
         public ObservableCollection<StaffMember> QualifiedStaff { get; } = new();
-        public ObservableCollection<Management.Domain.DTOs.MemberDto> Clients { get; } = new();
+        public ObservableCollection<MemberDto> Clients { get; } = new();
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
@@ -98,7 +100,7 @@ namespace Management.Presentation.Views.Salon
 
         private async void LoadInitialData()
         {
-            var request = new Management.Domain.DTOs.MemberSearchRequest("", Management.Domain.Enums.MemberFilterType.All);
+            var request = new MemberSearchRequest("", Management.Domain.Enums.MemberFilterType.All);
             var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request);
             if (result.IsSuccess)
             {

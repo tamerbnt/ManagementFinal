@@ -1,16 +1,29 @@
-﻿using System;
+using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Input;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Application.Stores;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

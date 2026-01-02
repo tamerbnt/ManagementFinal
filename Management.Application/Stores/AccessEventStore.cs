@@ -1,5 +1,5 @@
 using System;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 
 namespace Management.Application.Stores
 {

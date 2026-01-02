@@ -1,13 +1,23 @@
 using System;
+using Management.Application.Services;
 using Management.Application.Stores;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Services;
+using Management.Application.Services;
 using Management.Presentation.ViewModels;
+using Management.Application.Services;
 using Management.Infrastructure.Services;
+using Management.Application.Services;
 using Moq;
+using Management.Application.Services;
 using Xunit;
+using Management.Application.Services;
 using FluentAssertions;
+using Management.Application.Services;
 
 namespace Management.Tests.Unit
 {

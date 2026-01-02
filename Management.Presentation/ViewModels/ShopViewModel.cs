@@ -1,18 +1,30 @@
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Input;
+using Management.Application.Services;
 // using Management.Presentation.Services; (Already below)
 using Management.Application.Stores;     // Added for ProductStore
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions; // Using Custom Extensions
 using Management.Presentation.Services;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using Management.Application.Features.Shop.Queries.CalculateShopTotals;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

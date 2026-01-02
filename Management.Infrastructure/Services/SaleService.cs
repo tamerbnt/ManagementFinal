@@ -1,12 +1,21 @@
 using Management.Application.Features.Sales.Queries.GetSales;
+using Management.Application.Services;
 using Management.Application.Features.Sales.Commands.ProcessCheckout;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Primitives;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {

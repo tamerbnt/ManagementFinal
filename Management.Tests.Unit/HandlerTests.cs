@@ -3,7 +3,7 @@ using FluentAssertions;
 using Management.Application.Features.Members.Commands.CreateMember;
 using Management.Application.Features.Salon.Commands.BookAppointment;
 using Management.Application.Stores;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Domain.Services;

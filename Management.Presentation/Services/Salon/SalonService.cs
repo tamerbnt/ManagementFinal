@@ -1,12 +1,21 @@
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using Management.Domain.Models;
+using Management.Application.Services;
 using Management.Domain.Models.Salon;
+using Management.Application.Services;
 using Management.Domain.Interfaces;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 
 namespace Management.Presentation.Services.Salon
 {

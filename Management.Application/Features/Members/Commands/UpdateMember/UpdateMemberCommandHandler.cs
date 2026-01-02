@@ -6,6 +6,7 @@ using Management.Domain.ValueObjects;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Management.Application.DTOs;
 
 namespace Management.Application.Features.Members.Commands.UpdateMember
 {

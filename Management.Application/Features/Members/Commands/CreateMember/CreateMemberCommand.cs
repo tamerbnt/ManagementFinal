@@ -1,5 +1,5 @@
 using Management.Application.Abstractions.Messaging;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Primitives;
 using MediatR;
 using System;

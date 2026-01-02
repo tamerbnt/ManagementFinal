@@ -1,17 +1,28 @@
 using System;
+using Management.Application.Services;
 using System.Collections.ObjectModel;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 using System.Windows.Data; // For CollectionSynchronization
 using System.Windows.Input;
+using Management.Application.Services;
 using System.Windows.Threading;
+using Management.Application.Services;
 // using Management.Presentation.Services; (Already below)
 using Management.Application.Stores;
+using Management.Application.Services;
 using Management.Presentation.Services;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Enums; // Assumes TurnstileStatus enum exists here
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Presentation.Extensions;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {

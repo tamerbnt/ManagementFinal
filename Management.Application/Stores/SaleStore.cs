@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 
 namespace Management.Application.Stores
 {

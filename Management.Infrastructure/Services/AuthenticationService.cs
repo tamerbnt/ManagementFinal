@@ -1,15 +1,26 @@
-﻿using Management.Domain.DTOs;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Exceptions;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using Management.Domain.Interfaces;
+using Management.Application.Services;
 using Management.Infrastructure.Configuration;
+using Management.Application.Services;
 using Management.Domain.Primitives;
+using Management.Application.Services;
 using Supabase.Gotrue; // Required for Session handling
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
@@ -112,8 +123,6 @@ namespace Management.Infrastructure.Services
                         // This part depends on Supabase C# lib capabilities. 
                         // For now we assume we just validate against DB using the stored ID/Email.
                         // Ideally we should do: await _supabase.Auth.SetSession(storedSession.AccessToken, storedSession.RefreshToken);
-                        // But Gotrue-csharp might not expose this easily without re-authenticating.
-                        
                         // For now, let's trust the stored session and validate against DB
                     } 
                     catch { /* Ignore, proceed to DB check */ }

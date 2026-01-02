@@ -2,6 +2,7 @@ using Management.Domain.Primitives;
 using Management.Domain.Models.Restaurant;
 using MediatR;
 using System.Collections.Generic;
+using Management.Application.DTOs;
 
 namespace Management.Application.Features.Restaurant.Commands.ProcessOrder
 {

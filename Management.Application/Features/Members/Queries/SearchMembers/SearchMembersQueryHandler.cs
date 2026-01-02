@@ -1,4 +1,4 @@
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Enums;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;

@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading; // For Live Simulation Timer
 using Management.Presentation.Services;
-using Management.Domain.DTOs;            // Assumed DTOs
+using Management.Application.DTOs;            // Assumed DTOs
 using Management.Domain.Enums;
 using Management.Domain.Services; // Assumed Interface Layer
 using Management.Presentation.Extensions; 

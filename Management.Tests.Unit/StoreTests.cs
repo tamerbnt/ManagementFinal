@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Management.Application.Stores;
-using Management.Domain.DTOs;
+using Management.Application.DTOs;
 using Management.Domain.Services;
 using Moq;
 using Xunit;

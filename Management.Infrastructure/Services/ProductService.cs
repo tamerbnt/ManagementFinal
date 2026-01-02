@@ -1,17 +1,31 @@
 using Management.Application.Features.Products.Queries.GetProducts;
+using Management.Application.Services;
 using Management.Application.Features.Products.Commands.CreateProduct;
+using Management.Application.Services;
 using Management.Application.Features.Products.Commands.UpdateProduct;
+using Management.Application.Services;
 using Management.Application.Features.Products.Commands.DeleteProduct;
+using Management.Application.Services;
 using Management.Application.Features.Products.Commands.UpdateProductStock;
-using Management.Domain.DTOs;
+using Management.Application.Services;
+using Management.Application.DTOs;
+using Management.Application.Services;
 using Management.Domain.Enums;
+using Management.Application.Services;
 using Management.Domain.Primitives;
+using Management.Application.Services;
 using Management.Domain.Services;
+using Management.Application.Services;
 using MediatR;
+using Management.Application.Services;
 using System;
+using Management.Application.Services;
 using System.Collections.Generic;
+using Management.Application.Services;
 using System.Linq;
+using Management.Application.Services;
 using System.Threading.Tasks;
+using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
