@@ -185,8 +185,8 @@ namespace Management.Infrastructure.Services
             try
             {
                 var facilityIdStr = facilityId.ToString();
-                var startDateStr = start.ToString("yyyy-MM-dd");
-                var endDateStr = end.ToString("yyyy-MM-dd");
+                var startDateStr = start.ToLocalTime().ToString("yyyy-MM-dd");
+                var endDateStr = end.ToLocalTime().ToString("yyyy-MM-dd");
                 
                 var conn = _context.Database.GetDbConnection();
                 await conn.OpenAsync();
