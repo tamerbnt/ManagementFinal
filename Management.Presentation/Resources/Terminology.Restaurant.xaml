@@ -3,9 +3,7 @@
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
     <!-- Restaurant Specific Terminology -->
-    <sys:String x:Key="Terminology.Restaurant.Order.PayBill">Pay Bill</sys:String>
     <sys:String x:Key="Terminology.Restaurant.Order.EmptyList">No active orders for any table.</sys:String>
-    <sys:String x:Key="Terminology.Restaurant.Action.PayBill">Pay Bill</sys:String>
     <sys:String x:Key="Terminology.Restaurant.Order.SelectBillToPay">Select a bill to process payment</sys:String>
     <sys:String x:Key="Terminology.Restaurant.Order.Toast.Paid">Order for {0} paid successfully.</sys:String>
 

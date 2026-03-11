@@ -89,14 +89,15 @@
             <DataTemplate x:Key="BackupsTemplate">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,0,20">
-                        <TextBlock Text="Data Backups" 
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.Title}" 
                                    Style="{DynamicResource Title2}" 
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,8"/>
-                        <TextBlock Text="Manage your database backups to ensure data safety." 
-                                   Style="{DynamicResource Caption}" 
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   Margin="0,0,0,32"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.Desc}" 
+                                   Style="{DynamicResource BodyMedium}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" 
+                                   TextWrapping="Wrap" 
+                                   Margin="0,0,0,24"/>
 
                         <!-- Backup Status Card -->
                         <Border Background="{DynamicResource ComponentBg}" 
@@ -112,11 +113,11 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Backup Location" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.Location}" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding BackupFolderPath}" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                     <Button Grid.Column="1" 
-                                            Content="Open Folder" 
+                                            Content="{DynamicResource Terminology.Settings.Backup.OpenFolder}" 
                                             Style="{DynamicResource Button.Ghost}"
                                             Command="{Binding OpenBackupFolderCommand}"/>
                                 </Grid>
@@ -129,11 +130,11 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="Last Backup Date" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.LastDate}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding LastBackupDateDisplay}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Last Backup Size" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.LastSize}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding LastBackupSizeDisplay}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Grid>
@@ -142,8 +143,8 @@
 
                         <!-- Actions -->
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="Create Backup Now" 
-                                    Style="{DynamicResource Button.Primary}"
+                            <Button Content="{DynamicResource Terminology.Settings.Backup.CreateNow}" 
+                                    Style="{StaticResource Button.Primary}"
                                     Command="{Binding CreateBackupNowCommand}"
                                     Width="200" Height="48"
                                     Margin="0,0,16,0"/>
@@ -151,12 +152,12 @@
                             <Border Background="#1A3498DB" CornerRadius="12" Padding="16,8">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Path Data="{StaticResource Icon.CheckCircle}" Fill="#3498DB" Style="{StaticResource Style.Icon.Small}" Margin="0,0,8,0"/>
-                                    <TextBlock Text="Automatic 7-day retention active" Foreground="#3498DB" VerticalAlignment="Center" FontSize="12"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Settings.Backup.RetentionInfo}" Foreground="#3498DB" VerticalAlignment="Center" FontSize="12"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                         
-                        <TextBlock Text="A backup is automatically created once per day when the application starts." 
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Backup.Info}" 
                                    Style="{DynamicResource Caption}" 
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,16,0,0"
