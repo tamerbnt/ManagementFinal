@@ -1,0 +1,61 @@
+<UserControl x:Class="Management.Presentation.Views.Settings.ServiceSectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Settings"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Titles -->
+            <RowDefinition Height="*"/>    <!-- List -->
+        </Grid.RowDefinitions>
+
+        <!-- Section Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock x:Name="SectionTitle" 
+                       Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                       Style="{StaticResource Title2}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       VerticalAlignment="Center"/>
+            
+             <Button HorizontalAlignment="Right"
+                     Command="{Binding AddServiceCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ServiceSectionView}}}"
+                     Content="{DynamicResource Terminology.Salon.Services.Title}"
+                     Style="{StaticResource PrimaryButton}"
+                     Height="36"
+                     Padding="16,0"/>
+        </Grid>
+
+        <!-- Grid Headers -->
+        <Grid Grid.Row="1" Margin="0,0,0,12" Opacity="0.6">
+           <Grid.ColumnDefinitions>
+               <ColumnDefinition Width="40"/>
+               <ColumnDefinition Width="2*"/>
+               <ColumnDefinition Width="120"/>
+               <ColumnDefinition Width="120"/>
+               <ColumnDefinition Width="100"/>
+           </Grid.ColumnDefinitions>
+           <TextBlock Grid.Column="1" Text="{DynamicResource Terminology.Salon.Services.Service}" Style="{StaticResource Caption}" FontWeight="Bold"/>
+           <TextBlock Grid.Column="2" Text="{DynamicResource Terminology.Salon.Services.Duration}" Style="{StaticResource Caption}" FontWeight="Bold"/>
+           <TextBlock Grid.Column="3" Text="{DynamicResource Terminology.Salon.Services.Price}" Style="{StaticResource Caption}" FontWeight="Bold" HorizontalAlignment="Right"/>
+           <TextBlock Grid.Column="4" Text="" Style="{StaticResource Caption}"/>
+        </Grid>
+
+        <!-- Virtualized List -->
+        <ListView Grid.Row="2" 
+                  ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType={x:Type local:ServiceSectionView}}}"
+                  ItemContainerStyle="{StaticResource TitanGridItem}"
+                  ItemTemplate="{StaticResource ServiceRowTemplate}"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  VirtualizingPanel.VirtualizationMode="Recycling"
+                  VirtualizingPanel.IsVirtualizingWhenGrouping="True"
+                  ScrollViewer.CanContentScroll="True">
+        </ListView>
+    </Grid>
+</UserControl>

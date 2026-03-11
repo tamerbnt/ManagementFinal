@@ -4,7 +4,7 @@ namespace Management.Domain.ValueObjects
 {
     public record Money(decimal Amount, string Currency)
     {
-        public static Money Zero(string currency = "USD") => new(0m, currency);
+        public static Money Zero(string currency = "DA") => new(0m, currency);
         
         public static Money operator +(Money a, Money b)
         {

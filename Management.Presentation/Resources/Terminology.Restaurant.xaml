@@ -1,79 +1,31 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
-    <!-- RESTAURANT TERMINOLOGY -->
-    
-    <!-- Core Entities -->
-    <sys:String x:Key="TerminologyMemberLabel">Guest</sys:String>
-    <sys:String x:Key="TerminologyMembersLabel">Guests</sys:String>
-    <sys:String x:Key="TerminologyAddMemberLabel">Add Guest</sys:String>
-    <sys:String x:Key="TerminologyMemberManagementLabel">Guest Management</sys:String>
-    <sys:String x:Key="TerminologyNoMembersFoundLabel">No guests added</sys:String>
-    <sys:String x:Key="TerminologyAddMemberHintLabel">Add a guest to start tracking bookings and history.</sys:String>
-    
-    <!-- Actions &amp; Events -->
-    <sys:String x:Key="TerminologyCheckInLabel">Seating</sys:String>
-    <sys:String x:Key="TerminologyAttendanceLabel">Bookings</sys:String>
-    <sys:String x:Key="TerminologyAllCaughtUpLabel">All Reservations Handled</sys:String>
-    <sys:String x:Key="TerminologyNoPendingRegistrationsLabel">No pending table requests at the moment.</sys:String>
-    <sys:String x:Key="TerminologyApproveRegistrationAction">Confirm Booking</sys:String>
-    <sys:String x:Key="TerminologyDeclineLabel">Cancel</sys:String>
-    
-    <!-- Shop / Inventory -->
-    <sys:String x:Key="TerminologyShopTitle">Restaurant Inventory</sys:String>
-    <sys:String x:Key="TerminologyProductsTab">Food &amp; Beverage</sys:String>
-    <sys:String x:Key="TerminologySearchProductsPlaceholder">Search pantry...</sys:String>
-    <sys:String x:Key="TerminologyFilterSupplementsLabel">Produce</sys:String>
-    <sys:String x:Key="TerminologyFilterApparelLabel">Beverages</sys:String>
-    <sys:String x:Key="TerminologyFilterEquipmentLabel">Kitchenware</sys:String>
-    <sys:String x:Key="TerminologyProductImageLabel">Item Image</sys:String>
-    <sys:String x:Key="TerminologyDragDropImagePlaceholder">Drag &amp; Drop Image</sys:String>
-    <sys:String x:Key="TerminologyProductDetailsHeader">Item Details</sys:String>
-    <sys:String x:Key="TerminologyProductNameLabel">Item Name</sys:String>
-    <sys:String x:Key="TerminologySKULabel">Barcode</sys:String>
-    <sys:String x:Key="TerminologyCategoryLabel">Category</sys:String>
-    <sys:String x:Key="TerminologyPricingInventoryHeader">Cost &amp; Stock</sys:String>
-    <sys:String x:Key="TerminologyPriceLabel">Menu Price</sys:String>
-    <sys:String x:Key="TerminologyCostLabel">Unit Cost</sys:String>
-    <sys:String x:Key="TerminologyCurrentStockLabel">In Pantry</sys:String>
-    <sys:String x:Key="TerminologyReorderLevelLabel">Restock Alert at</sys:String>
-    <sys:String x:Key="TerminologyDescriptionLabel">Description</sys:String>
-    <sys:String x:Key="TerminologySaveProductLabel">Save Item</sys:String>
-    <sys:String x:Key="TerminologyLowStockCountFormat">{0} items low in pantry</sys:String>
-    <sys:String x:Key="TerminologyEditProductLabel">Edit Item</sys:String>
-    <sys:String x:Key="TerminologyDeleteProductLabel">Delete Item</sys:String>
-    <sys:String x:Key="TerminologyInventoryEmptyTitle">Pantry empty</sys:String>
-    <sys:String x:Key="TerminologyInventoryEmptySubtitle">Add inventory to start tracking supply levels.</sys:String>
-    
-    <!-- Finance &amp; Reporting -->
-    <sys:String x:Key="TerminologyMonthlyRevenueLabel">MONTHLY SALES</sys:String>
-    <sys:String x:Key="TerminologyWeeklyRevenueLabel">WEEKLY SALES</sys:String>
-    <sys:String x:Key="TerminologyTotalRevenueLabel">TOTAL REVENUE (MTD)</sys:String>
-    <sys:String x:Key="TerminologyMRRLabel">Recurring</sys:String>
-    <sys:String x:Key="TerminologyARPULabel">Avg. Ticket</sys:String>
-    <sys:String x:Key="TerminologyChurnRateLabel">Retention Loss</sys:String>
-    <sys:String x:Key="TerminologyPaymentSuccessLabel">Bill Settled</sys:String>
-    <sys:String x:Key="TerminologyRevenueTrendLabel">Sales Trend</sys:String>
-    <sys:String x:Key="TerminologyPaymentMethodsLabel">Payment Distribution</sys:String>
-    <sys:String x:Key="TerminologyFailedPaymentsLabel">Unpaid Tables</sys:String>
-    <sys:String x:Key="TerminologyFinancialIntelligenceLabel">Sales Analytics</sys:String>
-    <sys:String x:Key="TerminologyNewMembersLabel">New Guests</sys:String>
-    <sys:String x:Key="TerminologyTotalMembersLabel">Total Lifetime Guests</sys:String>
-    
-    <!-- Staff &amp; Payroll -->
-    <sys:String x:Key="TerminologyStaffManagementLabel">Team Management</sys:String>
-    <sys:String x:Key="TerminologyNoStaffFoundLabel">No team members added</sys:String>
-    <sys:String x:Key="TerminologyAddStaffHintLabel">Add servers and kitchen staff.</sys:String>
-    <sys:String x:Key="TerminologySystemPermissionsLabel">Access Rights</sys:String>
-    <sys:String x:Key="TerminologySalaryRestrictedLabel">Payroll data hidden.</sys:String>
-    <sys:String x:Key="TerminologyNoUpcomingShiftsLabel">No upcoming shifts scheduled.</sys:String>
-    <sys:String x:Key="TerminologyCompensationLabel">Pay &amp; Benefits</sys:String>
-    <sys:String x:Key="TerminologyBaseSalaryLabel">Hourly Rate</sys:String>
-    <sys:String x:Key="TerminologyNextPaydayLabel">Next Payroll:</sys:String>
-    <sys:String x:Key="TerminologyEditConfigLabel">Update Rate</sys:String>
-    <sys:String x:Key="TerminologyAddBonusLabel">Add Tips/Bonus</sys:String>
-    <sys:String x:Key="TerminologyPaymentHistoryLabel">Pay History</sys:String>
-    <sys:String x:Key="TerminologyNoPaymentHistoryLabel">No pay record found.</sys:String>
+    <!-- Restaurant Specific Terminology -->
+    <sys:String x:Key="Terminology.Restaurant.Order.PayBill">Pay Bill</sys:String>
+    <sys:String x:Key="Terminology.Restaurant.Order.EmptyList">No active orders for any table.</sys:String>
+    <sys:String x:Key="Terminology.Restaurant.Action.PayBill">Pay Bill</sys:String>
+    <sys:String x:Key="Terminology.Restaurant.Order.SelectBillToPay">Select a bill to process payment</sys:String>
+    <sys:String x:Key="Terminology.Restaurant.Order.Toast.Paid">Order for {0} paid successfully.</sys:String>
 
+    <!-- Sidebar Navigation -->
+    <sys:String x:Key="Terminology.Sidebar.FloorPlan">Floor Plan</sys:String>
+    <sys:String x:Key="Terminology.Settings.Menu">Menu Management</sys:String>
+
+    <!-- Floor Plan Screen -->
+    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Live overview of your dining area and table status.</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Section.MainHall">Main Hall</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Section.Patio">Patio</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Section.Bar">Bar Seating</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Legend.Title">Table Status Legend</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Status.Available">Available</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Status.Seated">Seated</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Status.Ordered">Ordered</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Status.BillReady">Bill Ready</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Status.Reserved">Reserved</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Stats.Total">Total Tables</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Stats.Occupied">Occupied</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Stats.Available">Available Now</sys:String>
+    
 </ResourceDictionary>

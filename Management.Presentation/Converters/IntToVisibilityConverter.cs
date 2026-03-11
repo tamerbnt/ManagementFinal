@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -7,14 +7,20 @@ namespace Management.Presentation.Converters
 {
     public class IntToVisibilityConverter : IValueConverter
     {
+        public bool DefaultToZeroIsVisible { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             int count = value is int i ? i : 0;
 
             // Check for inversion parameter (used for Empty States where 0 = Visible)
-            bool zeroIsVisible = parameter is string s &&
-                                (s.Equals("ZeroIsVisible", StringComparison.OrdinalIgnoreCase) ||
-                                 s.Equals("Inverse", StringComparison.OrdinalIgnoreCase));
+            bool zeroIsVisible = DefaultToZeroIsVisible;
+            
+            if (parameter is string s)
+            {
+                zeroIsVisible = s.Equals("ZeroIsVisible", StringComparison.OrdinalIgnoreCase) ||
+                                s.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
+            }
 
             if (zeroIsVisible)
             {

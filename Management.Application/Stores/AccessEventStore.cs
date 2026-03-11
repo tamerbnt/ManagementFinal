@@ -1,6 +1,8 @@
 using System;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -11,8 +13,12 @@ namespace Management.Application.Stores
     /// to prevent memory leaks over long uptimes. It blindly forwards the DTO to subscribers
     /// (Dashboard, AccessControlView) who manage their own buffers.
     /// </summary>
-    public class AccessEventStore
+    public class AccessEventStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Stateless bus, nothing to clear
+        }
         /// <summary>
         /// Fired immediately when a scan is processed (Granted or Denied).
         /// Subscribers should marshal this to the UI thread if updating Collections.

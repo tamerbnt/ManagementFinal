@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -7,6 +7,8 @@ namespace Management.Presentation.Converters
 {
     public class NullToVisibilityConverter : IValueConverter
     {
+        public bool Inverted { get; set; }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             bool hasValue = value != null;
@@ -15,7 +17,11 @@ namespace Management.Presentation.Converters
             if (value is string s && string.IsNullOrWhiteSpace(s))
                 hasValue = false;
 
-            bool invert = parameter is string param && param.Equals("Inverse", StringComparison.OrdinalIgnoreCase);
+            bool invert = Inverted;
+            
+            // Allow override via parameter
+            if (parameter is string param && param.Equals("Inverse", StringComparison.OrdinalIgnoreCase))
+                invert = true;
 
             if (invert)
                 return hasValue ? Visibility.Collapsed : Visibility.Visible;

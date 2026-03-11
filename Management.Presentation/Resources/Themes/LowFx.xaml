@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Potato Mode Overrides -->
+    <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#FFFFFFFF"/>
+    <Color x:Key="Color.Surface.Glass">#FFFFFFFF</Color>
+    <Thickness x:Key="Thickness.Glass.Border">1</Thickness>
+    <SolidColorBrush x:Key="Brush.Glass.Border" Color="#FFCCCCCC"/>
+    
+    <!-- Disable Effects -->
+    <BlurEffect x:Key="Effect.Blur.Background" Radius="0"/>
+    <DropShadowEffect x:Key="Effect.Shadow.Dialog" Opacity="0"/>
+</ResourceDictionary>

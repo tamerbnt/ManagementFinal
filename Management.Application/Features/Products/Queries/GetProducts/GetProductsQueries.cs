@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace Management.Application.Features.Products.Queries.GetProducts
 {
-    public record GetActiveProductsQuery() : IRequest<Result<List<ProductDto>>>;
-    public record SearchProductsQuery(string SearchTerm) : IRequest<Result<List<ProductDto>>>;
-    public record GetInventoryStatusQuery() : IRequest<Result<List<ProductDto>>>;
-    public record GetProductByIdQuery(Guid Id) : IRequest<Result<ProductDto>>;
+    public record GetActiveProductsQuery(Guid? FacilityId = null) : IRequest<Result<List<ProductDto>>>;
+    public record SearchProductsQuery(string SearchTerm, Guid? FacilityId = null) : IRequest<Result<List<ProductDto>>>;
+    public record GetInventoryStatusQuery(Guid? FacilityId = null) : IRequest<Result<List<ProductDto>>>;
+    public record GetProductByIdQuery(Guid Id, Guid? FacilityId = null) : IRequest<Result<ProductDto>>;
 }

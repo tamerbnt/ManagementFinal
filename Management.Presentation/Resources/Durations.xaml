@@ -1,0 +1,45 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!-- 
+        Standard Animation Durations 
+        Usage: Duration="{StaticResource DurationNormal}"
+    -->
+
+    <!-- 
+        APPLE 2025 MOTION PRIMITIVES
+        Usage: Duration="{StaticResource DurationNormal}"
+    -->
+
+    <!-- Micro (120ms): Button presses, Checkbox toggles -->
+    <Duration x:Key="DurationMicro">0:0:0.120</Duration>
+    <Duration x:Key="DurationQuick">0:0:0.150</Duration>
+
+    
+    <!-- Small (180ms): Hover lifts, Icon fills -->
+    <Duration x:Key="DurationSmall">0:0:0.180</Duration>
+    
+    <!-- Standard (220ms): Focus rings, Universal UI movement -->
+    <Duration x:Key="DurationStandard">0:0:0.220</Duration>
+    <Duration x:Key="DurationNormal">0:0:0.220</Duration>
+    
+    <!-- Medium (300ms): Slide-ins, Dropdowns, Content expansion -->
+    <Duration x:Key="DurationMedium">0:0:0.300</Duration>
+    
+    <!-- Screen (350ms): Navigation transitions, Modal entrances -->
+    <Duration x:Key="DurationScreen">0:0:0.350</Duration>
+    <Duration x:Key="DurationScreenTransition">0:0:0.350</Duration>
+    <Duration x:Key="DurationModal">0:0:0.350</Duration>
+    
+    <!-- Slow (500ms): Large content swaps, Multi-step transitions -->
+    <Duration x:Key="DurationSlow">0:0:0.500</Duration>
+    
+    <!-- Long (800ms): Emphasis, Attention-grabbing pulses -->
+    <Duration x:Key="DurationLong">0:0:0.800</Duration>
+    
+    <!-- Ultra (1200ms): Very slow background transitions -->
+    <Duration x:Key="DurationUltra">0:0:1.200</Duration>
+
+
+</ResourceDictionary>

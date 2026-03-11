@@ -12,6 +12,9 @@ namespace Management.Application.DTOs
         public DateTime PayPeriodStart { get; set; }
         public DateTime PayPeriodEnd { get; set; }
         public bool IsPaid { get; set; }
+        public decimal NetPay { get; set; }
+        public string PaymentMethod { get; set; } = string.Empty;
+        public DateTime? ProcessedAt { get; set; }
         public string Notes { get; set; } = string.Empty;
     }
 }

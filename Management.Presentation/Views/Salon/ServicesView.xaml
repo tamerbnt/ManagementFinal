@@ -36,7 +36,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Text="{DynamicResource TerminologyServiceManagementLabel}" Style="{StaticResource SectionHeader}" Margin="0,0,0,24"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,24">
+            <Path Data="{StaticResource IconSliders}" 
+                  Style="{StaticResource Style.Icon.Large}" 
+                  Stroke="{DynamicResource TextPrimaryBrush}"
+                  Margin="0,0,12,0"/>
+            <TextBlock Text="{DynamicResource Terminology.Salon.Services.Title}" Style="{StaticResource SectionHeader}" VerticalAlignment="Center"/>
+        </StackPanel>
 
         <DataGrid Grid.Row="1" ItemsSource="{Binding Services}" 
                   AutoGenerateColumns="False" 
@@ -44,7 +50,7 @@
                   RowHeight="72"
                   Style="{StaticResource PremiumDataGrid}">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="SERVICE" Width="*">
+                <DataGridTemplateColumn Header="{DynamicResource Terminology.Salon.Services.Service}" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel VerticalAlignment="Center" Margin="16,0">
@@ -55,14 +61,14 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="PRICE" Width="150">
+                <DataGridTemplateColumn Header="{DynamicResource Terminology.Salon.Services.Price}" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid VerticalAlignment="Center">
                                 <TextBox Text="{Binding BasePrice, StringFormat=C, UpdateSourceTrigger=PropertyChanged}" 
                                          Style="{StaticResource InlineTextBox}"/>
                                 <!-- Live Saved Heartbeat -->
-                                <TextBlock Text="Saved ✓" Foreground="{DynamicResource StatusSuccessBrush}" FontSize="10" 
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Services.Saved}" Foreground="{DynamicResource StatusSuccessBrush}" FontSize="10" 
                                            HorizontalAlignment="Right" VerticalAlignment="Top"
                                            Visibility="{Binding IsSaved, Converter={StaticResource BoolToVis}}"
                                            Margin="0,-12,12,0">
@@ -81,13 +87,13 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
-                <DataGridTemplateColumn Header="DURATION" Width="150">
+                <DataGridTemplateColumn Header="{DynamicResource Terminology.Salon.Services.Duration}" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBox Text="{Binding DurationMinutes, UpdateSourceTrigger=PropertyChanged}" 
                                          Style="{StaticResource InlineTextBox}" Width="60"/>
-                                <TextBlock Text=" min" Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Services.Minutes}" Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center" Margin="4,0,0,0"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

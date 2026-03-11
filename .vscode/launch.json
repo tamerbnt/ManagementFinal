@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Titan Client (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Management.Presentation/bin/Debug/net8.0-windows/Titan.Client.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/Management.Presentation/bin/Debug/net8.0-windows",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": true
+        }
+    ]
+}

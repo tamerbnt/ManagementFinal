@@ -1,0 +1,369 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Restaurant.FloorPlanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Restaurant"
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="1440">
+
+    <UserControl.Resources>
+        <!-- Local converter instances resolved from the global Converters.xaml -->
+        <StaticResource x:Key="LocalStatusToBrush"      ResourceKey="TableStatusToBrushConverter"/>
+        <StaticResource x:Key="LocalStatusToForeground" ResourceKey="TableStatusToForegroundConverter"/>
+        <StaticResource x:Key="LocalBoolToVis"          ResourceKey="BoolToVisibilityConverter"/>
+
+        <!-- TABLE TILE TEMPLATE â€” clickable, fires OpenTableDetailCommand on parent VM -->
+        <DataTemplate DataType="{x:Type vm:TableTileViewModel}">
+            <Button Margin="8"
+                    Padding="0"
+                    BorderThickness="0"
+                    Background="Transparent"
+                    Cursor="Hand"
+                    Command="{Binding DataContext.OpenTableDetailCommand,
+                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                    CommandParameter="{Binding}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Button.Template>
+                <Border MinWidth="100" MinHeight="100"
+                        CornerRadius="16"
+                        Padding="12"
+                        Background="{Binding Status, Converter={StaticResource LocalStatusToBrush}}"
+                        Effect="{StaticResource Shadow2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- TOP ROW: Table number + Server badge -->
+                        <Grid Grid.Row="0">
+                            <TextBlock Text="{Binding TableNumber}"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{Binding Status, Converter={StaticResource LocalStatusToForeground}}"
+                                       VerticalAlignment="Center"/>
+                            <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                                    Width="24" Height="24" CornerRadius="12"
+                                    Background="#20FFFFFF"
+                                    Visibility="{Binding IsOccupied, Converter={StaticResource LocalBoolToVis}}">
+                                <TextBlock Text="{Binding ServerInitials}"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+
+                        <!-- MIDDLE: Guest count -->
+                        <TextBlock Grid.Row="1"
+                                   Text="{Binding GuestDisplay}"
+                                   FontSize="13" Opacity="0.7"
+                                   Foreground="{Binding Status, Converter={StaticResource LocalStatusToForeground}}"
+                                   VerticalAlignment="Center"/>
+
+                        <!-- BOTTOM: Total + Elapsed time -->
+                        <Grid Grid.Row="2">
+                            <TextBlock Text="{Binding OrderTotal, StringFormat={}{0:N0} DA}"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="{Binding Status, Converter={StaticResource LocalStatusToForeground}}"
+                                       Visibility="{Binding IsOccupied, Converter={StaticResource LocalBoolToVis}}"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Bottom"/>
+                            
+                            <TextBlock Text="{Binding ElapsedTime}"
+                                       FontSize="11" Opacity="0.6"
+                                       Foreground="{Binding Status, Converter={StaticResource LocalStatusToForeground}}"
+                                       Visibility="{Binding ShowTimer, Converter={StaticResource LocalBoolToVis}}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Bottom"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="32"/>
+            <ColumnDefinition Width="220"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,24">
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}"
+                           FontSize="32" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"/>
+                <TextBlock Text="{DynamicResource Terminology.FloorPlan.Subtitle}"
+                           FontSize="15"
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- SECTION TABS â€” full-width header row, aligned right -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,24">
+
+            <!-- Main Hall -->
+            <Button Command="{Binding SetSectionCommand}" CommandParameter="Main Hall"
+                    Margin="4,0" Padding="12,6" BorderThickness="0" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="TabBg" CornerRadius="10"
+                                            Background="{DynamicResource CardBackgroundBrush}"
+                                            Padding="{TemplateBinding Padding}"
+                                            Effect="{StaticResource Shadow2}">
+                                        <TextBlock x:Name="TabText"
+                                                   Text="{DynamicResource Terminology.FloorPlan.Section.MainHall}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding ActiveSection}" Value="Main Hall">
+                                            <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource FacilitySidebarBrush}"/>
+                                            <Setter TargetName="TabText" Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Patio -->
+            <Button Command="{Binding SetSectionCommand}" CommandParameter="Patio"
+                    Margin="4,0" Padding="12,6" BorderThickness="0" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="TabBg" CornerRadius="10"
+                                            Background="{DynamicResource CardBackgroundBrush}"
+                                            Padding="{TemplateBinding Padding}"
+                                            Effect="{StaticResource Shadow2}">
+                                        <TextBlock x:Name="TabText"
+                                                   Text="{DynamicResource Terminology.FloorPlan.Section.Patio}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding ActiveSection}" Value="Patio">
+                                            <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource FacilitySidebarBrush}"/>
+                                            <Setter TargetName="TabText" Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <!-- Bar Seating -->
+            <Button Command="{Binding SetSectionCommand}" CommandParameter="Bar Seating"
+                    Margin="4,0" Padding="12,6" BorderThickness="0" Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="TabBg" CornerRadius="10"
+                                            Background="{DynamicResource CardBackgroundBrush}"
+                                            Padding="{TemplateBinding Padding}"
+                                            Effect="{StaticResource Shadow2}">
+                                        <TextBlock x:Name="TabText"
+                                                   Text="{DynamicResource Terminology.FloorPlan.Section.Bar}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding ActiveSection}" Value="Bar Seating">
+                                            <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource FacilitySidebarBrush}"/>
+                                            <Setter TargetName="TabText" Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+
+        <!-- ZONE 1: TABLE CANVAS -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{DynamicResource CardBackgroundBrush}"
+                CornerRadius="24" Effect="{StaticResource Shadow2}">
+            <ScrollViewer VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" Padding="8">
+                <ItemsControl ItemsSource="{Binding FilteredTables}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="4"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ZONE 2: RIGHT SIDEBAR (Legend + Stats) -->
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- STATUS LEGEND CARD -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource FacilitySidebarBrush}"
+                    CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Terminology.FloorPlan.Legend.Title}"
+                               FontSize="13" FontWeight="Bold"
+                               Foreground="White" Margin="0,0,0,16"/>
+
+                    <!-- Available -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Width="14" Height="14" CornerRadius="4"
+                                Background="{DynamicResource Brush.Table.Available}"
+                                Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Status.Available}"
+                                   FontSize="13" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Seated -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Width="14" Height="14" CornerRadius="4"
+                                Background="{DynamicResource Brush.Table.Seated}"
+                                BorderBrush="#40FFFFFF" BorderThickness="1"
+                                Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Status.Seated}"
+                                   FontSize="13" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Ordered -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Width="14" Height="14" CornerRadius="4"
+                                Background="{DynamicResource Brush.Table.Ordered}"
+                                Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Status.Ordered}"
+                                   FontSize="13" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Needs Bill -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Border Width="14" Height="14" CornerRadius="4"
+                                Background="{DynamicResource Brush.Table.BillReady}"
+                                Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Status.BillReady}"
+                                   FontSize="13" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Reserved -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                        <Border Width="14" Height="14" CornerRadius="4"
+                                Background="{DynamicResource Brush.Table.Reserved}"
+                                Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Status.Reserved}"
+                                   FontSize="13" Foreground="White" Opacity="0.8" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Divider -->
+                    <Separator Background="#30FFFFFF" Margin="0,16,0,14"/>
+
+                    <!-- ADD TABLE BUTTON -->
+                    <Button Command="{Binding AddTableCommand}"
+                            Cursor="Hand"
+                            Background="{DynamicResource FacilityAccentBrush}"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Padding="0,11"
+                            FontSize="13"
+                            FontWeight="Bold">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="+" FontSize="18" FontWeight="Bold"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="{DynamicResource Strings.Restaurant.AddTable}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bg"
+                                                    Background="{TemplateBinding Background}"
+                                                    CornerRadius="12"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="Bg" Property="Opacity" Value="0.70"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- QUICK STATS CARD -->
+            <Border Grid.Row="2"
+                    Background="{DynamicResource CardBackgroundBrush}"
+                    CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                <StackPanel>
+                    <!-- Total -->
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Stats.Total}"
+                                   FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="{Binding TotalTables}"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+                    <!-- Occupied -->
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Stats.Occupied}"
+                                   FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="{Binding OccupiedTables}"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource FacilityAccentBrush}"
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+                    <!-- Available -->
+                    <Grid>
+                        <TextBlock Text="{DynamicResource Terminology.FloorPlan.Stats.Available}"
+                                   FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="{Binding AvailableTables}"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource Brush.Table.BillReady}"
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

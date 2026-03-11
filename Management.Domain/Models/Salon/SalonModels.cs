@@ -9,11 +9,15 @@ namespace Management.Domain.Models.Salon
         Confirmed,
         InProgress,
         Completed,
-        NoShow
+        NoShow,
+        Cancelled,
+        DataError
     }
 
-    public class SalonService : Entity
+    public class SalonService : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
         public string Name { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
@@ -21,8 +25,10 @@ namespace Management.Domain.Models.Salon
         public int DurationMinutes { get; set; }
     }
 
-    public class Appointment : Entity
+    public class Appointment : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
         public Guid ClientId { get; set; }
         public string ClientName { get; set; } = string.Empty; // For terminology rule
@@ -33,6 +39,7 @@ namespace Management.Domain.Models.Salon
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public AppointmentStatus Status { get; set; }
+        public decimal Price { get; set; }
         public string Notes { get; set; } = string.Empty;
         public List<ProductUsage> UsedProducts { get; set; } = new();
 
@@ -47,8 +54,10 @@ namespace Management.Domain.Models.Salon
         }
     }
 
-    public class ProductUsage : Entity
+    public class ProductUsage : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
         public Guid ProductId { get; set; }
 
         public string ProductName { get; set; } = string.Empty;

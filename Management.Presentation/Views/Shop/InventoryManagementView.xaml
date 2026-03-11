@@ -1,131 +1,80 @@
-<UserControl x:Class="Management.Presentation.Views.Shop.InventoryManagementView"
+﻿<UserControl x:Class="Management.Presentation.Views.Shop.InventoryManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True"
              Background="Transparent">
 
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
-        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
     </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Low Stock Alert -->
-            <RowDefinition Height="Auto"/>
-            <!-- Table Header -->
-            <RowDefinition Height="*"/>
-            <!-- Table Content -->
+            <RowDefinition Height="Auto"/> <!-- Low Stock banner -->
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- List -->
         </Grid.RowDefinitions>
 
-        <!-- 1. LOW STOCK ALERT BANNER (Section 30.4) -->
-        <!-- Visible only if HasLowStock is true -->
-        <Grid Grid.Row="0" 
-              Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}"
-              Margin="{StaticResource MarginSectionBottom}">
-
-            <!-- Background Layer (10% Opacity Warning) -->
-            <Border Background="{DynamicResource StatusWarningBrush}" 
-                    CornerRadius="{StaticResource RadiusCardStandard}" 
-                    Opacity="0.1"
-                    Height="{StaticResource SizeSidebarItemHeight}"/>
-
-            <!-- Content Layer -->
-            <StackPanel Orientation="Horizontal" 
-                        VerticalAlignment="Center" 
-                        Margin="{StaticResource PaddingCard}">
-                <Path Data="{StaticResource IconAlert}" 
-                      Fill="{DynamicResource StatusWarningBrush}" 
-                      Style="{StaticResource IconStandard}"
-                      Margin="{StaticResource MarginIconRight}"/>
-
-                <TextBlock Text="{Binding LowStockCount, StringFormat={DynamicResource TerminologyLowStockCountFormat}}" 
-                           Style="{StaticResource BodyMedium}" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           VerticalAlignment="Center"/>
-
-                <!-- Action Link -->
-                <Button Content="{DynamicResource TerminologyViewDetailsLabel}" 
-                        Command="{Binding FilterLowStockCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        BorderThickness="0"
-                        Foreground="{DynamicResource StatusWarningBrush}"
-                        Margin="{StaticResource MarginMediumLeft}"
-                        Height="Auto" Padding="0"/>
+        <!-- 1. LOW STOCK ALERT -->
+        <Border Grid.Row="0" Margin="0,0,0,24" Background="{DynamicResource StatusWarningBrush}" Opacity="0.1" CornerRadius="12"
+                Padding="16"
+                Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <Path Data="{StaticResource IconAlert}" Fill="{DynamicResource StatusWarningBrush}" Style="{StaticResource Style.Icon.Standard}" Margin="0,0,12,0"/>
+                <TextBlock Text="{Binding LowStockCount, StringFormat='{}Action Required: {0} products are low on stock'}" 
+                           Style="{StaticResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
             </StackPanel>
-        </Grid>
+        </Border>
 
-        <!-- 2. TABLE HEADER (Section 20.1) -->
-        <Border Grid.Row="1" 
-                Height="{StaticResource SizeTableHeaderHeight}"
-                Background="{DynamicResource CardBackgroundBrush}"
-                BorderBrush="{DynamicResource SeparatorBrush}"
-                BorderThickness="0,1,0,1">
-            <Grid Margin="{StaticResource PaddingCardList}">
+        <!-- 2. TABLE HEADER -->
+        <Border Grid.Row="1" Padding="24,12" Background="{DynamicResource SurfaceBgSecondary}" CornerRadius="12,12,0,0">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <!-- Product -->
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="120"/>
-                    <!-- SKU -->
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="100"/>
-                    <!-- Stock -->
-                    <ColumnDefinition Width="100"/>
-                    <!-- Reorder -->
-                    <ColumnDefinition Width="140"/>
-                    <!-- Updated -->
-                    <ColumnDefinition Width="100"/>
-                    <!-- Actions -->
                 </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0" Text="{DynamicResource TerminologyTableHeaderProduct}" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="1" Text="{DynamicResource TerminologyTableHeaderSKU}" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="2" Text="{DynamicResource TerminologyTableHeaderStock}" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="3" Text="{DynamicResource TerminologyTableHeaderReorder}" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="4" Text="{DynamicResource TerminologyTableHeaderUpdated}" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="5" Text="{DynamicResource TerminologyTableHeaderActions}" Style="{StaticResource Caption}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="0" Text="{DynamicResource Strings.Shop.PRODUCT}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource Strings.Shop.SKU}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Column="2" Text="{DynamicResource Strings.Shop.STOCK}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Column="3" Text="{DynamicResource Strings.Settings.PRICE}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <TextBlock Grid.Column="4" Text="{DynamicResource Strings.Shop.ACTIONS}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 
-        <!-- 3. INVENTORY LIST (Virtualization Enabled) -->
+        <!-- 3. INVENTORY LIST -->
         <ListBox Grid.Row="2"
                  ItemsSource="{Binding InventoryItems}"
                  Background="Transparent"
                  BorderThickness="0"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                 VirtualizingPanel.IsVirtualizing="True"
-                 VirtualizingPanel.VirtualizationMode="Recycling"
-                 ScrollViewer.CanContentScroll="True">
+                 Padding="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
 
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="Padding" Value="0"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Background" Value="Transparent"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListBoxItem">
-                                <Border Background="{TemplateBinding Background}"
-                                        BorderBrush="{StaticResource SeparatorBrush}"
-                                        BorderThickness="0,0,0,1">
+                                <Border x:Name="ItemBorder" 
+                                        Background="{TemplateBinding Background}"
+                                        Padding="24,16"
+                                        BorderThickness="0,0,0,1"
+                                        BorderBrush="{DynamicResource BorderBrush}">
                                     <ContentPresenter />
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource SidebarHoverBrush}"/>
-                                        <!-- Note: Subtle hover tint defined in SidebarHoverBrush usually suffices for rows -->
+                                        <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SurfaceBgSecondary}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -136,104 +85,119 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Height="{StaticResource SizeTableRowHeight}" Margin="{StaticResource PaddingCardList}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
+                    <Border x:Name="RootBorder" CornerRadius="8" Margin="-12,0">
+                         <Border.Style>
+                            <Style TargetType="Border">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#0097A7" Offset="0"/>
+                                                    <GradientStop Color="#26C6DA" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="#26C6DA" Opacity="0.4"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        
+                        <Grid Margin="12,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.InputBindings>
+                                <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
+                            </Grid.InputBindings>
+
                             <!-- Product -->
-                            <ColumnDefinition Width="120"/>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Ellipse Width="32" Height="32" Fill="{DynamicResource SurfaceBgTertiary}" Margin="0,0,12,0"/>
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+
                             <!-- SKU -->
-                            <ColumnDefinition Width="100"/>
+                            <TextBlock Grid.Column="1" Text="{Binding SKU}" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="Opacity" Value="0.7"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
                             <!-- Stock -->
-                            <ColumnDefinition Width="100"/>
-                            <!-- Reorder -->
-                            <ColumnDefinition Width="140"/>
-                            <!-- Updated -->
-                            <ColumnDefinition Width="100"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="8" Height="8" Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}" Margin="0,0,8,0"/>
+                                <TextBlock Text="{Binding StockQuantity}" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <!-- Price -->
+                            <TextBlock Grid.Column="3" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
                             <!-- Actions -->
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Product: Image + Name -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Ellipse Width="{StaticResource SizeAvatarSmall}" 
-                                     Height="{StaticResource SizeAvatarSmall}"
-                                     Margin="{StaticResource MarginCardRight}">
-                                <Ellipse.Fill>
-                                    <SolidColorBrush Color="{DynamicResource AccentLightColor}"/>
-                                </Ellipse.Fill>
-                                <!-- Image Binding: <ImageBrush ImageSource="{Binding ImageUrl}"/> -->
-                            </Ellipse>
-                            <TextBlock Text="{Binding Name}" 
-                                       Style="{StaticResource BodyMedium}" 
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-
-                        <!-- SKU -->
-                        <TextBlock Grid.Column="1" 
-                                   Text="{Binding SKU}" 
-                                   Style="{StaticResource Caption}" 
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   VerticalAlignment="Center"/>
-
-                        <!-- Stock Level (Semantic Color) -->
-                        <TextBlock Grid.Column="2" 
-                                   Text="{Binding StockCount}" 
-                                   Style="{StaticResource BodyMedium}" 
-                                   Foreground="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-
-                        <!-- Reorder Level -->
-                        <TextBlock Grid.Column="3" 
-                                   Text="{Binding ReorderLevel}" 
-                                   Style="{StaticResource Body}" 
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   VerticalAlignment="Center"
-                                   Padding="16,0,0,0"/>
-
-                        <!-- Last Updated -->
-                        <TextBlock Grid.Column="4" 
-                                   Text="{Binding LastUpdated, Converter={StaticResource RelativeTimeConverter}}" 
-                                   Style="{StaticResource Caption}" 
-                                   Foreground="{DynamicResource TextTertiaryBrush}"
-                                   VerticalAlignment="Center"/>
-
-                        <!-- Actions -->
-                        <Button Grid.Column="5"
-                                Content="{DynamicResource TerminologyEditLabel}"
-                                Command="{Binding EditCommand}"
-                                Style="{StaticResource ButtonCompactSecondary}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"/>
-                    </Grid>
+                            <Button Grid.Column="4" Style="{StaticResource IconButtonStyle}" HorizontalAlignment="Right" Command="{Binding ViewDetailsCommand}">
+                                <Path Data="{StaticResource IconEye}" Fill="{DynamicResource TextTertiaryBrush}">
+                                    <Path.Style>
+                                        <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Fill" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Button>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-
-        <!-- 4. EMPTY STATE -->
-        <Grid Grid.Row="2" 
-              Visibility="{Binding InventoryItems.Count, Converter={StaticResource ZeroIsVisibleConverter}}"
-              IsHitTestVisible="False">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,64">
-                <Path Data="{StaticResource IconBox}"
-                      Fill="{StaticResource IllustrationBackgroundBrush}"
-                      Width="256" Height="256"
-                      Stretch="Uniform"
-                      Margin="{StaticResource MarginSectionBottom}"
-                      HorizontalAlignment="Center"/>
-
-                <TextBlock Text="{DynamicResource TerminologyInventoryEmptyTitle}" 
-                           Style="{StaticResource Title2}" 
-                           Foreground="{DynamicResource TextSecondaryBrush}" 
-                           HorizontalAlignment="Center"
-                           Margin="{StaticResource MarginTextBottom}"/>
-
-                <TextBlock Text="{DynamicResource TerminologyInventoryEmptySubtitle}" 
-                           Style="{StaticResource Body}" 
-                           Foreground="{DynamicResource TextTertiaryBrush}" 
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
-        </Grid>
-
     </Grid>
 </UserControl>

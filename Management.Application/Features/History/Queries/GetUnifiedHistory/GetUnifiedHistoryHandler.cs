@@ -1,21 +1,13 @@
 using Management.Application.Features.History.Queries.GetUnifiedHistory;
 using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Application.Features.History.Queries.GetUnifiedHistory
 {
@@ -60,7 +52,9 @@ namespace Management.Application.Features.History.Queries.GetUnifiedHistory
                     Id = x.Id,
                     Timestamp = x.Timestamp,
                     Type = HistoryEventType.Access,
-                    AccessEvent = x
+                    Title = x.IsAccessGranted ? "Access Granted" : "Access Denied",
+                    Details = x.IsAccessGranted ? (x.MemberName ?? $"Card: {x.CardId}") : $"Denied ({x.FailureReason}): {x.CardId}",
+                    IsSuccessful = x.IsAccessGranted
                 }));
             }
 
@@ -73,7 +67,10 @@ namespace Management.Application.Features.History.Queries.GetUnifiedHistory
                     Id = x.Id,
                     Timestamp = x.Timestamp,
                     Type = HistoryEventType.Sale,
-                    SaleEvent = x
+                    Title = string.IsNullOrEmpty(x.TransactionType) ? "Sale" : x.TransactionType,
+                    Details = $"Member: {x.MemberName} - Items: {x.Items.Count}",
+                    Amount = x.TotalAmount,
+                    Metadata = x.PaymentMethod
                 }));
             }
 
@@ -86,7 +83,8 @@ namespace Management.Application.Features.History.Queries.GetUnifiedHistory
                     Id = x.Id,
                     Timestamp = x.StartTime,
                     Type = HistoryEventType.Reservation,
-                    ReservationEvent = x
+                    Title = "Class Booking",
+                    Details = $"{x.ActivityName} - {x.InstructorName} ({x.Location})"
                 }));
             }
 

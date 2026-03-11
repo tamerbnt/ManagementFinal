@@ -8,18 +8,29 @@ namespace Management.Domain.Models.Restaurant
     {
         Available,
         Occupied,
-        Cleaning
+        Cleaning,
+        Ready,
+        OrderSent,
+        BillRequested,
+        Dirty
     }
 
-    public class TableModel : Entity
+    public class TableModel : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
-        public string Number { get; set; } = string.Empty;
+        public int TableNumber { get; set; }
+        public string Label { get; set; } = string.Empty;   // Display label e.g. "T1", "VIP-1"
+        public string Section { get; set; } = "Main Hall";  // "Main Hall" | "Patio" | "Bar Seating"
         public int MaxSeats { get; set; }
         public int CurrentOccupancy { get; set; }
         public TableStatus Status { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
+        public double Width { get; set; } = 100;
+        public double Height { get; set; } = 100;
+        public string Shape { get; set; } = "Square";
 
         public bool CanChangeStatus(TableStatus nextStatus)
         {
@@ -36,30 +47,43 @@ namespace Management.Domain.Models.Restaurant
         InProgress,
         Ready,
         Delivered,
-        Completed
+        Completed,
+        Paid,
+        Cancelled,
+        InKitchen
     }
 
-    public class RestaurantOrder : Entity
+    public class RestaurantOrder : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
-        public string TableNumber { get; set; } = string.Empty;
+        public Guid? TableId { get; set; }
+        public string? TableNumber { get; set; }
+        public string? Section { get; set; }   // e.g. "Main Hall", "Patio", "Bar Seating"
+        public int DailyOrderNumber { get; set; }
+        public int PartySize { get; set; }
         public DateTime? DeliveredAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
         public OrderStatus Status { get; set; }
         public List<OrderItem> Items { get; set; } = new();
         public decimal Subtotal { get; set; }
         public decimal Tax { get; set; }
         public decimal Total => Subtotal + Tax;
 
-        public void CalculateTotal(decimal taxRate = 0.15m)
+        public void CalculateTotal(decimal taxRate = 0m)
         {
             Subtotal = Items.Sum(i => i.Price * i.Quantity);
-            Tax = Math.Round(Subtotal * taxRate, 2);
-            // Total is calculated property
+            Tax = 0;
+            // Total is calculated property (Subtotal + Tax)
         }
     }
 
-    public class OrderItem : Entity
+    public class OrderItem : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
+        public Guid RestaurantOrderId { get; set; }
         public string Name { get; set; } = string.Empty;
 
         public decimal Price { get; set; }
@@ -67,8 +91,10 @@ namespace Management.Domain.Models.Restaurant
         public decimal Total => Price * Quantity;
     }
 
-    public class RestaurantMenuItem : Entity
+    public class RestaurantMenuItem : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
         public string Name { get; set; } = string.Empty;
 
         public string Category { get; set; } = string.Empty;

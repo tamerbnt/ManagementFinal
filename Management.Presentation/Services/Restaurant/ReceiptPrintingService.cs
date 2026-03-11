@@ -43,12 +43,12 @@ namespace Management.Presentation.Services.Restaurant
                     foreach (var item in order.Items)
                     {
                         string line = $"{item.Quantity}x {item.Name}";
-                        string price = (item.Price * item.Quantity).ToString("C");
+                        string price = (item.Price * item.Quantity).ToString("N2") + " DA";
                         sb.AppendLine(line.PadRight(ReceiptWidth - price.Length) + price);
                     }
 
                     sb.AppendLine(new string('─', ReceiptWidth));
-                    sb.AppendLine("TOTAL:".PadRight(ReceiptWidth - order.Total.ToString("C").Length) + order.Total.ToString("C"));
+                    sb.AppendLine("TOTAL:".PadRight(ReceiptWidth - (order.Total.ToString("N2") + " DA").Length) + order.Total.ToString("N2") + " DA");
                     sb.AppendLine();
                     sb.AppendLine(CenterText("THANK YOU!", ReceiptWidth));
                     
@@ -83,13 +83,13 @@ namespace Management.Presentation.Services.Restaurant
                     foreach (var p in appointment.UsedProducts)
                     {
                         string line = $" - {p.ProductName}";
-                        string val = p.Total.ToString("C");
+                        string val = p.Total.ToString("N2") + " DA";
                         sb.AppendLine(line.PadRight(ReceiptWidth - val.Length) + val);
                     }
                 }
 
                 sb.AppendLine(new string('─', ReceiptWidth));
-                sb.AppendLine("GRAND TOTAL:".PadRight(ReceiptWidth - total.ToString("C").Length) + total.ToString("C"));
+                sb.AppendLine("GRAND TOTAL:".PadRight(ReceiptWidth - (total.ToString("N2") + " DA").Length) + total.ToString("N2") + " DA");
                 sb.AppendLine();
                 sb.AppendLine(CenterText("STAY BEAUTIFUL", ReceiptWidth));
                 
@@ -109,7 +109,7 @@ namespace Management.Presentation.Services.Restaurant
                 sb.AppendLine($"Date: {DateTime.Now:g}");
                 sb.AppendLine($"Plan: {planName}");
                 sb.AppendLine(new string('─', ReceiptWidth));
-                sb.AppendLine("Amount:".PadRight(ReceiptWidth - price.ToString("C").Length) + price.ToString("C"));
+                sb.AppendLine("Amount:".PadRight(ReceiptWidth - (price.ToString("N2") + " DA").Length) + price.ToString("N2") + " DA");
                 sb.AppendLine();
                 sb.AppendLine(CenterText("STAY FIT!", ReceiptWidth));
                 

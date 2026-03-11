@@ -1,6 +1,7 @@
-﻿// Management.Presentation/Services/INotificationService.cs
+// Management.Presentation/Services/INotificationService.cs
 using System.Collections.ObjectModel;
 using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.Shared;
 
 namespace Management.Presentation.Services
 {

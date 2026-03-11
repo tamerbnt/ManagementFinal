@@ -1,6 +1,6 @@
-ï»¿// Management.Presentation/Services/ThemeService.cs
-// v1.2 FINAL â€“ LIGHT MODE ONLY â€“ NO SWITCHING ALLOWED
-// Exists to satisfy CODE STRUCTURE FINAL.txt â€“ functionality locked
+// Management.Presentation/Services/ThemeService.cs
+// v1.2 FINAL – LIGHT MODE ONLY – NO SWITCHING ALLOWED
+// Exists to satisfy CODE STRUCTURE FINAL.txt – functionality locked
 
 using System.ComponentModel;
 

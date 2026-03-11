@@ -10,13 +10,42 @@ namespace Management.Infrastructure.Repositories
 {
     public class MembershipPlanRepository : Repository<MembershipPlan>, IMembershipPlanRepository
     {
-        public MembershipPlanRepository(GymDbContext context) : base(context) { }
+        public MembershipPlanRepository(AppDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<MembershipPlan>> GetActivePlansAsync()
+        public override async Task<MembershipPlan?> GetByIdAsync(System.Guid id, System.Guid? facilityId = null)
         {
-            return await _dbSet.AsNoTracking()
-                .Where(p => p.IsActive)
-                .OrderBy(p => p.Price.Amount)
+            var query = _dbSet.AsNoTracking();
+
+            if (facilityId.HasValue)
+            {
+                query = query.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value);
+            }
+
+            return await query
+                .Include(p => p.AccessibleFacilities)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<IEnumerable<MembershipPlan>> GetActivePlansAsync(System.Guid? facilityId = null, bool activeOnly = true)
+        {
+            var query = _dbSet.AsNoTracking();
+
+            if (facilityId.HasValue)
+            {
+                query = query.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && !p.IsDeleted);
+            }
+            else
+            {
+                query = query.Where(p => !p.IsDeleted);
+            }
+
+            if (activeOnly)
+            {
+                query = query.Where(p => p.IsActive);
+            }
+
+            return await query
+                .Include(p => p.AccessibleFacilities)
                 .ToListAsync();
         }
     }

@@ -11,7 +11,7 @@ namespace Management.Application.DTOs
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public decimal Cost { get; set; }
-        public string? Currency { get; set; } = "USD";
+        public string? Currency { get; set; } = "DA";
         public int StockQuantity { get; set; }
         public string SKU { get; set; } = string.Empty;
         public string Category { get; set; } = "Other";

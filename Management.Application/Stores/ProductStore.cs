@@ -1,6 +1,8 @@
 using System;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -8,8 +10,12 @@ namespace Management.Application.Stores
     /// Ensures that sales in the POS tab immediately reflect in the Inventory tab,
     /// and back-office edits immediately reflect in the POS grid.
     /// </summary>
-    public class ProductStore
+    public class ProductStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Stateless aggregator, nothing to clear
+        }
         // Fired when a new product is added to the catalog
         public event Action<ProductDto>? ProductAdded;
 

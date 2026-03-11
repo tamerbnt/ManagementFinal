@@ -1,0 +1,62 @@
+<UserControl x:Class="Management.Presentation.Components.Data.StatTile"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="150" d:DesignWidth="250">
+    
+    <Border x:Name="RootBorder" 
+            Background="White"
+            CornerRadius="16" 
+            Width="Auto"
+            Height="Auto"
+            RenderTransformOrigin="0.5,0.5">
+        <Border.Effect>
+            <StaticResource ResourceKey="Shadow1"/>
+        </Border.Effect>
+
+        <Grid Margin="20">
+            <!-- Content Layer -->
+            <Grid x:Name="ContentLayer" Visibility="{Binding IsLoading, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                <Grid Width="40" Height="40" HorizontalAlignment="Left" Margin="0,0,0,12">
+                    <Ellipse Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.1" />
+                    <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                          Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                          Stretch="Uniform" 
+                          Width="18" Height="18" 
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <TextBlock Grid.Row="1" 
+                           Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue='--', TargetNullValue='--'}" 
+                           FontSize="32" 
+                           FontWeight="SemiBold" 
+                           VerticalAlignment="Center"
+                           Foreground="#0F172A"
+                           TextTrimming="CharacterEllipsis"
+                           ToolTip="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                
+                <TextBlock Grid.Row="2" 
+                           Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                           FontSize="13" 
+                           FontWeight="Medium"
+                           Foreground="#64748B" />
+            </Grid>
+
+            <!-- Skeleton Layer -->
+            <Border x:Name="SkeletonLayer" 
+                    Background="{DynamicResource Brush.Text.Secondary}" 
+                    Opacity="0.1" 
+                    CornerRadius="12"
+                    Visibility="{Binding IsLoading, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </Grid>
+    </Border>
+</UserControl>

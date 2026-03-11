@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// Defines how a transaction was settled.
@@ -9,6 +9,7 @@
         Cash = 1,
         CreditCard = 2,
         BankTransfer = 3,
-        Account = 4 // Charged to member balance
+        Account = 4, // Charged to member balance
+        Mixed = 5
     }
 }

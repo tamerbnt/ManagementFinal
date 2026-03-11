@@ -1,0 +1,37 @@
+﻿FinancialReportView.xaml, 67, ?, Hardcoded XAML
+PayrollHistoryView.xaml, 8, WidthAndHeight, Hardcoded XAML
+PayrollHistoryView.xaml, 61,  âš , Hardcoded XAML
+PayrollHistoryView.xaml, 104, ðŸ“‹, Hardcoded XAML
+PayrollView.xaml, 9, WidthAndHeight, Hardcoded XAML
+AccessControlModal.xaml, 12, WidthAndHeight, Hardcoded XAML
+MultiSaleCartModal.xaml, 188, -, Hardcoded XAML
+MultiSaleCartModal.xaml, 203, +, Hardcoded XAML
+WalkInConfirmationModal.xaml, 156, -, Hardcoded XAML
+WalkInConfirmationModal.xaml, 170, +, Hardcoded XAML
+MemberAccessView.xaml, 137, Expires in: , Hardcoded XAML
+MemberDetailPanel.xaml, 42, 12, Hardcoded XAML
+MemberDetailView.xaml, 64,  &#x2022; , Hardcoded XAML
+QuickRegistrationView.xaml, 92, Card ID / RFID, Hardcoded XAML
+LicenseKeyView.xaml, 52, ðŸ“„, Hardcoded XAML
+PointOfSaleView.xaml, 271, âˆ’, Hardcoded XAML
+PointOfSaleView.xaml, 304, +, Hardcoded XAML
+PointOfSaleView.xaml, 322, ðŸ—‘, Hardcoded XAML
+PointOfSaleView.xaml, 467, âœ“, Hardcoded XAML
+ConfirmDeclineModal.xaml, 28, Confirms permanent decline of registration, Hardcoded XAML
+AddTableView.xaml, 67, -, Hardcoded XAML
+AddTableView.xaml, 76, +, Hardcoded XAML
+FloorPlanView.xaml, 292, +, Hardcoded XAML
+InventoryDetailsView.xaml, 118, + {Binding QuantityDisplay}, Hardcoded XAML
+OpenOrdersView.xaml, 44, Close, Hardcoded XAML
+RestaurantOrderingView.xaml, 347, Print Receipt (Staff/Client), Hardcoded XAML
+RestaurantOrderingView.xaml, 373, -, Hardcoded XAML
+RestaurantOrderingView.xaml, 382, +, Hardcoded XAML
+AddStaffView.xaml, 11, Height, Hardcoded XAML
+SalonHomeView.xaml, 106,  â€¢ , Hardcoded XAML
+BookAppointmentView.xaml, 74, âœ‚, Hardcoded XAML
+MembershipPlanEditorView.xaml, 134, Ã—, Hardcoded XAML
+PlanSectionView.xaml, 46, " Style=, Hardcoded XAML
+DashboardView.xaml, 211, /, Hardcoded XAML
+DashboardView.xaml, 246, &#x2713; , Hardcoded XAML
+DashboardView.xaml, 251, &#x23F3; , Hardcoded XAML
+DashboardView.xaml, 599,  (, Hardcoded XAML

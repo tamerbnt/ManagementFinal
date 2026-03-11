@@ -1,14 +1,18 @@
-FATAL STARTUP ERROR: 'La valeur fournie sur 'System.Windows.StaticResourceExtension' a levé une exception.' numéro de ligne '59' et position de ligne '23'.
-   at System.Windows.Markup.XamlReader.RewrapException(Exception e, IXamlLineInfo lineInfo, Uri baseUri)
-   at System.Windows.Markup.WpfXamlLoader.Load(XamlReader xamlReader, IXamlObjectWriterFactory writerFactory, Boolean skipJournaledProperties, Object rootObject, XamlObjectWriterSettings settings, Uri baseUri)
-   at System.Windows.Markup.WpfXamlLoader.LoadBaml(XamlReader xamlReader, Boolean skipJournaledProperties, Object rootObject, XamlAccessLevel accessLevel, Uri baseUri)
-   at System.Windows.Markup.XamlReader.LoadBaml(Stream stream, ParserContext parserContext, Object parent, Boolean closeStream)
-   at System.Windows.Application.LoadComponent(Object component, Uri resourceLocator)
-   at Management.Presentation.MainWindow.InitializeComponent() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml:line 1
-   at Management.Presentation.MainWindow..ctor() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml.cs:line 11
-   at Management.Presentation.MainWindow..ctor(MainViewModel viewModel) in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\MainWindow.xaml.cs:line 15
-   at Management.Presentation.App.<>c.<ConfigureServices>b__14_8(IServiceProvider s) in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\App.xaml.cs:line 410
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitFactory(FactoryCallSite factoryCallSite, RuntimeResolverContext context)
+FATAL STARTUP ERROR: Cannot locate resource 'resources/localization/strings.en.xaml'.
+   at MS.Internal.AppModel.ResourcePart.GetStreamCore(FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackagePart.GetStream(FileMode mode, FileAccess access)
+   at MS.Internal.IO.Packaging.PackagePartExtensions.GetSeekableStream(PackagePart packPart, FileMode mode, FileAccess access)
+   at System.IO.Packaging.PackWebResponse.CachedResponse.GetResponseStream()
+   at System.IO.Packaging.PackWebResponse.get_ContentType()
+   at MS.Internal.WpfWebRequestHelper.GetContentType(WebResponse response)
+   at MS.Internal.WpfWebRequestHelper.GetResponseStream(WebRequest request, ContentType& contentType)
+   at System.Windows.ResourceDictionary.set_Source(Uri value)
+   at Management.Presentation.Services.Localization.LocalizationService.UpdateResourceDictionary(String languageCode) in c:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Services\Localization\LocalizationService.cs:line 62
+   at Management.Presentation.Services.Localization.LocalizationService.SetLanguage(String languageCode) in c:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Services\Localization\LocalizationService.cs:line 44
+   at Management.Presentation.Services.Localization.LocalizationService..ctor() in c:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Services\Localization\LocalizationService.cs:line 27
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
    at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
@@ -19,7 +23,5 @@ FATAL STARTUP ERROR: 'La valeur fournie sur 'System.Windows.StaticResourceExtens
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
    at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
    at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
-   at Management.Presentation.App.<RunInitializationSequenceAsync>b__12_0() in C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\App.xaml.cs:line 176
-Inner: Impossible de trouver la ressource nommée'TextPrimaryBrush'. Les noms de ressources respectent la casse.
-   at System.Windows.StaticResourceExtension.ProvideValueInternal(IServiceProvider serviceProvider, Boolean allowDeferredReference)
-   at MS.Internal.Xaml.Runtime.ClrObjectRuntime.CallProvideValue(MarkupExtension me, IServiceProvider serviceProvider)
+   at Management.Presentation.App.RunInitializationSequenceAsync(CancellationToken ct) in c:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\App.xaml.cs:line 194
+Inner: 

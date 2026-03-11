@@ -1,4 +1,4 @@
-﻿namespace Management.Tests.Unit;
+namespace Management.Tests.Unit;
 
 public class UnitTest1
 {

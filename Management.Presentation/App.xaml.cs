@@ -1,64 +1,83 @@
 using System;
 using Management.Application.Services;
 using System.IO;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using System.Windows;
-using Management.Application.Services;
+using Management.Application.Interfaces;
+using Management.Infrastructure.Services.Dashboard;
+using Management.Infrastructure.Services.Dashboard.Aggregators;
 using Microsoft.EntityFrameworkCore;
-using Management.Application.Services;
 using Microsoft.Extensions.Configuration;
-using Management.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Management.Application.Services;
 using Microsoft.Extensions.Logging;
-using Management.Application.Services;
 using Serilog;
-using Management.Application.Services;
+using System.Linq;
+using Microsoft.Data.Sqlite;
 
+using MediatR;
 using Microsoft.Extensions.Caching.Memory;
-using Management.Application.Services;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Management.Application.Notifications;
+using Microsoft.Extensions.Hosting;
 
 
 using Management.Presentation.Stores;
-using Management.Application.Services;
 using Management.Application.Stores;
-using Management.Application.Services;
 using Management.Domain.Interfaces;
-using Management.Application.Services;
-using Management.Domain.Services;
-using Management.Application.Services;
-using Management.Infrastructure.Data;
-using Management.Application.Services;
-using Management.Infrastructure.Hardware;
-using Management.Application.Services;
-using Management.Infrastructure.Repositories;
-using Management.Application.Services;
+using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Infrastructure.Services;
-using Management.Application.Services;
+using Management.Infrastructure.Services.Sync;
+using Management.Domain.Services;
+using Management.Domain.Models;
+using Management.Domain.Models.Restaurant;
+using Management.Infrastructure.Data;
+using Management.Infrastructure.Hardware;
+using Management.Infrastructure.Configuration;
+using Management.Infrastructure.Repositories;
+using Management.Infrastructure.Services;
+using Management.Infrastructure.Workers;
+using Management.Infrastructure.Services.Audio;
 using Management.Presentation.Services;
-using Management.Application.Services;
-using Management.Presentation.Services.Restaurant;
-using Management.Application.Services;
+using Management.Presentation.Services.State;
+using Management.Presentation.Services.Application;
+// using Management.Presentation.Services.Restaurant; // Removed to avoid ambiguity with Application services
 using Management.Presentation.Views.Salon; // Added
 using Management.Presentation.Views.Auth; // Added for LoginView
 using Management.Presentation.Services.Salon;
-using Management.Application.Services;
 using Management.Presentation.Views.Shop;
-using Management.Application.Services;
+using Management.Presentation.Services.Localization;
 using Management.Presentation.Views.Settings;
-using Management.Application.Services;
-using Management.Presentation.Views.Restaurant;
-using Management.Application.Services;
+using Management.Presentation.Views.FinanceAndStaff;
 using Management.Presentation.ViewModels;
-using Management.Application.Services;
+using Management.Presentation.ViewModels.Shell;
+using Management.Presentation.ViewModels.History;
+using Management.Presentation.ViewModels.Members;
+using Management.Presentation.ViewModels.Registrations;
+using Management.Presentation.ViewModels.Finance;
+using Management.Presentation.ViewModels.Shop;
+using Management.Presentation.ViewModels.Base;
+using Management.Presentation.ViewModels.Settings;
+using Management.Presentation.ViewModels.Shared;
+using Management.Presentation.ViewModels.Sync;
+using Management.Presentation.ViewModels.Diagnostic;
+using Management.Presentation.ViewModels.GymHome;
+using Management.Presentation.ViewModels.Salon;
+using Management.Presentation.ViewModels.Restaurant;
+using Management.Presentation.ViewModels.Members;
+using Management.Presentation.ViewModels.History;
+using Management.Presentation.ViewModels.Shop;
+using Management.Presentation.ViewModels.Scheduler;
+using Management.Presentation.ViewModels.PointOfSale;
+using Management.Presentation.Services.Navigation;
+using Management.Presentation.Views.GymHome;
 using Management.Presentation.Extensions;
-using Management.Application.Services;
 using Management.Presentation.Views;
-using Management.Application.Services;
+using Management.Presentation.ViewModels.Onboarding;
 using Management.Application.DTOs;
-using Management.Application.Services;
+using Management.Presentation.ViewModels.AccessControl;
+using Management.Presentation.Views.Restaurant;
+using Management.Presentation.Views.Shared;
 
 namespace Management.Presentation
 {
@@ -71,6 +90,11 @@ namespace Management.Presentation
         public IServiceProvider ServiceProvider { get; private set; } = null!;
         public IConfiguration Configuration { get; private set; } = null!;
         private bool _isHandlingException = false;
+        
+        // Phase 1: Crash Fix - Disposal tracking and shutdown management
+        private bool _isServiceProviderDisposed = false;
+        private readonly System.Threading.CancellationTokenSource _appShutdownCts = new System.Threading.CancellationTokenSource();
+        private IHost? _host;
 
         public App()
         {
@@ -80,45 +104,107 @@ namespace Management.Presentation
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-
             // Execute startup logic on a separate task to avoid blocking UI thread 
             // but with robust error handling and proper synchronization.
             InitializeApp();
+
+            // Check Turnstile SDK
+            // This check needs to happen AFTER InitializeApp() has configured the host and services.
+            // The _host variable is only populated within InitializeApp().
+            if (_host != null)
+            {
+                var turnstileService = _host.Services.GetRequiredService<IHardwareTurnstileService>();
+                if (!turnstileService.IsSdkAvailable)
+                {
+                    var toastService = _host.Services.GetRequiredService<Management.Application.Interfaces.App.IToastService>();
+                    var logger = _host.Services.GetRequiredService<ILogger<App>>();
+                    
+                    logger.LogWarning("ZKTeco SDK not found. Gate control will be disabled.");
+                    
+                    // Use the dispatcher to show toast after the main window is ready
+                    Dispatcher.InvokeAsync(() => 
+                    {
+                        toastService.ShowError("ZKTeco SDK (zkemkeeper) not registered. Gate hardware is disabled.", "Hardware Error");
+                    }, System.Windows.Threading.DispatcherPriority.Loaded);
+                }
+            }
+
+            base.OnStartup(e);
         }
 
         private void InitializeApp()
         {
+            // --- EF CORE DESIGN TIME BYPASS ---
+            // When running `dotnet ef migrations` or `database update`, the CLI attempts to 
+            // build the host to discover DbContexts. If it tries to load WPF resources, it will crash.
+            // We detect this by checking if the entry assembly is the 'ef' tool.
+            var isEfCoreTool = AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.FullName?.StartsWith("ef,") == true || a.FullName?.Contains("EntityFrameworkCore.Design") == true);
+                
+            if (isEfCoreTool)
+            {
+                // We are running under EF Core Tools. Set up a minimal Host just for service discovery
+                // and completely skip any WPF UI/XAML initialization.
+                Console.WriteLine("EF Core Design Time Detected. Bypassing WPF UI initialization.");
+                _host = Host.CreateDefaultBuilder()
+                    .ConfigureAppConfiguration((context, builder) =>
+                    {
+                        builder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                               .AddJsonFile("appsettings.json", optional: true);
+                    })
+                    .ConfigureServices((context, services) =>
+                    {
+                        Configuration = context.Configuration;
+                        ConfigureServices(services);
+                    })
+                    .Build();
+                return;
+            }
+
             try 
             {
-                // 1. Setup Logging (Serilog)
+                // 1. Global Exception Handling (Register EARLY)
+                this.DispatcherUnhandledException += OnDispatcherUnhandledException;
+                TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+                AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+
+                // 2. Setup Logging (Serilog)
                 Serilog.Log.Logger = new LoggerConfiguration()
                     .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
                     .CreateLogger();
 
                 Serilog.Log.Information("APPLICATION STARTUP BEGIN ==========================================");
 
-                // 2. Setup Configuration
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                    .AddEnvironmentVariables();
+                // 3. Setup Generic Host
+                _host = Host.CreateDefaultBuilder()
+                    .ConfigureAppConfiguration((context, builder) =>
+                    {
+                        builder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                               .AddEnvironmentVariables();
+                    })
+                    .ConfigureServices((context, services) =>
+                    {
+                        Configuration = context.Configuration;
+                        ConfigureServices(services);
+                    })
+                    .UseSerilog()
+                    .Build();
 
-                Configuration = builder.Build();
+                ServiceProvider = _host.Services;
 
-                // 3. Setup Dependency Injection
-                var services = new ServiceCollection();
-                ConfigureServices(services);
+                // 4. Start the Host
+                _host.StartAsync(_appShutdownCts.Token).ContinueWith(t => 
+                {
+                    if (t.IsFaulted) Serilog.Log.Error(t.Exception, "Host failed to start");
+                }, TaskContinuationOptions.OnlyOnFaulted);
 
-                ServiceProvider = services.BuildServiceProvider();
-
-                // 4. Global Exception Handling
-                this.DispatcherUnhandledException += OnDispatcherUnhandledException;
-                TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
-                AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
-
-                // 5. Async Initialization (Fire and Forget but with Catch)
-                _ = Task.Run(async () => await RunInitializationSequenceAsync());
+                // 5. Async Initialization
+                _ = Task.Run(async () => await RunInitializationSequenceAsync(_appShutdownCts.Token))
+                    .ContinueWith(t => 
+                    {
+                        if (t.IsFaulted) Serilog.Log.Fatal(t.Exception, "Main initialization sequence failed");
+                    }, TaskContinuationOptions.OnlyOnFaulted);
             }
             catch (Exception ex)
             {
@@ -126,96 +212,377 @@ namespace Management.Presentation
             }
         }
 
-        private async Task RunInitializationSequenceAsync()
+        private async Task RunInitializationSequenceAsync(CancellationToken ct = default)
         {
             try
             {
+                // Phase 1: Check for cancellation before starting
+                ct.ThrowIfCancellationRequested();
+
+                Serilog.Log.Information("Starting initialization sequence...");
+
+                // 1. Initialize Contexts (Must happen before Sync)
+                Serilog.Log.Information("Initializing Facility Context and Resilience...");
+                var facilityContext = ServiceProvider.GetRequiredService<IFacilityContextService>();
+                facilityContext.Initialize();
+
+                // 1.5 Initialize Database FIRST (must complete before auto-discovery queries Facilities table)
+                Serilog.Log.Information("[App] Initializing database schema before auto-discovery...");
+                var dbInitTask = InitializeDatabaseAsync(ct);
+                await dbInitTask;
+
+                // --- Phase 6 HEALING: Full Auto-Discovery ---
+                // Always run discovery to build the complete FacilityType → Guid map.
+                // This must complete before CommitFacility() fires FacilityChanged so ViewModels
+                // always receive a real GUID on their first query.
+                Serilog.Log.Information("[App] Running full facility auto-discovery from SQLite...");
+                try
+                {
+                    var dbContext = ServiceProvider.GetRequiredService<AppDbContext>();
+                    var allFacilities = await dbContext.Facilities
+                        .AsNoTracking()
+                        .IgnoreQueryFilters()
+                        .Where(f => !f.IsDeleted)
+                        .ToListAsync(ct);
+
+                    if (allFacilities.Count > 0)
+                    {
+                        var map = allFacilities
+                            .GroupBy(f => f.Type)
+                            .ToDictionary(g => g.Key, g => g.First().Id);
+                        facilityContext.UpdateFacilities(map);
+                        Serilog.Log.Information("[App] Auto-discovery populated {Count} facility mappings: {Types}",
+                            map.Count, string.Join(", ", map.Select(kv => $"{kv.Key}={kv.Value}")));
+                    }
+                    else
+                    {
+                        Serilog.Log.Warning("[App] Auto-discovery: no facilities found in local DB. CommitFacility will fire with empty context.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Warning(ex, "[App] Auto-discovery failed. CommitFacility will proceed with whatever is in memory.");
+                }
+
+                // Commit: fire FacilityChanged NOW with the fully-populated map.
+                // The guard in SwitchFacility will block the event if the GUID is still empty.
+                facilityContext.CommitFacility();
+
+                // Initialize Localization (Load saved preference) AFTER facility is committed
+                var localizationService = ServiceProvider.GetRequiredService<ILocalizationService>();
+                var settingsService = ServiceProvider.GetRequiredService<ISettingsService>();
+
+                // 1. Use locally saved language preference if it exists
+                string languageToLoad = facilityContext.LanguageCode;
+
+                // 2. Database check as fallback/override if Facility ID is present
+                if (facilityContext.CurrentFacilityId != Guid.Empty)
+                {
+                    var appearanceResult = await settingsService.GetAppearanceSettingsAsync(facilityContext.CurrentFacilityId);
+                    if (appearanceResult.IsSuccess && !string.IsNullOrEmpty(appearanceResult.Value.Language))
+                    {
+                        // Normalize language code (e.g., "en-US" -> "en") to match resource files
+                        languageToLoad = appearanceResult.Value.Language.Split('-')[0].ToLower();
+                    }
+                }
+                else if (string.IsNullOrEmpty(languageToLoad))
+                {
+                    languageToLoad = "en"; // Ultimate fallback
+                    Serilog.Log.Warning("[App] Facility ID is empty and no local language saved. Using default 'en'.");
+                }
+                
+                localizationService.SetLanguage(languageToLoad);
+
+                // Synchronize SessionManager with the committed facility context
+                var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
+                sessionManager.CurrentFacility = facilityContext.CurrentFacility;
+
+
+                // 2. Initial Sync Logic
+                var syncService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
+            
+                // Check for initial migration need moved to background task
+                // to avoid blocking application startup.
+            
+                // _ = syncService.StartAsync(CancellationToken.None); // Removed: SyncWorker is IHostedService and starts with Host
                 // 3.5. Register View Mappings
                 var mappingService = ServiceProvider.GetRequiredService<IViewMappingService>();
                 mappingService.Register<ConflictResolutionViewModel, ConflictResolutionView>();
                 mappingService.Register<BookingViewModel, BookingModal>();
+                mappingService.Register<SalonAddStaffViewModel, Management.Presentation.Views.Salon.AddStaffView>();
                 mappingService.Register<CompletionViewModel, CompletionModal>();
+                mappingService.Register<RfidAccessControlViewModel, AccessControlModal>();
+                mappingService.Register<AppointmentDetailViewModel, AppointmentDetailModal>();
+                mappingService.Register<PayrollViewModel, PayrollView>();
+                mappingService.Register<PayrollHistoryViewModel, PayrollHistoryView>();
+                // SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
+                // and displayed in the MainWindow overlay via ModalNavigationStore.
+                // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
+                // so it doesn't need to be registered in the Modal ViewMappingService.
 
-                // 4.5. Initialize Diagnostic System
-                Serilog.Log.Information("Initializing Diagnostic System...");
-                var diagnosticService = ServiceProvider.GetRequiredService<IDiagnosticService>();
-                await diagnosticService.StartBindingErrorListenerAsync();
-
-                // Run diagnostic checks (DI & Supabase)
-                var diValidation = await diagnosticService.ValidateDependencyInjectionAsync(ServiceProvider);
-                var supabaseTest = await diagnosticService.TestSupabaseConnectivityAsync();
+                // 4. Initialize Navigation Registry
+                var registry = ServiceProvider.GetRequiredService<INavigationRegistry>();
+                PopulateNavigationRegistry(registry);
                 
-                // 5. Initialize Contexts & Resilience
-                Serilog.Log.Information("Initializing Facility Context and Resilience...");
-                ServiceProvider.GetRequiredService<IFacilityContextService>().Initialize();
+                // Register Home Views (Decoupling MainViewModel)
+                registry.RegisterHomeView<GymHomeViewModel>(Management.Domain.Enums.FacilityType.Gym);
+                registry.RegisterHomeView<SalonHomeViewModel>(Management.Domain.Enums.FacilityType.Salon);
+                registry.RegisterHomeView<RestaurantHomeViewModel>(Management.Domain.Enums.FacilityType.Restaurant);
+                registry.RegisterHomeView<DashboardViewModel>(Management.Domain.Enums.FacilityType.General); // Default fallback
+
+
+                // 4.5. Initialize Diagnostic System (Parallelized)
+                ct.ThrowIfCancellationRequested();
+                Serilog.Log.Information("Starting Diagnostic and Connectivity checks in background...");
+                var diagnosticService = ServiceProvider.GetRequiredService<Management.Application.Services.IDiagnosticService>();
+                
+                var diagTask = Task.Run(async () => 
+                {
+                    await diagnosticService.StartBindingErrorListenerAsync();
+                    await diagnosticService.ValidateDependencyInjectionAsync(ServiceProvider);
+                    await diagnosticService.TestSupabaseConnectivityAsync();
+                }, ct).ContinueWith(t => 
+                {
+                    if (t.IsFaulted && t.Exception != null)
+                    {
+                        Serilog.Log.Error(t.Exception.Flatten(), "Diagnostic background task failed.");
+                    }
+                }, TaskContinuationOptions.OnlyOnFaulted);
+                
+                // 5. DB Init already completed above (moved before auto-discovery).
+                ct.ThrowIfCancellationRequested();
+                Serilog.Log.Information("[App] Database schema already initialized.");
+
+                // (Localization moved to earlier in sequence)
+                
+                // 5.5 Initialize Navigation Registry
+                var navigationRegistry = ServiceProvider.GetRequiredService<INavigationRegistry>();
+                PopulateNavigationRegistry(navigationRegistry);
+                
                 // 6. Startup Security Guard (Hardware Check)
+                ct.ThrowIfCancellationRequested();
                 Serilog.Log.Information("Running Startup Security Guard...");
                 bool isLicensed = await RunStartupSecurityGuard(ServiceProvider);
 
-                if (isLicensed)
-                {
-                    // 7. Initialize Database (Migration) - Only for licensed devices
-                    Serilog.Log.Information("Initializing Database...");
+                // FOCUS MODE: Show Auth/Activation Window instead of Main Shell
+                ct.ThrowIfCancellationRequested();
+                await Current.Dispatcher.InvokeAsync(async () => {
                     try 
                     {
-                        await InitializeDatabaseAsync();
-                    }
-                    catch (Exception dbEx)
-                    {
-                        diagnosticService.LogError(Models.DiagnosticCategory.Database, "Migration Failed", dbEx.Message, dbEx, Models.DiagnosticSeverity.Critical);
-                        
-                        await Current.Dispatcher.InvokeAsync(() => {
-                            var diagnosticViewModel = ServiceProvider.GetRequiredService<DiagnosticViewModel>();
-                            var diagnosticWindow = new Views.DiagnosticWindow(diagnosticViewModel);
-                            Current.MainWindow = diagnosticWindow;
-                            diagnosticWindow.Show();
-                        });
-                        return;
-                    }
-                }
-                else
-                {
-                    Serilog.Log.Information("Device is not licensed. Onboarding flow active. Skipping DB migration.");
-                }
+                        var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
+                        var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
+                        var navService = ServiceProvider.GetRequiredService<INavigationService>();
 
-                // Initialize Resilience Service AFTER DB Migration
-                await InitializeResilienceAsync(ServiceProvider);
+                        authWindow.DataContext = authVm;
+                        Current.MainWindow = authWindow;
+                        authWindow.Show();
 
-                // 8. Launch Main Application (Shows either Dashboard or LicenseEntry depending on Guard result)
+                        if (!isLicensed)
+                        {
+                            Serilog.Log.Information("Device not licensed. Navigating to Activation...");
+                            await dbInitTask;
+                            await navService.NavigateToAsync<LicenseEntryViewModel>();
+                        }
+                        else
+                        {
+                            var stateStore = ServiceProvider.GetRequiredService<IOnboardingStateStore>();
+                            if (stateStore.TargetTenantId.HasValue)
+                            {
+                                Serilog.Log.Information("Device licensed but onboarding incomplete. Navigating to Facility Selection...");
+                                await dbInitTask;
+                                await navService.NavigateToAsync<FacilityOnboardingViewModel>();
+                            }
+                            else
+                            {
+                                Serilog.Log.Information("Device licensed. Navigating to Login...");
+                                await navService.NavigateToLoginAsync();
 
-                // 8. Launch Main Application (Shows either Dashboard or LicenseEntry depending on Guard result)
-                await Current.Dispatcher.InvokeAsync(() => {
-                    try 
-                    {
-                        Serilog.Log.Information("DEBUG: Resolving MainViewModel...");
-                        var mainVm = ServiceProvider.GetRequiredService<MainViewModel>();
-                        
-                        Serilog.Log.Information("DEBUG: Resolving MainWindow...");
-                        var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-                        
-                        Current.MainWindow = mainWindow;
-                        mainWindow.Show();
+                                var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+                                var loginVm = navStore.CurrentViewModel as LoginViewModel;
+                                
+                                if (loginVm != null)
+                                {
+                                    loginVm.IsInitializingApp = true;
+                                    loginVm.AppInitializationStatus = "Verifying database schema...";
+                                }
+
+                                // Launch Background Initialization Task
+                                _ = Task.Run(async () =>
+                                {
+                                    Serilog.Log.Information("Background startup: Resolving LoginViewModel state...");
+                                    try
+                                    {
+                                        // 1. Wait for DB Initialization
+                                        Serilog.Log.Information("Background startup: Waiting for DB init...");
+                                        await dbInitTask;
+
+                                        // 2. Perform potential Sync
+                                        var config = ServiceProvider.GetRequiredService<IConfiguration>();
+                                        if (config["Database:Mode"] == "LocalFirst" && config.GetValue<bool>("Database:RequireInitialSync"))
+                                        {
+                                            if (loginVm != null)
+                                            {
+                                                await Current.Dispatcher.InvokeAsync(() =>
+                                                {
+                                                    loginVm.AppInitializationStatus = "Synchronizing data...";
+                                                });
+                                            }
+                                            
+                                            Serilog.Log.Information("Background startup: Pulling cloud changes (5s timeout)...");
+                                            var syncService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
+                                            
+                                            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                                            try
+                                            {
+                                                await syncService.PullChangesAsync(cts.Token);
+                                            }
+                                            catch (OperationCanceledException)
+                                            {
+                                                Serilog.Log.Warning("Background startup: Initial sync timed out after 5s. Proceeding to login...");
+                                            }
+                                        }
+                                        
+                                        // 3. Daily Automated Backup
+                                        try 
+                                        {
+                                            var backupService = ServiceProvider.GetRequiredService<Management.Infrastructure.Services.IBackupService>();
+                                            if (await backupService.IsBackupNeededTodayAsync())
+                                            {
+                                                Serilog.Log.Information("Background startup: Creating daily backup...");
+                                                await backupService.CreateBackupAsync();
+                                                await backupService.CleanupOldBackupsAsync(7);
+                                            }
+                                        }
+                                        catch (Exception backupEx)
+                                        {
+                                            Serilog.Log.Error(backupEx, "Background startup: Daily backup failed.");
+                                        }
+
+                                        Serilog.Log.Information("Background startup complete.");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Serilog.Log.Error(ex, "Background initialization task failed.");
+                                    }
+                                    finally
+                                    {
+                                        // Finish Initialization (Guaranteed reset)
+                                        if (loginVm != null)
+                                        {
+                                            await Current.Dispatcher.InvokeAsync(() =>
+                                            {
+                                                loginVm.IsInitializingApp = false;
+                                                loginVm.AppInitializationStatus = string.Empty;
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
-                        var diError = $"DI FAILURE: {ex.Message}\n{ex.StackTrace}";
-                        if (ex.InnerException != null)
-                        {
-                            diError += $"\nINNER: {ex.InnerException.Message}\n{ex.InnerException.StackTrace}";
-                        }
-                        Serilog.Log.Fatal(diError);
-                        Console.WriteLine(diError);
-                        File.WriteAllText("boot-di-debug.txt", diError);
+                        Serilog.Log.Fatal(ex, "Failed to launch Auth Screen");
                         HandleFatalStartupError(ex);
                     }
                 });
                 
                 Serilog.Log.Information("Startup Sequence Complete.");
             }
+            catch (OperationCanceledException)
+            {
+                Serilog.Log.Information("Initialization sequence cancelled (application shutting down).");
+            }
             catch (Exception ex)
             {
-                HandleFatalStartupError(ex);
+                Serilog.Log.Fatal(ex, "Fatal error during initialization sequence.");
+                Dispatcher.Invoke(() =>
+                {
+                    HandleFatalStartupError(ex);
+                });
             }
+        }
+
+        public void LaunchMainWindow()
+        {
+            Current.Dispatcher.Invoke(() => 
+            {
+                try 
+                {
+                    Serilog.Log.Information("Handoff: Launching Main Shell...");
+                    
+                    // CRITICAL: Reset all stateful Singletons (State Isolation) before re-establishing UI
+                    try 
+                    {
+                        var resettables = ServiceProvider.GetServices<Management.Domain.Interfaces.IStateResettable>();
+                        foreach (var resettable in resettables)
+                        {
+                            resettable.ResetState();
+                        }
+
+                        // Re-synchronize SessionManager after reset
+                        var facilityContext = ServiceProvider.GetRequiredService<Management.Domain.Services.IFacilityContextService>();
+                        var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
+                        sessionManager.CurrentFacility = facilityContext.CurrentFacility;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "Failed to reset state during LaunchMainWindow");
+                    }
+
+                    var mainWindow = ServiceProvider.GetRequiredService<Management.Presentation.Views.Shell.MainWindow>();
+                    var oldWindow = Current.MainWindow;
+
+                    Current.MainWindow = mainWindow;
+                    mainWindow.Show();
+                    Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
+
+                    if (oldWindow != null)
+                    {
+                        oldWindow.Hide(); // Hide immediately to prevent overlap ghosting
+                        oldWindow.Close();
+                    }
+
+                    // Trigger initial navigation safely
+                    var mainVm = ServiceProvider.GetRequiredService<MainViewModel>();
+                    mainVm.InitializeInitialView();
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Fatal(ex, "Failed to handoff to MainWindow");
+                    HandleFatalStartupError(ex);
+                }
+            });
+        }
+
+        public void Logout()
+        {
+            Current.Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    Serilog.Log.Information("Handoff: Logging out, switching to Auth Shell...");
+                    var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
+                    var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
+                    var navService = ServiceProvider.GetRequiredService<INavigationService>();
+                    var oldWindow = Current.MainWindow;
+
+                    authWindow.DataContext = authVm;
+                    Current.MainWindow = authWindow;
+                    authWindow.Show();
+
+                    oldWindow?.Close();
+
+                    // Navigate to Login view within Auth shell
+                    _ = navService.NavigateToLoginAsync();
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Fatal(ex, "Failed to switch to Auth Window");
+                    HandleFatalStartupError(ex);
+                }
+            });
         }
 
         /// <summary>
@@ -247,8 +614,8 @@ namespace Management.Presentation
                 catch (Exception resEx)
                 {
                     Serilog.Log.Error(resEx, "Failed to initialize ResilienceService");
-                    var diagnosticService = services.GetRequiredService<IDiagnosticService>();
-                    diagnosticService.LogError(Models.DiagnosticCategory.Runtime, "Resilience Init", resEx.Message, resEx, Models.DiagnosticSeverity.Error);
+                    var diagnosticService = services.GetRequiredService<Management.Application.Services.IDiagnosticService>();
+                    diagnosticService.LogError(Management.Application.Services.DiagnosticCategory.Runtime, "Resilience Init", resEx.Message, resEx, Management.Application.Services.DiagnosticSeverity.Error);
                 }
             }
         }
@@ -266,11 +633,22 @@ namespace Management.Presentation
             Current.Dispatcher.Invoke(() => {
                 try 
                 {
+                    // Ensure the error is logged to the diagnostic service so it appears in the window
+                    var diagnosticService = ServiceProvider?.GetService<Management.Application.Services.IDiagnosticService>();
+                    diagnosticService?.LogError(
+                        Management.Application.Services.DiagnosticCategory.Startup,
+                        "Startup",
+                        ex.Message,
+                        ex,
+                        Management.Application.Services.DiagnosticSeverity.Fatal
+                    );
+
                     var diagnosticViewModel = ServiceProvider?.GetService<DiagnosticViewModel>();
                     if (diagnosticViewModel != null)
                     {
-                        var diagnosticWindow = new Views.DiagnosticWindow(diagnosticViewModel);
+                        var diagnosticWindow = new Views.Diagnostic.DiagnosticView(diagnosticViewModel);
                         diagnosticWindow.Show();
+                        Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
                     }
                     else 
                     {
@@ -301,8 +679,18 @@ namespace Management.Presentation
             // --- MEDIATR ---
             services.AddMediatR(cfg => {
                 cfg.RegisterServicesFromAssembly(typeof(AccountStore).Assembly);
-                cfg.RegisterServicesFromAssembly(typeof(GymDbContext).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(AppDbContext).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(App).Assembly);
             });
+
+            // Explicitly register Home ViewModels as notification handlers to ensure the singleton instance is used
+            // REFACTORED: Use Bridge Pattern to decouple ViewModels from MediatR
+            // services.AddSingleton<INotificationHandler<FacilityActionCompletedNotification>>(s => s.GetRequiredService<GymHomeViewModel>());
+            // services.AddSingleton<INotificationHandler<FacilityActionCompletedNotification>>(s => s.GetRequiredService<SalonHomeViewModel>());
+            // services.AddSingleton<INotificationHandler<FacilityActionCompletedNotification>>(s => s.GetRequiredService<RestaurantHomeViewModel>());
+            
+            // The Bridge is automatically registered via MediatR's assembly scanning on App.Assembly.
+            // Do NOT register it again here as it causes double-handled notifications (leading to duplicate UI items and DbContext concurrency exceptions).
 
             // --- TENANT CONTEXT ---
             services.AddSingleton<ITenantService, Infrastructure.Services.TenantService>();
@@ -312,51 +700,153 @@ namespace Management.Presentation
             // and because there is no per-request scope in desktop apps.
             // Repositories will get fresh contexts, but Singletons (like Stores) should be careful.
             var connectionString = Configuration.GetConnectionString("SupabaseConnection");
-            services.AddDbContext<GymDbContext>(options =>
+            var dbMode = Configuration["Database:Mode"] ?? "LocalFirst";
+            bool isDevBypass = dbMode == "LocalFirst"; 
+            
+            services.AddDbContext<AppDbContext>((sp, options) =>
             {
-                if (!string.IsNullOrEmpty(connectionString))
+                var databaseMode = Configuration["Database:Mode"] ?? "LocalFirst";
+
+                if (databaseMode == "LocalFirst")
                 {
-                    options.UseNpgsql(connectionString);
+                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
+                    if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
+                    
+                    var dbPath = Path.Combine(dbFolder, "GymManagement.db");
+                    options.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Cache=Shared;Foreign Keys=True;Pooling=True;", b => b.MigrationsAssembly("Management.Infrastructure"));
                 }
-            }, ServiceLifetime.Transient); 
+                else
+                {
+                    // Supabase Free Tier Fix: Maximum Pool Size=10; to stay within the 15-20 connection limit
+                    var supabaseConnStr = connectionString;
+                    if (!string.IsNullOrEmpty(supabaseConnStr) && !supabaseConnStr.Contains("Maximum Pool Size"))
+                    {
+                        supabaseConnStr += "Maximum Pool Size=10;";
+                    }
+                    options.UseNpgsql(supabaseConnStr ?? string.Empty, b => b.MigrationsAssembly("Management.Infrastructure"));
+                }
+                options.EnableSensitiveDataLogging();
+                options.EnableDetailedErrors();
+
+                // Interceptors are now handled via constructor injection and OnConfiguring to avoid resolution loops
+
+            }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
 
             // --- INFRASTRUCTURE: EXTERNAL ---
             // Supabase Client (Singleton)
             // Supabase Client (Singleton)
             services.AddSingleton(provider =>
             {
-                var url = Configuration["Supabase:Url"];
-                var key = Configuration["Supabase:Key"];
+                var storage = provider.GetRequiredService<Management.Application.Services.ISecureStorageService>();
                 
-                if (string.IsNullOrEmpty(url) || url.Contains("REPLACE_WITH"))
+                // Fix 6: Secure Supabase Credentials
+                var url = storage.GetAsync("SupabaseUrl").GetAwaiter().GetResult();
+                var key = storage.GetAsync("SupabaseKey").GetAwaiter().GetResult();
+                
+                // Fallback to configuration if not in secure storage (for initial setup)
+                if (string.IsNullOrEmpty(url))
+                {
+                    url = Configuration["Supabase:Url"];
+                    key = Configuration["Supabase:Key"];
+                }
+
+                if (string.IsNullOrEmpty(url))
                 {
                     url = "https://setup-required.local";
                     key = "setup-required";
                 }
+
+                var options = new Supabase.SupabaseOptions
+                {
+                    AutoRefreshToken = true,
+                    AutoConnectRealtime = true
+                };
                 
-                return new Supabase.Client(url, key);
+                return new Supabase.Client(url, key, options);
             });
 
             // Hardware Drivers
-            services.AddSingleton<IHardwareService, HardwareService>();
-            services.AddTransient<IRfidReader, RfidReaderDevice>();
-            services.AddTransient<TurnstileController>();
+            services.AddSingleton<Management.Application.Interfaces.IHardwareService, HardwareService>();
+            services.AddTransient<IOnboardingService, OnboardingService>();
+            services.AddTransient<ILicenseService, LicenseService>();
+            
+            // Peripherals
+            services.AddSingleton<ScannerService>();
+            services.AddSingleton<IPrinterService, EscPosPrinterService>();
+            
+            // ZKTeco Integration
+            var turnstileSection = Configuration.GetSection("Turnstile");
+            var turnstileConfig = turnstileSection.Get<TurnstileConfig>() ?? new TurnstileConfig();
+            services.AddSingleton(turnstileConfig);
+            
+            if (turnstileConfig.UseMock)
+            {
+                services.AddSingleton<IHardwareTurnstileService, Management.Infrastructure.Hardware.MockTurnstileService>();
+            }
+            else
+            {
+                services.AddSingleton<IHardwareTurnstileService, ZKTecoTurnstileService>();
+            }
+            
+            // Keep legacy interfaces for backward compatibility if needed, 
+            // but mapped to the new unified service where possible.
+            services.AddSingleton<IRfidReader, RfidReaderDevice>(); 
+            services.AddTransient<Management.Application.Services.IMenuService, Management.Infrastructure.Services.MenuService>();
+
+            // --- DATABASE INTERCEPTORS ---
+            services.AddTransient<Management.Infrastructure.Data.Interceptors.ShadowPropertyInterceptor>();
+            services.AddTransient<Management.Infrastructure.Data.Interceptors.OutboxInterceptor>();
+            services.AddTransient<Management.Infrastructure.Data.AuditableEntityInterceptor>();
+            services.AddTransient<Management.Application.Interfaces.IOrderService, Management.Application.Services.OrderService>();
+            services.AddTransient<Management.Application.Services.IInventoryService, Management.Infrastructure.Services.InventoryService>();
+            services.AddTransient<Management.Presentation.ViewModels.Restaurant.InventoryViewModel>();
+            services.AddTransient<Management.Presentation.ViewModels.Restaurant.OpenOrdersViewModel>();
 
             // --- REPOSITORIES (Data Access - Transient) ---
-            services.AddTransient<IMemberRepository, MemberRepository>();
             services.AddTransient<IStaffRepository, StaffRepository>();
+            services.AddTransient<IRepository<StaffMember>>(s => s.GetRequiredService<IStaffRepository>());
+            
+            services.AddTransient<IMenuRepository, MenuRepository>();
+            services.AddTransient<IRepository<RestaurantMenuItem>>(s => s.GetRequiredService<IMenuRepository>());
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<IRestaurantOrderRepository, OrderRepository>();
+            services.AddTransient<IRepository<RestaurantOrder>>(s => s.GetRequiredService<IOrderRepository>());
+
+            services.AddTransient<IMemberRepository, MemberRepository>();
+            services.AddTransient<IRepository<Member>>(s => s.GetRequiredService<IMemberRepository>());
+
+            services.AddTransient<IAppointmentRepository, AppointmentRepository>();
+            services.AddTransient<IRepository<Management.Domain.Models.Salon.Appointment>>(s => s.GetRequiredService<IAppointmentRepository>());
+            
             services.AddTransient<IRegistrationRepository, RegistrationRepository>();
             services.AddTransient<IAccessEventRepository, AccessEventRepository>();
+            
             services.AddTransient<ISaleRepository, SaleRepository>();
+            services.AddTransient<IRepository<Sale>>(s => s.GetRequiredService<ISaleRepository>());
+            
             services.AddTransient<IProductRepository, ProductRepository>();
+            services.AddTransient<IRepository<Product>>(s => s.GetRequiredService<IProductRepository>());
+            
             services.AddTransient<ITurnstileRepository, TurnstileRepository>();
+            
             services.AddTransient<IReservationRepository, ReservationRepository>();
+            services.AddTransient<IRepository<Reservation>>(s => s.GetRequiredService<IReservationRepository>());
+            
             services.AddTransient<IPayrollRepository, PayrollRepository>();
             services.AddTransient<MembershipPlanRepository>();
             services.AddTransient<IMembershipPlanRepository>(s => 
                 new CachedMembershipPlanRepository(s.GetRequiredService<MembershipPlanRepository>(), s.GetRequiredService<IMemoryCache>()));
+            services.AddTransient<IRepository<MembershipPlan>>(s => s.GetRequiredService<IMembershipPlanRepository>());
             services.AddTransient<IIntegrationRepository, IntegrationRepository>();
             services.AddTransient<IGymSettingsRepository, GymSettingsRepository>();
+            services.AddTransient<ITransactionRepository, TransactionRepository>();
+            services.AddTransient<IFacilityScheduleRepository, FacilityScheduleRepository>();
+            services.AddTransient<IRepository<FacilitySchedule>>(s => s.GetRequiredService<IFacilityScheduleRepository>());
+            services.AddTransient<ITableRepository, TableRepository>();
+            services.AddTransient<IRepository<Management.Domain.Models.Restaurant.TableModel>>(s => s.GetRequiredService<ITableRepository>());
+            services.AddTransient<IFacilityZoneRepository, FacilityZoneRepository>();
+            services.AddTransient<ISalonServiceRepository, SalonServiceRepository>();
+            services.AddTransient<IRepository<Management.Domain.Models.Salon.SalonService>>(s => s.GetRequiredService<ISalonServiceRepository>());
 
             // --- STORES (State Management - SINGLETONS) ---
             services.AddSingleton<NavigationStore>();
@@ -371,7 +861,24 @@ namespace Management.Presentation
             services.AddSingleton<SyncStore>();
             services.AddSingleton<NotificationStore>();
 
+            // Register all resettable stores for unified reset during facility switch
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<NavigationStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ModalNavigationStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<AccountStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SaleStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<MemberStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<RegistrationStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<AccessEventStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ProductStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<TurnstileStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SyncStore>());
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<NotificationStore>());
+            
+            // Register Home ViewModels and Shell ViewModels as Resettable
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<MainViewModel>());
+
             // --- DOMAIN SERVICES (Business Logic) ---
+            services.AddTransient<IMembershipService, MembershipService>();
             services.AddTransient<IMemberService, MemberService>();
             services.AddTransient<IStaffService, StaffService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
@@ -380,105 +887,338 @@ namespace Management.Presentation
             services.AddTransient<ISaleService, SaleService>();
             services.AddTransient<IReservationService, ReservationService>();
             services.AddTransient<IMembershipPlanService, MembershipPlanService>();
-            services.AddSingleton<ISessionMonitorService, SessionMonitorService>();
+            services.AddTransient<ISessionMonitorService, SessionMonitorService>();
             services.AddSingleton<Management.Domain.Services.IEmailService, Management.Infrastructure.Services.NullEmailService>();
+            // Added Missing Domain Services
+            services.AddTransient<Management.Application.Interfaces.App.IGymOperationService, Management.Application.Services.GymOperationService>();
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<Management.Application.Interfaces.App.IAudioService, Management.Infrastructure.Services.Audio.AudioService>();
+            services.AddSingleton<IAccessControlCache, AccessControlCache>();
+            services.AddTransient<ITableService, TableService>();
+            services.AddTransient<IAccessControlService, AccessControlService>();
+            // The line below was moved up as part of the change.
+            // services.AddSingleton<IAccessControlCache, AccessControlCache>();
 
             // --- APPLICATION SERVICES (Orchestration) ---
-            services.AddSingleton<IConnectionService, ConnectionService>();
+            services.AddSingleton<Management.Domain.Services.IConnectionService, ConnectionService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddTransient<ITurnstileService, TurnstileService>();
             services.AddTransient<IFinanceService, FinanceService>();
             services.AddTransient<ISettingsService, SettingsService>();
             services.AddTransient<IBackupService, BackupService>();
-            services.AddSingleton<ISessionStorageService, SessionStorageService>();
-            services.AddSingleton<Management.Domain.Services.IFacilityContextService, FacilityContextService>();
+            services.AddSingleton<Management.Domain.Services.ISessionStorageService, SessionStorageService>();
+            services.AddSingleton<Management.Domain.Services.IFacilityContextService, Management.Presentation.Services.FacilityContextService>();
             services.AddSingleton<ITerminologyService, TerminologyService>();
-            services.AddSingleton<ICommandPaletteService, CommandPaletteService>();
-            services.AddSingleton<IOrderService, OrderService>();
-            services.AddSingleton<IReceiptPrintingService, ReceiptPrintingService>();
+            services.AddSingleton<ILocalizationService, LocalizationService>();
+            services.AddTransient<ICommandPaletteService, CommandPaletteService>();
+            services.AddSingleton<Management.Presentation.Services.Restaurant.IReceiptPrintingService, Management.Presentation.Services.Restaurant.ReceiptPrintingService>();
             services.AddSingleton<ISalonService, SalonServiceImplementation>();
+            services.AddTransient<IAppointmentService, AppointmentService>();
+            services.AddTransient<ISalonDashboardService, SalonDashboardService>();
             services.AddSingleton<IResilienceService, ResilienceService>();
             services.AddSingleton<IUndoService, UndoService>();
-            services.AddTransient<IOnboardingService, OnboardingService>();
+            // --- DASHBOARD AGGREGATORS ---
+            services.AddTransient<IDashboardAggregator, FinancialAggregator>();
+            services.AddTransient<IDashboardAggregator, GymAggregator>();
+            services.AddTransient<IDashboardAggregator, SalonAggregator>();
+            services.AddTransient<IDashboardAggregator, RestaurantAggregator>();
+            services.AddTransient<IDashboardAggregator, StaffAggregator>();
+            services.AddTransient<IDashboardAggregator, TrendAggregator>();
+            services.AddTransient<IDashboardAggregator, ActivityAggregator>();
+
+            services.AddTransient<IDashboardService, DashboardService>();
+            services.AddTransient<ITransactionService, TransactionService>();
+            services.AddSingleton<ISecurityService, SecurityService>();
+            services.AddSingleton<IConfigurationService, ConfigurationService>();
+            services.AddTransient<IReportingService, ReportingService>();
+            services.AddSingleton<Management.Application.Services.ISecureStorageService, Management.Presentation.Services.Infrastructure.SecureStorageService>();
 
             // --- DIAGNOSTIC SYSTEM ---
-            services.AddSingleton<IDiagnosticService, DiagnosticService>();
-            services.AddTransient<DiagnosticViewModel>();
+            services.AddSingleton<Management.Application.Services.IDiagnosticService, Management.Presentation.Services.DiagnosticService>();
+            services.AddSingleton<DiagnosticViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<DiagnosticViewModel>());
+            services.AddTransient<Management.Presentation.ViewModels.Sync.ConflictResolutionViewModel>(); // Added for conflict modal
+            services.AddSingleton<ConnectivityViewModel>(); // Shared VM for banner
+            services.AddTransient<MemberAccessViewModel>();
 
-            // --- SYNC ENGINE ---
+            // Sync Engine
+            services.AddSingleton<Management.Application.Interfaces.App.ISyncService, SyncService>();
             services.AddSingleton<ISyncEventDispatcher, SyncEventDispatcher>();
             services.AddHostedService<SyncWorker>();
             services.AddHostedService<SupabaseRealtimeService>();
+            services.AddHostedService<AccessMonitoringWorker>();
+
+            // History Providers
+            services.AddTransient<Management.Application.Interfaces.App.IHistoryProvider, Management.Application.Services.History.GymHistoryProvider>();
+            services.AddTransient<Management.Application.Interfaces.App.IHistoryProvider, Management.Application.Services.History.SalonHistoryProvider>();
+            services.AddTransient<Management.Application.Interfaces.App.IHistoryProvider, Management.Application.Services.History.RestaurantHistoryProvider>();
+
 
             // --- PRESENTATION SERVICES (UI) ---
-            services.AddSingleton<IDispatcher>(provider => new WpfDispatcher(System.Windows.Application.Current.Dispatcher));
+            var wpfDispatcher = new WpfDispatcher(System.Windows.Application.Current.Dispatcher);
+            services.AddSingleton<IDispatcher>(wpfDispatcher);
+            services.AddSingleton<IDispatcherService>(wpfDispatcher);
+            
+            // Session and User Management
+            services.AddSingleton<SessionManager>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SessionManager>());
+            services.AddSingleton<Management.Application.Interfaces.App.IToastService, ToastService>();
+            services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            
+            services.AddTransient<ISearchService, SearchService>();
+            services.AddSingleton<IBreadcrumbService, Management.Presentation.Services.Application.BreadcrumbService>();
+
             services.AddSingleton<INavigationService, NavigationService>(provider =>
                 new NavigationService(
                     provider.GetRequiredService<NavigationStore>(),
                     viewModelType => (ViewModelBase)provider.GetRequiredService(viewModelType),
                     provider.GetRequiredService<IDispatcher>(),
+                    provider.GetRequiredService<Management.Application.Interfaces.App.IToastService>(),
+                    provider.GetRequiredService<INavigationRegistry>(),
+                    provider.GetRequiredService<SessionManager>(),
                     provider.GetService<ILogger<NavigationService>>()
                 ));
 
-            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IDialogService, Management.Presentation.Services.DialogService>();
+            services.AddSingleton<IToastNotificationService, ToastNotificationService>();
             services.AddSingleton<INotificationService, NotificationService>();
             services.AddSingleton<IOnboardingStateStore, OnboardingStateStore>();
+            services.AddSingleton<IStateResettable>(s => (OnboardingStateStore)s.GetRequiredService<IOnboardingStateStore>());
             services.AddSingleton<IViewMappingService, ViewMappingService>();
             services.AddSingleton<IModalNavigationService, ModalNavigationService>();
+            
+            // --- NAVIGATION ---
+            services.AddSingleton<INavigationRegistry, NavigationRegistry>();
+            
+            // Navigation Strategies
+            services.AddSingleton<Services.Navigation.IFacilityNavigationProvider, Services.Navigation.GymNavigationProvider>();
+            services.AddSingleton<Services.Navigation.IFacilityNavigationProvider, Services.Navigation.SalonNavigationProvider>();
+            services.AddSingleton<Services.Navigation.IFacilityNavigationProvider, Services.Navigation.RestaurantNavigationProvider>();
+
+            // Sync Strategies
+            services.AddSingleton<IFacilitySyncStrategy, GymSyncStrategy>();
+            services.AddSingleton<IFacilitySyncStrategy, SalonSyncStrategy>();
+            services.AddSingleton<IFacilitySyncStrategy, RestaurantSyncStrategy>();
+
             services.AddSingleton<GlobalExceptionHandler>();
+
 
             // --- VIEW MODELS ---
             services.AddSingleton<MainViewModel>();
+            services.AddTransient<AuthViewModel>();
+            services.AddTransient<TopBarViewModel>();
+            services.AddTransient<CommandPaletteViewModel>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<LicenseEntryViewModel>();
-            services.AddTransient<OnboardingOwnerViewModel>();
+            services.AddTransient<FacilityOnboardingViewModel>();
+            services.AddSingleton<OnboardingOwnerViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<OnboardingOwnerViewModel>());
+            services.AddTransient<NotificationDetailViewModel>();
+            services.AddTransient<EmailConfirmationViewModel>();
             services.AddTransient<OnboardingViewModel>();
-            services.AddTransient<DashboardViewModel>();
-            services.AddTransient<AccessControlViewModel>();
-            services.AddTransient<MembersViewModel>();
-            services.AddTransient<RegistrationsViewModel>();
-            services.AddTransient<HistoryViewModel>();
-            services.AddTransient<FinanceAndStaffViewModel>();
-            services.AddTransient<ShopViewModel>();
-            services.AddTransient<SettingsViewModel>();
-            services.AddTransient<TablesViewModel>();
-            services.AddTransient<KitchenDisplayViewModel>();
-            services.AddTransient<AppointmentsViewModel>();
-            services.AddTransient<ServicesViewModel>();
-            services.AddTransient<BookingViewModel>();
-            services.AddTransient<CompletionViewModel>();
+            services.AddSingleton<DashboardViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<DashboardViewModel>());
+
+            services.AddSingleton<MenuManagementViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<MenuManagementViewModel>());
+
+            services.AddSingleton<GymHomeViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<GymHomeViewModel>());
+
+            services.AddSingleton<SalonHomeViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SalonHomeViewModel>());
+
+            services.AddTransient<RestaurantHomeViewModel>();
+            services.AddTransient<FloorPlanViewModel>();
+            services.AddTransient<TableDetailViewModel>();
+
+            services.AddSingleton<AddTableViewModel>();
+            services.AddSingleton<SelectTableViewModel>();
+
+            services.AddTransient<RestaurantOrderingViewModel>();
+
+            services.AddSingleton<RfidAccessControlViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<RfidAccessControlViewModel>());
+
+            services.AddSingleton<MembersViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<MembersViewModel>());
+
+            services.AddSingleton<RegistrationsViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<RegistrationsViewModel>());
+
+            services.AddSingleton<HistoryViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<HistoryViewModel>());
+
+            services.AddSingleton<FinanceAndStaffViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<FinanceAndStaffViewModel>());
+
+            services.AddSingleton<Management.Presentation.ViewModels.Finance.AddStaffViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<Management.Presentation.ViewModels.Finance.AddStaffViewModel>());
+            services.AddSingleton<SalonAddStaffViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SalonAddStaffViewModel>());
+
+            services.AddSingleton<ShopViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ShopViewModel>());
+
+            services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SettingsViewModel>());
+
+            services.AddSingleton<DeviceManagementViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<DeviceManagementViewModel>());
+            
+            services.AddTransient<Lazy<DeviceManagementViewModel>>(s => new Lazy<DeviceManagementViewModel>(s.GetRequiredService<DeviceManagementViewModel>));
+
+            services.AddSingleton<AppointmentsViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<AppointmentsViewModel>());
+
+            services.AddSingleton<ServicesViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ServicesViewModel>());
+
+            services.AddSingleton<SchedulerViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SchedulerViewModel>());
+
+            services.AddSingleton<BookingViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<BookingViewModel>());
             services.AddTransient<MemberDetailViewModel>();
             services.AddTransient<RegistrationDetailViewModel>();
             services.AddTransient<ProductDetailViewModel>();
             services.AddTransient<CheckoutViewModel>();
-            services.AddTransient<ConfirmationViewModel>();
-            services.AddTransient<ConflictResolutionViewModel>();
-
-            services.AddTransient<SessionExpiredViewModel>(provider => new SessionExpiredViewModel(
-                provider.GetRequiredService<IAuthenticationService>(),
-                provider.GetRequiredService<INavigationService>(),
-                provider.GetRequiredService<IModalNavigationService>(),
-                "Your session has expired."));
+            services.AddTransient<AddProductViewModel>();
+            services.AddTransient<Management.Presentation.ViewModels.Sync.ConflictResolutionViewModel>();
+            services.AddTransient<QuickSaleViewModel>();
+            services.AddTransient<QuickRegistrationViewModel>();
+            services.AddTransient<MemberAccessViewModel>();
+            services.AddTransient<MultiSaleCartViewModel>();
+            services.AddTransient<WalkInConfirmationViewModel>();
+            services.AddTransient<ChangeFacilityViewModel>();
+            services.AddTransient<FacilityAuthViewModel>();
+            services.AddTransient<SessionExpiredViewModel>();
+            services.AddTransient<ConfirmationModalViewModel>();
+            services.AddTransient<MembershipPlanEditorViewModel>();
+            services.AddTransient<SalonServiceEditorViewModel>();
+            services.AddTransient<MenuItemEditorViewModel>();
+            services.AddTransient<AppointmentDetailViewModel>();
+            services.AddTransient<PayrollViewModel>();
+            services.AddTransient<PayrollHistoryViewModel>();
 
             // --- VIEWS ---
-            services.AddSingleton<MainWindow>(s => new MainWindow(s.GetRequiredService<MainViewModel>()));
+            services.AddTransient<AuthWindow>();
+            services.AddTransient<Management.Presentation.Views.Shell.MainWindow>(s => new Management.Presentation.Views.Shell.MainWindow(s.GetRequiredService<MainViewModel>()));
             services.AddTransient<ConflictResolutionView>();
             services.AddTransient<Views.Auth.LoginView>();
             services.AddTransient<BookingModal>();
             services.AddTransient<CompletionModal>();
+            services.AddTransient<AppointmentDetailModal>();
         }
 
-        private async System.Threading.Tasks.Task InitializeDatabaseAsync()
+        private async System.Threading.Tasks.Task InitializeDatabaseAsync(CancellationToken ct = default)
         {
             try
             {
-                // Create a scope to resolve Scoped/Transient services like DbContext
+                // Phase 1: Check for cancellation
+                ct.ThrowIfCancellationRequested();
+
                 using (var scope = ServiceProvider.CreateScope())
                 {
-                    var dbContext = scope.ServiceProvider.GetRequiredService<GymDbContext>();
-                    // Applies any pending migrations and creates the DB if it doesn't exist
-                    await dbContext.Database.MigrateAsync();
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    var provider = dbContext.Database.ProviderName;
+                    
+                    Serilog.Log.Information("Starting database initialization (Provider: {Provider})...", provider);
+                    
+                    // Phase 4: Standardize on EF Core Migrations
+                    // MigrateAsync handles both creation and schema updates safely.
+                    try 
+                    {
+                        var isDev = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+                        var dbMode = Configuration["Database:Mode"] ?? "LocalFirst";
+                        
+                        if (!isDev || dbMode != "LocalFirst")
+                        {
+                            Serilog.Log.Information("Ensuring legacy non-EF tables exist...");
+                            await dbContext.Database.ExecuteSqlRawAsync(@"
+                                -- ============================================================
+                                -- INVENTORY TABLES (Legacy raw SQL, not yet in EF model)
+                                -- ============================================================
+                                CREATE TABLE IF NOT EXISTS inventory_resources (
+                                    id text PRIMARY KEY,
+                                    tenant_id text,
+                                    facility_id text,
+                                    name text NOT NULL,
+                                    unit text NOT NULL,
+                                    created_at text,
+                                    updated_at text
+                                );
+                                CREATE TABLE IF NOT EXISTS inventory_purchases (
+                                    id text PRIMARY KEY,
+                                    tenant_id text,
+                                    facility_id text,
+                                    resource_id text REFERENCES inventory_resources(id) ON DELETE CASCADE,
+                                    quantity numeric NOT NULL DEFAULT 0,
+                                    total_price numeric NOT NULL DEFAULT 0,
+                                    unit_price numeric NOT NULL DEFAULT 0,
+                                    date text,
+                                    note text,
+                                    created_at text
+                                );
+                            ", ct);
+                        }
+
+                        // PRE-MIGRATION BACKUP
+                        try
+                        {
+                            var backupService = scope.ServiceProvider.GetRequiredService<Management.Infrastructure.Services.IBackupService>();
+                            await backupService.CreateBackupAsync();
+                            Serilog.Log.Information("Pre-migration backup created successfully.");
+                        }
+                        catch (Exception ex)
+                        {
+                            Serilog.Log.Warning(ex, "Pre-migration backup failed. Proceeding with migration.");
+                        }
+
+                        await dbContext.Database.MigrateAsync(ct);
+                        Serilog.Log.Information("Database migration successful.");
+
+                        // EXTRA FAILSAFE: If migrations were empty/skipped (e.g. 0-byte files), 
+                        // manually ensure the critical staff_members table exists.
+                        if (dbContext.Database.IsSqlite())
+                        {
+                            using (var command = dbContext.Database.GetDbConnection().CreateCommand())
+                            {
+                                command.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='staff_members';";
+                                await dbContext.Database.OpenConnectionAsync(ct);
+                                var result = await command.ExecuteScalarAsync(ct);
+                                int count = result != null ? Convert.ToInt32(result) : 0;
+                                
+                                if (count == 0)
+                                {
+                                    Serilog.Log.Warning("Critical table 'staff_members' missing after migration. Forcing EnsureCreatedAsync...");
+                                    await dbContext.Database.EnsureCreatedAsync(ct);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "Error during MigrateAsync. Database may be in a legacy state.");
+                        // Fallback only if migration table is missing/corrupt
+                        if (ex.Message.Contains("history") || ex.Message.Contains("exists"))
+                        {
+                            Serilog.Log.Warning("Attempting EnsureCreated as failsafe...");
+                            await dbContext.Database.EnsureCreatedAsync(ct);
+                        }
+                        else 
+                        {
+                            throw;
+                        }
+                    }
+                    
+                    // Phase 4: Execute WAL and runtime data-healing only
+                    await dbContext.EnsureDatabaseSchemaAsync(ct);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                throw; // propagate
             }
             catch (Exception ex)
             {
@@ -490,7 +1230,12 @@ namespace Management.Presentation
 
         private void OnDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            ReportErrorToDiagnostics("Dispatcher", e.Exception, Models.DiagnosticSeverity.Critical);
+            // CRASH INVESTIGATION LOGGING
+            var crashLog = $"[FATAL CRASH] DispatcherUnhandledException: {e.Exception.Message}\nType: {e.Exception.GetType().FullName}\nStack Trace: {e.Exception.StackTrace}\nInner Exception: {e.Exception.InnerException?.Message}\nInner Stack Trace: {e.Exception.InnerException?.StackTrace}";
+            Serilog.Log.Fatal(crashLog);
+            File.WriteAllText("crash-debug-dispatcher.txt", crashLog);
+
+            ReportErrorToDiagnostics("Dispatcher", e.Exception, Management.Application.Services.DiagnosticSeverity.Critical);
             
             Serilog.Log.Fatal(e.Exception, "Unhandled Dispatcher Exception");
 
@@ -501,19 +1246,32 @@ namespace Management.Presentation
             }
 
             e.Handled = true;
+            RecordFatalCrash("DispatcherUnhandledException", e.Exception);
         }
 
         private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
         {
-            ReportErrorToDiagnostics("Background Task", e.Exception, Models.DiagnosticSeverity.Error);
+            // CRASH INVESTIGATION LOGGING
+            var crashLog = $"[FATAL CRASH] UnobservedTaskException: {e.Exception.Message}\nType: {e.Exception.GetType().FullName}\nStack Trace: {e.Exception.StackTrace}";
+            Serilog.Log.Error(crashLog);
+            File.WriteAllText("crash-debug-task.txt", crashLog);
+
+            e.SetObserved(); // Set Observed immediately to prevent finalizer crash
+            ReportErrorToDiagnostics("Background Task", e.Exception, Management.Application.Services.DiagnosticSeverity.Error);
             Serilog.Log.Error(e.Exception, "Unobserved Task Exception");
-            e.SetObserved();
+            RecordFatalCrash("UnobservedTaskException", e.Exception);
         }
 
         private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception ?? new Exception("Unknown AppDomain Exception");
-            ReportErrorToDiagnostics("AppDomain", ex, Models.DiagnosticSeverity.Critical);
+            
+            // CRASH INVESTIGATION LOGGING
+            var crashLog = $"[FATAL CRASH] AppDomainUnhandledException (Terminating: {e.IsTerminating}): {ex.Message}\nType: {ex.GetType().FullName}\nStack Trace: {ex.StackTrace}";
+            Serilog.Log.Fatal(crashLog);
+            File.WriteAllText("crash-debug-appdomain.txt", crashLog);
+
+            ReportErrorToDiagnostics("AppDomain", ex, Management.Application.Services.DiagnosticSeverity.Critical);
             Serilog.Log.Fatal(ex, "Unhandled AppDomain Exception");
 
             if (!_isHandlingException && e.IsTerminating)
@@ -521,18 +1279,63 @@ namespace Management.Presentation
                 _isHandlingException = true;
                 ShowDiagnosticWindow(ex);
             }
+            RecordFatalCrash("AppDomainUnhandledException", ex);
         }
 
-        private void ReportErrorToDiagnostics(string context, Exception ex, Models.DiagnosticSeverity severity)
+        private void RecordFatalCrash(string type, Exception? ex)
         {
-            var diagnosticService = ServiceProvider?.GetService<IDiagnosticService>();
-            diagnosticService?.LogError(
-                Models.DiagnosticCategory.Runtime,
-                context,
-                ex.Message,
-                ex,
-                severity
-            );
+            try
+            {
+                var titanFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
+                if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
+                string logPath = Path.Combine(titanFolder, "crash_log.txt");
+                string content = $"\n\n[{DateTime.Now}] FATAL CRASH: {type}\n" +
+                                 $"Exception: {ex?.GetType().Name}\n" +
+                                 $"Message: {ex?.Message}\n" +
+                                 $"Stack Trace:\n{ex?.StackTrace}\n" +
+                                 (ex?.InnerException != null ? $"Inner Exception: {ex.InnerException.Message}\n{ex.InnerException.StackTrace}\n" : "") +
+                                 "--------------------------------------------------\n";
+                
+                System.IO.File.AppendAllText(logPath, content);
+                
+                // Also force it to console for debugging
+                Console.WriteLine(content);
+            }
+            catch { /* Infinite recursion prevention */ }
+        }
+
+        private void ReportErrorToDiagnostics(string context, Exception ex, Management.Application.Services.DiagnosticSeverity severity)
+        {
+            // Phase 1: Guard against disposed ServiceProvider
+            if (_isServiceProviderDisposed || ServiceProvider == null)
+            {
+                // Fallback: Log to Serilog only when ServiceProvider unavailable
+                Serilog.Log.Error(ex, "[{Context}] Error after ServiceProvider disposal: {Message}", context, ex.Message);
+                return;
+            }
+
+            try
+            {
+                var diagnosticService = ServiceProvider.GetService<Management.Application.Services.IDiagnosticService>();
+                diagnosticService?.LogError(
+                    Management.Application.Services.DiagnosticCategory.Runtime,
+                    context,
+                    ex.Message,
+                    ex,
+                    severity
+                );
+            }
+            catch (ObjectDisposedException)
+            {
+                _isServiceProviderDisposed = true;
+                Serilog.Log.Error(ex, "[{Context}] ServiceProvider was disposed during error reporting", context);
+            }
+            catch (Exception innerEx)
+            {
+                // Defensive: If error reporting itself fails, log to Serilog
+                Serilog.Log.Error(innerEx, "[{Context}] Failed to report error to diagnostics", context);
+                Serilog.Log.Error(innerEx, "[{Context}] Original error", context);
+            }
         }
 
         private void ShowDiagnosticWindow(Exception ex)
@@ -543,7 +1346,7 @@ namespace Management.Presentation
                     var diagnosticViewModel = ServiceProvider?.GetService<DiagnosticViewModel>();
                     if (diagnosticViewModel != null)
                     {
-                        var diagnosticWindow = new Views.DiagnosticWindow(diagnosticViewModel);
+                        var diagnosticWindow = new Views.Diagnostic.DiagnosticView(diagnosticViewModel);
                         diagnosticWindow.Show();
                     }
                     else 
@@ -581,9 +1384,9 @@ namespace Management.Presentation
                     Resources.MergedDictionaries.Remove(existingTheme);
                 }
 
-                // Add new theme dictionary at the beginning (so it's loaded first)
+                // Add new theme dictionary at the end (so it has highest priority)
                 var newTheme = new ResourceDictionary { Source = themeUri };
-                Resources.MergedDictionaries.Insert(0, newTheme);
+                Resources.MergedDictionaries.Add(newTheme);
 
                 Serilog.Log.Information($"Theme switched to: {themeName}");
             }
@@ -592,95 +1395,168 @@ namespace Management.Presentation
                 Serilog.Log.Error(ex, "Failed to switch theme");
             }
         }
-
-        protected override void OnExit(ExitEventArgs e)
+        protected override async void OnExit(System.Windows.ExitEventArgs e)
         {
-            if (ServiceProvider is IDisposable disposable)
-            {
-                disposable.Dispose();
-            }
-            Serilog.Log.CloseAndFlush();
-            base.OnExit(e);
-        }
-        private async Task<bool> RunStartupSecurityGuard(IServiceProvider services)
-        {
-            var hardwareService = services.GetRequiredService<IHardwareService>();
-            var supabase = services.GetRequiredService<Supabase.Client>();
-            var navigationService = services.GetRequiredService<INavigationService>();
-            var tenantService = services.GetRequiredService<ITenantService>();
-            var hardwareId = hardwareService.GetHardwareId();
-
-            Serilog.Log.Information($"Startup Security Guard: Checking hardware ID {hardwareId}");
-
+            Serilog.Log.Information("[App] Shutdown initiated. Starting sync-on-exit...");
+            
             try
             {
-                // Check if device is licensed in tenant_devices
-                var response = await supabase.From<Infrastructure.Services.OnboardingService.TenantDeviceModel>()
-                    .Filter("hardware_id", Supabase.Postgrest.Constants.Operator.Equals, hardwareId)
-                    .Get();
-
-                if (response.Models.Count == 0)
+                var syncService = _host.Services.GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
+                var outboxCount = await syncService.GetPendingOutboxCountAsync();
+                
+                if (outboxCount > 0)
                 {
-                    // STATE 1: No Device Found ? Show License Entry
-                    Serilog.Log.Warning("Device not found in tenant_devices. Redirecting to License Entry.");
-                    await Current.Dispatcher.InvokeAsync(async () => {
-                        await navigationService.NavigateToAsync<LicenseEntryViewModel>();
-                    });
-                    return false;
+                    Serilog.Log.Information("[App] Pending outbox items detected ({Count}). Blocking for final sync...", outboxCount);
+                    
+                    // Note: This is an async void override, so we can't truly block the OS from killing us, 
+                    // but on Windows WPF, this gives us a window before the process terminates.
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    await syncService.PushChangesAsync(cts.Token);
+                    Serilog.Log.Information("[App] Final sync complete.");
                 }
-                else
-                {
-                    var device = response.Models[0];
-                    Serilog.Log.Information($"Device verified for Tenant {device.TenantId}.");
-                    
-                    // CRITICAL: Set the tenant context so DB migrations/queries can proceed
-                    tenantService.SetTenantId(device.TenantId);
-                    
-                    // Check if user has an active session
-                    var session = supabase.Auth.CurrentSession;
-                    if (session == null || session.ExpiresAt() < DateTimeOffset.UtcNow)
-                    {
-                        // STATE 2: Device Found, No Session ? Show Login (if implemented)
-                        Serilog.Log.Information("Device found but no active session. User needs to log in.");
-                        // For now, we'll continue to dashboard since login might not be implemented
-                        // TODO: Implement LoginViewModel and navigate here
-                        // await Current.Dispatcher.InvokeAsync(async () => {
-                        //     await navigationService.NavigateToAsync<LoginViewModel>();
-                        // });
-                        // return false;
-                    }
-                    
-                    // STATE 3: Device & Session Found ? Continue to Dashboard
-                    Serilog.Log.Information("Device and session verified. Proceeding to main application.");
-                    return true;
-                }
-            }
-            catch (Npgsql.PostgresException pgEx) when (pgEx.SqlState == "42501")
-            {
-                // RLS Error: insufficient_privilege
-                Serilog.Log.Error(pgEx, "RLS Error: Access denied by Row Level Security");
-                await Current.Dispatcher.InvokeAsync(async () => {
-                    var dialogService = services.GetService<IDialogService>();
-                    if (dialogService != null)
-                    {
-                        await dialogService.ShowAlertAsync(
-                            "Access denied by database security policies. Please contact support.",
-                            "Security Error");
-                    }
-                    await navigationService.NavigateToAsync<LicenseEntryViewModel>();
-                });
-                return false;
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "Error during Startup Security Guard check");
-                // Fallback to license entry if we can't verify the device
-                await Current.Dispatcher.InvokeAsync(async () => {
-                    await navigationService.NavigateToAsync<LicenseEntryViewModel>();
-                });
-                return false;
+                Serilog.Log.Error(ex, "[App] Error during final sync on exit.");
+            }
+
+            try
+            {
+                Serilog.Log.Information("Application shutdown initiated...");
+                
+                // Phase 2: Clear SQLite Pools to release file locks immediately
+                Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+                
+                // Phase 1: Signal all background services to stop
+                _appShutdownCts.Cancel();
+                
+                // Phase 4: Stop Host (Gracefully stops all IHostedServices)
+                if (_host != null)
+                {
+                    Serilog.Log.Information("Stopping Host and background services...");
+                    try
+                    {
+                        // Wait up to 5 seconds for graceful shutdown
+                        var stopTask = _host.StopAsync(TimeSpan.FromSeconds(5));
+                        stopTask.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "Error during Host shutdown");
+                    }
+                }
+
+                // Phase 1: Mark ServiceProvider as about to be disposed
+                _isServiceProviderDisposed = true;
+                
+                // Phase 4: Dispose Host (also disposes ServiceProvider)
+                if (_host != null)
+                {
+                    Serilog.Log.Information("Disposing Host...");
+                    _host.Dispose();
+                }
+
+                Serilog.Log.Information("Application shutdown complete.");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Fatal(ex, "Error during application shutdown");
+            }
+            finally
+            {
+                Serilog.Log.CloseAndFlush();
+                base.OnExit(e);
+            }
+        }
+        private async Task<bool> RunStartupSecurityGuard(IServiceProvider services)
+        {
+            using (var scope = services.CreateScope())
+            {
+                var onboardingService = scope.ServiceProvider.GetRequiredService<IOnboardingService>();
+                var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+                var supabase = scope.ServiceProvider.GetRequiredService<Supabase.Client>();
+                var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+
+                Serilog.Log.Information("Startup Security Guard: Verifying device license...");
+
+                try
+                {
+                    // Use the new hardened verification with offline fallback
+                    // Now returns the TenantId directly if verified via RPC
+                    var verificationResult = await onboardingService.VerifyCurrentDeviceAsync();
+                    
+                    if (verificationResult.IsFailure)
+                    {
+                        Serilog.Log.Warning("[App] Device verification failed (Network/System Error). Proceeding to activation.");
+                        return false;
+                    }
+
+                    // For online check, we get the TenantId back
+                    if (verificationResult.Value.HasValue)
+                    {
+                        var tenantId = verificationResult.Value.Value;
+                        tenantService.SetTenantId(tenantId);
+                        Serilog.Log.Information($"[App] Device verified via RPC. Tenant context set to {tenantId}");
+                        return true;
+                    }
+
+                    // If Value is null, it means either offline lease found it OR no binding exists
+                    var hardwareId = hardwareService.GetHardwareId();
+                    var lease = await _host!.Services.GetRequiredService<IConfigurationService>().LoadConfigAsync<Management.Domain.Models.LicenseLease>("license.lease");
+                    
+                    if (lease != null && lease.IsValid(hardwareId))
+                    {
+                        Serilog.Log.Information("[App] Device verified via local lease (Offline). WARNING: Tenant context may be limited.");
+                        return true;
+                    }
+
+                    Serilog.Log.Warning("[App] Device verification failed (No server binding or local lease). Proceeding to activation.");
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error(ex, "Error during Startup Security Guard check");
+                    return false;
+                }
             }
         }
 
+        private void PopulateNavigationRegistry(INavigationRegistry registry)
+        {
+            // --- GLOBAL HOME VIEWS ---
+            registry.RegisterHomeView<GymHomeViewModel>(Domain.Enums.FacilityType.Gym);
+            registry.RegisterHomeView<SalonHomeViewModel>(Domain.Enums.FacilityType.Salon);
+            registry.RegisterHomeView<RestaurantHomeViewModel>(Domain.Enums.FacilityType.Restaurant);
+
+            // --- GYM ---
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(GymHomeViewModel), 0));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Members", "Terminology.Sidebar.Members", "Icon.Users", typeof(MembersViewModel), 2));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Registrations", "Terminology.Sidebar.Registrations", "Icon.UserCheck", typeof(Management.Presentation.ViewModels.Registrations.RegistrationsViewModel), 3));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.Storefront", typeof(ShopViewModel), 6));
+
+            // --- SALON ---
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(SalonHomeViewModel), 0));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Schedule", "Terminology.Sidebar.Schedule", "Icon.Calendar", typeof(AppointmentsViewModel), 2));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Clients", "Terminology.Sidebar.Clients", "Icon.Users", typeof(MembersViewModel), 3));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Bookings", "Terminology.Sidebar.Registrations", "Icon.UserCheck", typeof(RegistrationsViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(FinanceAndStaffViewModel), 5));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 6));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.Storefront", typeof(ShopViewModel), 7));
+
+            // --- RESTAURANT ---
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(RestaurantHomeViewModel), 0));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Floor Plan", "Terminology.Sidebar.FloorPlan", "IconDashboard", typeof(FloorPlanViewModel), 2));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Menu", "Terminology.Settings.Menu", "IconShop", typeof(MenuManagementViewModel), 3));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5));
+
+            // --- GENERAL (Neutral fallback) ---
+            registry.Register(Domain.Enums.FacilityType.General, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(DashboardViewModel), 0));
+        }
     }
 }

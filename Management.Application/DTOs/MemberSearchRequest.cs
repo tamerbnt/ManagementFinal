@@ -5,6 +5,9 @@ namespace Management.Application.DTOs
 {
     public record MemberSearchRequest(
         string SearchTerm,
-        MemberFilterType FilterType = MemberFilterType.All
+        MemberFilterType FilterType = MemberFilterType.All,
+        Gender? Gender = null,
+        DateTime? StartDate = null,
+        DateTime? EndDate = null
     );
 }

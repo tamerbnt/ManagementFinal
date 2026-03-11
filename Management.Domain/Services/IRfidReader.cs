@@ -21,6 +21,11 @@ namespace Management.Domain.Services
         bool IsConnected { get; }
 
         /// <summary>
+        /// Fired when the hardware connection status changes (True = Connected, False = Disconnected).
+        /// </summary>
+        event Action<bool> ConnectionStatusChanged;
+
+        /// <summary>
         /// Opens the connection (Serial Port / HID) and begins listening for data.
         /// Should handle connection errors internally or throw specific hardware exceptions.
         /// </summary>
@@ -30,5 +35,10 @@ namespace Management.Domain.Services
         /// Closes the connection and releases hardware resources.
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Manually triggers a scan event for testing or simulation.
+        /// </summary>
+        void SimulateScan(string cardId);
     }
 }

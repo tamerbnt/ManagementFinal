@@ -3,82 +3,195 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="800"
+             d:DesignHeight="72" d:DesignWidth="800"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- 
-        Row Item Structure (Section 28.5)
-        - Height: 80px ({StaticResource SizeHistoryItemHeight})
-        - Padding: 16,0 (Vertical centering handled by Grid)
-        - Style: TimelineCardStyle (Global) - Handles Shadow L1 on Hover
-        - Accessibility: Descriptive name
-    -->
-    <Border Style="{StaticResource TimelineCardStyle}"
-            Height="{StaticResource SizeHistoryItemHeight}"
-            Padding="{StaticResource PaddingCardList}"
-            AutomationProperties.Name="{Binding Description, StringFormat={DynamicResource TerminologyAccessEventAccessEvent}}">
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
 
-        <!-- Context Menu (Section 28.4) -->
-        <Border.ContextMenu>
-            <ContextMenu>
-                <MenuItem Header="{DynamicResource TerminologyCopyDetailsLabel}" 
-                          Command="{Binding CopyDetailsCommand}">
-                    <MenuItem.Icon>
-                        <Path Data="{StaticResource IconCopy}" 
-                              Fill="{StaticResource TextPrimaryBrush}" 
-                              Style="{StaticResource IconSmall}"/>
-                    </MenuItem.Icon>
-                </MenuItem>
-            </ContextMenu>
-        </Border.ContextMenu>
+    <!-- List Row Container (Plan Section 2) -->
+    <Border x:Name="RowBorder"
+            CornerRadius="12"
+            Margin="0,0,0,12"
+            Padding="16,12"
+            BorderThickness="1">
+        
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="Black"/>
+        </Border.Effect>
+
+        <Border.InputBindings>
+            <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
+        </Border.InputBindings>
+
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Style.Triggers>
+                    <!-- Hover Animation (Plan Section 3) -->
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F8FAFC"/>
+                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                        <Trigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.005" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.005" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.EnterActions>
+                        <Trigger.ExitActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.1"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.1"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </Trigger.ExitActions>
+                    </Trigger>
+
+                    <!-- Active/Selected State (The "Titan Gradient") -->
+                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                    <GradientStop Color="#F06292" Offset="0"/>
+                                    <GradientStop Color="#F48FB1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect Color="#F06292" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Border.RenderTransform>
+            <ScaleTransform ScaleX="1" ScaleY="1"/>
+        </Border.RenderTransform>
 
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <!-- Icon -->
-                <ColumnDefinition Width="*"/>
-                <!-- Text Info -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Timestamp -->
+                <ColumnDefinition Width="Auto"/> <!-- Icon -->
+                <ColumnDefinition Width="*"/>    <!-- Text -->
+                <ColumnDefinition Width="Auto"/> <!-- Status Pill -->
+                <ColumnDefinition Width="Auto"/> <!-- Timestamp -->
             </Grid.ColumnDefinitions>
 
-            <!-- 
-                1. Status Icon (Global Component)
-                - Style: GlobalAccessEventIconStyle
-                - Handles: 40px Circle, Blue/Red background switching, Door/Lock icon switching
-                - Logic: Binds internally to 'IsSuccessful' via Style Triggers
-            -->
+            <!-- 1. Event Icon (Circle) -->
             <Border Grid.Column="0"
-                    Style="{StaticResource GlobalAccessEventIconStyle}"
-                    Width="{StaticResource SizeIconContainer}"
-                    Height="{StaticResource SizeIconContainer}"
-                    Margin="{StaticResource MarginIconRight}"/>
+                    Width="40" Height="40"
+                    CornerRadius="20"
+                    Margin="0,0,16,0"
+                    Background="#F1F5F9">
+                <Path Data="{StaticResource IconDoor}" 
+                      Fill="#64748B"
+                      Stretch="Uniform"
+                      Width="16" Height="16"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Opacity" Value="0.2"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
 
-            <!-- 2. Event Details -->
+            <!-- 2. Title & Subtitle -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <!-- Title: Member Name or Event Type -->
+                <!-- Title16 Bold -->
                 <TextBlock Text="{Binding Title}" 
-                           Style="{StaticResource BodyMedium}" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-
-                <!-- Subtitle: Facility / Details -->
+                           FontWeight="Bold" 
+                           FontSize="16"
+                           Foreground="#1E293B"
+                           Margin="0,0,0,4">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                
+                <!-- Subtitle 13 Medium -->
                 <TextBlock Text="{Binding Details}" 
-                           Style="{StaticResource Caption}" 
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           Margin="{StaticResource MarginSmallTop}"/>
+                           FontWeight="Medium" 
+                           FontSize="13"
+                           Foreground="{DynamicResource BrandPrimaryBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Opacity" Value="0.8"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
 
-            <!-- 3. Timestamp -->
-            <TextBlock Grid.Column="2" 
-                       Text="{Binding Timestamp, StringFormat='{}{0:h:mm tt}'}" 
-                       Style="{StaticResource Caption}" 
-                       Foreground="{StaticResource TextTertiaryBrush}"
+            <!-- 3. Status Pill -->
+            <!-- Hardcoded "Success" look for Access Granted, or "Fail" for denied -->
+            <!-- TODO: Bind color to IsAccessGranted if available, defaulting to Green for now -->
+            <Border Grid.Column="2" 
+                    Background="#DCFCE7" 
+                    CornerRadius="12" 
+                    Padding="12,4"
+                    VerticalAlignment="Center"
+                    Margin="0,0,16,0">
+                <TextBlock Text="{DynamicResource Terminology.History.Status.Success}" 
+                           FontSize="12" 
+                           FontWeight="SemiBold" 
+                           Foreground="#166534"/>
+                 <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                             <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Opacity" Value="0.2"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
+
+            <!-- 4. Timestamp -->
+            <TextBlock Grid.Column="3" 
+                       Text="{Binding Timestamp, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Format.Time'}" 
+                       FontSize="13"
                        VerticalAlignment="Center"
-                       HorizontalAlignment="Right"/>
+                       Foreground="{DynamicResource TextTertiaryBrush}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
         </Grid>
     </Border>
 </UserControl>

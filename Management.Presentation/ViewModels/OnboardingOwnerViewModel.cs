@@ -1,22 +1,29 @@
 using System.Windows.Input;
 using Management.Presentation.Extensions;
+using Management.Presentation.ViewModels.Shell;
 using Management.Presentation.Services;
 using Management.Domain.Services;
 using System.Threading.Tasks;
 using Management.Infrastructure.Services;
 using System;
 using Microsoft.Extensions.DependencyInjection;
+using Management.Application.Interfaces;
+using Management.Presentation.ViewModels.Base;
+using Management.Application.ViewModels.Base;
+using Management.Presentation.Services.Localization;
+using Microsoft.Extensions.Logging;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {
-    public class OnboardingOwnerViewModel : ViewModelBase
+    public class OnboardingOwnerViewModel : FacilityAwareViewModelBase
     {
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
         private readonly Supabase.Client _supabase;
-        private readonly IOnboardingService _onboardingService;
         private readonly IHardwareService _hardwareService;
         private readonly IOnboardingStateStore _onboardingState;
+        private readonly IOnboardingService _onboardingService;
 
         private string _businessName = string.Empty;
         public string BusinessName
@@ -78,7 +85,13 @@ namespace Management.Presentation.ViewModels
             Supabase.Client supabase,
             IOnboardingService onboardingService,
             IHardwareService hardwareService,
-            IOnboardingStateStore onboardingState)
+            IOnboardingStateStore onboardingState,
+            ITerminologyService terminologyService,
+            IFacilityContextService facilityContext,
+            ILocalizationService localizationService,
+            ILogger<OnboardingOwnerViewModel> logger,
+            IDiagnosticService diagnosticService)
+            : base(terminologyService, facilityContext, logger, diagnosticService, null, localizationService, dialogService)
         {
             _navigationService = navigationService;
             _dialogService = dialogService;
@@ -105,23 +118,30 @@ namespace Management.Presentation.ViewModels
                 Serilog.Log.Information($"[OnboardingOwnerViewModel] Using License Key: {licenseKey}");
 
                 // 1. Create Account and Onboard Tenant
-                var slug = BusinessName.ToLower().Replace(" ", "-");
-                var result = await _onboardingService.CreateAccountAndOnboardAsync(AdminEmail, Password, licenseKey, BusinessName, slug);
+                var state = new Management.Application.DTOs.OnboardingState
+                {
+                    AdminEmail = AdminEmail,
+                    AdminPassword = Password,
+                    LicenseKey = licenseKey,
+                    BusinessName = BusinessName,
+                    AdminFullName = BusinessName // Fallback if name is combined or separate
+                };
+                var result = await _onboardingService.CompleteOnboardingAsync(state);
                 
                 if (result.IsFailure)
                 {
-                    await _dialogService.ShowAlertAsync("Error", $"Onboarding failed: {result.Error.Message}");
+                    await _dialogService.ShowAlertAsync(_localizationService?.GetString("Strings.Auth.Title.Error") ?? "Error", string.Format(_localizationService?.GetString("Strings.Auth.Error.OnboardingFailed") ?? "Onboarding failed: {0}", result.Error.Message));
                     return;
                 }
 
                 var tenantId = result.Value;
 
                 // 2. Register current device
-                var deviceResult = await _onboardingService.RegisterCurrentDeviceAsync(tenantId, $"{Environment.MachineName} (Owner)");
+                var deviceResult = await _onboardingService.RegisterCurrentDeviceAsync(tenantId, $"{Environment.MachineName} (Owner)", licenseKey);
                 
                 if (deviceResult.IsFailure)
                 {
-                    await _dialogService.ShowAlertAsync("Warning", $"Account created, but device registration failed: {deviceResult.Error.Message}");
+                    await _dialogService.ShowAlertAsync(_localizationService?.GetString("Strings.Auth.Title.Warning") ?? "Warning", string.Format(_localizationService?.GetString("Strings.Auth.Error.DeviceRegistrationFailed") ?? "Account created, but device registration failed: {0}", deviceResult.Error.Message));
                 }
 
                 // 3. Update Global Context
@@ -133,7 +153,7 @@ namespace Management.Presentation.ViewModels
                 Serilog.Log.Information("[OnboardingOwnerViewModel] Triggering service re-initialization...");
                 await ((App)System.Windows.Application.Current).ReinitializeOperationalServicesAsync();
 
-                await _dialogService.ShowAlertAsync("Success", "Setup complete! Your workspace has been initialized.", isSuccess: true);
+                await _dialogService.ShowAlertAsync(_localizationService?.GetString("Strings.Auth.Title.Success") ?? "Success", _localizationService?.GetString("Strings.Auth.Message.OnboardingComplete") ?? "Setup complete! Your workspace has been initialized.", isSuccess: true);
                 
                 // Final wait for UI to settle
                 await Task.Delay(1000);
@@ -141,7 +161,7 @@ namespace Management.Presentation.ViewModels
             }
             catch (Exception ex)
             {
-                await _dialogService.ShowAlertAsync($"Onboarding failed: {ex.Message}", "Error");
+                await _dialogService.ShowAlertAsync(string.Format(_localizationService?.GetString("Strings.Auth.Error.OnboardingFailed") ?? "Onboarding failed: {0}", ex.Message), _localizationService?.GetString("Strings.Auth.Title.Error") ?? "Error");
             }
             finally
             {

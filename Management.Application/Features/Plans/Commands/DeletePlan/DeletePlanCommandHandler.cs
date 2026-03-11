@@ -17,7 +17,7 @@ namespace Management.Application.Features.Plans.Commands.DeletePlan
 
         public async Task<Result> Handle(DeletePlanCommand request, CancellationToken cancellationToken)
         {
-            var plan = await _planRepository.GetByIdAsync(request.PlanId);
+            var plan = await _planRepository.GetByIdAsync(request.PlanId, request.FacilityId);
             if (plan == null) return Result.Failure(new Error("Plan.NotFound", "Plan not found"));
 
             // Soft delete preference? Or Hard delete if not used?

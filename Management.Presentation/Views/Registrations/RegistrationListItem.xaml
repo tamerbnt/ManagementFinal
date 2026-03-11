@@ -5,150 +5,152 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
-             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Registrations"
              mc:Ignorable="d" 
-             d:DesignHeight="96" d:DesignWidth="800"
+             d:DesignHeight="88" d:DesignWidth="800"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
-        <!-- RelativeTimeConverter is assumed global -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NameToBrushConverter x:Key="NameToBrushConverter"/>
+        <converters:NameToInitialConverter x:Key="NameToInitialConverter"/>
     </UserControl.Resources>
 
-    <!-- 
-        Card Container
-        - Style: 'MemberCardStyleInteractive' (Global)
-          Reuse is intentional: handles Shadow L2, Hover Lift, and the specific 
-          "Blue Left Border + Background Tint" state when IsSelected=True.
-        - Height: 96px ({StaticResource SizeRegistrationItemHeight})
-        - Padding: 24px ({StaticResource PaddingCardCompact})
-    -->
-    <Border x:Name="CardBorder"
-            Style="{StaticResource MemberCardStyleInteractive}"
-            Height="{StaticResource SizeRegistrationItemHeight}"
-            Padding="{StaticResource PaddingCardCompact}"
-            AutomationProperties.Name="{Binding FullName}">
+    <UserControl.Template>
+        <ControlTemplate TargetType="UserControl">
+            <Grid Margin="0,0,0,12">
+                <!-- Single Content Border with Shadow -->
+                <Border x:Name="RowBorder" 
+                        Background="{DynamicResource CardBackgroundBrush}" 
+                        CornerRadius="16" 
+                        Padding="16"
+                        BorderBrush="Transparent"
+                        BorderThickness="1"
+                        Effect="{StaticResource Shadow1}"
+                        RenderOptions.CachingHint="Cache">
+                    <Border.InputBindings>
+                        <MouseBinding MouseAction="LeftClick" 
+                                      Command="{Binding ViewDetailsCommand}"/>
+                    </Border.InputBindings>
+                    <Border.RenderTransform>
+                        <ScaleTransform ScaleX="1" ScaleY="1"/>
+                    </Border.RenderTransform>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>  <!-- 0: Avatar/Check -->
+                            <ColumnDefinition Width="*"/>   <!-- 1: Name/Email -->
+                            <ColumnDefinition Width="Auto"/> <!-- 2: Source -->
+                            <ColumnDefinition Width="Auto"/> <!-- 3: Status -->
+                            <ColumnDefinition Width="Auto"/> <!-- 4: Received At -->
+                            <ColumnDefinition Width="Auto"/> <!-- 5: Actions -->
+                        </Grid.ColumnDefinitions>
+...
 
-        <!-- 
-            GLOBAL BEHAVIOR: Action Button Reveal 
-            Fades in the 'ActionPanel' when mouse enters the card.
-        -->
-        <i:Interaction.Behaviors>
-            <behaviors:HoverRevealBehavior TargetName="ActionPanel" 
-                                           Duration="{StaticResource DurationStandard}"/>
-        </i:Interaction.Behaviors>
-
-        <!-- Command for Row Click (View Detail) -->
-        <Border.InputBindings>
-            <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
-        </Border.InputBindings>
-
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <!-- Checkbox -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Avatar -->
-                <ColumnDefinition Width="*"/>
-                <!-- Info -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Timestamp / Actions -->
-            </Grid.ColumnDefinitions>
-
-            <!-- 
-                1. Selection Checkbox (Left)
-                - Style: 'CircularSelectionCheckBoxStyle' (Global)
-                - Behavior: Opacity 0 -> 1 on Hover/Selected (handled by Style triggers)
-                - Margin: Fixed magic number removed, now uses Resource (16px)
-            -->
-            <CheckBox Grid.Column="0"
-                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                      Style="{StaticResource CircularSelectionCheckBoxStyle}"
-                      VerticalAlignment="Center"
-                      Margin="{StaticResource MarginMediumRight}"
-                      Panel.ZIndex="10"/>
-
-            <!-- 2. Avatar (64px Standard) -->
-            <Ellipse Grid.Column="1" 
-                     Width="{StaticResource SizeAvatarStandard}" 
-                     Height="{StaticResource SizeAvatarStandard}"
-                     Fill="{DynamicResource FacilityAccentBrush}"
-                     Margin="{StaticResource MarginCardRight}">
-                <!-- Image Binding: <ImageBrush ImageSource="{Binding AvatarUrl}"/> -->
-            </Ellipse>
-
-            <!-- 3. Text Info -->
-            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <TextBlock Text="{Binding FullName}" 
-                           Style="{StaticResource BodyMedium}" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-
-                <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginSmallTop}">
-                    <TextBlock Text="{Binding Source}" 
-                               Style="{StaticResource Caption}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{DynamicResource TerminologyInfoSeparator}" 
-                               Style="{StaticResource Caption}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-                    <TextBlock Text="{Binding PhoneNumber}" 
-                               Style="{StaticResource Caption}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- 4. Right Side: Timestamp & Actions -->
-            <Grid Grid.Column="3" VerticalAlignment="Center">
-
-                <!-- Timestamp (Default View) -->
-                <!-- Color-coded by age via Converter (Green < 1h, Red > 24h) -->
-                <TextBlock Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}"
-                           Style="{StaticResource Caption}"
-                           Foreground="{Binding CreatedAt, Converter={StaticResource RegistrationAgeToBrushConverter}}"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Center"/>
-
-                <!-- 
-                    Action Buttons (Hover View)
-                    - Hidden by default (Opacity 0).
-                    - Revealed by HoverRevealBehavior.
-                    - IsHitTestVisible handled by behavior to prevent blocking clicks when hidden.
-                -->
-                <StackPanel x:Name="ActionPanel" 
-                            Orientation="Horizontal" 
-                            Opacity="0"
-                            IsHitTestVisible="False">
-
-                    <!-- Approve (Green, Compact 40px) -->
-                    <Button Style="{StaticResource ButtonCompactSuccess}"
-                            Margin="{StaticResource MarginSmallRight}"
-                            Command="{Binding ApproveCommand}"
-                            ToolTip="{DynamicResource TerminologyApproveLabel}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconCheck}" 
-                                  Fill="{DynamicResource TextOnAccentBrush}"
-                                  Style="{StaticResource IconSmall}"
-                                  Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource TerminologyApproveLabel}"/>
+                    <!-- 1. Avatar & Checkbox (Identity Area) -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.ColumnSpan="2">
+                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                  Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                                  VerticalAlignment="Center" 
+                                  Margin="0,0,16,0"/>
+                        
+                        <Grid x:Name="AvatarContainer" VerticalAlignment="Center">
+                            <Ellipse Width="40" Height="40" x:Name="AvatarPlaceholder" 
+                                     Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
+                            <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
+                                       x:Name="AvatarInitial"
+                                       Foreground="White" 
+                                       FontWeight="Bold" 
+                                       FontSize="16"
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                        <StackPanel VerticalAlignment="Center" Margin="12,0,0,0">
+                            <TextBlock Text="{Binding FullName}" x:Name="NameText" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="{Binding Email}" x:Name="EmailText" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
-                    </Button>
+                    </StackPanel>
 
-                    <!-- Decline (Red, Compact 40px) -->
-                    <Button Style="{StaticResource ButtonCompactError}"
-                            Command="{Binding DeclineCommand}"
-                            ToolTip="{DynamicResource TerminologyDeclineLabel}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconClose}" 
-                                  Fill="{DynamicResource TextOnAccentBrush}" 
-                                  Style="{StaticResource IconSmall}"
-                                  Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource TerminologyDeclineLabel}"/>
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                    <!-- 2. Source -->
+                    <TextBlock Grid.Column="2" x:Name="SourceText" Text="{Binding Source}" 
+                               VerticalAlignment="Center" FontWeight="Medium" 
+                               Foreground="{DynamicResource BrandPrimaryBrush}" Margin="24,0"/>
+
+                    <!-- 3. Status -->
+                    <Border Grid.Column="3" x:Name="StatusBorder" Padding="8,4" CornerRadius="12" 
+                            Background="{DynamicResource SurfaceBg}" VerticalAlignment="Center" Margin="0,0,24,0">
+                        <TextBlock Text="{Binding Status, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" x:Name="StatusText" Foreground="{DynamicResource StatusSuccessBrush}" 
+                                   FontSize="11" FontWeight="Bold"/>
+                    </Border>
+
+                    <!-- 4. Received At -->
+                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Width="100">
+                        <TextBlock Text="{DynamicResource Terminology.Registrations.List.Received}" x:Name="ReceivedLabel" Style="{StaticResource Micro}" 
+                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding CreatedAt, StringFormat='\{0:MMM dd, HH:mm\}'}" 
+                                   x:Name="ReceivedDate" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- 5. Actions -->
+                    <StackPanel Grid.Column="5" Orientation="Horizontal" Margin="24,0,8,0">
+                        <Button Style="{StaticResource IconButtonStyle}" 
+                                Command="{Binding ViewDetailsCommand}">
+                            <Path x:Name="ViewIcon" Data="{StaticResource IconEye}" 
+                                  Style="{StaticResource Style.Icon.Micro}" 
+                                  Stroke="{DynamicResource BrandPrimaryBrush}"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
             </Grid>
-        </Grid>
-    </Border>
+                
+            <ControlTemplate.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="RowBorder" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.005" Duration="0:0:0.1"/>
+                            <DoubleAnimation Storyboard.TargetName="RowBorder" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.005" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="RowBorder" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.1"/>
+                            <DoubleAnimation Storyboard.TargetName="RowBorder" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.1"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter TargetName="RowBorder" Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="RowBorder" Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
+                    <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                    <Setter TargetName="EmailText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
+                    <Setter TargetName="SourceText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                    <Setter TargetName="StatusBorder" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
+                    <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                    <Setter TargetName="ReceivedLabel" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
+                    <Setter TargetName="ReceivedDate" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                    <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
+                    <Setter TargetName="AvatarInitial" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                    <Setter TargetName="ViewIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
+                </DataTrigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </UserControl.Template>
 </UserControl>

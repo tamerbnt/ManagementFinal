@@ -21,24 +21,23 @@ namespace Management.Application.Features.Plans.Queries.GetPlans
 
         public async Task<Result<List<MembershipPlanDto>>> Handle(GetPlansQuery request, CancellationToken cancellationToken)
         {
-            // Assuming Repo has GetAllAsync that we can filter, or generic FindAsync
-            var allPlans = await _planRepository.GetAllAsync();
-            
-            if (request.ActiveOnly)
-            {
-               // allPlans = allPlans.Where(p => p.IsActive).ToList(); // Assuming IsActive exists?
-               // MembershipPlan.cs (Step 1025) likely has IsActive (AggregateRoot usually doesn't, usually specific).
-               // I'll check MembershipPlan.cs if needed. Assuming yes or I'll fix.
-            }
+            // The handler already passes the ActiveOnly flag to the repository.
+            // The actual logic for respecting ActiveOnly and handling IsDeleted when ignoring filters
+            // should be implemented within the GetActivePlansAsync method of the IMembershipPlanRepository implementation.
+            var plans = await _planRepository.GetActivePlansAsync(request.FacilityId, request.ActiveOnly);
 
-            var dtos = allPlans.Select(p => new MembershipPlanDto
+            var dtos = plans.Select(p => new MembershipPlanDto
             {
                 Id = p.Id,
                 Name = p.Name,
                 Description = p.Description,
                 DurationDays = p.DurationDays,
                 Price = p.Price.Amount,
-                // IsActive = p.IsActive // If exists
+                IsActive = p.IsActive,
+                IsSessionPack = p.IsSessionPack,
+                IsWalkIn = p.IsWalkIn,
+                GenderRule = p.GenderRule,
+                ScheduleJson = p.ScheduleJson
             }).ToList();
 
             return Result.Success(dtos);

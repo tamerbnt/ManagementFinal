@@ -7,6 +7,7 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace Management.Application.Features.Staff.Commands.UpdateStaff
 {
@@ -39,7 +40,23 @@ namespace Management.Application.Features.Staff.Commands.UpdateStaff
                 dto.FullName,
                 emailResult.Value,
                 phoneResult.Value,
-                dto.Role);
+                dto.Role,
+                dto.Salary,
+                dto.PaymentDay);
+
+            if (dto.Permissions != null)
+            {
+                foreach (var p in dto.Permissions)
+                {
+                    staff.SetPermission(p.Name, p.IsGranted);
+                }
+            }
+
+            // Fix 5: Hash PIN if provided
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                staff.SetPinCode(BCryptNet.HashPassword(dto.Password));
+            }
 
             await _staffRepository.UpdateAsync(staff);
 

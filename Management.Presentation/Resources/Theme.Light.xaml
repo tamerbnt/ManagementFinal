@@ -1,14 +1,21 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Workspace Layer: LIGHT MODE -->
     
     <!-- Backgrounds -->
-    <SolidColorBrush x:Key="WindowBg" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="ContentAreaBg" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="TopBarBg" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="SurfaceBg" Color="#F5F7FA"/>
+    <SolidColorBrush x:Key="WindowBg" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="ContentAreaBg" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="TopBarBg" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="SurfaceBg" Color="#FFFFFF"/> <!-- Changed to White for modern high-contrast cards -->
+    <SolidColorBrush x:Key="SurfaceBgSecondary" Color="#F8FAFC"/> <!-- Light offset for secondary surfaces -->
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/> <!-- Alias for compatibility -->
+
+    <!-- Status Backgrounds (Light) -->
+    <SolidColorBrush x:Key="StatusSuccessBackground" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="StatusErrorBackground" Color="#FEF2F2"/>
+    <SolidColorBrush x:Key="StatusWarningBackground" Color="#FFFBEB"/>
+    <SolidColorBrush x:Key="StatusInfoBackground" Color="#EFF6FF"/>
 
     <!-- Borders & Strokes -->
     <SolidColorBrush x:Key="SeparatorStroke" Color="#E5E7EB"/>
@@ -20,9 +27,10 @@
     <SolidColorBrush x:Key="TextTertiary" Color="#9CA3AF"/>
     
     <!-- Compatibility Aliases -->
-    <StaticResource x:Key="TextPrimaryBrush" ResourceKey="TextPrimary"/>
-    <StaticResource x:Key="TextSecondaryBrush" ResourceKey="TextSecondary"/>
-    <StaticResource x:Key="TextTertiaryBrush" ResourceKey="TextTertiary"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#9CA3AF"/>
+    <SolidColorBrush x:Key="SeparatorBrush" Color="#E5E7EB"/>
     
     <!-- Shadows (Light Mode specific opacity) -->
     <Color x:Key="ShadowColor">#000000</Color>

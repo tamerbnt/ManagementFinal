@@ -1,1 +1,9 @@
-{"InitialFacility":1}
+{
+  "InitialFacility": "Salon",
+  "LanguageCode": "en",
+  "FacilityIds": {
+    "Restaurant": "1d08546d-690f-4bf1-b1a5-93ac616c21ea",
+    "Salon": "e9cab19f-8bf3-4b96-9b94-c70dac3185b5",
+    "Gym": "a661f94f-0e9b-4864-ae78-ff4d470439d9"
+  }
+}

@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Management.Application.Features.Products.Commands.UpdateProductStock
 {
-    public record UpdateProductStockCommand(Guid ProductId, int QuantityChange, string Reason) : IRequest<Result>;
+    public record UpdateProductStockCommand(Guid ProductId, int QuantityChange, string Reason, Guid? FacilityId = null) : IRequest<Result>;
 }

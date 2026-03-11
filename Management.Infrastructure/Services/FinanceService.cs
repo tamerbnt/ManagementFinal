@@ -1,31 +1,27 @@
 using Management.Application.Features.Finance.Queries.GetPayrollHistory;
 using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Enums;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
+using Management.Domain.Interfaces;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
+using System.Linq;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
     public class FinanceService : IFinanceService
     {
         private readonly ISender _sender;
+        private readonly IPayrollRepository _payrollRepository;
 
-        public FinanceService(ISender sender)
+        public FinanceService(ISender sender, IPayrollRepository payrollRepository)
         {
             _sender = sender;
+            _payrollRepository = payrollRepository;
         }
 
         public async Task<Result<FinancialMetricsDto>> GetDashboardMetricsAsync(Guid facilityId)
@@ -56,6 +52,33 @@ namespace Management.Infrastructure.Services
         {
             // Placeholder: This would retry a payment via gateway
             return Result.Success();
+        }
+
+        public async Task<Result<IEnumerable<PayrollEntryDto>>> GetPayrollByRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        {
+            try
+            {
+                var entries = await _payrollRepository.GetByRangeAsync(facilityId, start, end);
+                var dtos = entries.Select(e => new PayrollEntryDto
+                {
+                    Id = e.Id,
+                    StaffId = e.StaffId,
+                    StaffName = "Staff Member", // In a real app we'd join but keep it simple for now
+                    PayPeriodStart = e.PayPeriodStart,
+                    PayPeriodEnd = e.PayPeriodEnd,
+                    Amount = e.Amount.Amount,
+                    NetPay = e.PaidAmount.Amount,
+                    IsPaid = e.IsPaid,
+                    PaymentMethod = "Bank Transfer", // Default
+                    ProcessedAt = e.UpdatedAt ?? e.CreatedAt,
+                    Notes = string.Empty
+                });
+                return Result.Success(dtos);
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure<IEnumerable<PayrollEntryDto>>(new Error("Finance.PayrollLoadFailed", ex.Message));
+            }
         }
     }
 }

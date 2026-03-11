@@ -1,4 +1,4 @@
-<Window x:Class="Management.Presentation.Views.ConflictResolutionView"
+﻿<Window x:Class="Management.Presentation.Views.ConflictResolutionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:ConflictResolutionViewModel}"
              WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
-             Title="Conflict Resolution" Height="450" Width="800">
+             Title="{DynamicResource Strings.Global.ConflictResolution}" Height="450" Width="800">
     <Border Background="{DynamicResource Neutral50Brush}" 
             CornerRadius="8"
             Padding="24">
@@ -25,7 +25,7 @@
                       Fill="{StaticResource Error500Brush}" 
                       Style="{StaticResource IconMedium}"
                       Margin="0,0,12,0"/>
-                <TextBlock Text="Sync Conflict Detected" 
+                <TextBlock Text="{DynamicResource Strings.Global.SyncConflictDetected}" 
                            Style="{DynamicResource Header3Style}"/>
             </StackPanel>
 
@@ -57,7 +57,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
-                        <Label Content="Your Change (Local)" 
+                        <Label Content="{DynamicResource Strings.Global.YourChangeLocal}" 
                                Background="{StaticResource Neutral100Brush}" 
                                FontWeight="SemiBold"
                                Padding="12,8"/>
@@ -95,7 +95,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <Label Content="Server Version (Remote)" 
+                        <Label Content="{DynamicResource Strings.Global.ServerVersionRemote}" 
                                Background="{StaticResource Neutral100Brush}" 
                                FontWeight="SemiBold"
                                Padding="12,8"/>
@@ -113,21 +113,21 @@
 
             <!-- Actions -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="Keep Local" 
+                <Button Content="{DynamicResource Strings.Global.KeepLocal}" 
                         Command="{Binding UseLocalCommand}" 
                         Style="{DynamicResource PrimaryButtonStyle}"
                         Width="120"
                         Margin="0,0,12,0"
-                        ToolTip="Overwrite server with your changes"/>
+                        ToolTip="{DynamicResource Strings.Global.Overwriteserverwithyourch}"/>
                 
-                <Button Content="Keep Server" 
+                <Button Content="{DynamicResource Strings.Global.KeepServer}" 
                         Command="{Binding UseRemoteCommand}" 
                         Style="{DynamicResource SecondaryButtonStyle}"
                          Width="120"
                          Margin="0,0,12,0"
-                         ToolTip="Discard local changes and accept server version"/>
+                         ToolTip="{DynamicResource Strings.Global.Discardlocalchangesandacc}"/>
 
-                <Button Content="Cancel" 
+                <Button Content="{DynamicResource Strings.Global.Cancel}" 
                         Command="{Binding CancelCommand}" 
                         Style="{DynamicResource OutlineButtonStyle}"
                          Width="100"/>

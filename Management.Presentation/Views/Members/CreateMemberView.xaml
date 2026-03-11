@@ -29,11 +29,7 @@
                 Padding="{StaticResource PaddingCard}"
                 BorderBrush="{StaticResource SeparatorBrush}"
                 BorderThickness="0,0,0,1">
-            <TextBlock Style="{StaticResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}">
-                <Run Text="{DynamicResource TerminologyAddNewLabel}"/>
-                <Run Text=" "/>
-                <Run Text="{DynamicResource TerminologyLabel}"/>
-            </TextBlock>
+            <TextBlock Style="{StaticResource Title2}" Text="{DynamicResource Terminology.Members.Add.Title}" Foreground="{DynamicResource TextPrimaryBrush}"/>
         </Border>
 
         <!-- 2. SCROLLABLE FORM -->
@@ -46,7 +42,7 @@
                         HorizontalAlignment="Stretch">
 
                 <!-- A. PHOTO UPLOAD -->
-                <TextBlock Text="{DynamicResource TerminologyProfilePhotoLabel}" Style="{StaticResource FormLabel}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Terminology.Members.Add.ProfilePhoto}" Style="{StaticResource FormLabel}" Margin="0,0,0,8"/>
 
                 <Border Style="{StaticResource GlobalDragDropUploadZoneStyle}"
                         Height="{StaticResource SizeUploadZoneHeight}"
@@ -58,10 +54,10 @@
                                     Visibility="{Binding ProfileImage, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}">
                             <Path Data="{StaticResource IconUpload}"
                                   Fill="{DynamicResource TextTertiaryBrush}"
-                                  Style="{StaticResource IconHero}" 
+                                  Style="{StaticResource Style.Icon.Hero}" 
                                   HorizontalAlignment="Center"
                                   Margin="0,0,0,16"/>
-                            <TextBlock Text="{DynamicResource TerminologyDragDropToUploadLabel}" 
+                            <TextBlock Text="{DynamicResource Terminology.Members.Add.DragDrop}" 
                                        Style="{StaticResource BodySecondary}" 
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        HorizontalAlignment="Center"/>
@@ -86,7 +82,7 @@
                                     Opacity="0.9">
                                 <Path Data="{StaticResource IconClose}" 
                                       Fill="{DynamicResource TextPrimaryBrush}" 
-                                      Style="{StaticResource IconSmall}"/>
+                                      Style="{StaticResource Style.Icon.Small}"/>
                             </Button>
                         </Grid>
 
@@ -97,7 +93,7 @@
                 </Border>
 
                 <!-- B. PERSONAL INFORMATION -->
-                <TextBlock Text="{DynamicResource TerminologyPersonalInformationLabel}" 
+                <TextBlock Text="{DynamicResource Terminology.Members.Add.PersonalInfo}" 
                            Style="{StaticResource Title3}" 
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            Margin="{StaticResource MarginSectionVertical}"/>
@@ -119,7 +115,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
-                        <TextBlock Text="{DynamicResource TerminologyFullNameLabel}" Style="{StaticResource FormLabel}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" Style="{StaticResource FormLabel}"/>
                         <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" 
                                  Style="{StaticResource UnderlineTextBox}"/>
                     </StackPanel>
@@ -140,12 +136,12 @@
                 BorderBrush="{StaticResource SeparatorBrush}"
                 BorderThickness="0,1,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="{DynamicResource TerminologyCancelLabel}"
+                <Button Content="{DynamicResource Terminology.Global.Cancel}"
                         Command="{Binding CancelCommand}"
                         Style="{StaticResource SecondaryButton}"
                         Margin="{StaticResource MarginSmallRight}"/>
 
-                <Button Content="{DynamicResource TerminologySaveMemberLabel}"
+                <Button Content="{DynamicResource Terminology.Members.Add.Action.Save}"
                         Command="{Binding SaveCommand}"
                         Style="{StaticResource PrimaryButton}"
                         MinWidth="{StaticResource SizeButtonMinWidth}"/>

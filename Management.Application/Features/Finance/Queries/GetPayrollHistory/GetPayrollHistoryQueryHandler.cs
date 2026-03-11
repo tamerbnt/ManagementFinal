@@ -28,11 +28,11 @@ namespace Management.Application.Features.Finance.Queries.GetPayrollHistory
 
             foreach (var entry in entries)
             {
-                var staff = await _staffRepository.GetByIdAsync(entry.StaffMemberId);
+                var staff = await _staffRepository.GetByIdAsync(entry.StaffId);
                 dtos.Add(new PayrollEntryDto
                 {
                     Id = entry.Id,
-                    StaffId = entry.StaffMemberId,
+                    StaffId = entry.StaffId,
                     StaffName = staff?.FullName ?? "Unknown Staff",
                     Amount = entry.Amount.Amount,
                     PayPeriodStart = entry.PayPeriodStart,

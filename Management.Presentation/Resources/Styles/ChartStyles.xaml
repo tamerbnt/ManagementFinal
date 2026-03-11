@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF">
+
+    <Style TargetType="lvc:CartesianChart">
+        <Setter Property="TooltipPosition" Value="Top" />
+        <Setter Property="LegendPosition" Value="Hidden" />
+        <Setter Property="AnimationsSpeed" Value="0:0:0.5" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+</ResourceDictionary>

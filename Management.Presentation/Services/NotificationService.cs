@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -12,6 +12,8 @@ using Management.Domain.Interfaces;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
 using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.Shared;
+using Management.Presentation.Models;
 
 namespace Management.Presentation.Services
 {
@@ -151,10 +153,11 @@ namespace Management.Presentation.Services
                     Message = message,
                     CreatedAt = DateTime.Now,
                     IsPaused = false,
-                    IsExiting = false
+                    IsExiting = false,
+                    DismissCommand = new RelayCommand(() => DismissToast(Guid.Empty)) // Temporary ID until logic is refined, or use Guid.NewGuid() above
                 };
 
-                // Wire up the Dismiss Command
+                // Re-assign with the correct ID if needed, but the error CS9035 requires it in initializer.
                 toast.DismissCommand = new RelayCommand(() => DismissToast(toast.Id));
 
                 // Queue Management: If full, force-dismiss the oldest one
@@ -247,33 +250,7 @@ namespace Management.Presentation.Services
         public void Dispose()
         {
             _autoDismissTimer?.Stop();
-        }
-    }
-
-    // --- VIEW MODEL ---
-
-
-
-    public class ToastNotificationViewModel : ViewModelBase
-    {
-        public Guid Id { get; set; }
-        public ToastType Type { get; set; }
-        public required string Message { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public required ICommand DismissCommand { get; set; }
-
-        private bool _isPaused;
-        public bool IsPaused
-        {
-            get => _isPaused;
-            set => SetProperty(ref _isPaused, value);
-        }
-
-        private bool _isExiting;
-        public bool IsExiting
-        {
-            get => _isExiting;
-            set => SetProperty(ref _isExiting, value);
+            _undoTimer?.Stop();
         }
     }
 }

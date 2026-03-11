@@ -1,0 +1,162 @@
+using System;
+using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.Logging;
+using Management.Application.Services;
+using Management.Application.Interfaces.App;
+using Management.Application.Interfaces.ViewModels;
+using System.Threading;
+
+using Management.Domain.Interfaces;
+
+namespace Management.Application.ViewModels.Base
+{
+    public abstract partial class ViewModelBase : ObservableObject, IDisposable, IStateResettable, IModalAware
+    {
+        public virtual void ResetState()
+        {
+            // Default implementation for Singletons to clear transient state
+            IsBusy = false;
+            IsLoading = false;
+            HasError = false;
+            ErrorMessage = null;
+        }
+        // Used to disable buttons/interactions (Input Lock)
+        [ObservableProperty]
+        private bool _isBusy;
+
+        // Used to show Skeleton Shimmers (Visual State)
+        [ObservableProperty]
+        private bool _isLoading;
+
+        [ObservableProperty]
+        private bool _hasError;
+
+        [ObservableProperty]
+        private string? _errorMessage;
+
+        [ObservableProperty]
+        private string _title = string.Empty;
+
+        protected readonly ILogger? _logger;
+        protected readonly IDiagnosticService? _diagnosticService;
+        protected readonly IToastService? _toastService;
+        protected bool _isDisposed;
+
+        // ── Sync Debounce ─────────────────────────────────────────────────────────
+        // One process-wide cooldown shared across all ViewModel instances.
+        // Prevents a sync storm when SyncCompleted fires and multiple VMs respond.
+        private static DateTime _lastSyncRefresh = DateTime.MinValue;
+        private static readonly TimeSpan SyncDebounceWindow = TimeSpan.FromSeconds(3);
+
+        /// <summary>
+        /// True when this ViewModel is the currently visible/active screen.
+        /// Set to true in the ViewModel load entry-point and false in ResetState/Dispose.
+        /// </summary>
+        public bool IsActive { get; set; }
+
+        /// <summary>
+        /// Returns true only if: (a) this ViewModel is the active screen, AND
+        /// (b) at least 3 seconds have passed since any sync-triggered refresh.
+        /// Updates the shared timestamp on success, blocking other VMs for the window.
+        /// </summary>
+        protected bool ShouldRefreshOnSync()
+        {
+            if (!IsActive) return false;
+            var now = DateTime.UtcNow;
+            if (now - _lastSyncRefresh < SyncDebounceWindow) return false;
+            _lastSyncRefresh = now;
+            return true;
+        }
+
+        public bool IsDisposed => _isDisposed;
+
+        protected ViewModelBase(
+            ILogger? logger = null, 
+            IDiagnosticService? diagnosticService = null,
+            IToastService? toastService = null)
+        {
+            _logger = logger;
+            _diagnosticService = diagnosticService;
+            _toastService = toastService;
+        }
+
+        protected virtual void OnError(Exception ex, string msg)
+        {
+            _logger?.LogError(ex, "ViewModel Error: {Message}", msg);
+            _diagnosticService?.Track(ex, context: $"{Title}: {msg}");
+            HasError = true;
+            ErrorMessage = msg;
+            _toastService?.ShowError(msg, Title);
+        }
+
+        protected void ShowError(string message)
+        {
+            _toastService?.ShowError(message, Title);
+        }
+
+        /// <summary>
+        /// Use for USER ACTIONS (Saving, Deleting). Locks the UI via IsBusy.
+        /// </summary>
+        protected async Task ExecuteSafeAsync(Func<Task> action, string? errorMsg = null)
+        {
+            if (IsBusy) return; // Prevent double-click
+
+            try
+            {
+                IsBusy = true;
+                HasError = false;
+                ErrorMessage = null;
+                await action();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex, errorMsg ?? ex.Message);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        /// <summary>
+        /// Use for DATA FETCHING (Navigation, Initial Load). Shows Skeleton Loader via IsLoading.
+        /// </summary>
+        protected async Task ExecuteLoadingAsync(Func<Task> action, string? errorMsg = null)
+        {
+            // Note: We don't check IsBusy here because we might want to reload data even if "busy"
+            try
+            {
+                IsLoading = true; // Triggers Skeleton View in XAML
+                HasError = false;
+                ErrorMessage = null;
+                await action();
+            }
+            catch (Exception ex)
+            {
+                OnError(ex, errorMsg ?? "Failed to load data.");
+            }
+            finally
+            {
+                IsLoading = false; // Hides Skeleton, shows Content
+            }
+        }
+
+        public virtual Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+            _isDisposed = true;
+        }
+    }
+}

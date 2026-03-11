@@ -1,6 +1,8 @@
 using Management.Application.DTOs;
 using System;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -11,8 +13,12 @@ namespace Management.Application.Stores
     /// It relies on the ViewModel to hold the collection and update specific items by ID
     /// when an event is received.
     /// </summary>
-    public class TurnstileStore
+    public class TurnstileStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Stateless bus, nothing to clear
+        }
         /// <summary>
         /// Fired when a hardware unit reports a status change (e.g. Locked, Error) 
         /// or a heartbeat update.

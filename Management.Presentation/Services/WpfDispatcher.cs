@@ -1,4 +1,4 @@
-﻿// ******************************************************************************************
+// ******************************************************************************************
 //  Management.Presentation/Services/WpfDispatcher.cs
 //  FINAL PRODUCTION VERSION – v1.2.0-production
 //  Design System: Apple 2025 Edition – v1.2 FINAL (LOCKED)
@@ -8,13 +8,14 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using Management.Application.Interfaces;
 
 namespace Management.Presentation.Services
 {
     /// <summary>
     /// WPF implementation of IDispatcher for UI thread operations
     /// </summary>
-    public sealed class WpfDispatcher : IDispatcher
+    public sealed class WpfDispatcher : IDispatcher, IDispatcherService
     {
         private readonly Dispatcher _dispatcher;
 

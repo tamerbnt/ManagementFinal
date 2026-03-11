@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Management.Infrastructure.Services
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class SessionStorageService : ISessionStorageService
+    public class SessionStorageService : Management.Domain.Services.ISessionStorageService
     {
         private readonly ILogger<SessionStorageService> _logger;
         private readonly string _sessionFilePath;

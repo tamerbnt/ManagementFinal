@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Management.Domain.Models;
 
 namespace Management.Domain.Interfaces
@@ -9,9 +9,7 @@ namespace Management.Domain.Interfaces
     public interface IGymSettingsRepository
     {
         // Returns the single active configuration row. Creates default if missing.
-        Task<GymSettings> GetAsync();
-
-        // Updates the singleton.
+        Task<GymSettings> GetAsync(System.Guid facilityId);
         Task SaveAsync(GymSettings settings);
     }
 }

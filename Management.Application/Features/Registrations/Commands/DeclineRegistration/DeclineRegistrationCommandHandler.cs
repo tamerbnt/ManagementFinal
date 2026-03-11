@@ -17,7 +17,7 @@ namespace Management.Application.Features.Registrations.Commands.DeclineRegistra
 
         public async Task<Result> Handle(DeclineRegistrationCommand request, CancellationToken cancellationToken)
         {
-            var registration = await _registrationRepository.GetByIdAsync(request.RegistrationId);
+            var registration = await _registrationRepository.GetByIdAsync(request.RegistrationId, request.FacilityId);
             if (registration == null)
             {
                  return Result.Failure(new Error("Registration.NotFound", "Registration not found"));

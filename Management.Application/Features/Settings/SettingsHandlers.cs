@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Management.Application.DTOs;
+using Management.Application.Services;
 
 namespace Management.Application.Features.Settings
 {
@@ -16,15 +17,17 @@ namespace Management.Application.Features.Settings
         IRequestHandler<GetGymSettingsQuery, Result<GymSettings>>
     {
         private readonly IGymSettingsRepository _settingsRepository;
+        private readonly IAccessControlCache _cache;
 
-        public SettingsHandlers(IGymSettingsRepository settingsRepository)
+        public SettingsHandlers(IGymSettingsRepository settingsRepository, IAccessControlCache cache)
         {
             _settingsRepository = settingsRepository;
+            _cache = cache;
         }
 
         public async Task<Result> Handle(UpdateGeneralSettingsCommand request, CancellationToken cancellationToken)
         {
-            var settings = await _settingsRepository.GetAsync();
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
             var dto = request.Settings;
 
             settings.GymName = dto.GymName;
@@ -41,20 +44,25 @@ namespace Management.Application.Features.Settings
 
         public async Task<Result> Handle(UpdateFacilitySettingsCommand request, CancellationToken cancellationToken)
         {
-            var settings = await _settingsRepository.GetAsync();
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
             var dto = request.Settings;
 
             settings.MaxOccupancy = dto.MaxOccupancy;
+            settings.DailyRevenueTarget = dto.DailyRevenueTarget;
             settings.IsMaintenanceMode = dto.IsMaintenanceMode;
             settings.OperatingHoursJson = System.Text.Json.JsonSerializer.Serialize(dto.Schedule);
 
             await _settingsRepository.SaveAsync(settings);
+            
+            // Fix 10: Invalidate access control cache when operating hours change
+            _cache.Clear();
+            
             return Result.Success();
         }
 
         public async Task<Result> Handle(UpdateAppearanceSettingsCommand request, CancellationToken cancellationToken)
         {
-            var settings = await _settingsRepository.GetAsync();
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
             var dto = request.Settings;
 
             settings.IsLightMode = dto.IsLightMode;
@@ -70,7 +78,7 @@ namespace Management.Application.Features.Settings
 
         public async Task<Result<GymSettings>> Handle(GetGymSettingsQuery request, CancellationToken cancellationToken)
         {
-            var settings = await _settingsRepository.GetAsync();
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
             return Result.Success(settings);
         }
     }

@@ -35,7 +35,7 @@ namespace Management.Application.Features.Staff.Queries.GetStaff
         public async Task<Result<List<StaffDto>>> Handle(GetAllStaffQuery request, CancellationToken cancellationToken)
         {
             var allStaff = await _staffRepository.GetAllAsync();
-            var dtos = allStaff.Select(MapToDto).ToList();
+            var dtos = allStaff.Take(200).Select(MapToDto).ToList();
             return Result.Success(dtos);
         }
 
@@ -44,13 +44,17 @@ namespace Management.Application.Features.Staff.Queries.GetStaff
             return new StaffDto
             {
                 Id = entity.Id,
+                TenantId = entity.TenantId,
+                FacilityId = entity.FacilityId,
                 FullName = entity.FullName,
                 Email = entity.Email.Value,
                 PhoneNumber = entity.PhoneNumber.Value,
                 Role = entity.Role,
-                HireDate = entity.CreatedAt, // Assuming CreatedAt is hire date or close enough
-                Status = entity.IsActive ? "Active" : "Terminated",
-                Permissions = new List<PermissionDto>() // TODO: Map permissions if any
+                HireDate = entity.HireDate, 
+                Salary = entity.Salary,
+                PaymentDay = entity.PaymentDay,
+                Status = entity.IsActive ? "Active" : "Inactive",
+                Permissions = entity.Permissions?.Select(p => new PermissionDto(p.Key, p.Value)).ToList() ?? new List<PermissionDto>()
             };
         }
     }

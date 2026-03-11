@@ -24,7 +24,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
 
         public async Task<Result<Guid>> Handle(ApproveRegistrationCommand request, CancellationToken cancellationToken)
         {
-            var registration = await _registrationRepository.GetByIdAsync(request.RegistrationId);
+            var registration = await _registrationRepository.GetByIdAsync(request.RegistrationId, request.FacilityId);
             if (registration == null)
             {
                 return Result.Failure<Guid>(new Error("Registration.NotFound", "Registration not found"));
@@ -50,6 +50,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             if (memberResult.IsFailure) return Result.Failure<Guid>(memberResult.Error);
 
             var member = memberResult.Value;
+            member.FacilityId = request.FacilityId;
             await _memberRepository.AddAsync(member);
 
             return Result.Success(member.Id);

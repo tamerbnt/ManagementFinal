@@ -1,17 +1,22 @@
-﻿using System;
+using System;
 using Management.Domain.Primitives;
+using Management.Domain.Interfaces;
 
 namespace Management.Domain.Primitives
 {
-    public abstract class Entity : ITenantEntity, IEquatable<Entity>
+    public abstract class Entity : ITenantEntity, Management.Domain.Interfaces.ISyncable, IEquatable<Entity>
     {
-        public Guid Id { get; protected set; }
+        public Guid Id { get; set; }
 
         public DateTime CreatedAt { get; private set; }
 
         public DateTime? UpdatedAt { get; private set; }
+        
+        DateTimeOffset ISyncable.UpdatedAt => UpdatedAt ?? CreatedAt;
 
         public bool IsDeleted { get; private set; }
+        
+        public bool IsSynced { get; set; }
 
         public Guid TenantId { get; set; }
         public byte[] RowVersion { get; private set; } = Array.Empty<byte>(); // For SQLite/Postgres concurrency
@@ -31,6 +36,12 @@ namespace Management.Domain.Primitives
         public void UpdateTimestamp()
         {
             UpdatedAt = DateTime.UtcNow;
+        }
+
+        public void Delete()
+        {
+            IsDeleted = true;
+            UpdateTimestamp();
         }
 
         public bool Equals(Entity? other)

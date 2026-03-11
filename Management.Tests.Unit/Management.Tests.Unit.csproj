@@ -29,4 +29,9 @@
     <ProjectReference Include="..\Management.Presentation\Management.Presentation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="**\*.cs" />
+    <Compile Include="TurnstileTests.cs" />
+  </ItemGroup>
+
 </Project>

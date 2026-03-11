@@ -22,15 +22,18 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
         {
             if (!Enum.TryParse<AccessStatus>(request.Status, true, out var status))
             {
-                status = AccessStatus.Denied; // Default or Error?
+                status = AccessStatus.Denied;
             }
 
             var accessEvent = AccessEvent.Create(
                 request.TurnstileId,
                 request.CardId,
+                request.TransactionId,
                 request.Granted,
                 status,
                 request.Reason);
+
+            accessEvent.FacilityId = request.FacilityId;
 
             await _accessRepo.AddAsync(accessEvent);
 

@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Views.Sync.ConflictModal"
+﻿<UserControl x:Class="Management.Presentation.Views.Sync.ConflictModal"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -14,8 +14,8 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Data Conflict Detected" Style="{StaticResource Title2}"/>
-            <TextBlock Grid.Row="1" Text="Manual merge required for [Entity] due to offline modification." 
+            <TextBlock Text="{DynamicResource Strings.Sync.DataConflictDetected}" Style="{StaticResource Title2}"/>
+            <TextBlock Grid.Row="1" Text="{DynamicResource Strings.Sync.ManualmergerequiredforEnt}" 
                        Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,24"/>
 
             <Grid Grid.Row="2">
@@ -26,27 +26,27 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Local Version (This Device)" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="{DynamicResource Strings.Sync.LocalVersionThisDevice}" FontWeight="Bold" Margin="0,0,0,12"/>
                     <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="16" Height="250">
                         <TextBlock Text="{Binding LocalContent}" TextWrapping="Wrap" FontFamily="Consolas"/>
                     </Border>
-                    <RadioButton Content="Keep Local" IsChecked="{Binding KeepLocal}" Style="{StaticResource TogglePillStyle}" Margin="0,16" HorizontalAlignment="Center"/>
+                    <RadioButton Content="{DynamicResource Strings.Global.KeepLocal}" IsChecked="{Binding KeepLocal}" Style="{StaticResource TogglePillStyle}" Margin="0,16" HorizontalAlignment="Center"/>
                 </StackPanel>
 
                 <Border Grid.Column="1" Background="{DynamicResource SeparatorStroke}" Width="1" Margin="24,0"/>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Server Version (Cloud)" FontWeight="Bold" Margin="0,0,0,12"/>
+                    <TextBlock Text="{DynamicResource Strings.Sync.ServerVersionCloud}" FontWeight="Bold" Margin="0,0,0,12"/>
                     <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="16" Height="250">
                         <TextBlock Text="{Binding RemoteContent}" TextWrapping="Wrap" FontFamily="Consolas"/>
                     </Border>
-                    <RadioButton Content="Take Server" IsChecked="{Binding KeepRemote}" Style="{StaticResource TogglePillStyle}" Margin="0,16" HorizontalAlignment="Center"/>
+                    <RadioButton Content="{DynamicResource Strings.Sync.TakeServer}" IsChecked="{Binding KeepRemote}" Style="{StaticResource TogglePillStyle}" Margin="0,16" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
 
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
-                <Button Content="CANCEL" Style="{StaticResource PrimaryButton}" Background="{DynamicResource TextTertiaryBrush}" Width="120" Margin="0,0,12,0"/>
-                <Button Content="RESOLVE" Style="{StaticResource PrimaryButton}" Width="120" Command="{Binding ResolveCommand}"/>
+                <Button Content="{DynamicResource Strings.Global.Cancel}" Style="{StaticResource PrimaryButton}" Background="{DynamicResource TextTertiaryBrush}" Width="120" Margin="0,0,12,0"/>
+                <Button Content="{DynamicResource Strings.Sync.RESOLVE}" Style="{StaticResource PrimaryButton}" Width="120" Command="{Binding ResolveCommand}"/>
             </StackPanel>
         </Grid>
     </Border>

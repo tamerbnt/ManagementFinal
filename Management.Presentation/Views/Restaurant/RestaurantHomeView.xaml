@@ -1,0 +1,223 @@
+<UserControl x:Class="Management.Presentation.Views.Restaurant.RestaurantHomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Restaurant"
+             xmlns:shared="clr-namespace:Management.Presentation.ViewModels.Shared"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="1440">
+
+    <Grid VerticalAlignment="Stretch">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="32"/>
+            </Grid.RowDefinitions>
+
+            <!-- SECTION 0: DASHBOARD HEADER -->
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <Path Data="{StaticResource IconRestaurant}" 
+                          Style="{StaticResource Style.Icon.Large}" 
+                          Stroke="{DynamicResource TextPrimaryBrush}"
+                          Margin="0,0,12,0"
+                          VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="{Binding Greeting}" FontSize="32" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Home.Subtitle}" FontSize="15" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- ZONE 1: LEFT CONTENT AREA (Metrics + Activity) -->
+            <Grid Grid.Row="1" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> 
+                    <RowDefinition Height="32"/>   
+                    <RowDefinition Height="*"/>    
+                </Grid.RowDefinitions>
+
+                <!-- SECTION 1: METRICS STRIP -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- METRIC 1: ACTIVE TABLES -->
+                    <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.ActiveTables}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.8"/>
+                            <TextBlock Text="{Binding ActiveTablesCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- METRIC 2: DAILY REVENUE -->
+                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                            <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:N0} DA}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- METRIC 3: OPEN ORDERS -->
+                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.PendingOrders}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                            <TextBlock Text="{Binding OpenOrdersCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- SECTION 2: RECENT ACTIVITY -->
+                <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,20">
+                            <Border Width="1" Height="20" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,12,0"/>
+                            <TextBlock Text="{DynamicResource Terminology.Home.RecentActivity}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        </StackPanel>
+                        
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ActivityStream}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type shared:ActivityLogItem}">
+                                        <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="8" Background="{DynamicResource FacilitySidebarBrush}" Margin="0,0,16,0">
+                                                    <Grid>
+                                                        <!-- Icon for the activity type -->
+                                                        <Path Data="{Binding Icon, Converter={StaticResource ResourceKeyToIconConverter}}" 
+                                                              Fill="{DynamicResource Brush.Neutral.White}" 
+                                                              Width="18" Height="18" Stretch="Uniform"
+                                                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    </Grid>
+                                                </Border>
+                                                
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                                    <TextBlock Text="{Binding Status}" FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,2,0,0"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="2" Text="{Binding Timestamp}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Top"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ZONE 2: RIGHT SIDEBAR (Quick Actions + Time) -->
+            <Grid Grid.Row="1" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>    
+                    <RowDefinition Height="16"/>   
+                    <RowDefinition Height="Auto"/> 
+                </Grid.RowDefinitions>
+                
+                <!-- QUICK ACTIONS CARD -->
+                <Border Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}" VerticalAlignment="Stretch">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>  
+                            <RowDefinition Height="*"/>     
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="{DynamicResource Terminology.Home.QuickActions}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Margin="0,0,0,16" HorizontalAlignment="Center"/>
+                        
+                        <!-- 2x2 Grid using dynamic commands and strings -->
+                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/> 
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/> 
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- New Table -->
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding NewTableCommand}" Height="70">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource Icon.Plus}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.NewTable}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Takeout -->
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding TakeoutCommand}" Height="70">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource Icon.Storefront}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.Takeout}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Pay Bill -->
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding PayBillCommand}" Height="70">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource Icon.CheckCircle}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.PayBill}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Menu Status -->
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding MenuStatusCommand}" Height="70">
+                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource Icon.Sliders}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    </Border>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.MenuStatus}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+                
+                <!-- TIME/DATE -->
+                <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentTime}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding CurrentDate}" FontSize="12" Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

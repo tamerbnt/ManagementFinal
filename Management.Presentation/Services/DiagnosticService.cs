@@ -7,20 +7,25 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Management.Application.Services;
 using Management.Presentation.Diagnostics;
 using Management.Presentation.Models;
-using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.Shell;
+using Management.Presentation.ViewModels.Members;
+using Management.Presentation.ViewModels.Shop;
+using Management.Presentation.ViewModels.Settings;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Management.Presentation.Services
 {
-    public class DiagnosticService : IDiagnosticService
+    public class DiagnosticService : Management.Application.Services.IDiagnosticService
     {
-        private readonly ConcurrentQueue<DiagnosticEntry> _entries = new();
+        private readonly ConcurrentQueue<Management.Application.Services.DiagnosticEntry> _entries = new();
         private readonly SemaphoreSlim _streamSemaphore = new(0);
         private BindingErrorTraceListener? _bindingListener;
         
-        public event EventHandler<DiagnosticEntry>? EntryAdded;
+        public event EventHandler<Management.Application.Services.DiagnosticEntry>? EntryAdded;
+
 
         // Required theme resource keys
         private static readonly string[] RequiredThemeKeys = new[]
@@ -36,7 +41,6 @@ namespace Management.Presentation.Services
         // ViewModels to validate in DI container
         private static readonly Type[] ViewModelsToValidate = new[]
         {
-            typeof(MainViewModel),
             typeof(DashboardViewModel),
             typeof(MembersViewModel),
             typeof(ShopViewModel),
@@ -269,12 +273,13 @@ namespace Management.Presentation.Services
             EntryAdded?.Invoke(this, entry);
         }
 
-        public IReadOnlyList<DiagnosticEntry> GetAllEntries()
+        public IReadOnlyList<Management.Application.Services.DiagnosticEntry> GetAllEntries()
         {
             return _entries.ToList();
         }
 
-        public async IAsyncEnumerable<DiagnosticEntry> GetErrorStreamAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+
+        public async IAsyncEnumerable<Management.Application.Services.DiagnosticEntry> GetErrorStreamAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -287,12 +292,13 @@ namespace Management.Presentation.Services
             }
         }
 
+
         public void ClearAll()
         {
             while (_entries.TryDequeue(out _)) { }
         }
 
-        public int GetErrorCount(DiagnosticSeverity? severity = null)
+        public int GetErrorCount(Management.Application.Services.DiagnosticSeverity? severity = null)
         {
             if (severity.HasValue)
             {
@@ -300,6 +306,22 @@ namespace Management.Presentation.Services
             }
             return _entries.Count;
         }
+
+        public Task<IEnumerable<Management.Application.Services.DiagnosticEntry>> GetPendingReportsAsync() => Task.FromResult<IEnumerable<Management.Application.Services.DiagnosticEntry>>(Enumerable.Empty<Management.Application.Services.DiagnosticEntry>());
+        public Task AcknowledgeReportAsync(Guid id) => Task.CompletedTask;
+
+        public void Track(Exception ex, Management.Domain.Models.Diagnostics.DiagnosticCategory category = Management.Domain.Models.Diagnostics.DiagnosticCategory.Unexpected, string? context = null, Dictionary<string, string>? metadata = null) 
+        {
+            var appCategory = (DiagnosticCategory)(int)category;
+            LogError(appCategory, context ?? "LegacyTrack", ex.Message, ex, DiagnosticSeverity.Error);
+        }
+
+        public void TrackFatal(Exception ex, string? context = null) 
+        {
+            LogError(DiagnosticCategory.System, context ?? "LegacyFatal", ex.Message, ex, DiagnosticSeverity.Fatal);
+        }
+
+
 
         private string ExtractMissingDependency(Exception ex)
         {

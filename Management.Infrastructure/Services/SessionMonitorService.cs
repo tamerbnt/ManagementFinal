@@ -1,19 +1,15 @@
 using Management.Domain.Services;
 using Management.Application.Services;
 using Microsoft.Extensions.Logging;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
     public class SessionMonitorService : ISessionMonitorService
     {
-        private readonly ISessionStorageService _sessionStorage;
+        private readonly Management.Domain.Services.ISessionStorageService _sessionStorage;
         private readonly IAuthenticationService _authService;
         private readonly ILogger<SessionMonitorService> _logger;
         private Timer? _monitorTimer;
@@ -23,7 +19,7 @@ namespace Management.Infrastructure.Services
         public event EventHandler? SessionRefreshed;
 
         public SessionMonitorService(
-            ISessionStorageService sessionStorage,
+            Management.Domain.Services.ISessionStorageService sessionStorage,
             IAuthenticationService authService,
             ILogger<SessionMonitorService> logger)
         {

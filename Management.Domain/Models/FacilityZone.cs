@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using Management.Domain.Enums;
 using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
-    public class FacilityZone : Entity
+    public class FacilityZone : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
         public string Name { get; private set; }
         public int Capacity { get; private set; }
         public FacilityType Type { get; private set; }

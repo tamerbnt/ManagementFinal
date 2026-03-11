@@ -1,8 +1,8 @@
 ﻿// ******************************************************************************************
 //  Management.Presentation/Services/ModalNavigationService.cs
-//  FINAL PRODUCTION VERSION – v1.2.0-production
-//  Design System: Apple 2025 Edition – v1.2 FINAL (LOCKED)
-//  Status: PRODUCTION READY – DESIGN SYSTEM COMPLIANT
+//  FINAL PRODUCTION VERSION � v1.2.0-production
+//  Design System: Apple 2025 Edition � v1.2 FINAL (LOCKED)
+//  Status: PRODUCTION READY � DESIGN SYSTEM COMPLIANT
 // ******************************************************************************************
 
 using System;
@@ -18,6 +18,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Management.Presentation.Extensions;
+using Management.Presentation.Stores;
 // using Management.Presentation.Services; (Namespace is already this)
 using Microsoft.Extensions.Logging;
 using Color = System.Windows.Media.Color;
@@ -52,23 +53,23 @@ namespace Management.Presentation.Services
     {
         #region Constants
 
-        // Design System §33.1: Maximum modal stack depth
+        // Design System �33.1: Maximum modal stack depth
         private const int MaxStackDepth = 2;
 
-        // Design System §33.5: Animation durations
+        // Design System �33.5: Animation durations
         private static readonly TimeSpan OpenAnimationDuration = TimeSpan.FromMilliseconds(400);
         private static readonly TimeSpan CloseAnimationDuration = TimeSpan.FromMilliseconds(300);
 
-        // Design System §33.2: Backdrop opacity levels
+        // Design System �33.2: Backdrop opacity levels
         private const double BackdropOpacityBase = 0.5;      // 50% for first modal
         private const double BackdropOpacityStacked = 0.6;   // 60% for second modal
 
-        // Design System §15.4: Modal size defaults
+        // Design System �15.4: Modal size defaults
         private const int ModalWidthSmall = 640;
         private const int ModalWidthMedium = 880;
         private const int ModalWidthLarge = 1120;
 
-        // Minimum window size as per Design System §7.1
+        // Minimum window size as per Design System �7.1
         private const int MinWindowWidth = 1280;
         private const int MinWindowHeight = 720;
 
@@ -88,7 +89,7 @@ namespace Management.Presentation.Services
         private object? _currentModalViewModel;
         private bool _isDisposed;
 
-        // Design System §33.1: Z-index layers
+        // Design System �33.1: Z-index layers
         // Removed unused _nextZIndex
 
         #endregion
@@ -158,6 +159,7 @@ namespace Management.Presentation.Services
 
         public void CloseModal()
         {
+            System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: CloseModal() called");
             _ = CloseCurrentModalAsync();
         }
 
@@ -168,7 +170,7 @@ namespace Management.Presentation.Services
         {
             ThrowIfDisposed();
 
-            // Design System §33.1: Maximum 2 modals
+            // Design System �33.1: Maximum 2 modals
             if (StackDepth >= MaxStackDepth)
             {
                 await ShowMaxDepthErrorAsync();
@@ -224,16 +226,44 @@ namespace Management.Presentation.Services
         {
             ThrowIfDisposed();
 
-            if (StackDepth == 0) return true;
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService: CloseCurrentModalAsync(force={force}) called. StackDepth={StackDepth}");
 
+            if (StackDepth == 0) 
+            {
+                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: StackDepth is 0, nothing to close");
+                return true;
+            }
+
+            // FAILSOUND: Guard against duplicate close calls during rapid animation
+            if (_modalStack.Any() && _modalStack.Peek().IsClosing && !force) 
+            {
+                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Top modal is already closing, ignoring");
+                return false;
+            }
+
+            System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Waiting for _modalLock...");
             await _modalLock.WaitAsync();
             try
             {
-                return await ExecuteCloseCurrentModalAsync(force);
+                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Acquired _modalLock");
+                if (StackDepth == 0) 
+                {
+                    System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: StackDepth became 0 while waiting for lock");
+                    return true; // Re-check after lock
+                }
+                var result = await ExecuteCloseCurrentModalAsync(force);
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService: ExecuteCloseCurrentModalAsync returned {result}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService ERROR in CloseCurrentModalAsync: {ex.Message}");
+                return false;
             }
             finally
             {
                 _modalLock.Release();
+                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Released _modalLock");
             }
         }
 
@@ -267,7 +297,7 @@ namespace Management.Presentation.Services
         {
             return await _dispatcher.InvokeAsync(() =>
             {
-                // Design System §33.4: Unsaved changes dialog
+                // Design System �33.4: Unsaved changes dialog
                 var dialog = new Window
                 {
                     Title = "Unsaved Changes",
@@ -276,7 +306,7 @@ namespace Management.Presentation.Services
                     WindowStyle = WindowStyle.ToolWindow,
                     ResizeMode = ResizeMode.NoResize,
                     ShowInTaskbar = false,
-                    Owner = System.Windows.Application.Current.MainWindow,  // ✅ Fixed
+                    Owner = System.Windows.Application.Current.MainWindow,  // ? Fixed
                     WindowStartupLocation = WindowStartupLocation.CenterOwner
                 };
 
@@ -293,7 +323,7 @@ namespace Management.Presentation.Services
         }
         public async Task<bool> HandleEscapeKeyAsync()
         {
-            // Design System §33.3: Escape key handling priority
+            // Design System �33.3: Escape key handling priority
             if (StackDepth == 0) return false;
 
             var currentState = _modalStack.Peek();
@@ -351,6 +381,18 @@ namespace Management.Presentation.Services
             }
             catch (Exception ex)
             {
+                // Robust Diagnostic Logging for XAML/DI failures
+                var msg = $"Modal instantiation failed for {typeof(TViewModel).Name}. Error: {ex.Message} ";
+                if (ex.InnerException != null) msg += $"Inner: {ex.InnerException.Message}";
+                
+                System.Windows.MessageBox.Show("[MODAL_FAIL] " + msg);
+                _logger?.LogCritical(ex, "[MODAL_CRITICAL] {Message}", msg);
+                
+                if (ex is System.Windows.Markup.XamlParseException xamlEx)
+                {
+                    _logger?.LogCritical("XAML Parse Error at Line {Line}, Pos {Pos}. Resource potentially missing.", xamlEx.LineNumber, xamlEx.LinePosition);
+                }
+
                 await HandleModalErrorAsync(typeof(TViewModel), ex);
                 return false;
             }
@@ -370,13 +412,17 @@ namespace Management.Presentation.Services
                 throw new InvalidOperationException($"ViewModel {typeof(TViewModel).Name} not registered in DI container");
             }
 
-            // Initialize if parameter provided
-            if (parameter != null && viewModel is IInitializable<object> initializable)
+            // Initialize ViewModel (Design System 33.1)
+            if (viewModel is IModalAware modalAware)
+            {
+                await modalAware.OnModalOpenedAsync(parameter, cancellationToken);
+            }
+            else if (viewModel is IInitializable<object?> initializable)
             {
                 await initializable.InitializeAsync(parameter, cancellationToken);
             }
 
-            // Determine modal size (Design System §15.4)
+            // Determine modal size (Design System �15.4)
             var size = requestedSize ??
                       (viewModel as IModalViewModel)?.PreferredSize ??
                       ModalSize.Medium;
@@ -422,7 +468,13 @@ namespace Management.Presentation.Services
                 // Show the window modally
                 // Design System: Owner set to main window for proper centering
                 state.Window.Owner = System.Windows.Application.Current.MainWindow;
-                state.Window.ShowDialog();
+                
+                // Use Show() instead of ShowDialog() to prevent UI thread blocking
+                // Modal behavior is maintained through Owner property and Topmost
+                state.Window.Topmost = true;
+                state.Window.Show();
+                state.Window.Activate();
+                state.Window.Focus();
 
             }, DispatcherPriority.DataBind);
         }
@@ -438,7 +490,7 @@ namespace Management.Presentation.Services
 
             try
             {
-                // Check for unsaved changes (Design System §33.4)
+                // Check for unsaved changes (Design System �33.4)
                 if (!force && state.ViewModel is IHasUnsavedChanges hasUnsaved && hasUnsaved.HasUnsavedChanges)
                 {
                     var shouldClose = await ShowUnsavedChangesDialogAsync();
@@ -482,27 +534,47 @@ namespace Management.Presentation.Services
             }
         }
 
-        private async Task CloseModalWindowAsync(ModalState state)
+        private Task CloseModalWindowAsync(ModalState state)
         {
-            await _dispatcher.InvokeAsync(() =>
+            // Use a TaskCompletionSource so we properly AWAIT the animation completion.
+            // Previously, _dispatcher.InvokeAsync returned immediately after scheduling the
+            // animation, causing the modal stack cleanup to run before window.Close() was
+            // ever called. This also prevented the storyboard Completed event from firing
+            // on the correct window instance.
+            var tcs = new System.Threading.Tasks.TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            _dispatcher.InvokeAsync(() =>
             {
-                if (state.Window.IsLoaded)
+                try
                 {
-                    // Apply close animation if not reduced motion
-                    if (!IsReducedMotionEnabled())
+                    if (state.Window.IsLoaded)
                     {
-                        ApplyCloseAnimation(state.Window, () => state.Window.Close());
+                        if (!IsReducedMotionEnabled())
+                        {
+                            ApplyCloseAnimation(state.Window, () =>
+                            {
+                                state.Window.Close();
+                                tcs.TrySetResult(true);
+                            });
+                        }
+                        else
+                        {
+                            state.Window.Close();
+                            tcs.TrySetResult(true);
+                        }
                     }
                     else
                     {
-                        state.Window.Close();
+                        tcs.TrySetResult(true);
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    state.Window.Close();
+                    tcs.TrySetException(ex);
                 }
             });
+
+            return tcs.Task;
         }
 
         #endregion
@@ -511,19 +583,19 @@ namespace Management.Presentation.Services
 
         private void ConfigureModalWindow(Window window, ModalSize size, int stackDepth)
         {
-            // Design System §15.4: Modal dimensions
+            // Design System �15.4: Modal dimensions
             window.Width = (int)size;
             window.SizeToContent = SizeToContent.Height;
             window.MaxHeight = System.Windows.Application.Current.MainWindow.ActualHeight * 0.9;
 
-            // Design System §15.4: Modal styling
+            // Design System �15.4: Modal styling
             window.WindowStyle = WindowStyle.None;
             window.ResizeMode = ResizeMode.NoResize;
             window.ShowInTaskbar = false;
             window.AllowsTransparency = true;
             window.Background = System.Windows.Media.Brushes.Transparent;
 
-            // Design System §33.1: Z-index layering
+            // Design System �33.1: Z-index layering
             window.Topmost = true;
 
             // Center on owner
@@ -538,7 +610,7 @@ namespace Management.Presentation.Services
 
         private void ApplyBackdropEffect(Window window, int stackDepth)
         {
-            // Design System §33.2: Backdrop opacity levels
+            // Design System �33.2: Backdrop opacity levels
             var opacity = stackDepth == 0 ? BackdropOpacityBase : BackdropOpacityStacked;
 
             // Create backdrop effect (would be implemented with a separate overlay window)
@@ -547,7 +619,7 @@ namespace Management.Presentation.Services
 
         private void ApplyOpenAnimation(Window window)
         {
-            // Design System §33.5: Scale 0.94→1.0 + Opacity 0→1, 400ms
+            // Design System �33.5: Scale 0.94?1.0 + Opacity 0?1, 400ms
             var storyboard = System.Windows.Application.Current.Resources["ModalFadeIn"] as System.Windows.Media.Animation.Storyboard;
             if (storyboard != null)
             {
@@ -557,15 +629,21 @@ namespace Management.Presentation.Services
 
         private void ApplyCloseAnimation(Window window, Action onCompleted)
         {
-            // Design System §33.5: Opacity 1→0, 300ms
-            var storyboard = System.Windows.Application.Current.Resources["ModalFadeOut"] as System.Windows.Media.Animation.Storyboard;
-            if (storyboard != null)
+            // CRITICAL FIX: Clone the shared storyboard resource before use.
+            // Using the shared resource directly causes event handler accumulation:
+            // each call added another 'Completed' handler to the same Storyboard object.
+            // After the second close, old handlers fired for the new window, causing
+            // window.Close() to target the wrong window or not fire at all.
+            var template = System.Windows.Application.Current.Resources["ModalFadeOut"] as System.Windows.Media.Animation.Storyboard;
+            if (template != null)
             {
+                var storyboard = template.Clone();
                 storyboard.Completed += (s, e) => onCompleted();
                 storyboard.Begin(window);
             }
             else
             {
+                // No animation resource found - close the window immediately.
                 onCompleted();
             }
         }
@@ -608,7 +686,7 @@ namespace Management.Presentation.Services
 
         private void OnModalWindowPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            // Design System §33.3: Escape key handling
+            // Design System �33.3: Escape key handling
             if (e.Key == Key.Escape && !e.Handled)
             {
                 _dispatcher.InvokeAsync(async () =>
@@ -643,7 +721,7 @@ namespace Management.Presentation.Services
 
         private bool IsReducedMotionEnabled()
         {
-            // Design System §5.4: Reduced motion detection
+            // Design System �5.4: Reduced motion detection
             return !SystemParameters.MenuAnimation;
         }
 
@@ -674,7 +752,7 @@ namespace Management.Presentation.Services
 
         private async Task ShowMaxDepthErrorAsync()
         {
-            // Design System §33.1: Third modal attempt blocked
+            // Design System �33.1: Third modal attempt blocked
             await _dispatcher.InvokeAsync(() =>
             {
                 // Would typically show a toast notification
@@ -799,7 +877,7 @@ namespace Management.Presentation.Services
 
     #region Supporting Internal Classes
 
-    // Internal classes for unsaved changes dialog (Design System §33.4)
+    // Internal classes for unsaved changes dialog (Design System �33.4)
     internal sealed class UnsavedChangesDialogViewModel : ViewModelBase
     {
         private readonly Action _discardCallback;
@@ -841,10 +919,10 @@ namespace Management.Presentation.Services
                 Margin = new Thickness(24)
             };
 
-            // Icon (Design System §33.4: ⚠️ 48px)
+            // Icon (Design System �33.4: ?? 48px)
             var icon = new System.Windows.Controls.TextBlock
             {
-                Text = "⚠️",
+                Text = "??",
                 FontSize = 48,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 16)
@@ -875,7 +953,7 @@ namespace Management.Presentation.Services
             {
                 Orientation = Orientation.Horizontal,
                 HorizontalAlignment = HorizontalAlignment.Center
-                // ❌ Removed: Spacing = 16
+                // ? Removed: Spacing = 16
             };
 
             var keepButton = new System.Windows.Controls.Button
@@ -883,7 +961,7 @@ namespace Management.Presentation.Services
                 Content = "Keep Editing",
                 Width = 120,
                 Height = 40,
-                Margin = new Thickness(0, 0, 8, 0),  // ✅ Added: 8px right margin
+                Margin = new Thickness(0, 0, 8, 0),  // ? Added: 8px right margin
                 Command = (DataContext as UnsavedChangesDialogViewModel)?.CancelCommand
             };
 
@@ -892,7 +970,7 @@ namespace Management.Presentation.Services
                 Content = "Discard Changes",
                 Width = 120,
                 Height = 40,
-                Margin = new Thickness(8, 0, 0, 0),  // ✅ Added: 8px left margin (total 16px gap)
+                Margin = new Thickness(8, 0, 0, 0),  // ? Added: 8px left margin (total 16px gap)
                 Background = new SolidColorBrush(Color.FromRgb(255, 82, 82)), // #FF5252
                 Foreground = System.Windows.Media.Brushes.White,
                 Command = (DataContext as UnsavedChangesDialogViewModel)?.DiscardCommand

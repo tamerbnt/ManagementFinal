@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="Management.Presentation.Views.Registrations.RegistrationsView"
+<UserControl x:Class="Management.Presentation.Views.Registrations.RegistrationsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.Registrations"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Registrations"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -15,164 +16,219 @@
              Background="Transparent">
 
     <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
-        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+        <!-- Shared converters used from App.xaml -->
     </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Header -->
+            <!-- 1. Header & Primary Actions -->
             <RowDefinition Height="Auto"/>
-            <!-- Bulk Action Bar -->
+            <!-- 2. Controls Area (Filters) -->
             <RowDefinition Height="*"/>
-            <!-- Content -->
+            <!-- 3. Content Area (List) -->
         </Grid.RowDefinitions>
 
-        <!-- 1. Header & Global Actions -->
-        <Grid Grid.Row="0" Margin="48,0,48,24">
-
-            <!-- Left: Title Group -->
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center">
-                <TextBlock Text="{DynamicResource TerminologyRegistrationsLabel}" 
+        <!-- 1. Header & Global Actions (Aligned with Members) -->
+        <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Path Data="{StaticResource IconRegistrations}" 
+                      Style="{StaticResource Style.Icon.Large}" 
+                      Stroke="{DynamicResource TextPrimaryBrush}"
+                      Margin="0,0,12,0"/>
+                <TextBlock Text="{DynamicResource Terminology.Global.Header.Registrations}" 
                            Style="{StaticResource Title1}" 
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-
-                <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginTextTop}">
-                    <TextBlock Text="{DynamicResource TerminologyPendingLeadsLabel}" 
-                               Style="{StaticResource BodySecondary}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-
-                    <!-- Count Badge -->
-                    <!-- FIX: Removed hardcoded Height="20", used MinHeight/Padding for sizing -->
-                    <Border Background="{DynamicResource StatusErrorBrush}"
-                            CornerRadius="{StaticResource RadiusPill}"
-                            Padding="8,2"
-                            MinHeight="{StaticResource SizeBadgeMinHeight}"
-                            Margin="{StaticResource MarginSmallLeft}"
-                            VerticalAlignment="Center"
-                            Visibility="{Binding Registrations.Count, Converter={StaticResource IntToVisibilityConverter}}">
-                        <TextBlock Text="{Binding Registrations.Count}"
-                                   Style="{StaticResource Micro}"
-                                   Foreground="{DynamicResource TextOnAccentBrush}"
-                                   FontWeight="Bold"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                </StackPanel>
+                
+                <!-- Count Badge (Optional, but looks nice like in the image) -->
+                <Border Background="{DynamicResource StatusErrorBrush}"
+                        CornerRadius="14"
+                        Padding="8,2"
+                        MinHeight="20"
+                        Margin="12,0"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding Registrations.Count, Converter={StaticResource IntToVisibilityConverter}}">
+                    <TextBlock Text="{Binding Registrations.Count}"
+                               Style="{StaticResource Micro}"
+                               Foreground="{DynamicResource TextOnAccentBrush}"
+                               FontWeight="Bold"/>
+                </Border>
             </StackPanel>
 
-            <!-- Right: Print Action -->
-            <Button Style="{StaticResource SecondaryButton}"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Command="{Binding PrintReportCommand}">
+            <!-- Soft Action: Print Button -->
+            <Button Grid.Column="1" Command="{Binding PrintReportCommand}" Style="{StaticResource SecondaryButton}">
                 <StackPanel Orientation="Horizontal">
                     <Path Data="{StaticResource IconPrinter}" 
                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          Style="{StaticResource IconSmall}"
+                          Style="{StaticResource Style.Icon.Small}"
                           Margin="{StaticResource MarginIconRight}"/>
-                    <TextBlock Text="{DynamicResource TerminologyPrintReportLabel}"/>
+                    <TextBlock Text="{DynamicResource Terminology.Registrations.Action.Print}" FontWeight="Medium"/>
                 </StackPanel>
             </Button>
         </Grid>
 
-        <!-- 2. Bulk Action Context Bar (Section 27.5) -->
-        <!-- FIX: Added Opacity to simulate the spec's 90% requirement -->
-        <Border Grid.Row="1"
-                Background="{DynamicResource FacilityAccentBrush}"
-                Opacity="0.95" 
-                CornerRadius="{StaticResource RadiusCardStandard}"
-                Height="{StaticResource SizeSelectionBarHeight}"
-                Padding="{StaticResource PaddingCardCompact}"
-                Effect="{StaticResource Shadow3}"
-                Margin="48,0,48,24"
-                Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}}">
-
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <!-- Count -->
-                    <ColumnDefinition Width="*"/>
-                    <!-- Spacer -->
-                    <ColumnDefinition Width="Auto"/>
-                    <!-- Actions -->
-                    <ColumnDefinition Width="Auto"/>
-                    <!-- Close -->
-                </Grid.ColumnDefinitions>
-
-                <!-- Selected Count -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Path Data="{StaticResource IconCheckCircle}" 
-                          Fill="{DynamicResource TextOnAccentBrush}" 
-                          Style="{StaticResource IconSmall}" 
-                          Margin="{StaticResource MarginSmallRight}"/>
-                    <TextBlock Text="{Binding SelectedCount, StringFormat={DynamicResource TerminologySelectionCountFormat}}" 
-                               Style="{StaticResource Title3}" 
-                               Foreground="{DynamicResource TextOnAccentBrush}"/>
-                </StackPanel>
-
-                <!-- Bulk Actions -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Approve All (Green) -->
-                    <!-- Note: Uses global SuccessButtonStyle -->
-                    <Button Style="{StaticResource SuccessButtonStyle}"
-                            Command="{Binding ApproveSelectedCommand}"
-                            Margin="{StaticResource MarginSmallRight}">
+        <!-- 2. Controls Area (Row 1) - Aligned with Members -->
+        <Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
+            
+            <!-- A. Filter Bar (Default State) -->
+            <Grid Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                <StackPanel Orientation="Horizontal">
+                    <!-- Status Filter Container -->
+                    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconCheck}" 
-                                  Fill="{DynamicResource TextOnAccentBrush}" 
-                                  Style="{StaticResource IconSmall}"
-                                  Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource TerminologyApproveAllLabel}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Registrations.Filter.All}" 
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:RegistrationFilterStatus.All}}" 
+                                         GroupName="StatusFilterGroup"
+                                         Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Registrations.Filter.Pending}" 
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:RegistrationFilterStatus.Pending}}" 
+                                         GroupName="StatusFilterGroup"
+                                         Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Registrations.Filter.Confirmed}" 
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:RegistrationFilterStatus.Confirmed}}" 
+                                         GroupName="StatusFilterGroup"
+                                         Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Registrations.Filter.Declined}" 
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:RegistrationFilterStatus.Declined}}" 
+                                         GroupName="StatusFilterGroup"
+                                         Style="{StaticResource TogglePillStyle}"/>
                         </StackPanel>
-                    </Button>
+                    </Border>
+                    
+                    <!-- Advanced Filters Action -->
 
-                    <!-- Decline All (Red) -->
-                    <Button Style="{StaticResource DestructiveButtonStyle}"
-                            Command="{Binding DeclineSelectedCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconClose}" 
-                                  Fill="{DynamicResource TextOnAccentBrush}" 
-                                  Style="{StaticResource IconSmall}"
-                                  Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource TerminologyDeclineAllLabel}"/>
+
+                    <!-- Clear Filters Action -->
+                    <Button Command="{Binding ResetFiltersCommand}" 
+                            Style="{StaticResource IconButtonStyle}" 
+                            Margin="8,0,0,0"
+                            Visibility="{Binding IsAnyFilterActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Margin="4,0">
+                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource TextSecondaryBrush}" Style="{StaticResource Style.Icon.Micro}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Registrations.Action.Clear}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" VerticalAlignment="Center" Margin="4,0,0,0"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
-
-                <!-- Clear Selection -->
-                <Button Grid.Column="3"
-                        Style="{StaticResource IconButtonStyle}"
-                        Command="{Binding ClearSelectionCommand}"
-                        Foreground="{DynamicResource TextOnAccentBrush}"
-                        Margin="{StaticResource MarginMediumLeft}">
-                    <Path Data="{StaticResource IconClose}" 
-                          Fill="{DynamicResource TextOnAccentBrush}" 
-                          Style="{StaticResource IconStandard}"/>
-                </Button>
+                
+                <!-- Right: View Switchers (Grid/List) -->
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Command="{Binding SwitchViewModeCommand}" 
+                            CommandParameter="{x:Static vm:RegistrationViewMode.Grid}"
+                            Style="{StaticResource IconButtonStyle}" 
+                            Margin="0,0,8,0">
+                        <Path Data="{StaticResource IconDashboard}">
+                            <Path.Style>
+                                <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+                                    <Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:RegistrationViewMode.Grid}">
+                                            <Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Button>
+                    <Button Command="{Binding SwitchViewModeCommand}" 
+                            CommandParameter="{x:Static vm:RegistrationViewMode.List}"
+                            Style="{StaticResource IconButtonStyle}">
+                        <Path Data="{StaticResource IconMenu}">
+                            <Path.Style>
+                                <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+                                    <Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:RegistrationViewMode.List}">
+                                            <Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Button>
+                </StackPanel>
             </Grid>
-        </Border>
+
+            <!-- B. Multi-Selection Context Bar (Aligned with Members) -->
+            <Border Background="{DynamicResource FacilityAccentBrush}"
+                    CornerRadius="12"
+                    Height="{StaticResource SizeSelectionBarHeight}"
+                    Padding="24,16"
+                    Effect="{DynamicResource Shadow3}"
+                    Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding SelectAll}"
+                                  Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                                  Margin="0,0,16,0">
+                            <CheckBox.LayoutTransform>
+                                <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                            </CheckBox.LayoutTransform>
+                        </CheckBox>
+                        <TextBlock Text="{Binding SelectedCount, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Registrations.SelectedCount'}" 
+                                   Style="{StaticResource Title3}" 
+                                   Foreground="{DynamicResource TextOnAccentBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="{DynamicResource Terminology.Registrations.Action.ApproveAll}" 
+                                Command="{Binding ApproveSelectedCommand}"
+                                Style="{StaticResource SuccessButtonStyle}"
+                                Foreground="White"
+                                Margin="{StaticResource MarginSmallRight}"/>
+                        <Button Content="{DynamicResource Terminology.Registrations.Action.DeclineAll}" 
+                                Command="{Binding DeclineSelectedCommand}"
+                                Style="{StaticResource DestructiveButtonStyle}"
+                                Foreground="White"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="3"
+                            Style="{StaticResource IconButtonStyle}"
+                            Command="{Binding ClearSelectionCommand}"
+                            Foreground="{DynamicResource TextOnAccentBrush}"
+                            Margin="{StaticResource MarginMediumLeft}">
+                        <Path Data="{StaticResource IconClose}" 
+                              Fill="White" 
+                              Style="{StaticResource Style.Icon.Standard}"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
 
         <!-- 3. Content Area (Row 2) -->
-        <Grid Grid.Row="2" Margin="48,0">
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Registration List -->
-            <ListBox ItemsSource="{Binding Registrations}"
+            <!-- List View -->
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding FilteredRegistrations}"
                      Background="Transparent"
                      BorderThickness="0"
+                     Padding="0,0,12,0"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                      VirtualizingPanel.IsVirtualizing="True"
                      VirtualizingPanel.VirtualizationMode="Recycling"
-                     ScrollViewer.CanContentScroll="True">
-
+                     ScrollViewer.CanContentScroll="True"
+                     SelectedItem="{Binding SelectedRegistration, Mode=TwoWay}"
+                     Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:RegistrationViewMode.List}}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
                         <Setter Property="Padding" Value="0"/>
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
-                        <Setter Property="Margin" Value="{StaticResource MarginCardGap}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
@@ -182,7 +238,6 @@
                         </Setter>
                     </Style>
                 </ListBox.ItemContainerStyle>
-
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <local:RegistrationListItem />
@@ -190,28 +245,49 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
-            <!-- Celebration Empty State (Section 27.6) -->
-            <Grid Visibility="{Binding Registrations.Count, Converter={StaticResource ZeroIsVisibleConverter}}"
-                  IsHitTestVisible="False">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,64">
-                    <Path Data="{StaticResource IconCelebration}"
-                          Fill="{DynamicResource FacilityAccentBrush}"
-                          Width="64" Height="64"
-                          Stretch="Uniform"
-                          Margin="{StaticResource MarginSectionBottom}"
-                          HorizontalAlignment="Center"/>
+            <!-- Slide-in Detail Panel -->
+            <!-- Detail Panel -->
+            <Grid Grid.Column="1" 
+             Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
+                  Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RenderTransform>
+                    <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Path=ActualWidth}"/>
+                </Grid.RenderTransform>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsDetailOpen}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
 
-                    <TextBlock Text="{DynamicResource TerminologyAllCaughtUpLabel}" 
-                               Style="{StaticResource Title2}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}" 
-                               HorizontalAlignment="Center"
-                               Margin="{StaticResource MarginTextBottom}"/>
+                <!-- Shadow Layer -->
+                <Border Background="White" CornerRadius="32,0,0,32">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.15" Color="Black"/>
+                    </Border.Effect>
+                </Border>
 
-                    <TextBlock Text="{DynamicResource TerminologyNoPendingRegistrationsLabel}" 
-                               Style="{StaticResource Body}" 
-                               Foreground="{DynamicResource TextTertiaryBrush}" 
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
+                <!-- Content Layer -->
+                <Border Background="White" 
+                        CornerRadius="32,0,0,32"
+                        BorderThickness="1,0,0,0"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        ClipToBounds="True">
+                    <local:RegistrationDetailView DataContext="{Binding SelectedRegistration}"/>
+                </Border>
             </Grid>
         </Grid>
     </Grid>

@@ -5,5 +5,5 @@ using System;
 
 namespace Management.Application.Features.Registrations.Queries.GetRegistration
 {
-    public record GetRegistrationQuery(Guid RegistrationId) : IRequest<Result<RegistrationDto>>;
+    public record GetRegistrationQuery(Guid RegistrationId, Guid FacilityId) : IRequest<Result<RegistrationDto>>;
 }

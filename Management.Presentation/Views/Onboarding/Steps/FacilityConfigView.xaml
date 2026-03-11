@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Onboarding.Steps.FacilityConfigView"
+              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+              mc:Ignorable="d" 
+              d:DesignHeight="600" d:DesignWidth="450">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,0,20">
+                <!-- Header -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
+                    <Path Data="{StaticResource Icon.Sliders}" 
+                          Fill="{DynamicResource Brush.Brand.Primary}" 
+                          Width="64" Height="64" Stretch="Uniform" />
+                    <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.WorkstationSetup}" 
+                               FontSize="24" FontWeight="SemiBold" 
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,16,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Error Message -->
+                <Border Background="{DynamicResource Brush.Danger.Dim}" 
+                        CornerRadius="{DynamicResource Corner.MD}" 
+                        Padding="12"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding HasError, Converter={StaticResource BoolToVisConverter}}">
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="{DynamicResource Brush.Danger}" 
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Facility Name -->
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.FacilityName}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding FacilityName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                </StackPanel>
+
+                <!-- Choice -->
+                <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.BusinessCategory}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                <ListBox ItemsSource="{Binding FacilityTypes}"
+                         SelectedItem="{Binding FacilityType}"
+                         BorderThickness="0" Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource Card.Selectable}">
+                            <Setter Property="Margin" Value="4"/>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel HorizontalAlignment="Center" Margin="12">
+                                <TextBlock Text="{Binding}" 
+                                           HorizontalAlignment="Center" 
+                                           Margin="0,8,0,0" FontSize="14" FontWeight="Medium"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Advanced -->
+                <TextBlock HorizontalAlignment="Center" Margin="0,32,0,0">
+                    <Hyperlink Command="{Binding OpenAdvancedSettingsCommand}" 
+                               Foreground="{DynamicResource Brush.Brand.Primary}"
+                               TextDecorations="None">
+                        Advanced Network Settings
+                    </Hyperlink>
+                </TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

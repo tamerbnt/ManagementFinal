@@ -1,0 +1,132 @@
+<Window x:Class="Management.Presentation.Views.GymHome.AccessControlModal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
+        mc:Ignorable="d" 
+        d:DataContext="{d:DesignInstance Type=vm:RfidAccessControlViewModel}"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
+    <!-- Modal Container -->
+    <Border Style="{DynamicResource GlobalModalContainerStyle}" 
+            CornerRadius="{DynamicResource RadiusModal}"
+            Padding="32"
+            Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <StackPanel>
+            <!-- Header Icon & Status -->
+            <Grid HorizontalAlignment="Center" Margin="0,0,0,24">
+                <!-- Granted State -->
+                <StackPanel Visibility="{Binding AccessGranted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Width="80" Height="80" CornerRadius="40" Background="{DynamicResource StatusSuccessBrush}" Margin="0,0,0,16">
+                        <Path Data="{StaticResource IconCheckCircle}" 
+                              Fill="White" 
+                              Width="48" Height="48" 
+                              Stretch="Uniform" 
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{DynamicResource Terminology.Home.Status.Granted}" Style="{DynamicResource Title2}" Foreground="{DynamicResource StatusSuccessBrush}" HorizontalAlignment="Center" FontWeight="Black"/>
+                </StackPanel>
+
+                <!-- Denied State -->
+                <StackPanel Visibility="{Binding AccessDenied, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Width="80" Height="80" CornerRadius="40" Background="#EF4444" Margin="0,0,0,16">
+                        <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                              Fill="White" 
+                              Width="40" Height="40" 
+                              Stretch="Uniform" 
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{DynamicResource Terminology.Home.Status.Denied}" Style="{DynamicResource Title2}" Foreground="#EF4444" HorizontalAlignment="Center" FontWeight="Black"/>
+                </StackPanel>
+
+                <!-- Warning State -->
+                <StackPanel Visibility="{Binding AccessWarning, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Border Width="80" Height="80" CornerRadius="40" Background="{DynamicResource StatusWarningBrush}" Margin="0,0,0,16">
+                        <Path Data="{StaticResource IconAlertTriangle}" 
+                              Fill="White" 
+                              Width="48" Height="48" 
+                              Stretch="Uniform" 
+                              HorizontalAlignment="Center" 
+                              VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{DynamicResource Terminology.Home.Status.Warning}" Style="{DynamicResource Title2}" Foreground="{DynamicResource StatusWarningBrush}" HorizontalAlignment="Center" FontWeight="Black"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Message -->
+            <TextBlock Text="{Binding Result.Message}" Style="{DynamicResource Body}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,32"/>
+
+            <!-- Member Info Card (if member exists) -->
+            <Border Visibility="{Binding MemberExists, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Background="{DynamicResource SurfaceBgSecondary}" 
+                    CornerRadius="20" 
+                    Padding="24"
+                    Margin="0,0,0,32"
+                    BorderBrush="{DynamicResource SeparatorStroke}"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Width="60" Height="60" CornerRadius="30" Background="{DynamicResource PrimaryBrush}" Margin="0,0,20,0">
+                        <TextBlock Text="{Binding AvatarInitials}" Foreground="White" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Result.Member.FullName}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding Result.Member.Status}" FontSize="13" Foreground="{DynamicResource Brand.Blue}" FontWeight="SemiBold" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding Result.Member.Email}" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Auto-Close Indicator (Granted only) -->
+            <StackPanel Visibility="{Binding IsAutoClosing, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                        HorizontalAlignment="Center" Margin="0,0,0,24">
+                <TextBlock Text="{Binding RemainingTime, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Home.Status.AutoClose'}" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                <ProgressBar Value="{Binding RemainingTime}" Maximum="5" Width="120" Height="4" Margin="0,8,0,0" Foreground="{DynamicResource Brand.Blue}" Background="{DynamicResource SeparatorStroke}" BorderThickness="0"/>
+            </StackPanel>
+
+            <!-- Actions -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" 
+                        Command="{Binding CloseCommand}" 
+                        Style="{DynamicResource GhostButton}" 
+                        Content="{DynamicResource Terminology.Global.Cancel}"/>
+
+                <!-- Contextual Action Button -->
+                <Button Grid.Column="2" 
+                        Visibility="{Binding ShowRenewButton, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding RenewMembershipCommand}" 
+                        Style="{DynamicResource PrimaryButton}" 
+                        Content="{DynamicResource Terminology.Home.Action.RenewNow}"/>
+
+                <Button Grid.Column="2" 
+                        Visibility="{Binding ShowCreateButton, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Command="{Binding CreateMemberCommand}" 
+                        Style="{DynamicResource PrimaryButton}" 
+                        Content="{DynamicResource Terminology.Home.Action.CreateMember}"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</Window>

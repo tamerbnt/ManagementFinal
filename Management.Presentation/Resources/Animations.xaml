@@ -12,28 +12,11 @@
     <!-- ============================================================= -->
     <CubicEase x:Key="EaseOutPrimary" EasingMode="EaseOut"/>
 
+    <!-- 2. DURATION TOKENS (Standardized in Durations.xaml)              -->
     <!-- ============================================================= -->
-    <!-- 2. DURATION TOKENS (Standardized)                             -->
-    <!-- ============================================================= -->
     
-    <!-- Micro (120ms): Button presses, Checkbox toggles -->
-    <Duration x:Key="DurationMicro">0:0:0.120</Duration>
-    
-    <!-- Small (180ms): Hover lifts, Icon fills -->
-    <Duration x:Key="DurationSmall">0:0:0.180</Duration>
-    
-    <!-- Standard (220ms): Focus rings, Universal UI movement -->
-    <Duration x:Key="DurationStandard">0:0:0.220</Duration>
-    
-    <!-- Medium (300ms): Slide-ins, Dropdowns, Content expansion -->
-    <Duration x:Key="DurationMedium">0:0:0.300</Duration>
-    
-    <!-- Screen (350ms): Navigation transitions, Modal entrances -->
-    <Duration x:Key="DurationScreen">0:0:0.350</Duration>
-    <Duration x:Key="DurationScreenTransition">0:0:0.350</Duration>
+    <!-- Using centralized tokens from Durations.xaml -->
 
-    <!-- Compat / Aliases -->
-    <Duration x:Key="DurationModal">0:0:0.350</Duration>
 
     <!-- ============================================================= -->
     <!-- 3. GLOBAL ANIMATIONS (Storyboards)                            -->

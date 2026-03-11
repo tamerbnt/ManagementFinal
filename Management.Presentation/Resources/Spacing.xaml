@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <!-- 
         APPLE 2025 SPACING SYSTEM
@@ -26,15 +26,42 @@
     <sys:Double x:Key="SizeButtonHeight">48</sys:Double>
     <sys:Double x:Key="SizeButtonMinWidth">120</sys:Double>
     <sys:Double x:Key="SizeInputHeight">48</sys:Double>
+    <sys:Double x:Key="SizeInputMinWidth">200</sys:Double>
+    <sys:Double x:Key="SizeSearchBarWidth">400</sys:Double>
+    <sys:Double x:Key="SizeSelectionBarHeight">80</sys:Double>
+    <sys:Double x:Key="SizeBadgeMinHeight">20</sys:Double>
+    <sys:Double x:Key="SizeAvatarSmall">32</sys:Double>
+    <sys:Double x:Key="SizeAvatarLarge">96</sys:Double>
+    <sys:Double x:Key="SizeAvatarHero">128</sys:Double>
+    <sys:Double x:Key="SizeStatTileHeight">140</sys:Double>
+    <sys:Double x:Key="SizeStaffCardHeight">180</sys:Double>
+    <sys:Double x:Key="SizeSidebarItemHeight">56</sys:Double>
+    <sys:Double x:Key="SizeUploadZoneHeight">200</sys:Double>
+    <sys:Double x:Key="SizeTableHeaderHeight">48</sys:Double>
+    <sys:Double x:Key="SizeTableRowHeight">72</sys:Double>
+    <sys:Double x:Key="SizeQuantityButton">32</sys:Double>
+    <sys:Double x:Key="SizePricingCardHeight">160</sys:Double>
+    <sys:Double x:Key="SizeIntegrationCardHeight">120</sys:Double>
+    <sys:Double x:Key="SizeIconContainer">64</sys:Double>
+    <sys:Double x:Key="SizeProductCardHeight">350</sys:Double>
+    <GridLength x:Key="SizeProductImageHeight">180</GridLength>
+
     
     <!-- Component Widths -->
     <sys:Double x:Key="SizeSidePanelWidth">400</sys:Double>
     <sys:Double x:Key="SizeModalWidth">480</sys:Double>
     <sys:Double x:Key="SizeModalWidthLarge">600</sys:Double>
+    <sys:Double x:Key="MaxWidthForm">800</sys:Double>
+
+    <GridLength x:Key="GridLengthFormRow">48</GridLength>
 
     <!-- Chart/Card Heights -->
     <sys:Double x:Key="SizeHeroCardHeight">240</sys:Double>
     <sys:Double x:Key="SizeChartHeightStandard">320</sys:Double>
+    <sys:Double x:Key="SizeChartHeightLarge">360</sys:Double>
+    <sys:Double x:Key="SizeFormRowHeight">48</sys:Double>
+    <sys:Double x:Key="WidthFormLabel">160</sys:Double>
+    <GridLength x:Key="SizeFormRowGap">24</GridLength>
 
     <!-- ============================================================= -->
     <!-- 2. THICKNESS PRESETS (Margins & Padding)                      -->
@@ -52,17 +79,40 @@
     <Thickness x:Key="MarginSectionBottom">0,0,0,48</Thickness>
     <Thickness x:Key="MarginSectionTop">0,48,0,0</Thickness>
     <Thickness x:Key="MarginHeaderBottom">0,0,0,24</Thickness>
+    <Thickness x:Key="MarginSectionVertical">0,32,0,32</Thickness>
+    <Thickness x:Key="MarginPageHeader">48,0,48,24</Thickness>
+    <Thickness x:Key="MarginPageContent">48,0,48,24</Thickness>
+    <Thickness x:Key="MarginLabelBottom">0,0,0,8</Thickness>
     
     <!-- Component Gaps -->
     <Thickness x:Key="MarginCardGap">0,0,24,24</Thickness>
+    <Thickness x:Key="MarginListVertical">0,0,0,12</Thickness>
     <Thickness x:Key="MarginFormRow">0,0,0,24</Thickness>
-    <Thickness x:Key="MarginSmallRight">0,0,8,0</Thickness>
-    <Thickness x:Key="MarginMediumRight">0,0,16,0</Thickness>
     <Thickness x:Key="MarginIconRight">0,0,12,0</Thickness>
+    <Thickness x:Key="MarginCardGridGutter">12</Thickness>
+    <Thickness x:Key="MarginTextBottom">0,0,0,8</Thickness>
+    <Thickness x:Key="MarginTextTop">0,8,0,0</Thickness>
+    <Thickness x:Key="MarginInputIcon">12,0</Thickness>
+    <Thickness x:Key="MarginSmallRight">0,0,8,0</Thickness>
+    <Thickness x:Key="MarginSmallLeft">8,0,0,0</Thickness>
+    <Thickness x:Key="MarginSmallTop">0,8,0,0</Thickness>
+    <Thickness x:Key="MarginSmallBottom">0,0,0,8</Thickness>
+    <Thickness x:Key="MarginMediumTop">0,16,0,0</Thickness>
+    <Thickness x:Key="MarginMediumBottom">0,0,0,16</Thickness>
+    <Thickness x:Key="MarginMediumLeft">16,0,0,0</Thickness>
+    <Thickness x:Key="MarginMediumRight">0,0,16,0</Thickness>
+    <Thickness x:Key="MarginCardRight">24,0,0,0</Thickness>
+    <Thickness x:Key="MarginCardBottom">0,0,0,24</Thickness>
+    <Thickness x:Key="MarginTextVertical">0,8,0,8</Thickness>
+    <Thickness x:Key="MarginSmall">8</Thickness>
+    <GridLength x:Key="MarginMedium">16</GridLength>
 
     <!-- Padding Tokens -->
     <Thickness x:Key="PaddingCard">32</Thickness>
     <Thickness x:Key="PaddingCardCompact">24</Thickness>
+    <Thickness x:Key="PaddingCardList">0,12</Thickness>
+    <Thickness x:Key="PaddingHeroCard">48</Thickness>
+    <Thickness x:Key="PaddingPill">12,6</Thickness>
     <Thickness x:Key="PaddingModal">40</Thickness>
     <Thickness x:Key="PaddingInput">16,0</Thickness>
     <Thickness x:Key="PaddingButton">24,0</Thickness>
@@ -76,6 +126,8 @@
     
     <!-- Layer 2: Cards / Content Containers -->
     <CornerRadius x:Key="RadiusCardStandard">20</CornerRadius>
+    <CornerRadius x:Key="RadiusCardStandardTop">20,20,0,0</CornerRadius>
+
     
     <!-- Layer 1: Inputs / Search Bars -->
     <CornerRadius x:Key="RadiusInput">18</CornerRadius>

@@ -1,7 +1,7 @@
-ï»¿// ******************************************************************************************
+// ******************************************************************************************
 //  Management.Presentation/Services/ViewMappingService.cs
-//  FINAL PRODUCTION VERSION â€“ v1.2.0-production
-//  Design System: Apple 2025 Edition â€“ v1.2 FINAL (LOCKED)
+//  FINAL PRODUCTION VERSION – v1.2.0-production
+//  Design System: Apple 2025 Edition – v1.2 FINAL (LOCKED)
 //  Status: PRODUCTION READY
 // ******************************************************************************************
 

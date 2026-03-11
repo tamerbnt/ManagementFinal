@@ -3,224 +3,201 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Shop"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
-             xmlns:local="clr-namespace:Management.Presentation.Views.Shop" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="600"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             d:DesignHeight="800" d:DesignWidth="400"
+             Background="{DynamicResource CardBackgroundBrush}">
 
     <UserControl.Resources>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <converters:NullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
     </UserControl.Resources>
 
-    <!-- 
-        Modal Container 
-        - Style: GlobalModalContainerStyle (Shadow L3, Radius 24px, White BG)
-        - Behavior: ModalEntranceBehavior (Zoom/Fade)
-        - Width: 600px ({StaticResource SizeModalWidthLarge})
-    -->
-    <Border Style="{StaticResource GlobalModalContainerStyle}"
-            Width="{StaticResource SizeModalWidthLarge}"
-            Padding="{StaticResource PaddingModal}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            AutomationProperties.Name="Product Details">
-        <i:Interaction.Behaviors>
-            <behaviors:ModalEntranceBehavior IsOpen="True"/>
-        </i:Interaction.Behaviors>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <!-- Header -->
-                <RowDefinition Height="*"/>
-                <!-- Form -->
-                <RowDefinition Height="Auto"/>
-                <!-- Footer -->
-            </Grid.RowDefinitions>
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
+        </Grid.RowDefinitions>
 
-            <!-- 1. HEADER -->
-            <TextBlock Grid.Row="0" 
-                       Text="{Binding Title, FallbackValue='Add Product'}" 
+        <!-- 1. Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <Button Style="{StaticResource IconButtonStyle}" 
+                    HorizontalAlignment="Right" 
+                    Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:ShopView}}"
+                    Margin="0,-8,-8,0">
+                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource TextTertiaryBrush}" Style="{StaticResource Style.Icon.Small}"/>
+            </Button>
+
+            <!-- Icon -->
+            <Border Width="80" Height="80" 
+                    CornerRadius="40" 
+                    Background="{DynamicResource SurfaceBg}"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16">
+                <Path Data="{StaticResource IconShoppingBag}" 
+                      Fill="{DynamicResource TextSecondaryBrush}" 
+                      Stretch="Uniform" 
+                      Width="32" Height="32"
+                      HorizontalAlignment="Center" 
+                      VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Name (View Mode) -->
+            <TextBlock Text="{Binding Name}" 
                        Style="{StaticResource Title2}" 
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       Margin="{StaticResource MarginHeaderBottom}"/>
+                       HorizontalAlignment="Center" 
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+            
+            <!-- Name (Edit Mode) -->
+            <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     Style="{StaticResource UnderlineTextBox}" 
+                     HorizontalAlignment="Stretch"
+                     FontSize="18" FontWeight="Bold"
+                     TextAlignment="Center"
+                     Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-            <!-- 2. SCROLLABLE FORM -->
-            <!-- MaxHeight ensures modal fits on smaller screens -->
-            <ScrollViewer Grid.Row="1" 
-                          VerticalScrollBarVisibility="Auto" 
-                          HorizontalScrollBarVisibility="Disabled"
-                          MaxHeight="600"
-                          Margin="{StaticResource MarginSectionBottom}">
+            <!-- SKU Badge -->
+            <Border Background="{DynamicResource SurfaceBg}" Padding="12,4" CornerRadius="12" HorizontalAlignment="Center" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{DynamicResource Terminology.Shop.Detail.SkuPrefix}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="{Binding SKU}" Style="{StaticResource Micro}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
 
-                <StackPanel>
-
-                    <!-- A. PRODUCT IMAGE UPLOAD -->
-                    <TextBlock Text="{DynamicResource TerminologyProductImageLabel}" Style="{StaticResource FormLabel}" Margin="0,0,0,8"/>
-
-                    <!-- Uses GlobalDragDropUploadZoneStyle -->
-                    <Border Style="{StaticResource GlobalDragDropUploadZoneStyle}"
-                            Height="{StaticResource SizeUploadZoneHeight}"
-                            AllowDrop="True">
-                        <Grid>
-                            <!-- Empty State -->
-                            <StackPanel VerticalAlignment="Center" 
-                                        HorizontalAlignment="Center"
-                                        Visibility="{Binding ProductImage, Converter={StaticResource InverseNullToVisibilityConverter}}">
-                                <Path Data="{StaticResource IconUpload}"
-                                      Fill="{DynamicResource TextTertiaryBrush}"
-                                      Style="{StaticResource IconHero}" 
-                                      HorizontalAlignment="Center"
-                                      Margin="0,0,0,16"/>
-                                <TextBlock Text="{DynamicResource TerminologyDragDropImagePlaceholder}" 
-                                           Style="{StaticResource BodySecondary}" 
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           HorizontalAlignment="Center"/>
-                            </StackPanel>
-
-                            <!-- Filled State -->
-                            <Grid Visibility="{Binding ProductImage, Converter={StaticResource NullToVisibilityConverter}}">
-                                <Image Source="{Binding ProductImage}" 
-                                       Stretch="UniformToFill">
-                                    <Image.Clip>
-                                        <RectangleGeometry Rect="0,0,520,200" 
-                                                           RadiusX="{StaticResource RadiusCardStandard}" 
-                                                           RadiusY="{StaticResource RadiusCardStandard}"/>
-                                    </Image.Clip>
-                                </Image>
-
-                                <!-- Remove Button -->
-                                <Button Style="{StaticResource IconButtonStyle}"
-                                        Command="{Binding RemoveImageCommand}"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Margin="{StaticResource MarginSmall}"
-                                        Background="{DynamicResource CardBackgroundBrush}"
-                                        Opacity="0.9">
-                                    <Path Data="{StaticResource IconClose}" 
-                                          Fill="{DynamicResource TextPrimaryBrush}" 
-                                          Style="{StaticResource IconSmall}"/>
-                                </Button>
-                            </Grid>
-
-                            <!-- Invisible Trigger -->
-                            <Button Command="{Binding BrowseImageCommand}"
-                                    Style="{StaticResource InvisibleClickableButtonStyle}"
-                                    Visibility="{Binding ProductImage, Converter={StaticResource InverseNullToVisibilityConverter}}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- B. IDENTITY FIELDS -->
-                    <TextBlock Text="{DynamicResource TerminologyProductDetailsHeader}" Style="{StaticResource Title3}" Margin="{StaticResource MarginSectionVertical}"/>
-
-                    <StackPanel Margin="{StaticResource MarginFormRow}">
-                        <TextBlock Text="{DynamicResource TerminologyProductNameLabel}" Style="{StaticResource FormLabel}"/>
-                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" 
-                                 Style="{StaticResource UnderlineTextBox}"/>
+        <!-- 2. Content -->
+        <ScrollViewer Grid.Row="1" Margin="0,0,-8,0" Padding="0,0,8,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Quick Stats Grid (View Only) -->
+                <Grid Margin="0,0,0,24" Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.StockLevel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding StockQuantity}" Style="{StaticResource Title3}" 
+                                   Foreground="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}" HorizontalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Split Row: SKU / Category -->
-                    <Grid Margin="{StaticResource MarginFormRow}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{StaticResource MarginMedium}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.Price}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource TerminologySKULabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding SKU, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" 
-                                     Style="{StaticResource UnderlineTextBox}"/>
-                        </StackPanel>
+                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24" Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource TerminologyCategoryLabel}" Style="{StaticResource FormLabel}"/>
-                            <ComboBox ItemsSource="{Binding Categories}"
-                                      SelectedItem="{Binding SelectedCategory}"
-                                      Style="{StaticResource GlobalComboBoxStyle}"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- Inventory Management Fields -->
+                <TextBlock Text="{DynamicResource Terminology.Shop.Detail.InventorySettings}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
 
-                    <!-- C. PRICING & INVENTORY -->
-                    <TextBlock Text="{DynamicResource TerminologyPricingInventoryHeader}" Style="{StaticResource Title3}" Margin="{StaticResource MarginSectionVertical}"/>
+                <!-- Edit Grid -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Split Row: Price / Cost -->
-                    <Grid Margin="{StaticResource MarginFormRow}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{StaticResource MarginMedium}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <!-- Row 1: Price & Stock -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,16">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.Price}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        
+                        <!-- View -->
+                        <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Body}"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                        <!-- Edit -->
+                        <TextBox Text="{Binding Price, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource TerminologyPriceLabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding Price, StringFormat=N2, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}" 
-                                     Style="{StaticResource UnderlineTextBox}"/>
-                        </StackPanel>
+                     <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,16">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.StockQuantity}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                         <!-- View -->
+                        <TextBlock Text="{Binding StockQuantity}" Style="{StaticResource Body}"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                         <!-- Edit -->
+                        <TextBox Text="{Binding StockQuantity, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource TerminologyCostLabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding Cost, StringFormat=N2}" 
-                                     Style="{StaticResource UnderlineTextBox}"/>
-                        </StackPanel>
-                    </Grid>
+                    <!-- Row 2: Category & Reorder -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,8,16">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.Category}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <!-- View -->
+                        <TextBlock Text="{Binding Category}" Style="{StaticResource Body}"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                        <!-- Edit -->
+                        <TextBox Text="{Binding Category, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
 
-                    <!-- Split Row: Stock / Reorder -->
-                    <Grid Margin="{StaticResource MarginFormRow}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="{StaticResource MarginMedium}"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="8,0,0,16">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.Detail.ReorderLevel}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                         <!-- View -->
+                        <TextBlock Text="{Binding ReorderLevel}" Style="{StaticResource Body}"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                         <!-- Edit -->
+                        <TextBox Text="{Binding ReorderLevel, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Grid>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource TerminologyCurrentStockLabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding StockLevel}" 
-                                     Style="{StaticResource UnderlineTextBox}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource TerminologyReorderLevelLabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBox Text="{Binding ReorderLevel}" 
-                                     Style="{StaticResource UnderlineTextBox}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- D. DESCRIPTION -->
-                    <TextBlock Text="{DynamicResource TerminologyDescriptionLabel}" Style="{StaticResource FormLabel}"/>
-                    <TextBox Text="{Binding Description}" 
-                             Style="{StaticResource UnderlineTextBox}"
-                             AcceptsReturn="True"
-                             TextWrapping="Wrap"
-                             Height="80"
-                             VerticalContentAlignment="Top"/>
-
-                </StackPanel>
-            </ScrollViewer>
-
-            <!-- 3. FOOTER -->
-            <StackPanel Grid.Row="2" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right">
-
-                <Button Content="{DynamicResource TerminologyCancelLabel}"
-                        Command="{Binding CancelCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        Margin="{StaticResource MarginSmallRight}"/>
-
-                <Button Content="{DynamicResource TerminologySaveProductLabel}"
-                        Command="{Binding SaveCommand}"
-                        Style="{StaticResource PrimaryButton}"
-                        MinWidth="{StaticResource SizeButtonMinWidth}"/>
+                <!-- Description -->
+                <TextBlock Text="{DynamicResource Terminology.Shop.Detail.Description}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="8" Padding="12" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                     <StackPanel>
+                        <TextBlock Text="{Binding Description}" Style="{StaticResource Body}" TextWrapping="Wrap"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                        
+                        <TextBox Text="{Binding Description, Mode=TwoWay}" 
+                                 Style="{StaticResource UnderlineTextBox}" 
+                                 MinHeight="80" 
+                                 AcceptsReturn="True" 
+                                 TextWrapping="Wrap"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
+        </ScrollViewer>
 
-        </Grid>
-    </Border>
+        <!-- 3. Actions Footer -->
+        <Border Grid.Row="2" Padding="0,24,0,0" Background="{DynamicResource CardBackgroundBrush}">
+            <Grid>
+
+
+                <!-- Edit Mode: Save / Cancel -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Shop.Action.SaveChanges}" 
+                            Style="{StaticResource PrimaryButton}" 
+                            Height="44"
+                            Margin="0,0,6,0"
+                            Command="{Binding DataContext.SaveProductCommand, RelativeSource={RelativeSource AncestorType=local:ShopView}}"/>
+                    
+                    <Button Grid.Column="1" Content="{DynamicResource Terminology.Global.Cancel}" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Height="44"
+                            Margin="6,0,0,0"
+                            Command="{Binding DataContext.EditProductCommand, RelativeSource={RelativeSource AncestorType=local:ShopView}, ConverterParameter=False}"/>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

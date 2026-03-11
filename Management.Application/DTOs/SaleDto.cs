@@ -12,5 +12,6 @@ namespace Management.Application.DTOs
         public string PaymentMethod { get; set; } = string.Empty;
         public string MemberName { get; set; } = string.Empty;
         public Dictionary<Guid, int> Items { get; set; } = new();
+        public Dictionary<string, int> ItemsSnapshot { get; set; } = new();
     }
 }

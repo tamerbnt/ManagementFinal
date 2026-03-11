@@ -1,0 +1,233 @@
+<UserControl x:Class="Management.Presentation.Components.Layout.CommandPaletteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Shell"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:dtos="clr-namespace:Management.Application.DTOs;assembly=Management.Application"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:CommandPaletteViewModel}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Group Style -->
+        <GroupStyle x:Key="PaletteGroupStyle">
+            <GroupStyle.HeaderTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" 
+                               FontSize="10" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource Brush.Text.Secondary}" 
+                               Margin="24,12,0,4"
+                               Opacity="0.5"/>
+                </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+        </GroupStyle>
+
+        <!-- Item Container Style -->
+        <Style x:Key="PaletteItemContainerStyle" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="12,12"/>
+            <Setter Property="Margin" Value="12,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="bd" 
+                                Background="{TemplateBinding Background}" 
+                                CornerRadius="12" 
+                                Padding="{TemplateBinding Padding}" 
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.Accent.Primary}"/>
+                                <Setter Property="TextBlock.Foreground" Value="White"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource Brush.Window.Background}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+        <!-- Backdrop BackdropBlur (Via semi-transparent black overlay) -->
+        <Border Background="#40000000" MouseDown="Backdrop_MouseDown">
+            <Border.Effect>
+                <BlurEffect Radius="20"/>
+            </Border.Effect>
+        </Border>
+
+        <!-- Palette Card (Premium Spotlight Pill) -->
+        <Border Width="640" 
+                VerticalAlignment="Top" 
+                Margin="0,120,0,0"
+                Background="{DynamicResource Brush.Surface.Glass}" 
+                BorderBrush="{DynamicResource Brush.Border.Subtle}" 
+                BorderThickness="1" 
+                CornerRadius="20">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="80" ShadowDepth="30" Color="Black" Opacity="0.2"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Search Input Area -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="16,12">
+                        <Path Data="{DynamicResource Icon.Search}" 
+                              Fill="#64748B" 
+                              Width="20" Height="20" 
+                              Margin="0,0,12,0"/>
+                    </StackPanel>
+                          
+                    <TextBox Grid.Column="1"
+                             Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                             behaviors:FocusBehavior.FocusOnVisible="True"
+                             Background="Transparent"
+                             Foreground="{DynamicResource Brush.Text.Primary}"
+                             BorderThickness="0"
+                             FontSize="24"
+                             FontWeight="Regular"
+                             Padding="20,28"
+                             CaretBrush="{DynamicResource Brush.Accent.Primary}"
+                             Tag="Search and navigate...">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Down" Command="{Binding MoveSelectionDownCommand}"/>
+                            <KeyBinding Key="Up" Command="{Binding MoveSelectionUpCommand}"/>
+                            <KeyBinding Key="Enter" Command="{Binding ExecuteCommand}"/>
+                            <KeyBinding Key="Esc" Command="{Binding CloseCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </Grid>
+
+                <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="{DynamicResource Brush.Border.Subtle}" Margin="24,0"/>
+
+                <!-- Results List -->
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding GroupedResults}"
+                         SelectedItem="{Binding SelectedResult}"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         MaxHeight="480"
+                         Margin="0,12"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ItemContainerStyle="{StaticResource PaletteItemContainerStyle}"
+                         behaviors:ScrollIntoViewBehavior.AutoScrollToSelection="True">
+                    <ListBox.GroupStyle>
+                        <StaticResource ResourceKey="PaletteGroupStyle"/>
+                    </ListBox.GroupStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type dtos:SearchResultDto}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border Grid.Column="0" 
+                                        Width="40" Height="40" 
+                                        CornerRadius="10" 
+                                        Background="#08000000"
+                                        Margin="0,0,16,0"
+                                        x:Name="IconContainer">
+                                    <Path Data="{Binding IconGeometry}" 
+                                          Fill="{DynamicResource Brush.Text.Primary}" 
+                                          Width="20" Height="20" 
+                                          Stretch="Uniform"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          x:Name="IconPath"
+                                          Opacity="0.7"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}" 
+                                               FontSize="16" 
+                                               FontWeight="SemiBold"
+                                               x:Name="TitleText"/>
+                                    <TextBlock Text="{Binding Subtitle}" 
+                                               FontSize="13" 
+                                               Foreground="{DynamicResource Brush.Text.Secondary}" 
+                                               Margin="0,2,0,0"
+                                               x:Name="SubtitleText"
+                                               Opacity="0.8"/>
+                                </StackPanel>
+
+                                <Border Grid.Column="2" 
+                                        Background="#10000000" 
+                                        Padding="10,4" 
+                                        CornerRadius="8"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        x:Name="HintBorder">
+                                    <TextBlock Text="OPEN" 
+                                               FontSize="10" 
+                                               FontWeight="Black" 
+                                               Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                </Border>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                    <Setter TargetName="IconContainer" Property="Background" Value="#20FFFFFF"/>
+                                    <Setter TargetName="IconPath" Property="Fill" Value="White"/>
+                                    <Setter TargetName="IconPath" Property="Opacity" Value="1"/>
+                                    <Setter TargetName="TitleText" Property="Foreground" Value="White"/>
+                                    <Setter TargetName="SubtitleText" Property="Foreground" Value="White"/>
+                                    <Setter TargetName="SubtitleText" Property="Opacity" Value="0.7"/>
+                                    <Setter TargetName="HintBorder" Property="Background" Value="#20FFFFFF"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                
+                <!-- Footer -->
+                <Border Grid.Row="2" 
+                        Background="#05000000" 
+                        CornerRadius="0,0,20,20" 
+                        Padding="24,14"
+                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderThickness="0,1,0,0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,24,0">
+                            <TextBlock Text="Navigate" Foreground="{DynamicResource Brush.Text.Secondary}" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <Border Background="#10000000" Padding="6,2" CornerRadius="4">
+                                <TextBlock Text="↑↓" Foreground="{DynamicResource Brush.Text.Primary}" FontSize="11" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Select" Foreground="{DynamicResource Brush.Text.Secondary}" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <Border Background="#10000000" Padding="6,2" CornerRadius="4">
+                                <TextBlock Text="↵" Foreground="{DynamicResource Brush.Text.Primary}" FontSize="11" FontWeight="Bold"/>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

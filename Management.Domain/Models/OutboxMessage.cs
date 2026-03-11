@@ -3,8 +3,11 @@ using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
-    public class OutboxMessage : Entity
+    public class OutboxMessage : Entity, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
+
         public string EntityType { get; set; } = string.Empty;
         public string EntityId { get; set; } = string.Empty;
         public string Action { get; set; } = string.Empty; // Insert, Update, Delete

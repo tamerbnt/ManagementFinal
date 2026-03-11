@@ -30,7 +30,7 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
                 var member = await _memberRepository.GetByIdAsync(id);
                 if (member == null) continue; 
 
-                int monthsToAdd = 1; 
+                int daysToAdd = 30; 
                 Guid? planIdToUse = member.MembershipPlanId;
 
                 if (planIdToUse.HasValue)
@@ -38,20 +38,13 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
                     var plan = await _planRepository.GetByIdAsync(planIdToUse.Value);
                     if (plan != null)
                     {
-                        monthsToAdd = plan.DurationDays / 30; 
-                        if (monthsToAdd < 1) monthsToAdd = 1;
+                        daysToAdd = plan.DurationDays;
                     }
                 }
 
                 DateTime newExpiry;
-                if (member.ExpirationDate < DateTime.UtcNow)
-                {
-                    newExpiry = DateTime.UtcNow.AddMonths(monthsToAdd);
-                }
-                else
-                {
-                    newExpiry = member.ExpirationDate.AddMonths(monthsToAdd);
-                }
+                DateTime baseline = member.ExpirationDate < DateTime.UtcNow ? DateTime.UtcNow : member.ExpirationDate;
+                newExpiry = baseline.AddDays(daysToAdd);
 
                 if (planIdToUse.HasValue)
                 {

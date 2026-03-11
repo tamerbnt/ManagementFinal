@@ -5,5 +5,5 @@ using System;
 
 namespace Management.Application.Features.Plans.Commands.UpdatePlan
 {
-    public record UpdatePlanCommand(MembershipPlanDto Plan) : IRequest<Result<Guid>>;
+    public record UpdatePlanCommand(MembershipPlanDto Plan, Guid? FacilityId = null) : IRequest<Result<Guid>>;
 }

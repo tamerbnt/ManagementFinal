@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Management.Application.Services;
 using System.Threading;
 using Management.Application.Services;
@@ -13,7 +13,7 @@ using Management.Application.Services;
 using Management.Domain.Services;
 using Management.Application.Services;
 using Management.Presentation.Extensions;
-using Management.Application.Services;
+using Management.Application.Interfaces.App;
 
 namespace Management.Presentation.ViewModels
 {
@@ -22,6 +22,8 @@ namespace Management.Presentation.ViewModels
         private readonly IMembershipPlanService _planService;
         private readonly IModalNavigationService _modalService;
         private readonly INotificationService _notificationService;
+        private readonly IFacilityContextService _facilityContext;
+        private readonly ITerminologyService _terminologyService;
 
         public ModalSize PreferredSize => ModalSize.Small;
 
@@ -57,11 +59,15 @@ namespace Management.Presentation.ViewModels
         public PlanDetailViewModel(
             IMembershipPlanService planService,
             IModalNavigationService modalService,
-            INotificationService notificationService)
+            INotificationService notificationService,
+            IFacilityContextService facilityContext,
+            ITerminologyService terminologyService)
         {
             _planService = planService;
             _modalService = modalService;
             _notificationService = notificationService;
+            _facilityContext = facilityContext;
+            _terminologyService = terminologyService;
 
             SaveCommand = new AsyncRelayCommand(ExecuteSaveAsync);
             CancelCommand = new RelayCommand(async () => await _modalService.CloseCurrentModalAsync());
@@ -72,7 +78,7 @@ namespace Management.Presentation.ViewModels
             if (parameter is Guid id)
             {
                 _planId = id;
-                var result = await _planService.GetAllPlansAsync();
+                var result = await _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
                 if (result.IsSuccess)
                 {
                     var plan = result.Value.Find(p => p.Id == id);
@@ -100,7 +106,7 @@ namespace Management.Presentation.ViewModels
         {
             if (string.IsNullOrWhiteSpace(Name) || Price < 0 || DurationDays <= 0)
             {
-                _notificationService.ShowError("Please provide valid plan details.");
+                _notificationService.ShowError(_terminologyService.GetTerm("Strings.Global.Pleaseprovidevalidplandet") ?? "Please provide valid plan details.");
                 return;
             }
 
@@ -118,8 +124,8 @@ namespace Management.Presentation.ViewModels
             try
             {
                 var result = IsEditMode 
-                    ? await _planService.UpdatePlanAsync(dto) 
-                    : await _planService.CreatePlanAsync(dto);
+                    ? await _planService.UpdatePlanAsync(_facilityContext.CurrentFacilityId, dto) 
+                    : await _planService.CreatePlanAsync(_facilityContext.CurrentFacilityId, dto);
 
                 if (result.IsSuccess)
                 {

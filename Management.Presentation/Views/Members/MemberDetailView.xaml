@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Views.Members.MemberDetailView"
+﻿<UserControl x:Class="Management.Presentation.Views.Members.MemberDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -40,11 +40,8 @@
             <!-- Avatar (128px Hero) -->
             <Ellipse Width="{StaticResource SizeAvatarHero}" 
                      Height="{StaticResource SizeAvatarHero}"
-                     Margin="{StaticResource MarginCardBottom}">
-                <Ellipse.Fill>
-                    <SolidColorBrush Color="{DynamicResource FacilityAccentColor}"/>
-                </Ellipse.Fill>
-            </Ellipse>
+                     Fill="{DynamicResource FacilityAccentBrush}"
+                     Margin="{StaticResource MarginCardBottom}"/>
 
             <!-- Name -->
             <TextBlock Text="{Binding FullName}" 
@@ -96,7 +93,7 @@
             </TabControl.Resources>
 
             <!-- Tab 1: Info -->
-            <TabItem Header="Info" Style="{StaticResource GlobalDetailTabStyle}">
+            <TabItem Header="{DynamicResource Strings.Members.Info}" Style="{StaticResource GlobalDetailTabStyle}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="{StaticResource MarginSectionTop}">
                     <Grid MaxWidth="{StaticResource MaxWidthForm}" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
@@ -152,7 +149,7 @@
             </TabItem>
 
             <!-- Tab 3: Notes -->
-            <TabItem Header="Notes" Style="{StaticResource GlobalDetailTabStyle}">
+            <TabItem Header="{DynamicResource Strings.Members.Notes}" Style="{StaticResource GlobalDetailTabStyle}">
                 <Grid Margin="{StaticResource MarginSectionTop}" MaxWidth="{StaticResource MaxWidthForm}">
                     <TextBox Style="{StaticResource UnderlineTextBox}"
                              Text="{Binding Notes}"
@@ -160,7 +157,7 @@
                              TextWrapping="Wrap"
                              MinHeight="200"
                              VerticalAlignment="Top"
-                             Tag="Add internal notes here..."/>
+                             Tag="{DynamicResource Strings.Members.Addinternalnoteshere}"/>
                 </Grid>
             </TabItem>
         </TabControl>
@@ -180,11 +177,7 @@
                         Style="{StaticResource SecondaryButton}"
                         Margin="{StaticResource MarginSmallRight}"/>
 
-                <!-- Edit -->
-                <Button Content="{DynamicResource TerminologyEditDetailsLabel}" 
-                        Command="{Binding EditCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        Margin="{StaticResource MarginSmallRight}"/>
+
 
                 <!-- Renew -->
                 <Button Content="{DynamicResource TerminologyRenewMembershipLabel}" 

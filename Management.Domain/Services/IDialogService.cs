@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Management.Domain.Services
@@ -27,7 +27,7 @@ namespace Management.Domain.Services
         /// <summary>
         /// Shows a custom content modal (e.g., Product Form, Checkout).
         /// </summary>
-        Task ShowCustomDialogAsync<TViewModel>(object? parameter = null)
+        Task<object?> ShowCustomDialogAsync<TViewModel>(object? parameter = null)
             where TViewModel : class;
 
         /// <summary>

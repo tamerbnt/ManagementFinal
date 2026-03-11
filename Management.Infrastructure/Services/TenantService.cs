@@ -1,5 +1,6 @@
 using System;
 using Management.Domain.Services;
+using Management.Application.Interfaces;
 
 namespace Management.Infrastructure.Services
 {

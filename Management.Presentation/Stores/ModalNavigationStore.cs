@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Management.Presentation.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.Stores
 {
@@ -24,15 +25,6 @@ namespace Management.Presentation.Stores
             => new ModalResult { IsSuccess = false, Message = message };
     }
 
-    public interface IModalAware
-    {
-        Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default);
-    }
-
-    public interface IModalClosingValidation
-    {
-        Task<bool> CanCloseAsync(CancellationToken cancellationToken = default);
-    }
 
     public class ModalEventArgs : EventArgs
     {
@@ -51,11 +43,21 @@ namespace Management.Presentation.Stores
         }
     }
 
-    public class ModalNavigationStore : ViewModelBase, IDisposable
+    public class ModalNavigationStore : ViewModelBase, IDisposable, Management.Domain.Interfaces.IStateResettable
     {
+        public void ResetState()
+        {
+            while (_modalStack.Count > 0)
+            {
+                var context = _modalStack.Pop();
+                DisposeViewModel(context.ViewModel);
+                context.CompletionSource.TrySetCanceled();
+            }
+            CurrentModalViewModel = null;
+        }
         private readonly SemaphoreSlim _modalLock = new(1, 1);
         private readonly Stack<ModalContext> _modalStack = new();
-        private readonly ILogger<ModalNavigationStore>? _logger;
+        private new readonly ILogger<ModalNavigationStore>? _logger;
         private readonly IServiceProvider _serviceProvider;
         private bool _isDisposed;
         private CancellationTokenSource? _currentOperationCts;
@@ -112,9 +114,9 @@ namespace Management.Presentation.Stores
                     CompletionSource = new TaskCompletionSource<ModalResult>()
                 };
 
-                if (viewModel is IModalAware modalAware && parameter != null)
+                if (viewModel is IModalAware modalAware)
                 {
-                    await modalAware.OnModalOpenedAsync(parameter, token);
+                    await modalAware.OnModalOpenedAsync(parameter ?? new object(), token);
                 }
 
                 _modalStack.Push(context);

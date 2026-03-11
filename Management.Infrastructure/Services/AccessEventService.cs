@@ -1,42 +1,35 @@
 using System.Collections.Generic;
 using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Application.Features.Members.Queries.SearchMembers;
-using Management.Application.Services;
 using Management.Application.Features.Turnstiles.Commands.LogAccessEvent;
-using Management.Application.Services;
 using Management.Application.Features.Turnstiles.Queries;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Enums;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
     public class AccessEventService : IAccessEventService
     {
         private readonly ISender _sender;
+        private readonly IAccessControlService _accessControl;
 
-        public AccessEventService(ISender sender)
+        public AccessEventService(
+            ISender sender, 
+            IAccessControlService accessControl)
         {
             _sender = sender;
+            _accessControl = accessControl;
         }
 
         public async Task<Result<List<AccessEventDto>>> GetRecentEventsAsync(Guid facilityId, int count = 50)
         {
-            var result = await _sender.Send(new GetAccessEventsQuery());
+            var result = await _sender.Send(new GetAccessEventsQuery(facilityId));
             if (result.IsFailure) return result;
             
             var list = result.Value;
@@ -49,56 +42,39 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result<List<AccessEventDto>>> GetEventsByRangeAsync(Guid facilityId, DateTime start, DateTime end)
         {
-            return await _sender.Send(new GetAccessEventsQuery(null, start));
+            return await _sender.Send(new GetAccessEventsQuery(facilityId, null, start));
         }
 
         public async Task<Result<int>> GetCurrentOccupancyAsync(Guid facilityId)
         {
-            return await _sender.Send(new GetCurrentOccupancyQuery());
+            return await _sender.Send(new GetCurrentOccupancyQuery(facilityId));
         }
 
         public async Task<Result> SimulateScanAsync(Guid facilityId, Guid? turnstileId = null)
         {
+            // Simulation logic is handled by the hardware mock usually, 
+            // but we can trigger a manual processing here for testing.
             return Result.Success();
         }
 
-        public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId)
+        /// <summary>
+        /// Processes a scan event from the hardware. Validates the member and logs the result.
+        /// </summary>
+        public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, string? transactionId = null)
         {
-            var searchResult = await _sender.Send(new SearchMembersQuery(new MemberSearchRequest(cardId, MemberFilterType.All)));
+            // 1. Run the access validation
+            var validationResult = await _accessControl.ProcessScanAsync(cardId);
             
-            MemberDto? member = null;
-            if (searchResult.IsSuccess && searchResult.Value.Items.Any())
-            {
-                member = searchResult.Value.Items.FirstOrDefault(); 
-            }
-
-            bool granted = false;
-            string status = "Denied";
-            string reason = "Unknown Card";
-            string memberName = "Unknown";
-            string displayCardId = cardId;
-
-            if (member != null)
-            {
-                memberName = member.FullName;
-                displayCardId = member.CardId;
-
-                if (member.Status == MemberStatus.Active && member.ExpirationDate > DateTime.UtcNow)
-                {
-                    granted = true;
-                    status = "Granted";
-                    reason = "Active Membership";
-                }
-                else
-                {
-                    status = "Denied";
-                    reason = member.Status == MemberStatus.Active ? "Expired" : "Inactive Membership";
-                }
-            }
+            bool granted = validationResult.Status == AccessResult.Granted || validationResult.Status == AccessResult.Warning;
+            string status = validationResult.Status.ToString();
+            string reason = validationResult.Message;
+            string memberName = validationResult.Member?.FullName ?? "Unknown";
 
             var logCommand = new LogAccessEventCommand(
-                TurnstileId: Guid.Empty,
-                CardId: displayCardId,
+                FacilityId: facilityId,
+                TurnstileId: Guid.Empty, 
+                CardId: cardId,
+                TransactionId: transactionId ?? string.Empty,
                 Granted: granted,
                 Status: status,
                 Reason: reason
@@ -115,7 +91,7 @@ namespace Management.Infrastructure.Services
             {
                 Id = logResult.Value,
                 MemberName = memberName,
-                CardId = displayCardId,
+                CardId = cardId,
                 AccessStatus = status,
                 IsAccessGranted = granted,
                 FailureReason = reason,

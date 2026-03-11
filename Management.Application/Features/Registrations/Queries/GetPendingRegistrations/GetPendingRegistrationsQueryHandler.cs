@@ -23,40 +23,28 @@ namespace Management.Application.Features.Registrations.Queries.GetPendingRegist
 
         public async Task<Result<List<RegistrationDto>>> Handle(GetPendingRegistrationsQuery request, CancellationToken cancellationToken)
         {
-            var pending = await _registrationRepository.GetPendingRegistrationsAsync();
-            var dtos = new List<RegistrationDto>();
+            var pending = (await _registrationRepository.GetPendingRegistrationsAsync(request.FacilityId)).ToList();
+            
+            // Fix N+1: Fetch all plans once for mapping
+            var allPlans = await _planRepository.GetActivePlansAsync(request.FacilityId);
+            var plans = allPlans.ToDictionary(p => p.Id, p => p.Name);
 
-            foreach (var reg in pending)
+            var dtos = pending.Select(reg => new RegistrationDto
             {
-                dtos.Add(await MapToDto(reg));
-            }
+                Id = reg.Id,
+                FullName = reg.FullName,
+                Email = reg.Email.Value,
+                PhoneNumber = reg.PhoneNumber.Value,
+                Source = reg.Source,
+                CreatedAt = reg.CreatedAt,
+                Status = reg.Status,
+                PreferredPlanName = reg.PreferredPlanId.HasValue && plans.TryGetValue(reg.PreferredPlanId.Value, out var name) ? name : "Unknown",
+                PreferredPlanId = reg.PreferredPlanId,
+                PreferredStartDate = reg.PreferredStartDate,
+                Notes = reg.Notes
+            }).ToList();
 
             return Result.Success(dtos);
-        }
-
-        private async Task<RegistrationDto> MapToDto(Registration entity)
-        {
-            string planName = "Unknown";
-            if (entity.PreferredPlanId.HasValue)
-            {
-                var plan = await _planRepository.GetByIdAsync(entity.PreferredPlanId.Value);
-                if (plan != null) planName = plan.Name;
-            }
-
-            return new RegistrationDto
-            {
-                Id = entity.Id,
-                FullName = entity.FullName,
-                Email = entity.Email.Value,
-                PhoneNumber = entity.PhoneNumber.Value,
-                Source = entity.Source,
-                CreatedAt = entity.CreatedAt,
-                Status = entity.Status,
-                PreferredPlanName = planName,
-                PreferredPlanId = entity.PreferredPlanId,
-                PreferredStartDate = entity.PreferredStartDate,
-                Notes = entity.Notes
-            };
         }
     }
 }

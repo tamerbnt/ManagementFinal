@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// Represents the current standing of a member's contract.
@@ -10,6 +10,7 @@
         Expired = 2,
         Frozen = 3,
         Suspended = 4,
-        Pending = 5
+        Pending = 5,
+        Banned = 6
     }
 }

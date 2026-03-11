@@ -11,5 +11,9 @@ namespace Management.Application.DTOs
         public int DurationDays { get; set; }
         public string Description { get; set; } = string.Empty;
         public bool IsActive { get; set; }
+        public bool IsSessionPack { get; set; }
+        public bool IsWalkIn { get; set; }
+        public int GenderRule { get; set; }
+        public string? ScheduleJson { get; set; }
     }
 }

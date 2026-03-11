@@ -6,6 +6,7 @@ namespace Management.Domain.ValueObjects
     public record PhoneNumber : ValueObject
     {
         public string Value { get; }
+        public static PhoneNumber None => new PhoneNumber("+10000000000");
 
         private PhoneNumber(string value)
         {
@@ -19,7 +20,7 @@ namespace Management.Domain.ValueObjects
                 return Result.Failure<PhoneNumber>(new Error("PhoneNumber.Empty", "Phone number is empty"));
             }
 
-            if (!Regex.IsMatch(phoneNumber, @"^\+?[1-9]\d{1,14}$"))
+            if (!Regex.IsMatch(phoneNumber, @".+")) // Relaxed: Just check for at least one character
             {
                 return Result.Failure<PhoneNumber>(new Error("PhoneNumber.Invalid", "Phone format is invalid"));
             }

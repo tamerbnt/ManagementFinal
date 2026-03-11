@@ -1,20 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Management.Domain.Models;
+using System.Threading.Tasks;
 
 namespace Management.Domain.Interfaces
 {
     public interface IAccessEventRepository : IRepository<AccessEvent>
     {
-        // For Real-Time Feed (limited by count, e.g., last 50)
-        Task<IEnumerable<AccessEvent>> GetRecentEventsAsync(int count);
-
-        // For History View (Timeline)
-        Task<IEnumerable<AccessEvent>> GetByDateRangeAsync(DateTime start, DateTime end);
-
-        // For Dashboard (Hero Card)
-        // Calculates current "People Inside" (Entries - Exits today)
-        Task<int> GetCurrentOccupancyCountAsync();
+        Task<System.Collections.Generic.IEnumerable<AccessEvent>> GetRecentEventsAsync(System.Guid facilityId, int count);
+        Task<System.Collections.Generic.IEnumerable<AccessEvent>> GetByDateRangeAsync(System.Guid facilityId, System.DateTime start, System.DateTime end);
+        Task<int> GetCurrentOccupancyCountAsync(System.Guid facilityId);
+        Task<int> GetVisitCountAsync(System.Guid memberId);
+        Task<System.Collections.Generic.IEnumerable<AccessEvent>> GetByMemberIdAsync(System.Guid memberId);
+        Task<AccessEvent?> GetByIdAsync(System.Guid id, System.Guid? facilityId = null);
     }
 }

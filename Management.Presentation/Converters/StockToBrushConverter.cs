@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -13,6 +13,17 @@ namespace Management.Presentation.Converters
             if (value is int stock)
             {
                 return (System.Windows.Application.Current.TryFindResource(stock == 0 ? "StatusErrorBrush" : (stock <= 10 ? "StatusWarningBrush" : "StatusSuccessBrush")) as Brush)!;
+            }
+            if (value is string level)
+            {
+                string resourceKey = level switch
+                {
+                    "Critical" => "StatusErrorBrush",
+                    "Warning" => "StatusWarningBrush",
+                    "Good" => "StatusSuccessBrush",
+                    _ => "StatusSuccessBrush"
+                };
+                return (System.Windows.Application.Current.TryFindResource(resourceKey) as Brush)!;
             }
             return null!;
         }

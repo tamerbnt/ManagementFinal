@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using Serilog;
 
@@ -21,6 +22,20 @@ namespace Management.Presentation
                     .CreateLogger();
 
                 Log.Information("Bootstrapping Application...");
+
+                // --- EF CORE DESIGN TIME BYPASS ---
+                // When running `dotnet ef migrations` or `database update`, the CLI attempts to 
+                // build the host to discover DbContexts. If it tries to load WPF resources, it will crash.
+                var isEfCoreTool = AppDomain.CurrentDomain.GetAssemblies()
+                    .Any(a => a.FullName?.StartsWith("ef,") == true || a.FullName?.Contains("EntityFrameworkCore.Design") == true);
+                
+                if (isEfCoreTool)
+                {
+                    Console.WriteLine("EF Core Design Time Detected in Program.Main. Halting WPF bootstrapping.");
+                    // Return early so EF Core tools drop back to looking for IDesignTimeDbContextFactory
+                    // which we implemented in AppDbContextFactory.cs
+                    return;
+                }
 
                 Console.WriteLine("DEBUG: Creating App instance...");
                 var app = new App();

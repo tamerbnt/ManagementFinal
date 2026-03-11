@@ -22,7 +22,7 @@ namespace Management.Application.Features.Finance.Commands.CreatePayrollEntry
         public async Task<Result<Guid>> Handle(CreatePayrollEntryCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Entry;
-            var amount = new Money(dto.Amount, "USD");
+            var amount = new Money(dto.Amount, "DA");
 
             var result = PayrollEntry.Create(
                 dto.StaffId,

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +12,7 @@ namespace Management.Domain.Enums
         Unknown = 0,
         Granted = 1,
         Denied = 2,
-        Locked = 3
+        Locked = 3,
+        Warning = 4
     }
 }

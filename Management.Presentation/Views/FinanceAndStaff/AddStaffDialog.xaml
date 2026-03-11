@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="Management.Presentation.Views.FinanceAndStaff.AddStaffDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Form -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.AddNewStaffMember}" 
+                       Style="{DynamicResource Title2}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.Enterthedetailsforthenews}" 
+                       Style="{DynamicResource Body}" 
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,8,0,0"/>
+        </StackPanel>
+
+        <!-- 2. Form Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,24">
+            <StackPanel>
+                <!-- Full Name -->
+                <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.FullName}" Style="{DynamicResource FormLabel}"/>
+                <TextBox Text="{Binding NewStaff.FullName, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{DynamicResource UnderlineTextBox}"
+                         Margin="0,0,0,16"
+                         Tag="{DynamicResource Strings.FinanceAndStaff.egSarahConnor}"/>
+
+                <!-- Role -->
+                <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.Role}" Style="{DynamicResource FormLabel}" Margin="0,16,0,0"/>
+                <ComboBox Text="{Binding NewStaff.Role}" 
+                          Style="{StaticResource Input.ComboBox}" 
+                          IsEditable="False"
+                          Margin="0,0,0,16" 
+                          SelectedIndex="0">
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.Trainer}"/>
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.Manager}"/>
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.Operations}"/>
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.TechLead}"/>
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.Investor}"/>
+                    <ComboBoxItem Content="{DynamicResource Strings.FinanceAndStaff.Receptionist}"/>
+                </ComboBox>
+
+                <!-- Email -->
+                <TextBlock Text="{DynamicResource Strings.Auth.EMAILADDRESS}" Style="{DynamicResource FormLabel}" Margin="0,16,0,0"/>
+                <TextBox Text="{Binding NewStaff.Email, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{DynamicResource UnderlineTextBox}"
+                         Margin="0,0,0,16"
+                         Tag="{DynamicResource Strings.FinanceAndStaff.sarahexamplecom}"/>
+
+                <!-- Phone -->
+                <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.PhoneNumber}" Style="{DynamicResource FormLabel}" Margin="0,16,0,0"/>
+                <TextBox Text="{Binding NewStaff.Phone, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{DynamicResource UnderlineTextBox}"
+                         Margin="0,0,0,8"
+                         Tag="+1 555 019 2834"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 3. Footer Actions -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right">
+            
+            <Button Content="{DynamicResource Strings.Global.Cancel}" 
+                    Command="{Binding CloseAddStaffCommand}"
+                    Style="{DynamicResource SecondaryButton}"
+                    Margin="0,0,12,0"/>
+
+            <Button Content="{DynamicResource Strings.FinanceAndStaff.AddMember}" 
+                    Command="{Binding SaveNewStaffCommand}"
+                    Style="{DynamicResource PrimaryButton}"
+                    MinWidth="140"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

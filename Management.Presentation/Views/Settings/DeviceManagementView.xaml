@@ -1,0 +1,152 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Settings.DeviceManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Background="Transparent">
+
+    <Grid Margin="{DynamicResource MarginPageContent}">
+        <StackPanel>
+            <!-- Header Section -->
+            <TextBlock Text="{DynamicResource TerminologyDeviceManagementLabel}" 
+                       Style="{DynamicResource Title3}" 
+                       Foreground="{DynamicResource TextPrimaryBrush}" 
+                       Margin="{DynamicResource MarginHeaderBottom}"/>
+
+            <TextBlock Text="{DynamicResource TerminologyDeviceManagementDesc}" 
+                       Style="{DynamicResource BodySecondary}" 
+                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       Margin="0,0,0,24"/>
+
+            <!-- Devices List (Virtualized) -->
+            <ListView ItemsSource="{Binding Devices}"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Padding="0"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      VirtualizingPanel.CacheLengthUnit="Item"
+                      VirtualizingPanel.CacheLength="10,10">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{DynamicResource GlassCardStyle}" Margin="0,0,0,12" Padding="20">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Device Icon -->
+                                <Border Grid.Column="0" 
+                                        Width="48" 
+                                        Height="48" 
+                                        CornerRadius="12"
+                                        Background="{DynamicResource SurfaceBgTertiary}"
+                                        Margin="0,0,20,0">
+                                    <Path Data="{DynamicResource IconScreen}" 
+                                          Fill="{DynamicResource TextPrimaryBrush}"
+                                          Style="{DynamicResource Style.Icon.Small}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Device Info -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock Text="{Binding Label}" 
+                                                   Style="{DynamicResource BodyLargeBold}" 
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        
+                                        <!-- Current Device Badge -->
+                                        <Border Visibility="{Binding IsCurrentDevice, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                Background="{DynamicResource AccentPrimaryBrush}"
+                                                CornerRadius="4"
+                                                Padding="6,2"
+                                                Margin="12,0,0,0">
+                                            <TextBlock Text="{DynamicResource TerminologyThisDeviceLabel}" 
+                                                       FontSize="10" 
+                                                       FontWeight="Bold"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                    </StackPanel>
+                                    
+                                    <TextBlock Text="{Binding HardwareId}" 
+                                               Style="{DynamicResource Caption}" 
+                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                    <TextBlock Text="{Binding RegisteredAt, StringFormat='Authorized on {0:MMM dd, yyyy}'}" 
+                                               Style="{DynamicResource Caption}" 
+                                               Foreground="{DynamicResource TextTertiaryBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Revoke Action -->
+                                <Button Grid.Column="2" 
+                                        Content="{DynamicResource TerminologyRevokeAccessLabel}" 
+                                        Command="{Binding RevokeCommand}"
+                                        CommandParameter="{Binding}"
+                                        Style="{DynamicResource Button.Ghost}"
+                                        Foreground="{DynamicResource StatusErrorBrush}"
+                                        Visibility="{Binding IsCurrentDevice, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                        VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <!-- Loading Overlay (Implicit via ViewModel state) -->
+            <Grid Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                  HorizontalAlignment="Center" Margin="0,48,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{DynamicResource IconRefresh}" 
+                          Fill="{DynamicResource TextSecondaryBrush}"
+                          Style="{DynamicResource Style.Icon.Small}"
+                          RenderTransformOrigin="0.5,0.5"
+                          Margin="0,0,12,0">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="0"/>
+                        </Path.RenderTransform>
+                        <Path.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)"
+                                                         From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Path.Triggers>
+                    </Path>
+                    <TextBlock Text="{DynamicResource TerminologyLoadingDevicesLabel}" 
+                               Style="{DynamicResource BodySecondary}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

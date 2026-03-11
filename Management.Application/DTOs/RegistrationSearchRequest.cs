@@ -5,6 +5,7 @@ namespace Management.Application.DTOs
 {
     public record RegistrationSearchRequest(
         string SearchTerm,
-        RegistrationFilterType FilterType = RegistrationFilterType.All
+        RegistrationFilterType FilterType = RegistrationFilterType.All,
+        RegistrationStatus? Status = null
     );
 }

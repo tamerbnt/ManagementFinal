@@ -1,6 +1,8 @@
 using System;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -8,8 +10,12 @@ namespace Management.Application.Stores
     /// Allows disparate parts of the UI (Dashboard, Member List) to stay in sync
     /// without tight coupling or holding the entire database in memory.
     /// </summary>
-    public class MemberStore
+    public class MemberStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Stateless aggregator, nothing to clear
+        }
         // Fired when a new member is successfully created in the database
         public event Action<MemberDto>? MemberAdded;
 

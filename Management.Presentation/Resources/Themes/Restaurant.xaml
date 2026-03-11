@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Restaurant Theme Mapping -->
+    <Color x:Key="Color.Brand.Primary">#F87171</Color> <!-- red accent -->
+    <SolidColorBrush x:Key="Brush.Sidebar.Background" Color="{StaticResource Palette.Burgundy.500}" />
+    <SolidColorBrush x:Key="Brush.Accent.Primary" Color="{StaticResource Color.Brand.Primary}" />
+    <SolidColorBrush x:Key="Brush.Window.Background" Color="{StaticResource Palette.Neutral.White}" />
+    <SolidColorBrush x:Key="Brush.Content.Background" Color="{StaticResource Palette.Neutral.OffWhite}" />
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="{StaticResource Palette.Neutral.Black}" />
+
+</ResourceDictionary>

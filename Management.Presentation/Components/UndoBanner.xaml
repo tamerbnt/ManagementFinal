@@ -9,7 +9,7 @@
             CornerRadius="24" 
             BorderThickness="1" 
             BorderBrush="{DynamicResource SeparatorStroke}"
-            Effect="{StaticResource ShadowLevel3}">
+            Effect="{StaticResource Shadow3}">
         <Grid Margin="24,0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Action deleted." Foreground="{DynamicResource TextPrimary}" VerticalAlignment="Center" Margin="0,0,16,0"/>

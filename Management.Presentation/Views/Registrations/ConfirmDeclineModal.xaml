@@ -19,8 +19,8 @@
         - Width: Fixed 480px per Section 19.3
     -->
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
-            Width="{StaticResource SizeModalWidth}"
-            Padding="{StaticResource PaddingModal}"
+            Width="{DynamicResource SizeModalWidth}"
+            Padding="{DynamicResource PaddingModal}"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             
@@ -33,17 +33,17 @@
 
         <StackPanel>
             <!-- 1. Status Icon -->
-            <Grid Margin="{StaticResource MarginHeaderBottom}">
+            <Grid Margin="{DynamicResource MarginHeaderBottom}">
                 <!-- Success Icon -->
                 <Path Data="{DynamicResource IconCheck}"
                       Fill="{DynamicResource StatusSuccessBrush}"
-                      Style="{DynamicResource IconHero}"
+                      Style="{DynamicResource Style.Icon.Hero}"
                       Visibility="{Binding IsSuccess, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"/>
                 
                 <!-- Warning Icon -->
                 <Path Data="{DynamicResource IconWarning}"
                       Fill="{DynamicResource StatusWarningBrush}"
-                      Style="{DynamicResource IconHero}"
+                      Style="{DynamicResource Style.Icon.Hero}"
                       Visibility="{Binding IsSuccess, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse, FallbackValue=Visible}"/>
             </Grid>
 
@@ -53,12 +53,12 @@
                        Foreground="{DynamicResource TextPrimaryBrush}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
-                       Margin="{StaticResource MarginHeaderBottom}"/>
+                       Margin="{DynamicResource MarginHeaderBottom}"/>
 
             <!-- 3. Message (Scrollable for overflow protection) -->
             <ScrollViewer MaxHeight="240" 
                           VerticalScrollBarVisibility="Auto"
-                          Margin="{StaticResource MarginSectionBottom}">
+                          Margin="{DynamicResource MarginSectionBottom}">
                 <TextBlock Text="{Binding Message}"
                            Style="{DynamicResource Body}"
                            Foreground="{DynamicResource TextSecondaryBrush}"
@@ -75,14 +75,14 @@
                 <Button Content="{Binding CancelText, FallbackValue='Cancel'}"
                         Command="{Binding CancelCommand}"
                         Style="{DynamicResource SecondaryButton}"
-                        MinWidth="{StaticResource SizeButtonMinWidth}"
-                        Margin="{StaticResource MarginSmallRight}"
+                        MinWidth="{DynamicResource SizeButtonMinWidth}"
+                        Margin="{DynamicResource MarginSmallRight}"
                         Visibility="{Binding IsAlert, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
 
                 <!-- Confirm (Destructive or Primary) -->
                 <Button Content="{Binding ConfirmText, FallbackValue='OK'}"
                         Command="{Binding ConfirmCommand}"
-                        MinWidth="{StaticResource SizeButtonMinWidth}">
+                        MinWidth="{DynamicResource SizeButtonMinWidth}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
                             <Style.Triggers>

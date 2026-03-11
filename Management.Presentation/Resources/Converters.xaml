@@ -4,33 +4,77 @@
 
     <!-- Group 1: Logic & Visibility -->
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" ConverterParameter="Inverse"/>
     <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    <converters:BoolToVisibilityConverter x:Key="BooleanToVis"/>
+    <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
+    <converters:EqualityConverter x:Key="EqualityConverter"/>
+    <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
+    <converters:StringMatchToVisibilityConverter x:Key="StringMatchToVisibilityConverter"/>
+    <converters:StringMatchMultiToVisibilityConverter x:Key="StringMatchMultiToVisibilityConverter"/>
     <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
     <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    <converters:NullToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    <converters:NullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" Inverted="True"/>
     <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
-    <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
-    <!-- Reusing logic via param usually, or separate instance -->
+    <converters:InverseBoolConverter x:Key="InverseBooleanConverter"/>
+    <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+    <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" DefaultToZeroIsVisible="True" />
     <converters:IntToVisibilityConverter x:Key="InverseZeroIsVisibleConverter" />
+    <converters:IntToVisibilityConverter x:Key="GreaterThanZeroConverter"/>
+    <converters:RangeConverter x:Key="RangeConverter"/>
+    <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+    <converters:EnumToBooleanConverter x:Key="EnumToBoolConverter"/>
+    <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
+    <converters:NameToInitialConverter x:Key="NameToInitialConverter"/>
+    <converters:MultiplyConverter x:Key="UniversalMultiplyConverter"/>
+    <converters:NameToBrushConverter x:Key="NameToBrushConverter"/>
+    <converters:CollectionContainsConverter x:Key="CollectionContainsConverter"/>
+    <converters:ItemSelectionConverter x:Key="ItemSelectionConverter"/>
 
     <!-- Group 2: Responsive Layout -->
     <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
     <converters:WindowWidthToPaddingConverter x:Key="WindowWidthToPaddingConverter"/>
     <converters:WindowWidthToMarginConverter x:Key="WindowWidthToMarginConverter"/>
+    <converters:DensityToHeightConverter x:Key="DensityToHeightConverter"/>
+    <converters:ColumnToOffsetConverter x:Key="ColumnToOffsetConverter"/>
+    <converters:ColumnToWidthConverter x:Key="ColumnToWidthConverter"/>
+    <converters:LaneOffsetConverter x:Key="LaneOffsetConverter"/>
+    <converters:LaneWidthConverter x:Key="LaneWidthConverter"/>
+    <converters:MultiplyValueConverter x:Key="GlobalOffsetConverter"/>
+    <converters:MultiplyValueConverter x:Key="MultiplyValueConverter"/>
 
     <!-- Group 3: Text & Formatting -->
     <converters:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
     <converters:ResourceKeyToIconConverter x:Key="ResourceKeyToIconConverter"/>
+    <converters:ResourceLookupConverter x:Key="ResourceLookupConverter"/>
     <converters:BoolToConnectionTextConverter x:Key="BoolToConnectionTextConverter"/>
     <converters:TurnstileStatusToTextConverter x:Key="TurnstileStatusToTextConverter"/>
+    <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+    <converters:EnumToLocalizedDescriptionConverter x:Key="EnumToLocalizedDescriptionConverter"/>
 
     <!-- Group 4: Semantic Colors -->
     <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>
     <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
     <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
-    <converters:TrendToBrushConverter x:Key="TrendToBrushConverter"/>
+    <converters:FinancialTrendConverter x:Key="TrendToBrushConverter"/>
+    <converters:FinancialTrendConverter x:Key="TrendToIconConverter"/>
+    <converters:FinancialTrendConverter x:Key="TrendToTextBrushConverter"/>
+    <converters:FinancialTrendConverter x:Key="FinancialTrendConverter"/>
     <converters:BoolToSuccessErrorBrushConverter x:Key="BoolToSuccessErrorBrushConverter"/>
     <converters:BoolToStatusBrushConverter x:Key="BoolToStatusBrushConverter"/>
+    <converters:BoolToStatusTextConverter x:Key="BoolToStatusTextConverter"/>
     <converters:PlanStatusToBrushConverter x:Key="PlanStatusToBrushConverter"/>
     <converters:TurnstileStatusToBrushConverter x:Key="TurnstileStatusToBrushConverter"/>
+    
+    <!-- Group 5: Brushes -->
+    <converters:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+    <converters:BoolToBrushConverter x:Key="InverseBoolToBrushConverter" Inverted="True"/>
+    <converters:RegistrationStatusToBrushConverter x:Key="RegistrationStatusToBrushConverter"/>
+
+    <!-- Group 6: Floor Plan -->
+    <converters:TableStatusToBrushConverter x:Key="TableStatusToBrushConverter"/>
+    <converters:TableStatusToForegroundConverter x:Key="TableStatusToForegroundConverter"/>
 
 </ResourceDictionary>

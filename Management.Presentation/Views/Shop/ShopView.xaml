@@ -5,198 +5,334 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.Shop"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Shop"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True"
              Background="Transparent">
 
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+        <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
         <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <!-- Main Shop Floor -->
-            <ColumnDefinition Width="Auto"/>
-            <!-- Cart Sidebar (Collapses when hidden) -->
-        </Grid.ColumnDefinitions>
-
-        <!-- 1. MAIN CONTENT AREA -->
-        <Grid Grid.Column="0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <!-- Header -->
-                <RowDefinition Height="*"/>
-                <!-- Tabs Content -->
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="Auto"/> <!-- Controls -->
+                <RowDefinition Height="*"/>    <!-- Content -->
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <TextBlock Grid.Row="0" 
-                       Text="{DynamicResource TerminologyShopTitle}" 
-                       Style="{StaticResource Title1}" 
-                       Margin="{StaticResource MarginSectionBottom}"/>
+            <!-- 1. Header & Actions -->
+            <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-            <!-- Top-Level Navigation Tabs -->
-            <!-- Uses GlobalDetailTabStyle for consistent look -->
-            <TabControl Grid.Row="1"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Padding="0"
-                        SelectedIndex="{Binding SelectedTabIndex}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="{StaticResource Icon.Storefront}" 
+                          Style="{StaticResource Style.Icon.Large}" 
+                          Stroke="{DynamicResource TextPrimaryBrush}"
+                          Margin="0,0,12,0"/>
+                    <TextBlock Text="{DynamicResource Terminology.Shop.Header}" 
+                               Style="{StaticResource Title1}" 
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
 
-                <TabControl.Resources>
-                    <Style TargetType="TabPanel">
-                        <Setter Property="HorizontalAlignment" Value="Left"/>
-                        <Setter Property="Margin" Value="0,0,0,32"/>
-                    </Style>
-                </TabControl.Resources>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <!-- Add Product Button -->
+                    <Button Command="{Binding OpenAddProductCommand}" 
+                            Style="{StaticResource PrimaryButton}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconPlus}" 
+                                  Stroke="White" 
+                                  Style="{StaticResource Style.Icon.Small}" 
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
 
-                <!-- TAB 1: PRODUCTS (POS Mode) -->
-                <TabItem Header="{DynamicResource TerminologyProductsTab}" Style="{StaticResource GlobalDetailTabStyle}">
-                    <Grid Margin="{StaticResource MarginSectionTop}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <!-- Filter Bar -->
-                            <RowDefinition Height="*"/>
-                            <!-- Product Grid -->
-                        </Grid.RowDefinitions>
+            <!-- 2. Controls Area (Filter & Toggle OR Selection Bar) -->
+            <Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
+                <!-- 2a. Normal Filters (Hidden in Selection Mode) -->
+                <Grid Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/> <!-- Filters -->
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/> <!-- View Toggle -->
+                    </Grid.ColumnDefinitions>
 
-                        <!-- Filter Bar -->
-                        <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <!-- Search -->
-                                <ColumnDefinition Width="*"/>
-                                <!-- Spacer -->
-                                <ColumnDefinition Width="Auto"/>
-                                <!-- Category Pills -->
-                            </Grid.ColumnDefinitions>
+                    <!-- Filter Bar -->
+                    <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="{DynamicResource Terminology.Shop.Filter.All}" IsChecked="{Binding FilterAll}" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Shop.Filter.Supplements}" IsChecked="{Binding FilterSupplements}" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Shop.Filter.Apparel}" IsChecked="{Binding FilterApparel}" Style="{StaticResource TogglePillStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Shop.Filter.Equipment}" IsChecked="{Binding FilterEquipment}" Style="{StaticResource TogglePillStyle}"/>
+                        </StackPanel>
+                    </Border>
 
-                            <!-- Search Box -->
-                            <Border Grid.Column="0"
-                                    MinWidth="{StaticResource SizeInputMinWidth}"
-                                    MaxWidth="{StaticResource SizeSearchBarWidth}"
-                                    Height="{StaticResource SizeInputHeight}"
-                                    Background="{DynamicResource CardBackgroundBrush}"
-                                    CornerRadius="{StaticResource RadiusSearchBar}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                    <!-- View Mode Toggle (Interactive Style) -->
+                    <Button Grid.Column="2" 
+                            Command="{Binding ToggleViewModeCommand}"
+                            Style="{StaticResource ButtonCompactSecondary}">
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Icon Grid/List Switch -->
+                            <Grid>
+                                <Path Data="{StaticResource IconDashboard}" 
+                                      Style="{StaticResource Style.Icon.Micro}"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.List}}"/>
+                                <Path Data="{StaticResource IconMenu}" 
+                                      Style="{StaticResource Style.Icon.Micro}"
+                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                      Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.Grid}}"/>
+                            </Grid>
+                            <!-- Text Grid/List Switch -->
+                            <TextBlock Margin="8,0,0,0" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{DynamicResource Terminology.Shop.View.Grid}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:ShopViewMode.Grid}">
+                                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.View.List}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+                </Grid>
 
-                                    <Path Grid.Column="0"
-                                          Data="{StaticResource IconSearch}"
-                                          Fill="{DynamicResource TextTertiaryBrush}"
-                                          Style="{StaticResource IconStandard}"
-                                          Margin="{StaticResource MarginInputIcon}"/>
+                <!-- 2b. Multi-Selection Context Bar -->
+                <Border Background="{DynamicResource FacilityAccentBrush}" 
+                        CornerRadius="16" 
+                        Padding="16,8"
+                        Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/> <!-- Select All -->
+                            <ColumnDefinition Width="*"/>    <!-- Count -->
+                            <ColumnDefinition Width="Auto"/> <!-- Actions -->
+                        </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="1"
-                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource UnderlineTextBox}"
-                                             BorderThickness="0"
-                                             VerticalAlignment="Center"
-                                             Tag="{DynamicResource TerminologySearchProductsPlaceholder}"/>
-                                </Grid>
-                            </Border>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding SelectAll}" 
+                                      Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                                      Foreground="White"/>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.SelectAll}" 
+                                       Foreground="White" 
+                                       VerticalAlignment="Center" 
+                                       Margin="8,0,0,0"
+                                       FontWeight="Medium"/>
+                        </StackPanel>
 
-                            <!-- Category Pills -->
-                            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                <RadioButton Content="{DynamicResource TerminologyFilterAllLabel}" 
-                                             IsChecked="{Binding FilterAll}" 
-                                             Style="{StaticResource TogglePillStyle}"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding SelectedCount, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Shop.ProductsSelected'}" 
+                                       Foreground="White" 
+                                       VerticalAlignment="Center" 
+                                       Margin="4,0,0,0"
+                                       Opacity="0.9"/>
+                        </StackPanel>
 
-                                <RadioButton Content="{DynamicResource TerminologyFilterSupplementsLabel}" 
-                                             IsChecked="{Binding FilterSupplements}" 
-                                             Style="{StaticResource TogglePillStyle}"/>
-
-                                <RadioButton Content="{DynamicResource TerminologyFilterApparelLabel}" 
-                                             IsChecked="{Binding FilterApparel}" 
-                                             Style="{StaticResource TogglePillStyle}"/>
-
-                                <RadioButton Content="{DynamicResource TerminologyFilterEquipmentLabel}" 
-                                             IsChecked="{Binding FilterEquipment}" 
-                                             Style="{StaticResource TogglePillStyle}"/>
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- Product Grid -->
-                        <ListBox Grid.Row="1"
-                                 ItemsSource="{Binding Products}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 VirtualizingPanel.IsVirtualizing="True"
-                                 VirtualizingPanel.VirtualizationMode="Recycling"
-                                 ScrollViewer.CanContentScroll="True">
-
-                            <ListBox.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid VerticalAlignment="Top">
-                                        <UniformGrid.Columns>
-                                            <!-- Responsive Columns: 4 (>=1440px), 3 (<1440px) -->
-                                            <Binding Path="ActualWidth" 
-                                                     RelativeSource="{RelativeSource AncestorType=Window}" 
-                                                     Converter="{StaticResource WindowWidthToColumnsConverter}">
-                                                <Binding.ConverterParameter>
-                                                    <sys:Double>1440</sys:Double>
-                                                </Binding.ConverterParameter>
-                                            </Binding>
-                                        </UniformGrid.Columns>
-                                    </UniformGrid>
-                                </ItemsPanelTemplate>
-                            </ListBox.ItemsPanel>
-
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="Padding" Value="0"/>
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
-                                    <!-- Grid Gutter -->
-                                    <Setter Property="Margin" Value="{StaticResource MarginCardGridGutter}"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ListBoxItem">
-                                                <ContentPresenter />
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <!-- Injected Product Card -->
-                                    <local:ProductListItem />
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button Command="{Binding DeleteSelectedCommand}" 
+                                    ToolTip="{DynamicResource Terminology.Shop.DeleteSelection}"
+                                    Width="40" Height="40"
+                                    Cursor="Hand"
+                                    Margin="0,0,16,0">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid x:Name="Root">
+                                            <Ellipse Fill="{DynamicResource StatusErrorBrush}" Effect="{DynamicResource Shadow2}"/>
+                                            <Path Data="{StaticResource IconDelete}" 
+                                                  Stroke="White" 
+                                                  StrokeThickness="2"
+                                                  Width="18" Height="18"
+                                                  Stretch="Uniform"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Root" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleX="1.1" ScaleY="1.1" CenterX="20" CenterY="20"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="Root" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleX="0.95" ScaleY="0.95" CenterX="20" CenterY="20"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            
+                            <Button Command="{Binding ClearSelectionCommand}" 
+                                    Style="{StaticResource SecondaryButton}" 
+                                    Foreground="White"
+                                    Opacity="0.8">
+                                <TextBlock Text="{DynamicResource Terminology.Global.Cancel}"/>
+                            </Button>
+                        </StackPanel>
                     </Grid>
-                </TabItem>
+                </Border>
+            </Grid>
 
-                <!-- TAB 2: INVENTORY (Management Mode) -->
-                <TabItem Header="{DynamicResource TerminologyInventoryTab}" Style="{StaticResource GlobalDetailTabStyle}">
-                    <!-- Injected Inventory Table -->
-                    <local:InventoryManagementView Margin="{StaticResource MarginSectionTop}"/>
-                </TabItem>
-            </TabControl>
+            <!-- 3. Content Area -->
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/> <!-- Detail Drawer -->
+                </Grid.ColumnDefinitions>
+
+                <!-- A. GRID VIEW (Visual Shopping) -->
+                <ListBox Grid.Column="0" 
+                         ItemsSource="{Binding Products}" 
+                         Background="Transparent" 
+                         BorderThickness="0" 
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         SelectedItem="{Binding SelectedProduct}">
+                    <ListBox.Visibility>
+                        <Binding Path="ViewMode" Converter="{StaticResource EqualToVisibilityConverter}" ConverterParameter="{x:Static vm:ShopViewMode.Grid}"/>
+                    </ListBox.Visibility>
+                    
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                             <UniformGrid VerticalAlignment="Top">
+                                <UniformGrid.Columns>
+                                    <Binding Path="ActualWidth" 
+                                             RelativeSource="{RelativeSource AncestorType=Window}" 
+                                             Converter="{StaticResource WindowWidthToColumnsConverter}">
+                                        <Binding.ConverterParameter>
+                                            <sys:Double>1440</sys:Double>
+                                        </Binding.ConverterParameter>
+                                    </Binding>
+                                </UniformGrid.Columns>
+                            </UniformGrid>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <local:ProductListItem Margin="0,0,20,20"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- B. LIST VIEW (Inventory Management) -->
+                <ListBox Grid.Column="0" 
+                         ItemsSource="{Binding InventoryItems}" 
+                         Background="Transparent" 
+                         BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         SelectedItem="{Binding SelectedProduct}">
+                     <ListBox.Visibility>
+                        <Binding Path="ViewMode" Converter="{StaticResource EqualToVisibilityConverter}" ConverterParameter="{x:Static vm:ShopViewMode.List}"/>
+                    </ListBox.Visibility>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
+                            <Setter Property="Margin" Value="0,0,0,8"/>
+                             <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                             <!-- New Template for Inventory Rows -->
+                            <local:InventoryListItem />
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- C. DETAIL SLIDE-OUT -->
+                 <Border Grid.Column="1" 
+                         Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
+                        Background="{DynamicResource CardBackgroundBrush}" 
+                        CornerRadius="32,0,0,32"
+                        Effect="{StaticResource Shadow3}"
+                        Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"
+                        BorderThickness="1,0,0,0"
+                        BorderBrush="{DynamicResource BorderBrush}">
+                    <Border.RenderTransform>
+                        <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:ShopView}, Path=ActualWidth}"/>
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:ShopView}}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                 To="0" Duration="{StaticResource DurationScreen}">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <ExponentialEase Exponent="6" EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                 To="1200" Duration="{StaticResource DurationScreen}">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <ExponentialEase Exponent="6" EasingMode="EaseIn"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    
+                    <local:ProductDetailView DataContext="{Binding SelectedProduct}"/>
+                </Border>
+            </Grid>
         </Grid>
-
-        <!-- 2. SHOPPING CART SIDEBAR (Right Column) -->
-        <!-- 
-             Visibility bound to 'IsCartVisible' in ViewModel.
-             If collapsed, the Main Content expands to fill the space.
-             Fixed width 400px defined in resources.
-        -->
-        <local:CartView Grid.Column="1"
-                        Width="{StaticResource SizeSidePanelWidth}"
-                        Visibility="{Binding IsCartVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

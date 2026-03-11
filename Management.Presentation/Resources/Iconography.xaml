@@ -25,28 +25,28 @@
     </Style>
 
     <!-- Sizing Presets -->
-    <Style x:Key="IconMicro" TargetType="Path" BasedOn="{StaticResource IconBase}">
+    <Style x:Key="Style.Icon.Micro" TargetType="Path" BasedOn="{StaticResource IconBase}">
         <Setter Property="Width" Value="12"/>
         <Setter Property="Height" Value="12"/>
         <Setter Property="StrokeThickness" Value="1.5"/>
     </Style>
 
-    <Style x:Key="IconSmall" TargetType="Path" BasedOn="{StaticResource IconBase}">
+    <Style x:Key="Style.Icon.Small" TargetType="Path" BasedOn="{StaticResource IconBase}">
         <Setter Property="Width" Value="16"/>
         <Setter Property="Height" Value="16"/>
     </Style>
 
-    <Style x:Key="IconStandard" TargetType="Path" BasedOn="{StaticResource IconBase}">
+    <Style x:Key="Style.Icon.Standard" TargetType="Path" BasedOn="{StaticResource IconBase}">
         <Setter Property="Width" Value="24"/>
         <Setter Property="Height" Value="24"/>
     </Style>
 
-    <Style x:Key="IconLarge" TargetType="Path" BasedOn="{StaticResource IconBase}">
+    <Style x:Key="Style.Icon.Large" TargetType="Path" BasedOn="{StaticResource IconBase}">
         <Setter Property="Width" Value="32"/>
         <Setter Property="Height" Value="32"/>
     </Style>
 
-    <Style x:Key="IconHero" TargetType="Path" BasedOn="{StaticResource IconBase}">
+    <Style x:Key="Style.Icon.Hero" TargetType="Path" BasedOn="{StaticResource IconBase}">
         <Setter Property="Width" Value="48"/>
         <Setter Property="Height" Value="48"/>
         <Setter Property="StrokeThickness" Value="3"/> <!-- Proportional scaling -->
@@ -57,18 +57,22 @@
     <!-- ============================================================= -->
     
     <!-- Polka Dots (Facility Accent) -->
+    <!--
     <VisualBrush x:Key="PatternPolkaDots" TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
         <VisualBrush.Visual>
             <Ellipse Width="2" Height="2" Fill="{DynamicResource FacilityAccentBrush}"/>
         </VisualBrush.Visual>
     </VisualBrush>
+    -->
 
     <!-- Stripes (Facility Accent) -->
+    <!--
     <VisualBrush x:Key="PatternStripes" TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
         <VisualBrush.Visual>
             <Path Data="M0,10 L10,0" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1" StrokeEndLineCap="Square"/>
         </VisualBrush.Visual>
     </VisualBrush>
+    -->
 
     <!-- ============================================================= -->
     <!-- 3. BRAND ICONS (Facility Identity)                            -->
@@ -76,64 +80,89 @@
     <!-- ============================================================= -->
 
     <!-- Gym (Dumbbell) Outlined -->
-    <Geometry x:Key="IconGym">M6.5 6.5h11M6.5 17.5h11M2 6.5l2-2h2l2 2v11l-2 2H4l-2-2zM16 6.5l2-2h2l2 2v11l-2 2h-2l-2-2zM9 12h6</Geometry>
+    <StreamGeometry x:Key="IconGym">M6.5 6.5h11M6.5 17.5h11M2 6.5l2-2h2l2 2v11l-2 2H4l-2-2zM16 6.5l2-2h2l2 2v11l-2 2h-2l-2-2zM9 12h6</StreamGeometry>
 
     <!-- Salon (Scissors) Outlined -->
-    <Geometry x:Key="IconSalon">M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12M6 6a3 3 0 1 0 3 3M6 18a3 3 0 1 0 3-3</Geometry>
+    <StreamGeometry x:Key="IconSalon">M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12M6 6a3 3 0 1 0 3 3M6 18a3 3 0 1 0 3-3</StreamGeometry>
 
     <!-- Restaurant (Plate Cloche) Outlined -->
-    <Geometry x:Key="IconRestaurant">M21 15v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2M12 12a7 7 0 00-7 7h14a7 7 0 00-7-7zM12 9v3</Geometry>
+    <StreamGeometry x:Key="IconRestaurant">M21 15v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2M12 12a7 7 0 00-7 7h14a7 7 0 00-7-7zM12 9v3</StreamGeometry>
 
     <!-- ============================================================= -->
     <!-- 4. CORE UI ICONS (Lucide Parity)                              -->
     <!-- ============================================================= -->
 
     <!-- Dashboard (Layout Grid) -->
-    <Geometry x:Key="IconDashboard">M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z</Geometry>
+    <StreamGeometry x:Key="IconDashboard">M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z</StreamGeometry>
     
     <!-- Members (Users) -->
-    <Geometry x:Key="IconMembers">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</Geometry>
+    <StreamGeometry x:Key="IconMembers">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
+    <StreamGeometry x:Key="IconUsers">M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M19 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M19 11v2m0-5V6</StreamGeometry>
     
     <!-- Registrations (File Text) -->
-    <Geometry x:Key="IconRegistrations">M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2zM14 2v6h6M16 13H8M16 17H8M10 9H8</Geometry>
+    <StreamGeometry x:Key="IconRegistrations">M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2zM14 2v6h6M16 13H8M16 17H8M10 9H8</StreamGeometry>
 
     <!-- History (Clock Rewind) -->
-    <Geometry x:Key="IconHistory">M3 3v5h5M3.05 13A9 9 0 1 0 6 5.3L3 8M12 7v5l4 2</Geometry>
+    <StreamGeometry x:Key="IconHistory">M3 3v5h5M3.05 13A9 9 0 1 0 6 5.3L3 8M12 7v5l4 2</StreamGeometry>
 
     <!-- Finance (Dollar Sign) -->
-    <Geometry x:Key="IconFinance">M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6</Geometry>
+    <StreamGeometry x:Key="IconFinance">M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6</StreamGeometry>
+    
+    <!-- Cash (Banknote) -->
+    <StreamGeometry x:Key="IconCash">M3 6h18v12H3zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z</StreamGeometry>
 
     <!-- Shop (Shopping Bag) -->
-    <Geometry x:Key="IconShop">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</Geometry>
+    <StreamGeometry x:Key="IconShop">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</StreamGeometry>
+    <StreamGeometry x:Key="IconShoppingBag">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</StreamGeometry>
 
-    <!-- Settings (Cog usually, Lucide uses Sliders for generic settings often, keeping Cog for familiarity) -->
-    <Geometry x:Key="IconSettings">M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z</Geometry>
+    <!-- Box / Inventory -->
+    <StreamGeometry x:Key="IconBox">M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V9.21L13,12.58V19.29L19,15.91Z</StreamGeometry>
+
+    <!-- Settings (Cog) -->
+    <StreamGeometry x:Key="IconSettings">M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z</StreamGeometry>
     
     <!-- Action Icons -->
-    <Geometry x:Key="IconMenu">M3 12h18M3 6h18M3 18h18</Geometry>
-    <Geometry x:Key="IconAdd">M12 5v14M5 12h14</Geometry>
-    <Geometry x:Key="IconClose">M18 6L6 18M6 6l12 12</Geometry>
-    <Geometry x:Key="IconCheck">M20 6L9 17l-5-5</Geometry>
-    <Geometry x:Key="IconEdit">M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z</Geometry>
-    <Geometry x:Key="IconDelete">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</Geometry>
-    <Geometry x:Key="IconSearch">M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z</Geometry>
-    
-    <!-- Misc -->
-    <Geometry x:Key="IconChevronDown">M6 9l6 6 6-6</Geometry>
-    <Geometry x:Key="IconCalendar">M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18</Geometry>
-    <Geometry x:Key="IconPrinter">M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z</Geometry>
-    <Geometry x:Key="IconExport">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3</Geometry>
-    <Geometry x:Key="IconRefresh">M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15</Geometry>
-    <Geometry x:Key="IconCopy">M9 9h10V4H9M19 9v10H9M9 4v10M5 20h14M5 5v15</Geometry>
-    <Geometry x:Key="IconEye">M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z</Geometry>
-    <Geometry x:Key="IconUpload">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12</Geometry>
-    <Geometry x:Key="IconRunner">M22 6c0-1.1-.9-2-2-2h-3L13 2H9l-5 5h2l4.4-1.8L12 9H4v2h7.3l-5 9h-2v2h6l2.3-4.3L15 22h2v-5l-2.7-5H18l2.9-2.9C21.6 13.5 22 12.8 22 12V6z</Geometry>
-    <Geometry x:Key="IconAlert">M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01</Geometry>
-    <Geometry x:Key="IconWarning">M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01</Geometry>
-    <Geometry x:Key="IconClock">M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zM12 6v6l4 2</Geometry>
-    <Geometry x:Key="IconCreditCard">M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM1 10h22</Geometry>
-    <Geometry x:Key="IconCart">M9 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM20 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6</Geometry>
-    <Geometry x:Key="IconCelebration">M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8</Geometry>
+    <StreamGeometry x:Key="IconMenu">M3 12h18M3 6h18M3 18h18</StreamGeometry>
+    <StreamGeometry x:Key="IconAdd">M12 5v14M5 12h14</StreamGeometry>
+    <StreamGeometry x:Key="IconClose">M18 6L6 18M6 6l12 12</StreamGeometry>
+    <StreamGeometry x:Key="IconCheck">M20 6L9 17l-5-5</StreamGeometry>
+    <StreamGeometry x:Key="IconCheckCircle">M22 11.08V12a10 10 0 1 1-5.93-9.14 M22 4L12 14.01l-3-3</StreamGeometry>
+    <StreamGeometry x:Key="IconEdit">M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Edit">M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Delete">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Search">M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 1 1 14 0z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Account">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
+    <StreamGeometry x:Key="IconDelete">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
+    <StreamGeometry x:Key="IconSearch">M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Sliders">M3,6H9V4H3V6M3,10H15V8H3V10M15,14V12H3V14H15M17,14H21V12H17V14M21,6V4H11V6H21M21,10V8H17V10H21Z</StreamGeometry>
+    <StreamGeometry x:Key="IconPlus">M12 5v14M5 12h14</StreamGeometry>
+    <StreamGeometry x:Key="IconMinus">M5 12h14</StreamGeometry>
+
+    <!-- Misc Icons -->
+    <StreamGeometry x:Key="IconChevronDown">M6 9l6 6 6-6</StreamGeometry>
+    <StreamGeometry x:Key="IconCalendar">M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18</StreamGeometry>
+    <StreamGeometry x:Key="IconPrinter">M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z</StreamGeometry>
+    <StreamGeometry x:Key="IconExport">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3</StreamGeometry>
+    <StreamGeometry x:Key="IconDoor">M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3</StreamGeometry>
+    <StreamGeometry x:Key="IconReservation">M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z</StreamGeometry>
+    <StreamGeometry x:Key="IconRefresh">M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15</StreamGeometry>
+    <StaticResource x:Key="IconSync" ResourceKey="IconRefresh"/>
+    <StreamGeometry x:Key="IconScreen">M2 3h20v13H2zM8 21h8M12 16v5</StreamGeometry>
+    <StreamGeometry x:Key="IconCopy">M9 9h10V4H9M19 9v10H9M9 4v10M5 20h14M5 5v15</StreamGeometry>
+    <StreamGeometry x:Key="IconEye">M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z</StreamGeometry>
+    <StreamGeometry x:Key="IconLogout">M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9</StreamGeometry>
+    <StreamGeometry x:Key="IconBuilding">M3 21h18M9 8h1m-1 4h1m-1 4h1m5-12v16M15 8h1m-1 4h1m-1 4h1</StreamGeometry>
+    <StreamGeometry x:Key="IconUpload">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12</StreamGeometry>
+    <StreamGeometry x:Key="IconRunner">M22 6c0-1.1-.9-2-2-2h-3L13 2H9l-5 5h2l4.4-1.8L12 9H4v2h7.3l-5 9h-2v2h6l2.3-4.3L15 22h2v-5l-2.7-5H18l2.9-2.9C21.6 13.5 22 12.8 22 12V6z</StreamGeometry>
+    <StreamGeometry x:Key="IconAlert">M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01</StreamGeometry>
+    <StreamGeometry x:Key="IconWarning">M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01</StreamGeometry>
+    <StreamGeometry x:Key="IconClock">M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20zM12 6v6l4 2</StreamGeometry>
+    <StreamGeometry x:Key="IconCreditCard">M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM1 10h22</StreamGeometry>
+    <StreamGeometry x:Key="IconCart">M9 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM20 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6</StreamGeometry>
+    <StreamGeometry x:Key="IconTag">M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01</StreamGeometry>
+    <StreamGeometry x:Key="IconCelebration">M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8</StreamGeometry>
+    <StreamGeometry x:Key="IconMoon">M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z</StreamGeometry>
+    <StreamGeometry x:Key="IconSun">M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z</StreamGeometry>
     
     <!-- ============================================================= -->
     <!-- 5. BRAND ILLUSTRATIONS (Razor Series)                         -->
@@ -141,11 +170,11 @@
 
     <!-- Security Character (License/Auth) -->
     <!-- Two-part geometry (Fill vs Outline) to be combined in View -->
-    <Geometry x:Key="ArtCharacterSecurityOutline">M 12,2 C 16,2 20,5 20,10 V 16 H 4 V 10 C 4,5 8,2 12,2 Z
+    <StreamGeometry x:Key="ArtCharacterSecurityOutline">M 12,2 C 16,2 20,5 20,10 V 16 H 4 V 10 C 4,5 8,2 12,2 Z
                                                      M 12,16 V 22 M 10,22 H 14
-                                                     M 8,10 H 6 M 16,10 H 18</Geometry>
+                                                     M 8,10 H 6 M 16,10 H 18</StreamGeometry>
     
     <!-- Use with Fill="{StaticResource PatternPolkaDots}" -->
-    <Geometry x:Key="ArtCharacterSecurityFill">M 12,2 C 16,2 20,5 20,10 V 16 H 4 V 10 C 4,5 8,2 12,2 Z</Geometry>
+    <StreamGeometry x:Key="ArtCharacterSecurityFill">M 12,2 C 16,2 20,5 20,10 V 16 H 4 V 10 C 4,5 8,2 12,2 Z</StreamGeometry>
 
 </ResourceDictionary>

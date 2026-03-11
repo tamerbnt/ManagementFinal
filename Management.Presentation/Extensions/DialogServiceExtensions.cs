@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Management.Domain.Services;
 
 namespace Management.Presentation.Extensions

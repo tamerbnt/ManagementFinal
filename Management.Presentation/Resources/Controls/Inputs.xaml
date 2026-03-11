@@ -1,0 +1,426 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- APPLE 2026 INPUT FIELD -->
+    <Style x:Key="Input.Field" TargetType="TextBox">
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Padding" Value="0,8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/> <!-- Semantic Bottom -->
+        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Brush.Accent.Primary}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <!-- Base Bottom Border (Static) -->
+                        <Border x:Name="BaseBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+                        
+                        <!-- Content Host -->
+                        <ScrollViewer x:Name="PART_ContentHost" 
+                                      VerticalAlignment="Center"
+                                      Margin="{TemplateBinding Padding}"/>
+
+                        <!-- APPLE ANIMATION OVERLAY (Accent Line) -->
+                        <Border x:Name="FocusOverlay"
+                                Background="{DynamicResource Brush.Accent.Primary}" 
+                                Height="2"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                RenderTransformOrigin="0.5, 0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="0"/>
+                            </Border.RenderTransform>
+                        </Border>
+                    </Grid>
+                    
+                    <ControlTemplate.Triggers>
+                        <!-- Hover State -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BaseBorder" Property="BorderBrush" Value="#D1D5DB"/>
+                        </Trigger>
+                        
+                        <!-- The Apple Animation on Focus -->
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1" Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="0" Duration="0:0:0.25">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="UnderlineTextBox" TargetType="TextBox" BasedOn="{StaticResource Input.Field}"/>
+
+    <Style x:Key="Input.Apple" TargetType="TextBox" BasedOn="{StaticResource Input.Field}"/>
+
+    <!-- Section 6: DatePicker Styles -->
+    <Style x:Key="DatePickerField" TargetType="DatePicker">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="#F8FAFC"/>
+        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DatePicker">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <Grid x:Name="PART_Root">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <DatePickerTextBox x:Name="PART_TextBox"
+                                              Grid.Column="0"
+                                              Focusable="{TemplateBinding Focusable}"
+                                              HorizontalContentAlignment="Stretch"
+                                              VerticalContentAlignment="Stretch"/>
+                            <Button x:Name="PART_Button"
+                                    Grid.Column="1"
+                                    Margin="4,0,0,0"
+                                    Style="{DynamicResource IconButtonStyle}">
+                                <Path Data="{StaticResource IconCalendar}"
+                                      Fill="{DynamicResource TextTertiaryBrush}"
+                                      Style="{StaticResource Style.Icon.Micro}"/>
+                            </Button>
+                            <Popup x:Name="PART_Popup"
+                                   AllowsTransparency="True"
+                                   Placement="Bottom"
+                                   PlacementTarget="{Binding ElementName=PART_Root}"
+                                   StaysOpen="False">
+                                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Effect="{DynamicResource Shadow2}">
+                                    <Calendar x:Name="PART_Calendar" Margin="4"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- APPLE 2026 COMBOBOX STYLE -->
+    <Style x:Key="ComboBox.Apple" TargetType="ComboBox">
+        <Setter Property="Height" Value="48"/>
+        <Setter Property="Padding" Value="0,8"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <!-- Bottom Border Line -->
+                        <Border x:Name="BaseBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+
+                        <!-- Focus Highlighter (Animated) -->
+                        <Border x:Name="FocusOverlay"
+                                Background="{DynamicResource Brush.Accent.Primary}" 
+                                Height="2"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                RenderTransformOrigin="0.5, 0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="0"/>
+                            </Border.RenderTransform>
+                        </Border>
+
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                             <ContentPresenter x:Name="SelectionBoxItem"
+                                               Content="{TemplateBinding SelectionBoxItem}"
+                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                               ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Visibility="Visible"
+                                               Margin="0,0,24,0"/>
+
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Style="{x:Null}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="0"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Stretch"
+                                     Focusable="True"
+                                     Visibility="Hidden"
+                                     FontFamily="{TemplateBinding FontFamily}"
+                                     FontSize="{TemplateBinding FontSize}"
+                                     Foreground="{TemplateBinding Foreground}"/>
+
+                            <Path Grid.Column="1" 
+                                  Data="{StaticResource IconChevronDown}" 
+                                  Fill="{DynamicResource Brush.Text.Secondary}" 
+                                  Style="{StaticResource Style.Icon.Micro}" 
+                                  VerticalAlignment="Center"
+                                  HorizontalAlignment="Right"
+                                  IsHitTestVisible="False"/>
+                                  
+                            <!-- Clickable Overlay (Moved to Column 1 only if editable) -->
+                            <ToggleButton x:Name="PART_ToggleButton"
+                                          Grid.ColumnSpan="2"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                        </Grid>
+
+                        <Popup x:Name="PART_Popup" 
+                               AllowsTransparency="true" 
+                               Placement="Bottom" 
+                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                               PopupAnimation="Fade">
+                            <Border x:Name="DropDownBorder" 
+                                    Background="{DynamicResource CardBackgroundBrush}" 
+                                    BorderBrush="{DynamicResource Brush.Border.Subtle}" 
+                                    BorderThickness="1" 
+                                    MaxHeight="300"
+                                    CornerRadius="12"
+                                    Margin="0,4,0,0"
+                                    Effect="{DynamicResource Shadow2}"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ScrollViewer x:Name="DropDownScrollViewer" 
+                                              Margin="4" 
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter Property="IsTabStop" Value="False"/>
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="SelectionBoxItem" Property="Visibility" Value="Hidden"/>
+                            <Setter TargetName="PART_ToggleButton" Property="Grid.Column" Value="1"/>
+                            <Setter TargetName="PART_ToggleButton" Property="Grid.ColumnSpan" Value="1"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BaseBorder" Property="BorderBrush" Value="#D1D5DB"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1" Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="0" Duration="0:0:0.25">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- APPLE 2026 SEARCH COMBOBOX (No Chevron) -->
+    <Style x:Key="ComboBox.Search" TargetType="ComboBox" BasedOn="{StaticResource ComboBox.Apple}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <!-- Bottom Border Line -->
+                        <Border x:Name="BaseBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+
+                        <!-- Focus Highlighter (Animated) -->
+                        <Border x:Name="FocusOverlay"
+                                Background="{DynamicResource Brush.Accent.Primary}" 
+                                Height="2"
+                                VerticalAlignment="Bottom"
+                                HorizontalAlignment="Stretch"
+                                RenderTransformOrigin="0.5, 0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="0"/>
+                            </Border.RenderTransform>
+                        </Border>
+
+                        <Grid Margin="{TemplateBinding Padding}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                             <ContentPresenter x:Name="SelectionBoxItem"
+                                               Content="{TemplateBinding SelectionBoxItem}"
+                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                               ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Visibility="Visible"
+                                               Margin="0,0,8,0"/>
+
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Style="{x:Null}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="0"
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Stretch"
+                                     Focusable="True"
+                                     Visibility="Hidden"
+                                     FontFamily="{TemplateBinding FontFamily}"
+                                     FontSize="{TemplateBinding FontSize}"
+                                     Foreground="{TemplateBinding Foreground}"/>
+
+                            <!-- Icon Removed for Search Style -->
+                                   
+                            <!-- Clickable Overlay -->
+                            <ToggleButton x:Name="PART_ToggleButton"
+                                          Grid.ColumnSpan="2"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                        </Grid>
+
+                        <Popup x:Name="PART_Popup" 
+                               AllowsTransparency="true" 
+                               Placement="Bottom" 
+                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                               PopupAnimation="Fade">
+                            <Border x:Name="DropDownBorder" 
+                                    Background="{DynamicResource CardBackgroundBrush}" 
+                                    BorderBrush="{DynamicResource Brush.Border.Subtle}" 
+                                    BorderThickness="1" 
+                                    MaxHeight="300"
+                                    CornerRadius="12"
+                                    Margin="0,4,0,0"
+                                    Effect="{DynamicResource Shadow2}"
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ScrollViewer x:Name="DropDownScrollViewer" 
+                                              Margin="4" 
+                                              VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter x:Name="ItemsPresenter" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter Property="IsTabStop" Value="False"/>
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="SelectionBoxItem" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BaseBorder" Property="BorderBrush" Value="#D1D5DB"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1" Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="FocusOverlay"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="0" Duration="0:0:0.25">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Input.ComboBox" TargetType="ComboBox" BasedOn="{StaticResource ComboBox.Apple}"/>
+</ResourceDictionary>

@@ -12,7 +12,11 @@ namespace Management.Presentation.Services
 
         // Type-Safe Navigation
         Task NavigateToAsync<TViewModel>() where TViewModel : ViewModelBase;
+        Task NavigateToAsync<TViewModel>(object parameter) where TViewModel : ViewModelBase;
         
+        // Semantic Navigation
+        Task NavigateToHomeAsync();
+
         // Return to Login (special case alias for NavigateToAsync<LoginViewModel>)
         Task NavigateToLoginAsync();
     }

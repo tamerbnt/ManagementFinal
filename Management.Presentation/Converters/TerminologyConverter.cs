@@ -23,7 +23,11 @@ namespace Management.Presentation.Converters
 
             if (_service != null && value is string key)
             {
-                return _service.GetTerm(key);
+                // Safety check: Only translate if it looks like a terminology key
+                if (key.StartsWith("Terminology.") || key.StartsWith("Strings.") || key.StartsWith("Global."))
+                {
+                    return _service.GetTerm(key);
+                }
             }
 
             return value!;

@@ -1,0 +1,15 @@
+﻿  Identification des projets ├á restaurer...
+  Tous les projets sont ├á jour pour la restauration.
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(9,16): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(24,42): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(15,58): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+
+├ëCHEC de la build.
+
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(9,16): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(24,42): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Models\Transaction.cs(15,58): error CS0246: Le nom de type ou d'espace de noms 'PaymentMethod' est introuvable (vous manque-t-il une directive using ou une r├®f├®rence d'assembly┬á?) [C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\Management.Domain.csproj]
+    0 Avertissement(s)
+    3 Erreur(s)
+
+Temps ├®coul├® 00:00:07.76

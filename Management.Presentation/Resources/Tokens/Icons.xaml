@@ -1,0 +1,30 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Vector Icons (StreamGeometry) -->
+    <StreamGeometry x:Key="Icon.Shield">M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.UserBadge">M12,2A5,5 0 0,1 17,7A5,5 0 0,1 12,12A5,5 0 0,1 7,7A5,5 0 0,1 12,2M12,14C15,14 20.2,15.5 21,18V21H3V18C3.8,15.5 9,14 12,14Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Storefront">M12,18H6V14H12M21,14V12L20,7H4L3,12V14H4V20H14V14H18V20H20V14M20,4H4V6H20V4Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Sliders">M3,6H9V4H3V6M3,10H15V8H3V10M15,14V12H3V14H15M17,14H21V12H17V14M21,6V4H11V6H21M21,10V8H17V10H21Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.CheckCircle">M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M10,17L5,12L6.41,10.59L10,14.17L17.59,6.58L19,8L10,17Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Copy">M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Eye">M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Users">M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.TrendingUp">M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.58L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.UserCheck">M21.1,12.5L22.5,13.91L15.97,20.5L12.5,17L13.9,15.59L15.97,17.67L21.1,12.5M11,4A4,4 0 0,1 15,8A4,4 0 0,1 11,12A4,4 0 0,1 7,8A4,4 0 0,1 11,4M11,14C15.42,14 19,15.79 19,18V20H3V18C3,15.79 6.58,14 11,14Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.PieChart">M11,2V22C5.9,21.5 2,17.2 2,12C2,6.8 5.9,2.5 11,2M13,2C18.1,2.5 22,6.8 22,12C22,17.2 18.1,21.5 13,22V2M15,2V11H22C21.5,6.3 17.7,2.5 15,2Z</StreamGeometry>
+    
+    <!-- New Hybrid Shell Icons -->
+    <!-- Moved to Iconography.xaml to prevent duplicate key crash
+    <StreamGeometry x:Key="Icon.Search">M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L19.71,19L18.29,20.41L13.03,15.15C11.9,16 10.5,16.5 9.5,16.5A6.5,6.5 0 0,1 3,10A6.5,6.5 0 0,1 9.5,3M9.5,5A4.5,4.5 0 0,0 5,9.5A4.5,4.5 0 0,0 9.5,14A4.5,4.5 0 0,0 14,9.5A4.5,4.5 0 0,0 9.5,5Z</StreamGeometry>
+    -->
+    <StreamGeometry x:Key="Icon.Bell">M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.ChevronDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Run">M18.5,14c-1.5-1.5-1.5-3.9,0-5.4l2.1-2.1c0.8-0.8,0.8-2,0-2.8l-1.4-1.4c-0.8-0.8-2-0.8-2.8,0L13.5,5.2c-0.6,0.6-1.5,0.6-2.1-0.1c-0.6-0.6-0.5-1.5,0.1-2.1C12.3,2.2,13.2,1,14.5,1c1.3,0,2.6,0.5,3.5,1.5l1.4,1.4c1.6,1.6,1.6,4.1,0,5.7L18.4,10.6c-0.4,0.4-0.4,1,0,1.4c0.4,0.4,1,0.4,1.4,0l0.7-0.7c1.6-1.6,4.1-1.6,5.7,0l1.4,1.4c1.6,1.6,1.6,4.1,0,5.7l-4.9,4.9c-2.3,2.3-6.1,2.3-8.5,0l-6.4-6.4c-0.8-0.8-0.8-2,0-2.8c0.8-0.8,2-0.8,2.8,0l2.1,2.1C13.5,16.9,14.5,16.9,15,16.4c0.6-0.6,0.6-1.5,0-2.1L12.9,12.2c-1.2-1.2-1.2-3.1,0-4.2l1.4-1.4c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0l-1.4,1.4c-1.9,1.9-1.9,5.1,0,7l2.1,2.1c-0.4,0.4-1,0.4-1.4,0c-0.4-0.4-0.4-1,0-1.4l0,0</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Clock">M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.File">M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Plus">M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Phone">M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Home">M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Calendar">M19,4H18V2H16V4H8V2H6V4H5C3.89,4 3,4.9 3,6V20A2,2 0 0,0 5,22H19A2,2 0 0,0 21,20V6A2,2 0 0,0 19,4M19,20H5V10H19V20M19,8H5V6H19V8Z</StreamGeometry>
+</ResourceDictionary>

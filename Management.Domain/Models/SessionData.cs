@@ -13,6 +13,7 @@ namespace Management.Domain.Models
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime ExpiresAt { get; set; }
         public Guid StaffId { get; set; }
+        public Guid FacilityId { get; set; }
         public string Email { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;

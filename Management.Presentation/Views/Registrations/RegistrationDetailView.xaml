@@ -3,167 +3,142 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Registrations"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="600"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True"
-             Background="{DynamicResource WindowBg}">
+             d:DesignHeight="800" d:DesignWidth="400"
+             Background="{DynamicResource SurfaceBg}">
 
     <UserControl.Resources>
-        <!-- 
-            Note: Converters for Source/Status colors assumed global or 
-            passed via ViewModel properties for the Badge Background 
-        -->
-        <converters:RegistrationAgeToBrushConverter x:Key="RegistrationAgeToBrushConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:NameToBrushConverter x:Key="NameToBrushConverter"/>
+        <converters:NameToInitialConverter x:Key="NameToInitialConverter"/>
     </UserControl.Resources>
 
-    <Grid>
+    <Grid Margin="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <!-- Header -->
-            <RowDefinition Height="*"/>
-            <!-- Content -->
-            <RowDefinition Height="Auto"/>
-            <!-- Sticky Footer -->
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Scrollable Content -->
+            <RowDefinition Height="Auto"/> <!-- Footer Actions -->
         </Grid.RowDefinitions>
 
-        <!-- 1. HEADER (Profile Summary) -->
-        <StackPanel Grid.Row="0" 
-                    HorizontalAlignment="Center" 
-                    Margin="{StaticResource MarginSectionVertical}">
+        <!-- 1. Profile Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <!-- Close Button -->
+            <Button Style="{StaticResource IconButtonStyle}" 
+                    HorizontalAlignment="Right" 
+                    Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}}"
+                    Margin="0,-12,-12,0">
+                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource TextTertiaryBrush}" Style="{StaticResource Style.Icon.Small}"/>
+            </Button>
 
-            <!-- Avatar (96px) -->
-            <Ellipse Width="{StaticResource SizeAvatarLarge}" 
-                     Height="{StaticResource SizeAvatarLarge}"
-                     Fill="{DynamicResource FacilityAccentBrush}"
-                     Margin="{StaticResource MarginCardBottom}"/>
+            <!-- Avatar -->
+            <Grid HorizontalAlignment="Center" Margin="0,12,0,16">
+                <Ellipse Width="96" Height="96" 
+                         Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
+                <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
+                           Style="{StaticResource Title1}" Foreground="White" 
+                           FontSize="32" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
 
             <!-- Name -->
-            <TextBlock Text="{Binding FullName}" 
-                       Style="{StaticResource Title2}" 
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       HorizontalAlignment="Center"
-                       TextAlignment="Center"/>
-
-            <!-- Metadata Row -->
-            <StackPanel Orientation="Horizontal" 
-                        HorizontalAlignment="Center" 
-                        Margin="{StaticResource MarginTextTop}">
-
-                <!-- Source Badge -->
-                <Border Style="{StaticResource StatusBadgeStyle}"
-                        Background="{DynamicResource SurfaceBg}"
-                        VerticalAlignment="Center"
-                        Margin="{StaticResource MarginSmallRight}">
-                    <TextBlock Text="{Binding Source}" 
-                               Style="{StaticResource Micro}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}"
-                               FontWeight="Bold"/>
-                               
-                </Border>
-
-                <!-- Time Ago -->
-                <TextBlock Text="{Binding CreatedAt, Converter={StaticResource RelativeTimeConverter}}" 
-                           Style="{StaticResource Caption}" 
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           VerticalAlignment="Center"/>
+            <StackPanel Margin="0,0,0,8" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding FullName}" Style="{StaticResource Title2}" HorizontalAlignment="Center"
+                           Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="250" HorizontalAlignment="Center"
+                         Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </StackPanel>
+
+            <!-- Status Badge -->
+            <Border Background="{DynamicResource SurfaceBg}" Padding="12,4" CornerRadius="12" HorizontalAlignment="Center" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+            </Border>
         </StackPanel>
 
-        <!-- 2. DETAIL CONTENT -->
-        <ScrollViewer Grid.Row="1" 
-                      VerticalScrollBarVisibility="Auto" 
-                      HorizontalScrollBarVisibility="Disabled">
+        <!-- 2. Content Sections -->
+        <ScrollViewer Grid.Row="1" Margin="0,0,-8,0" Padding="0,0,8,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Quick Stats Grid -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.Source}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding Source}" Style="{StaticResource BodyMedium}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    </StackPanel>
 
-            <Grid MaxWidth="{StaticResource MaxWidthForm}" 
-                  HorizontalAlignment="Center"
-                  Margin="{StaticResource PaddingCard}">
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.PlanChoice}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding PlanName}" Style="{StaticResource BodyMedium}" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="{DynamicResource BrandPrimaryBrush}"/>
+                    </StackPanel>
+                </Grid>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="{StaticResource WidthFormLabel}"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <!-- Contact Info -->
-                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                    <RowDefinition Height="{StaticResource SizeFormRowGap}"/>
+                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24" BorderThickness="0" Height="1"/>
 
-                    <!-- Request Details -->
-                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                    <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                    <RowDefinition Height="{StaticResource SizeFormRowGap}"/>
+                <!-- Contact Info -->
+                <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.ContactInfo}" Style="{StaticResource Title3}" Margin="0,0,0,20"/>
+                
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.Email}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding Email}" Style="{StaticResource Body}" FontWeight="Medium"
+                               Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Text="{Binding Email, Mode=TwoWay}" Style="{StaticResource Input.Field}"
+                             Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
 
-                    <!-- Notes -->
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.Phone}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding PhoneNumber}" Style="{StaticResource Body}" FontWeight="Medium"
+                               Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                    <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" Style="{StaticResource Input.Field}"
+                             Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
 
-                <!-- Phone -->
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource TerminologyPhoneLabel}" Style="{StaticResource FormLabel}"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PhoneNumber}" Style="{StaticResource FormValue}"/>
-
-                <!-- Email -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource TerminologyEmailLabel}" Style="{StaticResource FormLabel}"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Email}" Style="{StaticResource FormValue}"/>
-
-                <!-- Plan Request -->
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource TerminologyRequestedPlanLabel}" Style="{StaticResource FormLabel}"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding RequestedPlanName}" Style="{StaticResource FormValue}" FontWeight="Medium"/>
-
-                <!-- Preferred Start -->
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource TerminologyPreferredStartLabel}" Style="{StaticResource FormLabel}"/>
-                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding PreferredStartDate, StringFormat='{}{0:MMM dd, yyyy}'}" Style="{StaticResource FormValue}"/>
-
-                <!-- Notes / Comments -->
-                <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource TerminologyUserNotesLabel}" Style="{StaticResource FormLabel}" VerticalAlignment="Top" Margin="0,8,0,0"/>
-                <TextBlock Grid.Row="6" Grid.Column="1" 
-                           Text="{Binding Notes}" 
-                           Style="{StaticResource FormValue}" 
-                           TextWrapping="Wrap"
-                           LineHeight="24"
-                           Foreground="{DynamicResource TextSecondaryBrush}"/>
-            </Grid>
+                <!-- Message Section -->
+                <TextBlock Text="{DynamicResource Terminology.Registrations.Detail.Message}" Style="{StaticResource Title3}" Margin="0,0,0,12"/>
+                <Border Background="{DynamicResource SurfaceBg}" Padding="16" CornerRadius="12" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
+                    <TextBlock Text="{Binding Message}" Style="{StaticResource Body}" TextWrapping="Wrap" FontStyle="Italic" Foreground="{DynamicResource TextSecondaryBrush}" LineHeight="20"/>
+                </Border>
+            </StackPanel>
         </ScrollViewer>
 
-        <!-- 3. STICKY ACTION FOOTER -->
-        <Border Grid.Row="2" 
-                Background="{DynamicResource SurfaceBg}"
-                BorderBrush="{StaticResource SeparatorBrush}"
-                BorderThickness="0,1,0,0"
-                Padding="{StaticResource PaddingCard}">
+        <!-- 3. Actions Footer -->
+        <Border Grid.Row="2" VerticalAlignment="Bottom" Padding="0,24,0,0">
+            <Grid>
+                <!-- Normal Mode Actions -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Registrations.Detail.Decline}" Style="{StaticResource SecondaryButton}" 
+                            Command="{Binding DeclineCommand}" Height="48"/>
+                    
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Registrations.Detail.Approve}" Style="{StaticResource PrimaryButton}" 
+                            Command="{Binding ApproveCommand}" Height="48"/>
+                </Grid>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <!-- Edit Mode Actions -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Cancel}" Style="{StaticResource SecondaryButton}" Height="48"
+                            Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}}"/>
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Global.Update}" Style="{StaticResource PrimaryButton}" Height="48"
+                            Command="{Binding DataContext.SaveRegistrationCommand, RelativeSource={RelativeSource AncestorType=local:RegistrationsView}}"/>
+                </Grid>
+                
 
-                <!-- Close -->
-                <Button Content="{DynamicResource TerminologyCloseLabel}" 
-                        Command="{Binding CloseCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        Margin="{StaticResource MarginSmallRight}"/>
-
-                <!-- Decline (Destructive) -->
-                <Button Content="{DynamicResource TerminologyDeclineLabel}" 
-                        Command="{Binding DeclineCommand}"
-                        Style="{StaticResource DestructiveButtonStyle}"
-                        Margin="{StaticResource MarginSmallRight}"/>
-
-                <!-- Approve (Success) -->
-                <Button Style="{StaticResource SuccessButtonStyle}"
-                        Command="{Binding ApproveCommand}"
-                        MinWidth="{StaticResource SizeButtonMinWidth}">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconCheck}" 
-                              Fill="{DynamicResource TextOnAccentBrush}" 
-                              Style="{StaticResource IconSmall}"
-                              Margin="{StaticResource MarginIconRight}"/>
-                        <TextBlock Text="{DynamicResource TerminologyApproveRegistrationAction}"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            </Grid>
         </Border>
-
     </Grid>
 </UserControl>

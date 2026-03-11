@@ -25,25 +25,25 @@ namespace Management.Application.Features.Products.Queries.GetProducts
 
         public async Task<Result<List<ProductDto>>> Handle(GetActiveProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.GetActiveProductsAsync();
-            return Result.Success(products.Select(MapToDto).ToList());
+            var products = await _productRepository.GetActiveProductsAsync(request.FacilityId);
+            return Result.Success(products.Take(500).Select(MapToDto).ToList());
         }
 
         public async Task<Result<List<ProductDto>>> Handle(SearchProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.SearchProductsAsync(request.SearchTerm);
+            var products = await _productRepository.SearchProductsAsync(request.SearchTerm, facilityId: request.FacilityId);
             return Result.Success(products.Select(MapToDto).ToList());
         }
 
         public async Task<Result<List<ProductDto>>> Handle(GetInventoryStatusQuery request, CancellationToken cancellationToken)
         {
-            var products = await _productRepository.GetInventoryStatusAsync();
+            var products = await _productRepository.GetInventoryStatusAsync(request.FacilityId);
             return Result.Success(products.Select(MapToDto).ToList());
         }
 
         public async Task<Result<ProductDto>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.Id);
+            var product = await _productRepository.GetByIdAsync(request.Id, request.FacilityId);
             if (product == null) return Result.Failure<ProductDto>(new Error("Product.NotFound", "Product not found"));
             return Result.Success(MapToDto(product));
         }

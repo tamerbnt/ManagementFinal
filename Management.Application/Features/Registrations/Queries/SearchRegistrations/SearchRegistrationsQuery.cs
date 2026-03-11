@@ -1,9 +1,15 @@
+using System.Collections.Generic;
 using Management.Application.DTOs;
 using Management.Domain.Enums;
+using Management.Domain.Primitives;
 using MediatR;
-using System.Collections.Generic;
 
 namespace Management.Application.Features.Registrations.Queries.SearchRegistrations
 {
-    public record SearchRegistrationsQuery(string SearchText, RegistrationFilterType Filter) : IRequest<List<RegistrationDto>>;
+    public record SearchRegistrationsQuery(
+        string SearchText, 
+        RegistrationFilterType Filter, 
+        RegistrationStatus? Status = null,
+        int Page = 1, 
+        int PageSize = 20) : IRequest<Result<PagedResult<RegistrationDto>>>;
 }

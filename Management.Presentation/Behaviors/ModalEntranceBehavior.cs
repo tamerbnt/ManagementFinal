@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -53,8 +53,12 @@ namespace Management.Presentation.Behaviors
             if (IsOpen)
             {
                 AssociatedObject.Opacity = 1;
-                ((ScaleTransform)AssociatedObject.RenderTransform).ScaleX = 1;
-                ((ScaleTransform)AssociatedObject.RenderTransform).ScaleY = 1;
+                AssociatedObject.Visibility = Visibility.Visible;
+                if (AssociatedObject.RenderTransform is ScaleTransform st)
+                {
+                    st.ScaleX = 1;
+                    st.ScaleY = 1;
+                }
             }
             else
             {

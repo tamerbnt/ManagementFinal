@@ -7,6 +7,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Management.Application.DTOs;
+using Management.Application.Interfaces;
+using Management.Application.Interfaces.App;
+using Management.Domain.Services;
+using Management.Domain.Enums;
 
 namespace Management.Application.Features.Members.Commands.CreateMember
 {
@@ -14,13 +18,28 @@ namespace Management.Application.Features.Members.Commands.CreateMember
     {
         private readonly IMemberRepository _memberRepository;
         private readonly Domain.Services.ITenantService _tenantService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IMembershipPlanRepository _planRepository;
+        private readonly ISalonServiceRepository _salonRepository;
+        private readonly IGymOperationService _gymService;
+        private readonly IFacilityContextService _facilityContext;
 
         public CreateMemberCommandHandler(
             IMemberRepository memberRepository, 
-            Domain.Services.ITenantService tenantService)
+            Domain.Services.ITenantService tenantService,
+            ICurrentUserService currentUserService,
+            IMembershipPlanRepository planRepository,
+            ISalonServiceRepository salonRepository,
+            IGymOperationService gymService,
+            IFacilityContextService facilityContext)
         {
             _memberRepository = memberRepository;
             _tenantService = tenantService;
+            _currentUserService = currentUserService;
+            _planRepository = planRepository;
+            _salonRepository = salonRepository;
+            _gymService = gymService;
+            _facilityContext = facilityContext;
         }
 
         public async Task<Result<Guid>> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
@@ -46,11 +65,53 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             }
 
             var member = result.Value;
+
+            // Resolve Expiration duration from plan or default
+            int durationDays = 30;
+            string? planName = null;
+            decimal planPrice = 0;
+
+            if (dto.MembershipPlanId.HasValue && dto.MembershipPlanId.Value != Guid.Empty)
+            {
+                if (_facilityContext.CurrentFacility == FacilityType.Salon)
+                {
+                    var salonService = await _salonRepository.GetByIdAsync(dto.MembershipPlanId.Value);
+                    if (salonService != null)
+                    {
+                        durationDays = 365; // Salon "memberships" default to 1 year
+                        planName = salonService.Name;
+                        planPrice = salonService.BasePrice;
+                    }
+                }
+                else
+                {
+                    var plan = await _planRepository.GetByIdAsync(dto.MembershipPlanId.Value);
+                    if (plan != null)
+                    {
+                        durationDays = plan.DurationDays;
+                        planName = plan.Name;
+                        planPrice = plan.Price.Amount;
+                    }
+                }
+            }
+
+            if (dto.Status == MemberStatus.Active)
+            {
+                var startDate = dto.StartDate != default ? dto.StartDate : DateTime.UtcNow;
+                var expirationDate = dto.ExpirationDate != default ? dto.ExpirationDate : startDate.AddDays(durationDays);
+                member.ActivateMembership(startDate, expirationDate);
+            }
             
             var tenantId = _tenantService.GetTenantId();
             if (tenantId.HasValue)
             {
                 member.TenantId = tenantId.Value;
+            }
+
+            var facilityId = _facilityContext.CurrentFacilityId;
+            if (facilityId != Guid.Empty)
+            {
+                member.FacilityId = facilityId;
             }
 
             if (!string.IsNullOrEmpty(dto.Notes)) 
@@ -74,6 +135,22 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             }
             
             await _memberRepository.AddAsync(member);
+
+            // AUTO-REVENUE: If a plan was selected, record the sale immediately.
+            if (planName != null && planPrice > 0)
+            {
+                // Create Sale
+                // Note: We use the plan name for both TransactionType and CapturedLabel for clarity
+                await _gymService.SellItemAsync(
+                    member.Id.ToString(),
+                    planPrice,
+                    planName,                              // Product Name
+                    _facilityContext.CurrentFacilityId,    // Facility Id (scoped)
+                    planName,                             // Transaction Type
+                    _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
+                    planName                              // Captured Label
+                );
+            }
 
             return Result.Success(member.Id);
         }

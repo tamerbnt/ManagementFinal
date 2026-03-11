@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,7 +13,7 @@ using WpfApp = System.Windows.Application;
 
 namespace Management.Presentation.Services
 {
-    public class DialogService : IDialogService
+    public class DialogService : Management.Domain.Services.IDialogService
     {
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly IServiceProvider _serviceProvider;
@@ -68,8 +68,9 @@ namespace Management.Presentation.Services
         {
             if (!WpfApp.Current.Dispatcher.CheckAccess())
             {
-                await WpfApp.Current.Dispatcher.InvokeAsync(() =>
-                    ShowAlertAsync(title, message, buttonText));
+                // Await the task returned by the inner ShowAlertAsync call
+                await await WpfApp.Current.Dispatcher.InvokeAsync(() =>
+                    ShowAlertAsync(title, message, buttonText, isSuccess));
                 return;
             }
 
@@ -91,24 +92,24 @@ namespace Management.Presentation.Services
             // We don't await the result here because ShowAlertAsync is Task (void), not Task<bool>
         }
 
-        public async Task ShowCustomDialogAsync<TViewModel>(object? parameter = null)
+        public async Task<object?> ShowCustomDialogAsync<TViewModel>(object? parameter = null)
             where TViewModel : class
         {
             if (!WpfApp.Current.Dispatcher.CheckAccess())
             {
-                await WpfApp.Current.Dispatcher.InvokeAsync(() =>
+                return await WpfApp.Current.Dispatcher.InvokeAsync(() =>
                     ShowCustomDialogAsync<TViewModel>(parameter));
-                return;
             }
 
             try
             {
-                // FIX: Call the generic OpenAsync method on the store
-                await _modalNavigationStore.OpenAsync<TViewModel>(parameter);
+                var modalResult = await _modalNavigationStore.OpenAsync<TViewModel>(parameter);
+                return modalResult.Data;
             }
             catch (Exception ex)
             {
                 await ShowAlertAsync("Error", $"Failed to open dialog: {ex.Message}");
+                return null;
             }
         }
 

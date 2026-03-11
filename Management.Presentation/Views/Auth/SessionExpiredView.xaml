@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Views.Auth.SessionExpiredView"
+﻿<UserControl x:Class="Management.Presentation.Views.Auth.SessionExpiredView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -21,9 +21,9 @@
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
                 <Path Data="{StaticResource IconWarning}" 
                       Fill="{DynamicResource StatusWarningBrush}" 
-                      Style="{StaticResource IconLarge}"
+                      Style="{StaticResource Style.Icon.Large}"
                       Margin="0,0,12,0" VerticalAlignment="Center"/>
-                <TextBlock Text="Session Expired" 
+                <TextBlock Text="{DynamicResource Strings.Auth.SessionExpired}" 
                            Style="{DynamicResource Header3Style}" 
                            VerticalAlignment="Center"/>
             </StackPanel>
@@ -39,13 +39,13 @@
 
             <!-- Actions -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Log Out" 
+                <Button Content="{DynamicResource Strings.Auth.LogOut}" 
                         Command="{Binding CloseCommand}" 
                         Style="{DynamicResource SecondaryButtonStyle}"
                         Margin="0,0,12,0"
                         MinWidth="{StaticResource SizeButtonMinWidth}"/>
                 
-                <Button Content="Log In" 
+                <Button Content="{DynamicResource Strings.Auth.LogIn1}" 
                         Command="{Binding LoginCommand}" 
                         Style="{DynamicResource PrimaryButtonStyle}" 
                         MinWidth="{StaticResource SizeButtonMinWidth}"/>

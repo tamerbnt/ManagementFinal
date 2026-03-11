@@ -1,13 +1,9 @@
 using System;
 using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 
 namespace Management.Application.Services
 {
@@ -27,5 +23,10 @@ namespace Management.Application.Services
         /// Attempts to re-process a specific failed transaction via the gateway.
         /// </summary>
         Task<Result> RetryPaymentAsync(Guid facilityId, Guid paymentId);
+
+        /// <summary>
+        /// Retrieves payroll records for a specific facility and date range.
+        /// </summary>
+        Task<Result<IEnumerable<PayrollEntryDto>>> GetPayrollByRangeAsync(Guid facilityId, DateTime start, DateTime end);
     }
 }

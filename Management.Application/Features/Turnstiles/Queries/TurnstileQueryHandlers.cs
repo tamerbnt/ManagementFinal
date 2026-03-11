@@ -27,31 +27,39 @@ namespace Management.Application.Features.Turnstiles.Queries
         public async Task<Result<List<TurnstileDto>>> Handle(GetTurnstilesQuery request, CancellationToken cancellationToken)
         {
             var turnstiles = await _turnstileRepository.GetAllAsync();
-            var dtos = turnstiles.Select(t => new TurnstileDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Location = t.Location,
-                Status = t.Status,
-                IsLocked = t.IsLocked
-            }).ToList();
+            var dtos = turnstiles
+                .Where(t => t.FacilityId == request.FacilityId)
+                .Select(t => new TurnstileDto
+                {
+                    Id = t.Id,
+                    Name = t.Name,
+                    Location = t.Location ?? string.Empty,
+                    HardwareId = t.HardwareId,
+                    IsLocked = t.IsLocked,
+                    Status = t.Status,
+                    LastHeartbeat = t.UpdatedAt ?? t.CreatedAt
+                }).ToList();
 
             return Result.Success(dtos);
         }
 
         public async Task<Result<List<AccessEventDto>>> Handle(GetAccessEventsQuery request, CancellationToken cancellationToken)
         {
-            var events = await _accessRepository.GetAllAsync(); // TODO: Add filtering to Repo!
+            // Fix: Use Repository-level filtering to leverage indexes!
+            IEnumerable<AccessEvent> events;
             
-            // In-memory filtering for now as Repo generic might not support criteria.
-            // Ideally add GetByDate/Turnstile to IAccessEventRepository.
-            if (request.TurnstileId.HasValue)
-            {
-                events = events.Where(e => e.TurnstileId == request.TurnstileId.Value).ToList();
-            }
             if (request.FromDate.HasValue)
             {
-                events = events.Where(e => e.Timestamp >= request.FromDate.Value).ToList();
+                events = await _accessRepository.GetByDateRangeAsync(request.FacilityId, request.FromDate.Value, DateTime.MaxValue);
+            }
+            else
+            {
+                events = await _accessRepository.GetRecentEventsAsync(request.FacilityId, 100);
+            }
+
+            if (request.TurnstileId.HasValue)
+            {
+                events = events.Where(e => e.TurnstileId == request.TurnstileId.Value);
             }
 
             var dtos = events.Select(e => new AccessEventDto
@@ -70,11 +78,8 @@ namespace Management.Application.Features.Turnstiles.Queries
 
         public async Task<Result<int>> Handle(GetCurrentOccupancyQuery request, CancellationToken cancellationToken)
         {
-            var events = await _accessRepository.GetAllAsync();
-            // Simple logic: Entries - Exits (assuming FacilityType or similar logic)
-            // For now, return a placeholder or simple count of 'Granted' recently.
-            // In a real app, this would query a summary table or use Entry/Exit sensor data.
-            var count = events.Count(e => e.IsAccessGranted && e.Timestamp > DateTime.UtcNow.AddHours(-12));
+            // Use optimized Repository method instead of fetching all events
+            var count = await _accessRepository.GetCurrentOccupancyCountAsync(request.FacilityId);
             return Result.Success(count);
         }
     }

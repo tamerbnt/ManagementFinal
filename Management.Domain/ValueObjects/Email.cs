@@ -25,7 +25,7 @@ namespace Management.Domain.ValueObjects
                 return Result.Failure<Email>(new Error("Email.Invalid", "Email format is invalid"));
             }
 
-            return Result.Success(new Email(email));
+            return Result.Success(new Email(email.ToLowerInvariant()));
         }
 
         public override string ToString() => Value;

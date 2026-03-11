@@ -1,24 +1,76 @@
 using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Management.Domain.Enums;
 using Management.Application.DTOs;
 
 namespace Management.Application.DTOs
 {
-    public record MemberDto
+    public partial class MemberDto : ObservableObject
     {
-        public Guid Id { get; set; }
-        public string FullName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PhoneNumber { get; set; } = string.Empty;
-        public string CardId { get; set; } = string.Empty;
-        public string ProfileImageUrl { get; set; } = string.Empty;
-        public MemberStatus Status { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime ExpirationDate { get; set; }
-        public string MembershipPlanName { get; set; } = string.Empty;
-        public Guid? MembershipPlanId { get; set; }
-        public string EmergencyContactName { get; set; } = string.Empty;
-        public string EmergencyContactPhone { get; set; } = string.Empty;
-        public string Notes { get; set; } = string.Empty;
+        [ObservableProperty]
+        private Guid _id;
+
+        [ObservableProperty]
+        private string _fullName = string.Empty;
+
+        [ObservableProperty]
+        private string _email = string.Empty;
+
+        [ObservableProperty]
+        private string _phoneNumber = string.Empty;
+
+        [ObservableProperty]
+        private string _cardId = string.Empty;
+
+        [ObservableProperty]
+        private string _profileImageUrl = string.Empty;
+
+        [ObservableProperty]
+        private MemberStatus _status;
+
+        [ObservableProperty]
+        private DateTime _startDate;
+
+        [ObservableProperty]
+        private DateTime _expirationDate;
+
+        [ObservableProperty]
+        private string _membershipPlanName = string.Empty;
+
+        [ObservableProperty]
+        private Guid? _membershipPlanId;
+
+        [ObservableProperty]
+        private string _emergencyContactName = string.Empty;
+
+        [ObservableProperty]
+        private string _emergencyContactPhone = string.Empty;
+
+        [ObservableProperty]
+        private string _notes = string.Empty;
+        
+        [ObservableProperty]
+        private decimal _balance;
+
+        [ObservableProperty]
+        private DateTime? _lastVisitDate;
+
+        [ObservableProperty]
+        private Gender? _gender;
+
+        [ObservableProperty]
+        private DateTime _joinedDate = DateTime.Now.AddYears(-1);
+
+        [ObservableProperty]
+        private bool _isSelected;
+
+        [ObservableProperty]
+        private bool _isActive;
+
+        [ObservableProperty]
+        private int _visitCount;
+
+        [ObservableProperty]
+        private System.Collections.Generic.List<AccessEventDto> _accessEvents = new();
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Management.Application.Services;
 using System.Collections.Generic;
 using Management.Application.Services;
@@ -33,6 +33,7 @@ namespace Management.Presentation.ViewModels
         private readonly IDialogService _dialogService;
         private readonly INotificationService _notificationService;
         private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+        private readonly ITerminologyService _terminologyService;
 
         public ModalSize PreferredSize => ModalSize.Medium;
 
@@ -87,7 +88,8 @@ namespace Management.Presentation.ViewModels
             IModalNavigationService modalService,
             IDialogService dialogService,
             INotificationService notificationService,
-            Management.Domain.Services.IFacilityContextService facilityContext)
+            Management.Domain.Services.IFacilityContextService facilityContext,
+            ITerminologyService terminologyService)
         {
             _productService = productService;
             _productStore = productStore;
@@ -95,6 +97,7 @@ namespace Management.Presentation.ViewModels
             _dialogService = dialogService;
             _notificationService = notificationService;
             _facilityContext = facilityContext;
+            _terminologyService = terminologyService;
 
             SaveCommand = new AsyncRelayCommand(ExecuteSaveAsync);
             CancelCommand = new RelayCommand(async () => await _modalService.CloseCurrentModalAsync());
@@ -150,7 +153,7 @@ namespace Management.Presentation.ViewModels
         {
             if (string.IsNullOrWhiteSpace(Name) || Price < 0)
             {
-                _notificationService.ShowError("Please check your inputs.");
+                _notificationService.ShowError(_terminologyService.GetTerm("Strings.Global.Pleasecheckyourinputs") ?? "Please check your inputs.");
                 return;
             }
 
@@ -194,7 +197,7 @@ namespace Management.Presentation.ViewModels
 
         private async Task ExecuteBrowseImageAsync()
         {
-            var path = await _dialogService.ShowOpenFileDialogAsync("Images|*.jpg;*.png;*.webp");
+            var path = await _dialogService.ShowOpenFileDialogAsync(_terminologyService.GetTerm("Strings.Global.Imagesjpgpngwebp") ?? "Images (*.jpg, *.png, *.webp)|*.jpg;*.png;*.webp");
             if (!string.IsNullOrEmpty(path))
             {
                 ProductImage = path;

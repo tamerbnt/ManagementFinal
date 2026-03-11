@@ -1,0 +1,200 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    
+    <!-- SALON TERMINOLOGY (ARABIC) -->
+    
+    <!-- Core Entities -->
+    <sys:String x:Key="TerminologyMemberLabel">عميل</sys:String>
+    <sys:String x:Key="TerminologyMembersLabel">العملاء</sys:String>
+    <sys:String x:Key="TerminologyAddMemberLabel">إضافة عميل</sys:String>
+    <sys:String x:Key="TerminologyMemberManagementLabel">إدارة العملاء</sys:String>
+    <sys:String x:Key="TerminologyNoMembersFoundLabel">لم يتم إضافة عملاء</sys:String>
+    <sys:String x:Key="TerminologyAddMemberHintLabel">أضف عميلاً لتتبع التصاميم والمواعيد.</sys:String>
+
+    <!-- Modern Dotted Overrides -->
+    <sys:String x:Key="Terminology.Sidebar.Members">العملاء</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Dashboard">لوحة القيادة</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Schedule">الجدول</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Clients">العملاء</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Registrations">الحجوزات</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Shop">المتجر</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Staff">الموظفون</sys:String>
+    <sys:String x:Key="Terminology.Global.Header.Members">العملاء</sys:String>
+    <sys:String x:Key="Terminology.Members.AddMember">إضافة عميل</sys:String>
+    <sys:String x:Key="Terminology.Members.JoinedDate">أول زيارة</sys:String>
+    <sys:String x:Key="Terminology.Home.ActiveMembers">العملاء النشطون</sys:String>
+    <sys:String x:Key="Terminology.Home.Action.CreateMember">عميل جديد</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.ActiveMembers">العملاء النشطون</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.QuickActions.NewMember">عميل جديد</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.PendingRegs">الحجوزات المعلقة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Title">لوحة الأداء</sys:String>
+    <sys:String x:Key="Terminology.Staff.Header">إدارة المصممين</sys:String>
+    <sys:String x:Key="Terminology.Staff.Action.Add">إضافة مصمم</sys:String>
+    <sys:String x:Key="Terminology.TopBar.Search.Example.Member">عميل أخير: سارة ويلسون</sys:String>
+    <sys:String x:Key="Terminology.Global.Header.Registrations">الحجوزات</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Filter.Pending">الحجوزات</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Filter.Confirmed">مؤكد</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Filter.Declined">ملغى</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.ChangeFacility">تغيير المنشأة</sys:String>
+    <sys:String x:Key="Terminology.Home.Subtitle">مرحباً بك في لوحة تحكم الصالون</sys:String>
+    <sys:String x:Key="Terminology.Home.RecentActivity">نشاط الصالون الأخير</sys:String>
+    <sys:String x:Key="Terminology.Home.Scanner.Active">الماسح الضوئي نشط</sys:String>
+    <sys:String x:Key="Terminology.Home.Scanner.Hint">اضغط Enter للمسح</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.Revenue">إجمالي الإيرادات</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.Appointments">مواعيد اليوم</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Subtitle">إليك ما يحدث في صالونك اليوم.</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Detail.Title">تفاصيل الحجز</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Detail.Approve">تأكيد الموعد</sys:String>
+    <sys:String x:Key="Terminology.Registrations.Detail.Decline">إلغاء الطلب</sys:String>
+    
+    <!-- Actions & Events -->
+    <sys:String x:Key="TerminologyCheckInLabel">وصول</sys:String>
+    <sys:String x:Key="TerminologyAttendanceLabel">المواعيد</sys:String>
+    <sys:String x:Key="TerminologyAllCaughtUpLabel">الجدول مكتمل</sys:String>
+    <sys:String x:Key="TerminologyNoPendingRegistrationsLabel">لا توجد طلبات حجز حالياً.</sys:String>
+    <sys:String x:Key="TerminologyApproveRegistrationAction">تأكيد الموعد</sys:String>
+    <sys:String x:Key="TerminologyDeclineLabel">إلغاء</sys:String>
+    
+    <!-- Shop / Inventory -->
+    <sys:String x:Key="TerminologyShopTitle">مخزن الصالون</sys:String>
+    <sys:String x:Key="TerminologyProductsTab">منتجات البيع</sys:String>
+    <sys:String x:Key="TerminologySearchProductsPlaceholder">بحث عن الشامبو...</sys:String>
+    <sys:String x:Key="TerminologyFilterSupplementsLabel">العناية بالشعر</sys:String>
+    <sys:String x:Key="TerminologyFilterApparelLabel">العناية بالبشرة</sys:String>
+    <sys:String x:Key="TerminologyFilterEquipmentLabel">أدوات التصفيف</sys:String>
+    <sys:String x:Key="TerminologyProductImageLabel">صورة المنتج</sys:String>
+    <sys:String x:Key="TerminologyDragDropImagePlaceholder">سحب وإفلات الصورة</sys:String>
+    <sys:String x:Key="TerminologyProductDetailsHeader">معلومات المنتج</sys:String>
+    <sys:String x:Key="TerminologyProductNameLabel">الاسم</sys:String>
+    <sys:String x:Key="TerminologySKULabel">SKU</sys:String>
+    <sys:String x:Key="TerminologyCategoryLabel">النوع</sys:String>
+    <sys:String x:Key="TerminologyPricingInventoryHeader">البيع والمخزون</sys:String>
+    <sys:String x:Key="TerminologyPriceLabel">سعر البيع</sys:String>
+    <sys:String x:Key="TerminologyCostLabel">تكلفة الشراء</sys:String>
+    <sys:String x:Key="TerminologyCurrentStockLabel">على الرف</sys:String>
+    <sys:String x:Key="TerminologyReorderLevelLabel">تنبيه انخفاض المخزون عند</sys:String>
+    <sys:String x:Key="TerminologyDescriptionLabel">ملاحظات</sys:String>
+    <sys:String x:Key="TerminologySaveProductLabel">حفظ المنتج</sys:String>
+    <sys:String x:Key="TerminologyLowStockCountFormat">{}{0} عناصر مخزون منخفضة</sys:String>
+    <sys:String x:Key="TerminologyEditProductLabel">تعديل المنتج</sys:String>
+    <sys:String x:Key="TerminologyDeleteProductLabel">حذف المنتج</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptyTitle">لا يوجد مخزون بيع</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptySubtitle">أضف منتجات للبدء في تتبع المخزون.</sys:String>
+    
+    <!-- Finance & Reporting -->
+    <sys:String x:Key="TerminologyMonthlyRevenueLabel">الإيرادات الشهرية</sys:String>
+    <sys:String x:Key="TerminologyWeeklyRevenueLabel">الإيرادات الأسبوعية</sys:String>
+    <sys:String x:Key="TerminologyTotalRevenueLabel">إجمالي الإيرادات (شهري)</sys:String>
+    <sys:String x:Key="TerminologyMRRLabel">الاشتراكات</sys:String>
+    <sys:String x:Key="TerminologyARPULabel">متوسط التذكرة</sys:String>
+    <sys:String x:Key="TerminologyChurnRateLabel">معدل الانقطاع</sys:String>
+    <sys:String x:Key="TerminologyPaymentSuccessLabel">تم دفع الخدمة</sys:String>
+    <sys:String x:Key="TerminologyRevenueTrendLabel">اتجاه الإيرادات</sys:String>
+    <sys:String x:Key="TerminologyPaymentMethodsLabel">توزيع المدفوعات</sys:String>
+    <sys:String x:Key="TerminologyFailedPaymentsLabel">المدفوعات المعلقة</sys:String>
+    <sys:String x:Key="TerminologyFinancialIntelligenceLabel">تحليلات الصالون</sys:String>
+    <sys:String x:Key="TerminologyNewMembersLabel">عملاء جدد</sys:String>
+    <sys:String x:Key="TerminologyTotalMembersLabel">إجمالي العملاء</sys:String>
+    
+    <!-- Staff & Payroll -->
+    <sys:String x:Key="TerminologyStaffManagementLabel">إدارة المصممين</sys:String>
+    <sys:String x:Key="TerminologyNoStaffFoundLabel">لم يتم إضافة مصممين</sys:String>
+    <sys:String x:Key="TerminologyAddStaffHintLabel">أضف المصممين والمساعدين.</sys:String>
+    <sys:String x:Key="TerminologySystemPermissionsLabel">حقوق الوصول</sys:String>
+    <sys:String x:Key="TerminologySalaryRestrictedLabel">بيانات العمولات مخفية.</sys:String>
+    <sys:String x:Key="TerminologyNoUpcomingShiftsLabel">لا توجد مواعيد قادمة.</sys:String>
+    <sys:String x:Key="TerminologyCompensationLabel">الراتب والعمولات</sys:String>
+    <sys:String x:Key="TerminologyBaseSalaryLabel">معدل العمولة</sys:String>
+    <sys:String x:Key="TerminologyNextPaydayLabel">دورة الرواتب القادمة:</sys:String>
+    <sys:String x:Key="TerminologyEditConfigLabel">تعديل العمولة</sys:String>
+    <sys:String x:Key="TerminologyAddBonusLabel">إضافة مكافأة</sys:String>
+    <sys:String x:Key="TerminologyPaymentHistoryLabel">سجل الرواتب</sys:String>
+    <sys:String x:Key="TerminologyNoPaymentHistoryLabel">لا يوجد سجل رواتب.</sys:String>
+
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.All">جميع المصممين</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.Staff">المصممون فقط</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.Finance">المالية والرواتب</sys:String>
+    
+    <!-- Appointments Screen -->
+    <sys:String x:Key="Terminology.Salon.Appointments.Today">اليوم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.BookingsToday">موعد اليوم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.MoveSuccess">تم نقل الموعد إلى {0}</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.DateDisplayFormat">dd MMMM yyyy</sys:String>
+    <sys:String x:Key="Terminology.Salon.Errors.LoadStaff">فشل تحميل بيانات الموظفين.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Errors.LoadAppointments">فشل تحميل المواعيد.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Errors.OpenBooking">فشل فتح وحدة الحجز.</sys:String>
+    
+    <!-- Booking & Status -->
+    <sys:String x:Key="Terminology.Salon.Booking.Success">تم حجز الموعد بنجاح</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Conflict">تم اكتشاف تعارض في الجدول!</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.NoAvailableStaff">لا يوجد موظفين متاحين لهذا الوقت</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.ErrorLoading">خطأ في تحميل البيانات. قد تكون بعض القوائم فارغة.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.CheckIn.Success">تم تسجيل الوصول: {0}</sys:String>
+    <sys:String x:Key="Terminology.Salon.Product.Unknown">منتج غير معروف</sys:String>
+    <sys:String x:Key="Terminology.Salon.Greeting.Morning">صباح الخير،</sys:String>
+    <sys:String x:Key="Terminology.Salon.Greeting.Afternoon">مساء الخير،</sys:String>
+    <sys:String x:Key="Terminology.Salon.Greeting.Evening">مساء الخير،</sys:String>
+    <sys:String x:Key="Terminology.Salon.Greeting.Fallback">أهلاً</sys:String>
+    <sys:String x:Key="Terminology.Salon.Greeting.There">بك</sys:String>
+    <sys:String x:Key="Terminology.Global.Unknown">غير معروف</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.DateFullFormat">dddd، d MMMM yyyy</sys:String>
+    
+    <!-- Booking Modal UI -->
+    <sys:String x:Key="Terminology.Salon.Booking.Title">موعد جديد</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Subtitle">جدولة خدمة لعميل</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Section.ClientPlan">العميل والخطة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Section.StaffSchedule">الموظفين والجدول</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Price">سعر الخدمة (DA)</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.AutoAssign.Tooltip">تعيين الموظفين المتاحين تلقائياً</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Action.Confirm">تأكيد الحجز</sys:String>
+    
+    <!-- Home Screen UI -->
+    <sys:String x:Key="Terminology.Salon.Home.NextAppointment">الموعد القادم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.NoUpcoming">لا يوجد مواعيد قادمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.ChairUtilization">نسبة إشغال الكراسي</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Optimal">مثالي</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.TodayActivity">نشاط اليوم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Action.NewSale">بيع جديد</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Action.AddClient">إضافة عميل</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Action.WalkIn">دخول سريع</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Action.OpenCart">فتح السلة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Status.Scanner">ماسح الأعضاء</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Status.Printer">طابعة الإيصالات</sys:String>
+    
+    <!-- Appointment Detail -->
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Title">تفاصيل الموعد</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Action.Confirm">تأكيد الموعد</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Action.Start">بدء الخدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Action.Complete">إكمال الخدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.StatusUpdated">تم تحديث الموعد إلى {0}</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Service">الخدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.StaffMember">عضو الموظفين</sys:String>
+    
+    <!-- Completion -->
+    <sys:String x:Key="Terminology.Salon.Completion.Title">إكمال الموعد</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.ServiceFee">رسوم الخدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.Qty">الكمية:</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.Success">تم إكمال الموعد وخصم المخزون</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.Total">الإجمالي</sys:String>
+    
+    <!-- Services -->
+    <sys:String x:Key="Terminology.Salon.Services.Title">إدارة الخدمات</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Service">الخدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Price">السعر</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Duration">المدة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Saved">تم الحفظ ✓</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Minutes"> دقيقة</sys:String>
+    
+    <!-- Activity Stream -->
+    <sys:String x:Key="Terminology.Salon.Home.Activity.WalkInClient">عميل عابر</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Activity.Service">خدمة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Activity.Sale">بيع</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.Activity.More"> +{0} أكثر</sys:String>
+    
+    <!-- Add Staff Modal UI -->
+    <sys:String x:Key="Terminology.Salon.Staff.Add.Title">إضافة موظف للجدول</sys:String>
+    <sys:String x:Key="Terminology.Salon.Staff.Add.Select">اختر موظفاً</sys:String>
+    <sys:String x:Key="Terminology.Salon.Staff.Add.Action">إضافة للجدول</sys:String>
+    
+</ResourceDictionary>

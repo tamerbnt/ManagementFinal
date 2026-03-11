@@ -11,34 +11,46 @@ namespace Management.Infrastructure.Repositories
 {
     public class SaleRepository : Repository<Sale>, ISaleRepository
     {
-        public SaleRepository(GymDbContext context) : base(context) { }
+        public SaleRepository(AppDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<Sale>> GetByDateRangeAsync(DateTime start, DateTime end)
+        public async Task<IEnumerable<Sale>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end)
         {
             return await _dbSet.AsNoTracking()
+                .IgnoreQueryFilters() // Bypass global filter to allow explicit facility override
                 .Include(s => s.Items) // Eager load items for receipt details
-                .Where(s => s.Timestamp >= start && s.Timestamp <= end)
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end)
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();
         }
 
-        public async Task<decimal> GetTotalRevenueAsync(DateTime start, DateTime end)
+        public async Task<decimal> GetTotalRevenueAsync(Guid facilityId, DateTime start, DateTime end)
         {
             // Performance: Sum happens in database (SQL), not memory
-            return await _dbSet
-                .Where(s => s.Timestamp >= start && s.Timestamp <= end)
-                .SumAsync(s => s.TotalAmount.Amount);
+            // Fix: SQLite cannot apply aggregate operator 'Sum' on expressions of type 'decimal'.
+            // Casting to double for the aggregate operation.
+            return (decimal)await _dbSet
+                .IgnoreQueryFilters() // Bypass global filter to allow explicit facility override
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end)
+                .SumAsync(s => (double)s.TotalAmount.Amount);
         }
 
-        public async Task<IEnumerable<Sale>> GetFailedTransactionsAsync()
+        public async Task<IEnumerable<Sale>> GetFailedTransactionsAsync(Guid facilityId)
         {
-            // Assuming failed transactions are logged but flagged via specific logic
-            // (e.g., TotalAmount is 0 but items exist, or a status flag if added to model)
-            // For now, we return empty or check for specific failure markers if defined
             return await _dbSet.AsNoTracking()
-                .Where(s => s.TotalAmount.Amount == 0) // Placeholder logic for "Failed"
+                .IgnoreQueryFilters()
+                .Where(s => s.FacilityId == facilityId && s.TotalAmount.Amount == 0 && !s.IsDeleted) 
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();
+        }
+
+        public override async Task<Sale?> GetByIdAsync(Guid id, Guid? facilityId = null)
+        {
+            if (facilityId.HasValue)
+            {
+                return await _dbSet.IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(p => p.Id == id && p.FacilityId == facilityId.Value && !p.IsDeleted);
+            }
+            return await base.GetByIdAsync(id);
         }
     }
 }

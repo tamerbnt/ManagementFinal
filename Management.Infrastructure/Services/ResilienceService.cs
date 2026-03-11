@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Management.Infrastructure.Data;
 using Management.Domain.Models.Resilience;
+using Management.Application.Interfaces;
 using Serilog;
 
 namespace Management.Infrastructure.Services
@@ -24,7 +25,9 @@ namespace Management.Infrastructure.Services
     public class ResilienceService : IResilienceService
     {
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IDispatcherService _dispatcher;
         private bool _isOnline;
+
         public bool IsOnline
         {
             get => _isOnline;
@@ -41,9 +44,10 @@ namespace Management.Infrastructure.Services
         public event EventHandler<bool>? ConnectivityChanged;
         public ObservableCollection<OfflineAction> PendingActions { get; } = new();
 
-        public ResilienceService(IServiceScopeFactory scopeFactory)
+        public ResilienceService(IServiceScopeFactory scopeFactory, IDispatcherService dispatcher)
         {
             _scopeFactory = scopeFactory;
+            _dispatcher = dispatcher;
 
             NetworkChange.NetworkAvailabilityChanged += (s, e) => 
             {
@@ -57,7 +61,7 @@ namespace Management.Infrastructure.Services
         public async Task InitializeAsync()
         {
              // Clear existing to avoid duplication on re-init
-             PendingActions.Clear();
+             await _dispatcher.InvokeAsync(() => PendingActions.Clear());
              // Load existing pending actions from DB
              await LoadPendingActionsAsync();
         }
@@ -67,7 +71,7 @@ namespace Management.Infrastructure.Services
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 
                 // Fast-fail if connection string is missing or placeholder
                 var connection = context.Database.GetDbConnection();
@@ -81,9 +85,15 @@ namespace Management.Infrastructure.Services
                     .Where(a => !a.IsDeleted)
                     .ToListAsync();
     
-                foreach (var action in actions)
+                if (actions.Any())
                 {
-                    PendingActions.Add(action);
+                    await _dispatcher.InvokeAsync(() => 
+                    {
+                        foreach (var action in actions)
+                        {
+                            PendingActions.Add(action);
+                        }
+                    });
                 }
                 
                 Serilog.Log.Information($"ResilienceService: Loaded {PendingActions.Count} pending actions from local database.");
@@ -105,10 +115,10 @@ namespace Management.Infrastructure.Services
                 Payload = payload
             };
             
-            PendingActions.Add(action);
+            await _dispatcher.InvokeAsync(() => PendingActions.Add(action));
 
             using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             context.Set<OfflineAction>().Add(action);
             await context.SaveChangesAsync();
         }
@@ -117,7 +127,13 @@ namespace Management.Infrastructure.Services
         {
             if (!IsOnline) return;
 
-            var actionsToProcess = new List<OfflineAction>(PendingActions);
+            // Take a snapshot
+            List<OfflineAction> actionsToProcess;
+            lock (PendingActions)
+            {
+                actionsToProcess = new List<OfflineAction>(PendingActions);
+            }
+
             foreach (var action in actionsToProcess)
             {
                 try
@@ -125,10 +141,10 @@ namespace Management.Infrastructure.Services
                     // Logic to send to API / MediatR
                     await Task.Delay(500); // Simulate sync
                     
-                    PendingActions.Remove(action);
+                    await _dispatcher.InvokeAsync(() => PendingActions.Remove(action));
 
                     using var scope = _scopeFactory.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     var dbAction = await context.Set<OfflineAction>().FindAsync(action.Id);
                     if (dbAction != null)
                     {
@@ -142,7 +158,7 @@ namespace Management.Infrastructure.Services
                     action.LastError = ex.Message;
                     
                     using var scope = _scopeFactory.CreateScope();
-                    var context = scope.ServiceProvider.GetRequiredService<GymDbContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     var dbAction = await context.Set<OfflineAction>().FindAsync(action.Id);
                     if (dbAction != null)
                     {

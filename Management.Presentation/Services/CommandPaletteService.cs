@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using Management.Presentation.Extensions;
-using Management.Presentation.Views.Restaurant;
 using Management.Presentation.Services.Restaurant;
 using Management.Presentation.Services.Salon;
 using Management.Presentation.Views.Salon;
@@ -73,7 +72,7 @@ namespace Management.Presentation.Services
             _allCommands = new List<CommandItemViewModel>
             {
                 // General Navigation
-                new("Dashboard", "View facility performance metrics", () => _navigationService.NavigateToAsync(0), "Navigation"),
+                new("Dashboard", "View facility performance metrics", () => _navigationService.NavigateToAsync(1), "Navigation"),
                 new("Settings", "App Configuration & System Defaults", () => _navigationService.NavigateToAsync(7), "Navigation"),
                 
                 // Gym Cross-Facility
@@ -82,11 +81,7 @@ namespace Management.Presentation.Services
                 new("Live Feed", "Monitor turnstiles and scans", () => { _facilityService.SetFacility(FacilityType.Gym); _navigationService.NavigateToAsync(1); }, "Gym"),
                 new("New Member", "Register a new person in the system", () => { _facilityService.SetFacility(FacilityType.Gym); _navigationService.NavigateToAsync(2); }, "Actions"),
 
-                // Restaurant Cross-Facility
-                new("Tables", "Manage floor plan and occupancy", () => { _facilityService.SetFacility(FacilityType.Restaurant); _navigationService.NavigateToAsync(1); }, "Restaurant"), 
-                new("Kitchen Board", "View active orders in preparation", () => { _facilityService.SetFacility(FacilityType.Restaurant); _navigationService.NavigateToAsync(2); }, "Restaurant"), 
-                new("New Order", "Open the quick-order interface", async () => { _facilityService.SetFacility(FacilityType.Restaurant); await _modalService.OpenModalAsync<OrderViewModel>(parameter: "QUICK"); }, "Actions"),
-                
+
                 // Salon Cross-Facility
                 new("Book Appointment", "Schedule a new client appointment", async () => { _facilityService.SetFacility(FacilityType.Salon); await _modalService.OpenModalAsync<BookingViewModel>(); }, "Salon"),
                 new("Salon Schedule", "Review daily appointments", () => { _facilityService.SetFacility(FacilityType.Salon); _navigationService.NavigateToAsync(1); }, "Salon"),
@@ -95,7 +90,7 @@ namespace Management.Presentation.Services
                 // Searchable Users & Products (Mocked Indexing)
                 new("Sarah (Gym Member)", "Plan: Premium | Card ID: 1042", () => { _facilityService.SetFacility(FacilityType.Gym); _navigationService.NavigateToAsync(2); }, "Members"),
                 new("Sarah (Salon Client)", "Last visit: 2 days ago", () => { _facilityService.SetFacility(FacilityType.Salon); _navigationService.NavigateToAsync(1); }, "Members"),
-                new("Protein Shake", "Stock: 42 | Price: $5.00", () => { _navigationService.NavigateToAsync(6); }, "Inventory"),
+                new("Protein Shake", "Stock: 42 | Price: 5.00 DA", () => { _navigationService.NavigateToAsync(6); }, "Inventory"),
             };
         }
 
@@ -144,7 +139,6 @@ namespace Management.Presentation.Services
             return true;
         }
 
-        private async void ExecuteCheckoutTable() { await _modalService.OpenModalAsync<OrderDetailViewModel>(); }
 
         private async void ExecuteBookAppointment() { await _modalService.OpenModalAsync<BookingViewModel>(); }
     }

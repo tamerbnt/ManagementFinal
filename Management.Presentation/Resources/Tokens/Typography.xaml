@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <FontFamily x:Key="Font.Primary">Inter, Segoe UI Variable Display, Segoe UI, sans-serif</FontFamily>
+
+    <sys:Double x:Key="Text.Size.Hero">72.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Title1">36.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Title2">28.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Title3">20.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Body">15.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Caption">13.0</sys:Double>
+    <sys:Double x:Key="Text.Size.Micro">11.0</sys:Double>
+
+</ResourceDictionary>

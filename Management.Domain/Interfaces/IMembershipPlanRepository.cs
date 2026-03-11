@@ -1,10 +1,12 @@
 using System.Threading.Tasks;
 using Management.Domain.Models;
+using System.Collections.Generic; // Added for IEnumerable
 
 namespace Management.Domain.Interfaces
 {
     public interface IMembershipPlanRepository : IRepository<MembershipPlan>
     {
-        Task<System.Collections.Generic.IEnumerable<MembershipPlan>> GetActivePlansAsync();
+        Task<IEnumerable<MembershipPlan>> GetActivePlansAsync(System.Guid? facilityId = null, bool activeOnly = true);
+        Task<MembershipPlan?> GetByIdAsync(System.Guid id, System.Guid? facilityId = null);
     }
 }

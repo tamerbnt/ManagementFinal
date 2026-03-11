@@ -1,0 +1,283 @@
+<UserControl x:Class="Management.Presentation.Views.GymHome.MultiSaleCartModal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=vm:MultiSaleCartViewModel, IsDesignTimeCreatable=True}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <!-- Modal Container -->
+    <Border Style="{DynamicResource GlobalModalContainerStyle}" 
+            CornerRadius="{DynamicResource RadiusModal}"
+            Padding="0"
+            Margin="32" MaxWidth="800" MaxHeight="700" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="Auto"/> <!-- Tabs -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header -->
+            <Grid Grid.Row="0" Margin="40,40,40,16">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Title}" 
+                               Style="{DynamicResource Title2}" 
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    
+                    <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Subtitle}" 
+                               Style="{DynamicResource Body}" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,8,0,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Tab Navigation -->
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource SurfaceBgSecondary}" 
+                    BorderBrush="{DynamicResource SeparatorStroke}" 
+                    BorderThickness="0,1,0,1" 
+                    Padding="40,16">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <RadioButton Content="{DynamicResource Terminology.GymHome.MultiSale.Tab.Products}" 
+                                 IsChecked="{Binding CurrentTab, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Products}"
+                                 Command="{Binding SwitchTabCommand}"
+                                 CommandParameter="Products"
+                                 Style="{StaticResource TabRadioButtonStyle}"
+                                 Margin="0,0,16,0"/>
+                    <RadioButton Content="{DynamicResource Terminology.GymHome.MultiSale.Tab.WalkIn}" 
+                                 IsChecked="{Binding CurrentTab, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=WalkIn}"
+                                 Command="{Binding SwitchTabCommand}"
+                                 CommandParameter="WalkIn"
+                                 Style="{StaticResource TabRadioButtonStyle}"
+                                 Margin="0,0,16,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 3. Content Area -->
+            <ScrollViewer Grid.Row="2" Margin="24,16,24,24" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <!-- Products Tab -->
+                    <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Products}">
+                        <!-- Search Bar -->
+                        <Border Background="{DynamicResource SurfaceBgSecondary}" 
+                                CornerRadius="{DynamicResource RadiusSearchBar}" 
+                                Height="48" 
+                                Margin="16,0,16,16"
+                                Padding="16,0" 
+                                BorderBrush="{DynamicResource SeparatorStroke}" 
+                                BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Path Data="{StaticResource IconSearch}" 
+                                      Stroke="{DynamicResource TextTertiaryBrush}" 
+                                      StrokeThickness="1.5"
+                                      Width="16" Height="16" 
+                                      Stretch="Uniform" 
+                                      Margin="0,0,12,0"/>
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource Input.Field}"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="0"
+                                         VerticalContentAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Product List -->
+                        <ItemsControl ItemsSource="{Binding Products}" Margin="16,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource SurfaceBg}"
+                                            BorderBrush="{DynamicResource SeparatorStroke}"
+                                            BorderThickness="1"
+                                            CornerRadius="12"
+                                            Padding="16"
+                                            Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"/>
+                                                <TextBlock Text="{Binding Category}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                            
+                                            <Button Grid.Column="2" 
+                                                    Command="{Binding DataContext.AddProductToCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource PrimaryButton}"
+                                                    Content="{DynamicResource Terminology.GymHome.MultiSale.Action.Add}"
+                                                    Padding="16,8"
+                                                    MinWidth="80"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Walk-In Tab -->
+                    <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=WalkIn}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Stretch"
+                                Margin="40,20">
+                        <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.WalkIn.Title}" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                        
+                        <!-- Walk-In Plan Selector -->
+                        <ItemsControl ItemsSource="{Binding WalkInPlans}" Margin="0,0,0,24">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <RadioButton Content="{Binding Name}"
+                                                 GroupName="WalkInPlans"
+                                                 Style="{StaticResource TogglePillStyle}"
+                                                 Command="{Binding DataContext.SetSelectedWalkInPlanCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                 CommandParameter="{Binding}"
+                                                 Margin="4">
+                                        <RadioButton.IsChecked>
+                                            <MultiBinding Converter="{StaticResource EqualityConverter}" Mode="OneWay">
+                                                <Binding Path="DataContext.SelectedWalkInPlan" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                <Binding Path="."/>
+                                            </MultiBinding>
+                                        </RadioButton.IsChecked>
+                                    </RadioButton>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Background="{DynamicResource SurfaceBgSecondary}" 
+                                CornerRadius="16" 
+                                Padding="32"
+                                HorizontalAlignment="Center"
+                                BorderBrush="{DynamicResource SeparatorStroke}"
+                                BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.WalkIn.Quantity}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Command="{Binding DecrementWalkInCommand}" 
+                                            Style="{StaticResource SecondaryButton}"
+                                            Content="-"
+                                            Width="48"
+                                            Height="48"
+                                            FontSize="24"
+                                            FontWeight="Bold"
+                                            Padding="0"/>
+                                    <TextBlock Text="{Binding WalkInCount}" 
+                                               FontSize="32" 
+                                               FontWeight="Bold" 
+                                               VerticalAlignment="Center" 
+                                               Margin="24,0"
+                                               MinWidth="60"
+                                               TextAlignment="Center"/>
+                                    <Button Command="{Binding IncrementWalkInCommand}" 
+                                            Style="{StaticResource SecondaryButton}"
+                                            Content="+"
+                                            Width="48"
+                                            Height="48"
+                                            FontSize="24"
+                                            FontWeight="Bold"
+                                            Padding="0"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding WalkInTotal, StringFormat='Total: {0:N2} DA'}" 
+                                           FontSize="16" 
+                                           FontWeight="SemiBold" 
+                                           HorizontalAlignment="Center" 
+                                           Margin="0,16,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                </Grid>
+            </ScrollViewer>
+
+            <!-- 4. Footer with Cart Summary -->
+            <Border Grid.Row="3" 
+                    Background="{DynamicResource SurfaceBgSecondary}" 
+                    BorderBrush="{DynamicResource SeparatorStroke}" 
+                    BorderThickness="0,1,0,0" 
+                    Padding="40,24"
+                    CornerRadius="0,0,24,24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Cart Summary -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,16">
+                        <Grid Margin="0,0,0,4">
+                            <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Summary.Products}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding ProductsTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,4">
+                            <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Summary.WalkIns}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            <TextBlock Text="{Binding WalkInTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Border Height="1" Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,8"/>
+                        <Grid>
+                            <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Summary.GrandTotal}" FontSize="16" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding GrandTotal, StringFormat='{}{0:N2} DA'}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource Brush.Accent.Primary}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Action Buttons -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" 
+                                Command="{Binding CancelCommand}" 
+                                Style="{StaticResource GhostButton}" 
+                                Content="{DynamicResource Terminology.Global.Cancel}" 
+                                HorizontalAlignment="Left"
+                                Padding="24,0"
+                                MinWidth="120"/>
+
+                        <Button Grid.Column="1" 
+                                Command="{Binding CheckoutCommand}" 
+                                Style="{StaticResource PrimaryButton}" 
+                                MinWidth="220">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconCheck}" 
+                                          Stroke="White" 
+                                          StrokeThickness="2"
+                                          Width="14" Height="14" 
+                                          Stretch="Uniform" 
+                                          Margin="0,0,8,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.GymHome.MultiSale.Summary.Checkout}"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

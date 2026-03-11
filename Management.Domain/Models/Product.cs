@@ -1,12 +1,14 @@
-﻿using System;
+using System;
 using Management.Domain.Enums;
 using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
 
 namespace Management.Domain.Models
 {
-    public class Product : AggregateRoot
+    public class Product : AggregateRoot, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
         public string Name { get; private set; }
         public string Description { get; private set; }
         public Money Price { get; private set; }

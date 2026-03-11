@@ -1,25 +1,16 @@
 using Management.Application.Features.Registrations.Queries.GetRegistration;
+using Management.Application.Features.Registrations.Queries.SearchRegistrations;
 using Management.Application.Services;
 using Management.Application.Features.Registrations.Queries.GetPendingRegistrations;
-using Management.Application.Services;
 using Management.Application.Features.Registrations.Commands.ApproveRegistration;
-using Management.Application.Services;
 using Management.Application.Features.Registrations.Commands.DeclineRegistration;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
@@ -32,50 +23,54 @@ namespace Management.Infrastructure.Services
             _sender = sender;
         }
 
-        public async Task<Result<RegistrationDto>> GetRegistrationAsync(Guid id)
+        public async Task<Result<RegistrationDto>> GetRegistrationAsync(Guid id, Guid facilityId)
         {
-            return await _sender.Send(new GetRegistrationQuery(id));
+            return await _sender.Send(new GetRegistrationQuery(id, facilityId));
         }
 
-        public async Task<Result<List<RegistrationDto>>> GetPendingRegistrationsAsync()
+        public async Task<Result<List<RegistrationDto>>> GetPendingRegistrationsAsync(Guid facilityId)
         {
-            return await _sender.Send(new GetPendingRegistrationsQuery());
+            return await _sender.Send(new GetPendingRegistrationsQuery(facilityId));
         }
 
-        public async Task<Result<Guid>> ApproveRegistrationAsync(Guid id)
+        public async Task<Result<Guid>> ApproveRegistrationAsync(Guid id, Guid facilityId)
         {
-            return await _sender.Send(new ApproveRegistrationCommand(id));
+            return await _sender.Send(new ApproveRegistrationCommand(id, facilityId));
         }
 
-        public async Task<Result> DeclineRegistrationAsync(Guid id)
+        public async Task<Result> DeclineRegistrationAsync(Guid id, Guid facilityId)
         {
-            return await _sender.Send(new DeclineRegistrationCommand(id));
+            return await _sender.Send(new DeclineRegistrationCommand(id, facilityId));
         }
 
-        public async Task<Result> ApproveBatchAsync(List<Guid> ids)
+        public async Task<Result> ApproveBatchAsync(List<Guid> ids, Guid facilityId)
         {
             foreach (var id in ids)
             {
-                var result = await _sender.Send(new ApproveRegistrationCommand(id));
+                var result = await _sender.Send(new ApproveRegistrationCommand(id, facilityId));
                 if (result.IsFailure) return Result.Failure(result.Error);
             }
             return Result.Success();
         }
 
-        public async Task<Result> DeclineBatchAsync(List<Guid> ids)
+        public async Task<Result> DeclineBatchAsync(List<Guid> ids, Guid facilityId)
         {
             foreach (var id in ids)
             {
-                var result = await _sender.Send(new DeclineRegistrationCommand(id));
+                var result = await _sender.Send(new DeclineRegistrationCommand(id, facilityId));
                 if (result.IsFailure) return result;
             }
             return Result.Success();
         }
 
-        public async Task<Result<PagedResult<RegistrationDto>>> SearchAsync(RegistrationSearchRequest request, int page = 1, int pageSize = 50)
+        public async Task<Result<PagedResult<RegistrationDto>>> SearchAsync(RegistrationSearchRequest request, Guid facilityId, int page = 1, int pageSize = 50)
         {
-            // Placeholder: Not implemented yet
-            return Result.Success(new PagedResult<RegistrationDto> { Items = new List<RegistrationDto>(), TotalCount = 0 });
+            return await _sender.Send(new SearchRegistrationsQuery(
+                request.SearchTerm, 
+                request.FilterType, 
+                request.Status, 
+                page, 
+                pageSize));
         }
     }
 }

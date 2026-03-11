@@ -18,7 +18,7 @@ namespace Management.Application.Features.Products.Commands.DeleteProduct
 
         public async Task<Result> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.GetByIdAsync(request.Id);
+            var product = await _productRepository.GetByIdAsync(request.Id, request.FacilityId);
             if (product == null)
             {
                 return Result.Failure(new Error("Product.NotFound", "Product not found"));

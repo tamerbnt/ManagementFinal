@@ -11,7 +11,8 @@ namespace Management.Application.Features.Sales.Queries.GetSales
 {
     public class GetSalesQueryHandler : 
         IRequestHandler<GetSalesHistoryQuery, Result<List<SaleDto>>>,
-        IRequestHandler<GetSaleDetailsQuery, Result<SaleDto>>
+        IRequestHandler<GetSaleDetailsQuery, Result<SaleDto>>,
+        IRequestHandler<GetTotalRevenueQuery, Result<decimal>>
     {
         private readonly ISaleRepository _saleRepository;
 
@@ -22,16 +23,19 @@ namespace Management.Application.Features.Sales.Queries.GetSales
 
         public async Task<Result<List<SaleDto>>> Handle(GetSalesHistoryQuery request, CancellationToken cancellationToken)
         {
-            var sales = await _saleRepository.GetByDateRangeAsync(request.Start, request.End);
-            var dtos = sales.Select(s => new SaleDto
+            var sales = await _saleRepository.GetByDateRangeAsync(request.FacilityId, request.Start, request.End);
+            
+            // Safety cap for history views - increased for high-volume days
+            var limitedSales = sales.Take(2000);
+
+            var dtos = limitedSales.Select(s => new SaleDto
             {
                 Id = s.Id,
                 Timestamp = s.Timestamp,
                 TotalAmount = s.TotalAmount.Amount,
                 PaymentMethod = s.PaymentMethod.ToString(),
                 TransactionType = s.TransactionType,
-                // MemberName? Repository might not include Member. 
-                // Legacy service didn't include it in list view map.
+                ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
             }).ToList();
 
             return Result.Success(dtos);
@@ -52,14 +56,17 @@ namespace Management.Application.Features.Sales.Queries.GetSales
                 TotalAmount = sale.TotalAmount.Amount,
                 PaymentMethod = sale.PaymentMethod.ToString(),
                 TransactionType = sale.TransactionType,
-                Items = sale.Items.ToDictionary(i => i.ProductId, i => i.Quantity) 
                 // DTO expects Dictionary<Guid,int>? Check SaleDto definition.
                 // Step 202: CheckoutRequestDto has Dictionary Items.
-                // SaleDto def? Step 274 viewed SaleDto.
-                // Let's assume standard DTO. 
-                // If SaleDto structure is complex (List<SaleItemDto>), mapping might differ.
-                // I'll check if build fails on Items mapping.
+                Items = sale.Items.ToDictionary(i => i.ProductId, i => i.Quantity),
+                ItemsSnapshot = sale.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
             });
+        }
+
+        public async Task<Result<decimal>> Handle(GetTotalRevenueQuery request, CancellationToken cancellationToken)
+        {
+            var total = await _saleRepository.GetTotalRevenueAsync(request.FacilityId, request.Start, request.End);
+            return Result.Success(total);
         }
     }
 }

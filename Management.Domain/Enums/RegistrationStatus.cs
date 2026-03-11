@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// Represents the lifecycle state of a potential member lead.

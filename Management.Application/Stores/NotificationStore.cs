@@ -3,14 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
     /// Stores the history of notifications and the state of the Unread Badge.
     /// Acts as the persistent memory for the Notification System.
     /// </summary>
-    public class NotificationStore
+    public class NotificationStore : IStateResettable
     {
+        public void ResetState()
+        {
+            _notifications.Clear();
+            UnreadCountChanged?.Invoke();
+        }
         // Event raised when the UnreadCount changes (e.g. new alert or mark as read)
         public event Action? UnreadCountChanged;
 
@@ -26,12 +33,13 @@ namespace Management.Application.Stores
         /// <summary>
         /// Adds a new notification to the store and increments the badge count.
         /// </summary>
-        public void Add(string message, NotificationType type)
+        public void Add(string message, string title, NotificationType type)
         {
             var item = new NotificationItem
             {
                 Id = Guid.NewGuid(),
                 Message = message,
+                Title = title,
                 Type = type,
                 Timestamp = DateTime.UtcNow,
                 IsRead = false
@@ -60,6 +68,19 @@ namespace Management.Application.Stores
             }
             UnreadCountChanged?.Invoke();
         }
+
+        /// <summary>
+        /// Marks a single notification as read.
+        /// </summary>
+        public void MarkAsRead(Guid id)
+        {
+            var item = _notifications.FirstOrDefault(n => n.Id == id);
+            if (item != null && !item.IsRead)
+            {
+                item.IsRead = true;
+                UnreadCountChanged?.Invoke();
+            }
+        }
     }
 
     // --- Helper DTOs for the Store ---
@@ -68,6 +89,7 @@ namespace Management.Application.Stores
     {
         public Guid Id { get; set; }
         public required string Message { get; set; }
+        public required string Title { get; set; }
         public NotificationType Type { get; set; }
         public DateTime Timestamp { get; set; }
         public bool IsRead { get; set; }

@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
-             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="320" d:DesignWidth="240"
              TextOptions.TextFormattingMode="Display"
@@ -15,25 +14,41 @@
 
     <UserControl.Resources>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        <!-- FIX 1: Removed invalid 'ConverterParameter' from Resource definition -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <!-- Main Card Container -->
-    <Border Style="{StaticResource ElevatedCardStyleInteractive}"
+    <Border x:Name="CardBorder"
             Height="{StaticResource SizeProductCardHeight}"
-            Padding="0"
-            AutomationProperties.Name="{Binding Name, StringFormat='Product: {0}'}">
+            Padding="20"
+            CornerRadius="16"
+            Margin="0,0,0,8">
+
+        <Border.Style>
+            <Style TargetType="Border" BasedOn="{StaticResource ElevatedCardStyleInteractive}">
+                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.5"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
 
         <Border.InputBindings>
-            <MouseBinding MouseAction="LeftClick" Command="{Binding AddToCartCommand}"/>
+            <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
         </Border.InputBindings>
-
-        <!-- Hover Reveal -->
-        <i:Interaction.Behaviors>
-            <behaviors:HoverRevealBehavior TargetName="ManagementOverlay"
-                                           Duration="{StaticResource DurationStandard}"/>
-        </i:Interaction.Behaviors>
 
         <Grid>
             <Grid.RowDefinitions>
@@ -43,79 +58,106 @@
 
             <!-- 1. PRODUCT IMAGE AREA -->
             <Grid Grid.Row="0">
-                <!-- Fallback Icon -->
-                <!-- FIX 2: Hardcoded CornerRadius to "24,24,0,0" (Top Left, Top Right, Bot Right, Bot Left) -->
-                <!-- FIX 3: Added ConverterParameter='Inverse' to Binding -->
-                <Border Background="{DynamicResource CardBackgroundBrush}"
-                        CornerRadius="{DynamicResource RadiusCardStandardTop}"
-                        Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter='Inverse'}">
-                    <Path Data="{StaticResource IconShoppingBag}"
+                <Border Background="{DynamicResource SurfaceBgTertiary}"
+                        CornerRadius="12">
+                    <Path Data="{StaticResource IconShop}"
                           Fill="{DynamicResource TextTertiaryBrush}"
-                          Style="{StaticResource IconHero}"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
-                          Opacity="0.5"/>
+                          Opacity="0.3">
+                        <Path.Style>
+                            <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Hero}">
+                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Fill" Value="White"/>
+                                        <Setter Property="Opacity" Value="0.6"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
                 </Border>
 
-                <!-- Actual Image -->
-                <Border CornerRadius="{DynamicResource RadiusCardStandardTop}"
-                        Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Border.Background>
-                        <ImageBrush ImageSource="{Binding ImageUrl}" Stretch="UniformToFill"/>
-                    </Border.Background>
-                </Border>
+                <!-- 0. Selection Checkbox (Top Left) -->
+                <CheckBox IsChecked="{Binding IsSelected}" 
+                          Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                          HorizontalAlignment="Left" 
+                          VerticalAlignment="Top" 
+                          Margin="12"
+                          Panel.ZIndex="10"
+                          Visibility="{Binding DataContext.IsSelectionMode, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                <!-- GLOBAL MANAGEMENT OVERLAY -->
-                <!-- Note: Ensure 'GlobalManagementOverlayStyle' exists in Components.xaml, otherwise remove this Style attribute -->
-                <ContentControl x:Name="ManagementOverlay"
-                                IsHitTestVisible="False">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Button Command="{Binding EditProductCommand}"
-                                ToolTip="{DynamicResource TerminologyEditProductLabel}"
-                                Style="{StaticResource IconButtonStyle}"
-                                Margin="4">
-                            <Path Data="{StaticResource IconEdit}" Fill="White" Style="{StaticResource IconSmall}"/>
-                        </Button>
-                        <Button Command="{Binding DeleteProductCommand}"
-                                ToolTip="{DynamicResource TerminologyDeleteProductLabel}"
-                                Style="{StaticResource IconButtonStyle}"
-                                Margin="4">
-                            <Path Data="{StaticResource IconDelete}" Fill="White" Style="{StaticResource IconSmall}"/>
-                        </Button>
-                    </StackPanel>
-                </ContentControl>
+                <!-- Selection Pill -->
+                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8"
+                        Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="8,4"
+                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="{DynamicResource Terminology.Shop.Status.Selected}" Style="{StaticResource Micro}" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="Bold"/>
+                </Border>
             </Grid>
 
             <!-- 2. CONTENT AREA -->
-            <StackPanel Grid.Row="1"
-                        Margin="{StaticResource PaddingCardCompact}"
-                        VerticalAlignment="Center">
+            <StackPanel Grid.Row="1" Margin="0,12,0,0" VerticalAlignment="Top">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="44">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
-                <!-- Name -->
-                <TextBlock Text="{Binding Name}"
-                           Style="{StaticResource BodyMedium}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           TextTrimming="CharacterEllipsis"
-                           MaxHeight="48"/>
+                <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA', Mode=OneWay}" Margin="0,2,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Title3}">
+                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
-                <!-- Price -->
-                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}"
-                           Style="{StaticResource Title3}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           Margin="{StaticResource MarginTextTop}"/>
+                <!-- Stock & Actions -->
+                <Grid Margin="0,12,0,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
+                                Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <Ellipse Width="8" Height="8" Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding StockStatusText}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="Opacity" Value="0.8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
 
-                <!-- Stock Indicator -->
-                <StackPanel Orientation="Horizontal" Margin="{StaticResource MarginSmallTop}">
-                    <Ellipse Width="{DynamicResource SizeStockIndicator}"
-                             Height="{DynamicResource SizeStockIndicator}"
-                             Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}"
-                             VerticalAlignment="Center"
-                             Margin="{StaticResource MarginSmallRight}"/>
-
-                    <TextBlock Text="{Binding StockStatusText}"
-                               Style="{StaticResource Caption}"
-                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-                </StackPanel>
+                    <!-- Quick Add Button (Visible on Hover) -->
+                    <Button Command="{Binding ModifyProductCommand}" 
+                            Content="{DynamicResource Terminology.Shop.Action.Modify}" 
+                            Height="32"
+                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
             </StackPanel>
         </Grid>
     </Border>

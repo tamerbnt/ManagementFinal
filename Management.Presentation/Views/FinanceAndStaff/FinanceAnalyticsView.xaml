@@ -11,16 +11,15 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBg}">
-        <Grid Margin="48,24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header & Filter -->
-                <RowDefinition Height="240"/> <!-- Hero Card -->
-                <RowDefinition Height="Auto"/> <!-- Metrics Grid -->
-                <RowDefinition Height="*"/> <!-- Details -->
-            </Grid.RowDefinitions>
-
-            <!-- 1. Header & Admin Filter -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <Grid Background="{DynamicResource WindowBg}">
+            <Grid Margin="48,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- Header & Filter -->
+                    <RowDefinition Height="240"/> <!-- Hero Card -->
+                    <RowDefinition Height="Auto"/> <!-- Metrics Grid -->
+                    <RowDefinition Height="*"/> <!-- Details -->
+                </Grid.RowDefinitions>
             <Grid Grid.Row="0" Margin="0,0,0,32">
                 <TextBlock Text="{DynamicResource TerminologyFinancialIntelligenceLabel}" Style="{StaticResource Title1}"/>
                 
@@ -41,7 +40,7 @@
                 <Grid>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding TotalRevenue, FallbackValue='$0.00'}" Style="{StaticResource HeroLive}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding TotalRevenue, FallbackValue='0.00 DA'}" Style="{StaticResource HeroLive}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                     </StackPanel>
                     
                     <!-- Sparkline Placeholder (Stroke: Accent) -->
@@ -57,13 +56,13 @@
                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,16" Padding="24">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource TerminologyMRRLabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding MRR, StringFormat='{}{0:C0}'}" Style="{StaticResource Title1}"/>
+                        <TextBlock Text="{Binding MRR, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Title1}"/>
                     </StackPanel>
                 </Border>
                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,16" Padding="24">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource TerminologyARPULabel}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding ARPU, StringFormat='{}{0:C2}'}" Style="{StaticResource Title1}"/>
+                        <TextBlock Text="{Binding ARPU, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Title1}"/>
                     </StackPanel>
                 </Border>
                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,16" Padding="24">
@@ -92,5 +91,6 @@
                 </Border>
             </UniformGrid>
         </Grid>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </UserControl>

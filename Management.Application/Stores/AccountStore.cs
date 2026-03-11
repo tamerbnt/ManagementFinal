@@ -2,14 +2,23 @@ using Management.Application.DTOs;
 using System;
 using System.Linq;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
     /// Holds the state of the currently authenticated user session.
     /// Registered as a Singleton to persist across navigation.
     /// </summary>
-    public class AccountStore
+    public class AccountStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Facility switch doesn't mean logout, but we ensure 
+            // the context is clean if needed. 
+            // In some cases, we might want to Logout if the user 
+            // doesn't have permissions for the new facility.
+        }
         private readonly Domain.Services.ITenantService _tenantService;
 
         public AccountStore(Domain.Services.ITenantService tenantService)

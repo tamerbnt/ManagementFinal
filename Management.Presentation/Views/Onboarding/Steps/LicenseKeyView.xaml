@@ -1,0 +1,68 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Onboarding.Steps.LicenseKeyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    
+    <Grid>
+        <StackPanel>
+            <!-- Header -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
+                <Path Data="{StaticResource Icon.Shield}" 
+                      Fill="{DynamicResource Brush.Brand.Primary}" 
+                      Width="64" Height="64" Stretch="Uniform" />
+                <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.Letsverifyyourpurchase}" 
+                           FontSize="24" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,16,0,0" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- License Key Input -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock Text="{DynamicResource Strings.Onboarding.LICENSEKEY}" 
+                           FontSize="14" FontWeight="Medium" 
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           Margin="0,0,0,4"/>
+                <TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{StaticResource Input.Apple}"
+                         Tag="{DynamicResource Strings.Onboarding\Steps.XXXXXXXXXXXXXXXX}"/>
+            </StackPanel>
+
+            <!-- Hardware ID Section -->
+            <StackPanel Margin="0,0,0,32">
+                <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.HardwareID}" 
+                           FontSize="14" FontWeight="Medium" 
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           Margin="0,0,0,8"/>
+                <Button Command="{Binding CopyHardwareIdCommand}" 
+                        Padding="0" Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" HorizontalContentAlignment="Stretch">
+                    <Grid>
+                        <Rectangle Stroke="#E2E8F0" StrokeThickness="1" 
+                                   StrokeDashArray="2 2" RadiusX="8" RadiusY="8"
+                                   Fill="#EFF6FF" />
+                        <Grid Margin="16">
+                            <TextBlock Text="{Binding HardwareId}" 
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Consolas"
+                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            <TextBlock Text="ðŸ“„" 
+                                       HorizontalAlignment="Right" 
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource Brush.Text.Secondary}"
+                                       FontSize="16" />
+                        </Grid>
+                    </Grid>
+                </Button>
+            </StackPanel>
+
+            <!-- Action -->
+            <Button Content="{DynamicResource Strings.Onboarding\Steps.VerifyLicense}" 
+                    Command="{Binding VerifyCommand}"
+                    Style="{StaticResource Button.Primary}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

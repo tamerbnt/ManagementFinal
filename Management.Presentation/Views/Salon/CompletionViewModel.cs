@@ -24,6 +24,7 @@ namespace Management.Presentation.Views.Salon
         private readonly INotificationService _notificationService;
         private readonly IReceiptPrintingService _receiptService;
         private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+        private readonly ITerminologyService _terminologyService;
 
         private readonly Appointment _appointment;
 
@@ -52,7 +53,8 @@ namespace Management.Presentation.Views.Salon
             IModalNavigationService modalService,
             INotificationService notificationService,
             IReceiptPrintingService receiptService,
-            Management.Domain.Services.IFacilityContextService facilityContext)
+            Management.Domain.Services.IFacilityContextService facilityContext,
+            ITerminologyService terminologyService)
         {
             _appointment = appointment;
             _salonService = salonService;
@@ -61,9 +63,10 @@ namespace Management.Presentation.Views.Salon
             _notificationService = notificationService;
             _receiptService = receiptService;
             _facilityContext = facilityContext;
+            _terminologyService = terminologyService;
 
-            var service = _salonService.Services.First(s => s.Id == _appointment.ServiceId);
-            BasePrice = service.BasePrice;
+            // Use the price recorded on the appointment (which could be the base price OR a custom price)
+            BasePrice = _appointment.Price;
 
             AddProductCommand = new RelayCommand<ProductDto>(ExecuteAddProduct);
             CompleteCommand = new RelayCommand(async () => await ExecuteComplete());
@@ -116,7 +119,7 @@ namespace Management.Presentation.Views.Salon
             await _salonService.CompleteAppointmentAsync(_appointment.Id, usage);
             await _receiptService.PrintSalonReceiptAsync(Guid.Empty, _appointment, TotalAmount);
             
-            _notificationService.ShowNotification("Appointment completed and stock deducted", NotificationType.Success);
+            _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Completion.Success"), NotificationType.Success);
             _modalService.CloseModal();
         }
     }

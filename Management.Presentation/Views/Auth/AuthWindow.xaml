@@ -1,0 +1,399 @@
+﻿<Window x:Class="Management.Presentation.Views.Auth.AuthWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
+        xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations"
+        mc:Ignorable="d"
+        Title="{DynamicResource Strings.Auth.TitanActivation}" 
+        Height="720" Width="980"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        MouseDown="OnMouseLeftButtonDown">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/Converters.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Explicit DataTemplates to bypass resolution issues -->
+            <DataTemplate DataType="{x:Type viewmodels:LicenseEntryViewModel}">
+                <auth:LicenseEntryView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:OnboardingOwnerViewModel}">
+                <auth:OnboardingOwnerView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+                <auth:LoginView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:FacilityOnboardingViewModel}">
+                <auth:FacilityOnboardingView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:EmailConfirmationViewModel}">
+                <auth:EmailConfirmationView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
+                <reg:ConfirmDeclineModal/>
+            </DataTemplate>
+
+            <!-- Modal container updated for light theme -->
+            <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
+                <Setter Property="Background" Value="#F0FFFFFF"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="24"/>
+                <Setter Property="Padding" Value="32"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <StaticResource ResourceKey="Shadow4"/>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Override text styles for modal to use dark text on light bg -->
+            <Style x:Key="Title2" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+            </Style>
+            <Style x:Key="Body" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="40" 
+                      GlassFrameThickness="0" 
+                      CornerRadius="24" 
+                      ResizeBorderThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <!-- Root: White window border -->
+    <Border CornerRadius="24" Background="{StaticResource SurfaceBg}" ClipToBounds="True"
+            BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+        <Border.Effect>
+            <StaticResource ResourceKey="Shadow4"/>
+        </Border.Effect>
+        <Grid>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 SPLIT LAYOUT: Left Illustration | Right Form
+                 ═══════════════════════════════════════════════════════ -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ─────────────────────────────────────────────────────
+                     LEFT PANEL: Illustrated Brand
+                     Background is a soft facility-accent tint (light, never dark)
+                     ───────────────────────────────────────────────────── -->
+                <Border Grid.Column="0"
+                        Background="{DynamicResource FacilityAccentDimBrush}"
+                        CornerRadius="24,0,0,24"
+                        ClipToBounds="True">
+
+                    <Grid>
+                        <!-- Soft ambient circle accent (background depth) -->
+                        <Ellipse Width="500" Height="500" HorizontalAlignment="Right"
+                                 VerticalAlignment="Bottom" Margin="0,0,-150,-150"
+                                 Opacity="0.35">
+                            <Ellipse.Fill>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
+                                    <GradientStop Color="Transparent" Offset="1"/>
+                                </RadialGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <Ellipse Width="280" Height="280" HorizontalAlignment="Left"
+                                 VerticalAlignment="Top" Margin="-60,-60,0,0"
+                                 Opacity="0.2">
+                            <Ellipse.Fill>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
+                                    <GradientStop Color="Transparent" Offset="1"/>
+                                </RadialGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+
+                        <!-- Main content stack -->
+                        <Grid Margin="36,36,36,36">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>  <!-- Logo row -->
+                                <RowDefinition Height="*"/>     <!-- Illustration center -->
+                                <RowDefinition Height="Auto"/>  <!-- Tagline row -->
+                            </Grid.RowDefinitions>
+
+                            <!-- ── Row 0: Logo + Wordmark ── -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top">
+                                <Border Width="40" Height="40" CornerRadius="10"
+                                        Background="{DynamicResource FacilityAccentBrush}">
+                                    <Path Data="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
+                                          Fill="{DynamicResource Brush.Neutral.White}"
+                                          Stretch="Uniform" Margin="10"/>
+                                </Border>
+                                <TextBlock Text="TITAN" Margin="12,0,0,0"
+                                           FontSize="18" FontWeight="Black" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+
+                            <!-- ── Row 1: Flat Illustration + Floating Cards ── -->
+                            <Canvas Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Width="320" Height="320">
+
+                                <!-- ══ FLAT CHARACTER: Facility Manager at Desk ══ -->
+
+                                <!-- Desk surface -->
+                                <Rectangle Canvas.Left="50" Canvas.Top="230" Width="220" Height="10"
+                                           RadiusX="5" RadiusY="5"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.15"/>
+                                <!-- Desk left leg -->
+                                <Rectangle Canvas.Left="60" Canvas.Top="240" Width="8" Height="60"
+                                           RadiusX="3" RadiusY="3"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
+                                <!-- Desk right leg -->
+                                <Rectangle Canvas.Left="252" Canvas.Top="240" Width="8" Height="60"
+                                           RadiusX="3" RadiusY="3"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
+
+                                <!-- Monitor stand -->
+                                <Rectangle Canvas.Left="148" Canvas.Top="195" Width="6" Height="36"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
+                                <Rectangle Canvas.Left="135" Canvas.Top="228" Width="32" Height="5"
+                                           RadiusX="2" RadiusY="2"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
+
+                                <!-- Monitor screen border -->
+                                <Border Canvas.Left="112" Canvas.Top="148"
+                                        Width="78" Height="52"
+                                        BorderThickness="3" CornerRadius="6"
+                                        BorderBrush="{DynamicResource Brush.Text.Primary}">
+                                    <Border.OpacityMask>
+                                        <SolidColorBrush Color="White" Opacity="0.5"/>
+                                    </Border.OpacityMask>
+                                </Border>
+
+                                <!-- Border workaround: inline rectangle for monitor border -->
+                                <Rectangle Canvas.Left="112" Canvas.Top="148" Width="78" Height="52"
+                                           RadiusX="6" RadiusY="6"
+                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.18"/>
+                                <Rectangle Canvas.Left="115" Canvas.Top="151" Width="72" Height="46"
+                                           RadiusX="4" RadiusY="4"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.06"/>
+
+                                <!-- Monitor: mini dashboard lines (screen content decoration) -->
+                                <Rectangle Canvas.Left="122" Canvas.Top="162" Width="30" Height="4"
+                                           RadiusX="2" RadiusY="2"
+                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.7"/>
+                                <Rectangle Canvas.Left="122" Canvas.Top="170" Width="20" Height="3"
+                                           RadiusX="1" RadiusY="1"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.25"/>
+                                <Rectangle Canvas.Left="122" Canvas.Top="176" Width="24" Height="3"
+                                           RadiusX="1" RadiusY="1"
+                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
+                                <Rectangle Canvas.Left="158" Canvas.Top="162" Width="22" Height="28"
+                                           RadiusX="2" RadiusY="2"
+                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.35"/>
+
+                                <!-- Person: Head -->
+                                <Ellipse Canvas.Left="131" Canvas.Top="72" Width="58" Height="58"
+                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.85"/>
+                                <!-- Person: Head highlight -->
+                                <Ellipse Canvas.Left="138" Canvas.Top="78" Width="22" Height="18"
+                                         Fill="White" Opacity="0.3"/>
+
+                                <!-- Person: Hair block (top of head) -->
+                                <Path Data="M131,97 Q140,64 189,76 Q182,66 160,63 Q140,61 131,80Z"
+                                      Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.75"/>
+
+                                <!-- Person: Body/Torso -->
+                                <Rectangle Canvas.Left="122" Canvas.Top="130" Width="76" Height="72"
+                                           RadiusX="32" RadiusY="12"
+                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.9"/>
+
+                                <!-- Person: Left arm (resting toward desk) -->
+                                <Path Data="M122,148 Q92,172 82,220"
+                                      Stroke="{DynamicResource FacilityAccentBrush}"
+                                      StrokeThickness="18" StrokeEndLineCap="Round"
+                                      StrokeStartLineCap="Round" Opacity="0.9"/>
+                                <!-- Left hand on desk -->
+                                <Ellipse Canvas.Left="74" Canvas.Top="212" Width="18" Height="18"
+                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
+
+                                <!-- Person: Right arm (resting toward desk) -->
+                                <Path Data="M198,148 Q224,178 234,220"
+                                      Stroke="{DynamicResource FacilityAccentBrush}"
+                                      StrokeThickness="18" StrokeEndLineCap="Round"
+                                      StrokeStartLineCap="Round" Opacity="0.9"/>
+                                <!-- Right hand on desk -->
+                                <Ellipse Canvas.Left="228" Canvas.Top="212" Width="18" Height="18"
+                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
+
+                                <!-- ══ FLOATING MINI APP CARDS ══ -->
+
+                                <!-- Card 1: Member Card (top-left) -->
+                                <Border Canvas.Left="-10" Canvas.Top="28"
+                                        Width="138" Height="54"
+                                        Background="{StaticResource SurfaceBg}"
+                                        CornerRadius="14"
+                                        Padding="10,8">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="30" Height="30"
+                                                 Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.85"/>
+                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Ahmed S." FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                            <Border CornerRadius="6" Padding="5,1" HorizontalAlignment="Left"
+                                                    Background="{DynamicResource Brush.Success.Dim}" Margin="0,2,0,0">
+                                                <TextBlock Text="Active" FontSize="9" FontWeight="Bold"
+                                                           Foreground="{DynamicResource Brush.Success}"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Card 2: Revenue Stat Card (right side) -->
+                                <Border Canvas.Right="-16" Canvas.Top="130"
+                                        Width="128" Height="62"
+                                        Background="{StaticResource SurfaceBg}"
+                                        CornerRadius="14"
+                                        Padding="12,10">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <TextBlock Text="Revenue Today" FontSize="9"
+                                                   Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,0,0">
+                                            <TextBlock Text="4,820 DA" FontSize="15" FontWeight="ExtraBold"
+                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                            <Path Data="M7,15L12,10L17,15" Stroke="{DynamicResource Brush.Status.Success}"
+                                                  StrokeThickness="2" StrokeEndLineCap="Round" StrokeStartLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  Width="14" Height="10" Stretch="Uniform"
+                                                  Margin="6,2,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Card 3: Check-in Card (bottom-left) -->
+                                <Border Canvas.Left="-10" Canvas.Bottom="10"
+                                        Width="150" Height="52"
+                                        Background="{StaticResource SurfaceBg}"
+                                        CornerRadius="14"
+                                        Padding="10,8">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Ellipse Width="28" Height="28"
+                                                 Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
+                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Karim M." FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                            <TextBlock FontSize="10" Foreground="{DynamicResource Brush.Status.Success}"
+                                                       FontWeight="Medium">
+                                                <Run Text="✓ Checked In"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                            </Canvas>
+                            <!-- End illustration Canvas -->
+
+                            <!-- ── Row 2: Tagline ── -->
+                            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,8">
+                                <TextBlock Text="{DynamicResource Strings.Auth.Poweringtheheartbeatofyou}"
+                                           TextWrapping="Wrap" TextAlignment="Center"
+                                           FontSize="20" FontWeight="ExtraBold"
+                                           Foreground="{DynamicResource Brush.Text.Primary}"
+                                           LineHeight="28" LineStackingStrategy="BlockLineHeight"/>
+                                <TextBlock Text="{DynamicResource Strings.Auth.Unlockworldclassmanagemen}"
+                                           TextWrapping="Wrap" TextAlignment="Center"
+                                           FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}"
+                                           Margin="0,8,0,0"/>
+                            </StackPanel>
+
+                        </Grid>
+                    </Grid>
+                </Border>
+                <!-- End left panel -->
+
+                <!-- ─────────────────────────────────────────────────────
+                     RIGHT PANEL: Dynamic form content (no changes to logic)
+                     ───────────────────────────────────────────────────── -->
+                <Border Grid.Column="1"
+                        Background="{StaticResource SurfaceBg}"
+                        CornerRadius="0,24,24,0">
+                    <Grid>
+                        <ContentControl Content="{Binding CurrentView}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"/>
+                    </Grid>
+                </Border>
+                <!-- End right panel -->
+
+            </Grid>
+            <!-- End split layout grid -->
+
+            <!-- ═══════════════════════════════════════════════════════
+                 MODAL OVERLAY (unchanged)
+                 ═══════════════════════════════════════════════════════ -->
+            <Grid Visibility="{Binding IsModalOpen, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Panel.ZIndex="1000">
+                <Border Background="#66000000" MouseDown="OnMouseLeftButtonDown"/>
+                <ContentControl Content="{Binding CurrentModal}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ContentControl.Resources>
+                        <Style TargetType="ContentControl">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentModal}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Resources>
+                </ContentControl>
+            </Grid>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 WINDOW CONTROLS (unchanged)
+                 ═══════════════════════════════════════════════════════ -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,14,16,0"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Panel.ZIndex="2000">
+                <Button Click="MinimizeButton_Click" Margin="0,0,8,0" Style="{StaticResource GhostButton}" BorderThickness="0">
+                    <Path Data="M20,14H4V10H20V14Z" Fill="{DynamicResource Brush.Text.Secondary}" Width="12" Height="12" Stretch="Uniform"/>
+                </Button>
+                <Button Click="CloseButton_Click" Style="{StaticResource GhostButton}" BorderThickness="0">
+                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                          Fill="{DynamicResource Brush.Text.Secondary}" Width="14" Height="14" Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 TOAST NOTIFICATIONS (unchanged)
+                 ═══════════════════════════════════════════════════════ -->
+            <StackPanel x:Name="ToastContainer" VerticalAlignment="Top" HorizontalAlignment="Right"
+                        Margin="0,24,24,0" Panel.ZIndex="3000"/>
+
+        </Grid>
+    </Border>
+</Window>

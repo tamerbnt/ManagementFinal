@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -10,11 +9,16 @@ namespace Management.Presentation.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            bool success = value is bool b && b;
-            string key = success ? "StatusSuccessBrush" : "StatusErrorBrush";
-            return (System.Windows.Application.Current.TryFindResource(key) as System.Windows.Media.Brush)!;
+            if (value is bool isSuccess && isSuccess)
+            {
+                return new SolidColorBrush(Color.FromRgb(0x10, 0xB9, 0x81)); // Success green
+            }
+            return new SolidColorBrush(Color.FromRgb(0xEF, 0x44, 0x44)); // Error red
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => null!;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

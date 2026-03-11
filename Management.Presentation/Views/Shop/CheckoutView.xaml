@@ -48,11 +48,15 @@
             </Grid.RowDefinitions>
 
             <!-- 1. HEADER -->
-            <TextBlock Grid.Row="0" 
-                       Text="{DynamicResource TerminologyCheckoutTitle}" 
-                       Style="{StaticResource Title2}" 
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       HorizontalAlignment="Center"/>
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Path Data="{StaticResource Icon.Storefront}" 
+                      Style="{StaticResource Style.Icon.Large}" 
+                      Stroke="{DynamicResource TextPrimaryBrush}"
+                      Margin="0,0,12,0"/>
+                <TextBlock Text="{DynamicResource TerminologyCheckoutTitle}" 
+                           Style="{StaticResource Title2}" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </StackPanel>
 
             <!-- 2. HERO TOTAL -->
             <StackPanel Grid.Row="1" Margin="{StaticResource MarginSectionVertical}" HorizontalAlignment="Center">
@@ -63,7 +67,7 @@
                            HorizontalAlignment="Center"
                          />
 
-                <TextBlock Text="{Binding TotalDue, StringFormat='{}{0:C}'}" 
+                <TextBlock Text="{Binding TotalDue, StringFormat='{}{0:N2} DA'}" 
                            Style="{StaticResource HeroLive}" 
                            Foreground="{DynamicResource FacilityAccentBrush}"
                            HorizontalAlignment="Center"
@@ -124,7 +128,7 @@
                         <!-- Change Due -->
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource TerminologyChangeDueLabel}" Style="{StaticResource FormLabel}"/>
-                            <TextBlock Text="{Binding ChangeDue, StringFormat='{}{0:C}'}" 
+                            <TextBlock Text="{Binding ChangeDue, StringFormat='{}{0:N2} DA'}" 
                                        Style="{StaticResource Title2}"
                                        Foreground="{DynamicResource StatusSuccessBrush}"
                                        VerticalAlignment="Bottom"
@@ -165,10 +169,11 @@
                         <Run Text="{DynamicResource TerminologyAccountLabel}"/>
                         <Run Text="{DynamicResource TerminologyChargeToAccountSuffix}"/>
                     </TextBlock>
-                    <ComboBox Style="{StaticResource GlobalComboBoxStyle}"
+                    <ComboBox Style="{StaticResource Input.ComboBox}"
                               ItemsSource="{Binding Members}"
                               DisplayMemberPath="FullName"
                               SelectedItem="{Binding SelectedMemberForCharge}"
+                              IsEditable="False"
                               Margin="{StaticResource MarginSmallTop}"/>
                     <TextBlock Text="{DynamicResource TerminologyAccountBalanceNote}" 
                                Style="{StaticResource Caption}" 

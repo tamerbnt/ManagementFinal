@@ -1,5 +1,5 @@
 using System.Windows.Controls;
-using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.History;
 
 namespace Management.Presentation.Views.History
 {

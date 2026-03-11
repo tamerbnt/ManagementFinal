@@ -1,0 +1,125 @@
+<UserControl x:Class="Management.Presentation.Views.Scheduler.SchedulerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Scheduler"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Scheduler"
+             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <DrawingBrush x:Key="GridBackgroundBrush" TileMode="Tile" Viewport="0,0,60,60" ViewportUnits="Absolute" po:Freeze="True">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing>
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#E5E5E5" Thickness="1"/>
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <LineGeometry StartPoint="0,60" EndPoint="60,60"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </UserControl.Resources>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FAFAFA">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Headers -->
+                <RowDefinition Height="*"/>    <!-- Canvas Area -->
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/> <!-- Time Ruler -->
+                <ColumnDefinition Width="Auto"/> <!-- Schedule - Changed from * to Auto for horizontal scroll -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Corner Placeholer -->
+            <Border Grid.Row="0" Grid.Column="0" Width="60" Height="40" Background="#F0F0F0" BorderBrush="#E0E0E0" BorderThickness="0,0,1,1"/>
+
+            <!-- Staff Headers -->
+            <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding StaffHeaders}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="200" Height="40" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,1,1">
+                            <TextBlock Text="{Binding}" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center" 
+                                       FontWeight="Bold"
+                                       Foreground="#333"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Time Ruler (Left Side) -->
+            <!-- 1 Hour = 120px. Full 24h coverage for V1 robustness -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Width="60" Background="#F9F9F9">
+                <TextBlock Text="{DynamicResource Terminology.Time.00_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.01_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.02_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.03_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.04_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.05_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.06_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.07_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.08_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.09_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.10_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.11_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.12_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.13_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.14_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.15_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.16_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.17_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.18_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.19_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.20_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.21_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.22_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+                <TextBlock Text="{DynamicResource Terminology.Time.23_00}" Height="120" VerticalAlignment="Top" Padding="0,5,5,0" TextAlignment="Right" Foreground="#999" FontSize="11"/>
+            </StackPanel>
+
+            <!-- Appointment Canvas Area -->
+            <Grid Grid.Row="1" Grid.Column="1" 
+                  Width="{Binding CanvasWidth}" 
+                  Height="{Binding CanvasHeight}" 
+                  VerticalAlignment="Top" 
+                  HorizontalAlignment="Left"
+                  Background="{StaticResource GridBackgroundBrush}">
+
+                <!-- Appointments -->
+                <ItemsControl ItemsSource="{Binding Appointments}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas x:Name="AppointmentCanvas" 
+                                    PreviewMouseLeftButtonDown="Canvas_PreviewMouseLeftButtonDown"
+                                    PreviewMouseMove="Canvas_PreviewMouseMove"
+                                    PreviewMouseLeftButtonUp="Canvas_PreviewMouseLeftButtonUp"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding CanvasLeft}"/>
+                            <Setter Property="Canvas.Top" Value="{Binding CanvasTop}"/>
+                            <Setter Property="Width" Value="{Binding Width}"/>
+                            <Setter Property="Height" Value="{Binding Height}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:AppointmentChip/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
-    public class GymSettings : AggregateRoot
+    public class GymSettings : AggregateRoot, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
+
         // --- 1. GENERAL ---
         public string GymName { get; set; } = "My Gym";
         public string Email { get; set; } = "contact@gym.com";
@@ -16,6 +19,7 @@ namespace Management.Domain.Models
 
         // --- 2. FACILITY ---
         public int MaxOccupancy { get; set; } = 100;
+        public decimal DailyRevenueTarget { get; set; } = 10000m; // Default target
         public bool IsMaintenanceMode { get; set; } = false;
         public string OperatingHoursJson { get; set; } = "{}";
 

@@ -17,5 +17,6 @@ namespace Management.Application.DTOs
         public Guid? PreferredPlanId { get; set; }
         public DateTime? PreferredStartDate { get; set; }
         public string Notes { get; set; } = string.Empty;
+        public string? MetadataJson { get; set; }
     }
 }

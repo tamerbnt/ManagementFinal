@@ -3,6 +3,7 @@ using Management.Domain.Enums;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Domain.Primitives;
+using Management.Domain.Services;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -16,42 +17,80 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
     {
         private readonly IMemberRepository _memberRepository;
         private readonly IMembershipPlanRepository _planRepository;
+        private readonly IFacilityContextService _facilityContext;
 
-        public SearchMembersQueryHandler(IMemberRepository memberRepository, IMembershipPlanRepository planRepository)
+        public SearchMembersQueryHandler(IMemberRepository memberRepository, IMembershipPlanRepository planRepository, IFacilityContextService facilityContext)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
+            _facilityContext = facilityContext;
         }
 
         public async Task<Result<PagedResult<MemberDto>>> Handle(SearchMembersQuery request, CancellationToken cancellationToken)
         {
             var filterType = request.Request.FilterType;
-            var statusFilter = MapFilterToStatus(filterType);
+            bool? isActiveFilter = null;
+            DateTime? expiringBefore = null;
+            
+            var now = DateTime.UtcNow;
 
-            // 1. Fetch filtered list from Repository
-            var allMatches = (await _memberRepository.SearchAsync(request.Request.SearchTerm, statusFilter)).ToList();
+            if (filterType == MemberFilterType.Active) isActiveFilter = true;
+            else if (filterType == MemberFilterType.Expired) isActiveFilter = false;
+            else if (filterType == MemberFilterType.Expiring) expiringBefore = now.AddDays(7);
 
-            // 2. Filter logic for "Expiring" (Business Logic)
-            if (filterType == MemberFilterType.Expiring)
-            {
-                var threshold = DateTime.UtcNow.AddDays(7);
-                allMatches = allMatches.Where(m => m.Status == MemberStatus.Active && m.ExpirationDate <= threshold).ToList();
-            }
+            // 1. Fetch filtered and paged list from Repository (DB-LEVEL)
+            var facilityId = _facilityContext.CurrentFacilityId == Guid.Empty ? (Guid?)null : _facilityContext.CurrentFacilityId;
+            
+            var (pagedItems, totalCount) = await _memberRepository.SearchPagedAsync(
+                request.Request.SearchTerm,
+                facilityId,
+                request.Page,
+                request.PageSize,
+                MapFilterToStatus(filterType),
+                request.Request.Gender,
+                request.Request.StartDate,
+                request.Request.EndDate,
+                isActiveFilter,
+                expiringBefore);
 
-            var totalCount = allMatches.Count;
+            var items = pagedItems.ToList();
 
-            // 3. Apply Pagination
-            var pagedEntities = allMatches
-                .Skip((request.Page - 1) * request.PageSize)
-                .Take(request.PageSize)
+            // 4. Map to DTOs with Batch Plan Fetching (Fixes N+1)
+            var planIds = items
+                .Where(m => m.MembershipPlanId.HasValue)
+                .Select(m => m.MembershipPlanId!.Value)
+                .Distinct()
                 .ToList();
 
-            // 4. Map to DTOs
-            var dtos = new List<MemberDto>();
-            foreach (var entity in pagedEntities)
+            var plans = new Dictionary<Guid, string>();
+            var allPlansList = new List<MembershipPlan>();
+            if (planIds.Any())
             {
-                dtos.Add(await MapToDto(entity));
+                // For gyms, fetching all plans is usually faster than complex IN queries if plan count is small.
+                // We'll use the repository to get the required plans.
+                var allPlans = await _planRepository.GetActivePlansAsync(facilityId);
+                allPlansList = allPlans.ToList();
+                plans = allPlansList.ToDictionary(p => p.Id, p => p.Name);
             }
+
+            var dtos = items.Select(entity => new MemberDto
+            {
+                Id = entity.Id,
+                FullName = entity.FullName,
+                Email = entity.Email.Value,
+                PhoneNumber = entity.PhoneNumber.Value,
+                CardId = entity.CardId,
+                Status = entity.Status,
+                StartDate = entity.StartDate,
+                ExpirationDate = entity.ExpirationDate,
+                ProfileImageUrl = entity.ProfileImageUrl,
+                MembershipPlanName = entity.MembershipPlanId.HasValue && plans.TryGetValue(entity.MembershipPlanId.Value, out string? planName) ? planName : "None",
+                MembershipPlanId = entity.MembershipPlanId,
+                EmergencyContactName = entity.EmergencyContactName,
+                EmergencyContactPhone = entity.EmergencyContactPhone?.Value ?? string.Empty,
+                Balance = entity.MembershipPlanId.HasValue ? (decimal)(allPlansList.FirstOrDefault(p => p.Id == entity.MembershipPlanId.Value)?.Price.Amount ?? 0) : 0,
+                Notes = entity.Notes
+            }).ToList();
 
             var result = new PagedResult<MemberDto>
             {

@@ -1,0 +1,32 @@
+<UserControl x:Class="Management.Presentation.Views.Scheduler.AppointmentChip"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="60" d:DesignWidth="190">
+    <Border Background="{Binding BackgroundBrush}"
+            CornerRadius="4"
+            BorderThickness="0"
+            Padding="5"
+            ClipToBounds="True"
+            Opacity="0.95">
+        <Border.Effect>
+            <!-- Hardcoded V1 shadow as per request standard (fallback) -->
+            <DropShadowEffect BlurRadius="10" 
+                              ShadowDepth="2" 
+                              Direction="315" 
+                              Color="Black" 
+                              Opacity="0.15"/>
+        </Border.Effect>
+        <StackPanel>
+            <TextBlock Text="{Binding Title}" 
+                       FontWeight="SemiBold" 
+                       Foreground="Black"
+                       TextTrimming="CharacterEllipsis"/>
+            <TextBlock Text="{Binding Start, StringFormat={}{0:HH:mm}}" 
+                       Foreground="#DD000000"
+                       FontSize="11"/>
+        </StackPanel>
+    </Border>
+</UserControl>

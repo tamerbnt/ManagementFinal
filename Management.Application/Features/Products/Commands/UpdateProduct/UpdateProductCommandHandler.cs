@@ -23,7 +23,7 @@ namespace Management.Application.Features.Products.Commands.UpdateProduct
         public async Task<Result> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Product;
-            var product = await _productRepository.GetByIdAsync(dto.Id);
+            var product = await _productRepository.GetByIdAsync(dto.Id, request.FacilityId);
 
             if (product == null)
             {
@@ -35,8 +35,8 @@ namespace Management.Application.Features.Products.Commands.UpdateProduct
                 category = ProductCategory.Other;
             }
 
-            var price = new Money(dto.Price, dto.Currency ?? "USD");
-            var cost = new Money(dto.Cost, dto.Currency ?? "USD"); 
+            var price = new Money(dto.Price, dto.Currency ?? "DA");
+            var cost = new Money(dto.Cost, dto.Currency ?? "DA"); 
 
             product.UpdateDetails(
                 dto.Name,

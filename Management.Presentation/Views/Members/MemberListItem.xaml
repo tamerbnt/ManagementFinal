@@ -46,7 +46,7 @@
                          Height="{StaticResource SizeAvatarLarge}"
                          Margin="{StaticResource MarginCardBottom}">
                     <Ellipse.Fill>
-                        <SolidColorBrush Color="{DynamicResource ColorFacilityAccent}" Opacity="0.1"/>
+                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}" Opacity="0.1"/>
                     </Ellipse.Fill>
                 </Ellipse>
 
@@ -92,13 +92,13 @@
                             Command="{Binding EditCommand}"
                             ToolTip="{DynamicResource TerminologyEditMemberLabel}"
                             Margin="8">
-                        <Path Data="{StaticResource IconEdit}" Fill="{DynamicResource TextOnDarkBrush}" Style="{StaticResource IconStandard}"/>
+                        <Path Data="{StaticResource IconEdit}" Fill="{DynamicResource TextOnDarkBrush}" Style="{StaticResource Style.Icon.Standard}"/>
                     </Button>
                     <Button Style="{StaticResource IconButtonStyle}" 
                             Command="{Binding DeleteCommand}"
                             ToolTip="{DynamicResource TerminologyDeleteMemberLabel}"
                             Margin="8">
-                        <Path Data="{StaticResource IconTrash}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource IconStandard}"/>
+                        <Path Data="{StaticResource IconTrash}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource Style.Icon.Standard}"/>
                     </Button>
                 </StackPanel>
             </Border>

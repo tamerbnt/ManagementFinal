@@ -1,0 +1,165 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Restaurant.LogPurchaseView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="500" d:DesignWidth="400"
+             Background="White">
+
+    <UserControl.Resources>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="32,32,32,24">
+            <TextBlock Text="{DynamicResource Strings.Restaurant.LogPurchase}" Style="{StaticResource Title.H2}"/>
+            <TextBlock Text="{Binding ResourceName}"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource Brush.Brand.Primary}"
+                       Margin="0,6,0,0"/>
+        </StackPanel>
+
+        <!-- Form fields -->
+        <!-- Form fields -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="32,0">
+            <StackPanel>
+                <!-- Dynamic Fields: Name and Unit -->
+                
+                <!-- NEW RESOURCE: Inputs -->
+                <StackPanel Visibility="{Binding IsNewResource, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- Resource Name -->
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.ResourceName}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding ResourceName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource Input.Apple}"
+                             Tag="{DynamicResource Strings.Restaurant.egTomatoes}"
+                             Margin="0,0,0,24"/>
+
+                    <!-- Unit of Measurement -->
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.UnitofMeasurement}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,0,0,8"/>
+                    <ComboBox ItemsSource="{Binding AvailableUnitsList}" 
+                              SelectedItem="{Binding Unit}"
+                              Style="{StaticResource ComboBox.Apple}"
+                              Margin="0,0,0,8"/>
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.Thisunitwillbefixedforthi}" 
+                               Foreground="{DynamicResource Brush.Text.Secondary}" 
+                               FontSize="12" Margin="0,0,0,24"/>
+                </StackPanel>
+
+                <!-- EXISTING RESOURCE: Read Only -->
+                <StackPanel Visibility="{Binding IsNewResource, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                     <!-- Resource Name -->
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.ResourceName}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="{Binding ResourceName}"
+                               Style="{StaticResource BodyMedium}"
+                               Foreground="{DynamicResource Brush.Text.Secondary}"
+                               Margin="0,0,0,24"/>
+
+                    <!-- Unit of Measurement -->
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.UnitofMeasurement}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,0,0,8"/>
+                     <TextBlock Text="{Binding Unit}"
+                               Style="{StaticResource BodyMedium}"
+                               Foreground="{DynamicResource Brush.Text.Secondary}"
+                               Margin="0,0,0,24"/>
+                </StackPanel>
+                
+                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24" />
+
+                <!-- Quantity -->
+                <TextBlock Text="{DynamicResource Terminology.Inventory.Log.Quantity}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Apple}"
+                         Tag="{DynamicResource Strings.Restaurant.eg5}"
+                         Margin="0,0,0,24"/>
+
+                <!-- Unit Price -->
+                <TextBlock Text="{DynamicResource Terminology.Inventory.Log.UnitPrice}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,0,0,8"/>
+                <TextBox Text="{Binding UnitPrice, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Apple}"
+                         Tag="{DynamicResource Strings.Restaurant.eg15000}"
+                         Margin="0,0,0,24"/>
+
+                <!-- Total Cost -->
+                <TextBlock Text="{DynamicResource Terminology.Inventory.Log.TotalPrice}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,0,0,8"/>
+                <TextBox Text="{Binding TotalPrice, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Apple}"
+                         Tag="{DynamicResource Strings.Restaurant.Calculatedautomatically}"
+                         Margin="0,0,0,24"/>
+
+                <!-- Date -->
+                <TextBlock Text="{DynamicResource Terminology.Inventory.Log.Date}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,0,0,8"/>
+                <DatePicker SelectedDate="{Binding PurchaseDate}"
+                            Margin="0,0,0,24"/>
+
+                <!-- Note -->
+                <TextBlock Text="{DynamicResource Terminology.Inventory.Log.Note}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           Margin="0,0,0,8"/>
+                <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input.Apple}"
+                         Tag="{DynamicResource Strings.Restaurant.egWeeklysupplierdelivery}"
+                         Margin="0,0,0,24"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer actions -->
+        <Border Grid.Row="2"
+                Padding="32,20"
+                BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                BorderThickness="0,1,0,0"
+                Background="White">
+            <Grid>
+                <TextBlock Text="{Binding StatusMessage}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           Foreground="{DynamicResource Brush.Brand.Primary}"
+                           FontWeight="Medium"
+                           MaxWidth="140"
+                           TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="{DynamicResource Strings.Global.Cancel}"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource Button.Secondary}"
+                            Width="90"
+                            Margin="0,0,12,0"/>
+                    <Button Content="{DynamicResource Strings.Restaurant.SaveEntry}"
+                            Command="{Binding SaveCommand}"
+                            Style="{StaticResource Button.Primary}"
+                            Width="120"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

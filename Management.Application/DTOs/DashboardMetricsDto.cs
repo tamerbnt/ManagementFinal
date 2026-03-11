@@ -14,6 +14,7 @@ namespace Management.Application.DTOs
         // Facility-specific
         public int ActiveOrdersCount { get; init; }
         public decimal TodayRevenue { get; init; }
+        public decimal TodayExpenses { get; init; }
         public double OccupancyPercentage { get; init; }
     }
 }

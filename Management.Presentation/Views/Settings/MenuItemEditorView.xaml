@@ -1,0 +1,142 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Settings.MenuItemEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Settings"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Settings"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="400"
+             Background="{DynamicResource CardBackgroundBrush}">
+    
+    <UserControl.Resources>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <Button Style="{StaticResource IconButtonStyle}" 
+                    HorizontalAlignment="Right" 
+                    Command="{Binding DataContext.CloseDrawerCommand, RelativeSource={RelativeSource AncestorType=local:MenuManagementView}}"
+                    Margin="0,-8,-8,0">
+                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource TextTertiaryBrush}" Style="{StaticResource Style.Icon.Small}"/>
+            </Button>
+
+            <!-- Icon -->
+            <Border Width="80" Height="80" 
+                    CornerRadius="40" 
+                    Background="{DynamicResource SurfaceBg}"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16">
+                <Path Data="{StaticResource IconRestaurant}" 
+                      Fill="{DynamicResource TextSecondaryBrush}" 
+                      Stretch="Uniform" 
+                      Width="32" Height="32"
+                      HorizontalAlignment="Center" 
+                      VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Name (Editing Title) -->
+            <TextBox Text="{Binding EditingName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     Style="{StaticResource UnderlineTextBox}" 
+                     HorizontalAlignment="Stretch"
+                     FontSize="18" FontWeight="Bold"
+                     TextAlignment="Center"
+                     Tag="{DynamicResource Strings.Settings.egBurgerMaison}"/>
+        </StackPanel>
+
+        <!-- 2. Content -->
+        <ScrollViewer Grid.Row="1" Margin="0,0,-8,0" Padding="0,0,8,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Quick Stats Grid -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Strings.Restaurant.CATEGORY}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding EditingCategory}" Style="{StaticResource Title3}" HorizontalAlignment="Center" Foreground="{DynamicResource FacilityAccentBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock Text="{DynamicResource Strings.Settings.PRICE}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding EditingPrice, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
+
+                <!-- Edit Fields -->
+                <TextBlock Text="{DynamicResource Strings.Settings.ITEMSETTINGS}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+
+                <Grid Margin="0,0,0,24">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Category -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,8,16">
+                        <TextBlock Text="{DynamicResource Strings.Restaurant.CATEGORY}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <ComboBox ItemsSource="{Binding Categories}" 
+                                  SelectedItem="{Binding EditingCategory}"
+                                  IsEditable="False"
+                                  Style="{StaticResource Input.ComboBox}"
+                                  Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Price -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="8,0,0,16">
+                        <TextBlock Text="{DynamicResource Strings.Settings.PriceDA}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <TextBox Text="{Binding EditingPrice, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Availability -->
+                <TextBlock Text="{DynamicResource Strings.Settings.AVAILABILITY}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="16" Margin="0,0,0,24">
+                    <Grid>
+                        <TextBlock Text="{DynamicResource Strings.Settings.VisibleonPublicMenu}" VerticalAlignment="Center" Style="{StaticResource Body}"/>
+                        <CheckBox IsChecked="{Binding EditingIsAvailable}" 
+                                  Style="{StaticResource CircularSelectionCheckBoxStyle}"
+                                  HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 3. Actions Footer -->
+        <Border Grid.Row="2" Padding="0,24,0,0" Background="{DynamicResource CardBackgroundBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Column="0" Content="{DynamicResource Strings.Settings.SaveChanges}" 
+                        Style="{StaticResource PrimaryButton}" 
+                        Height="44"
+                        Margin="0,0,6,0"
+                        Command="{Binding SaveCommand}"/>
+                
+                <Button Grid.Column="1" Content="{DynamicResource Strings.Global.Cancel}" 
+                        Style="{StaticResource SecondaryButton}" 
+                        Height="44"
+                        Margin="6,0,0,0"
+                        Command="{Binding CancelCommand}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

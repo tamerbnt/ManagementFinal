@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using Management.Domain.Enums;
 using Management.Domain.Primitives;
 
 namespace Management.Domain.Models
 {
-    public class Turnstile : AggregateRoot
+    public class Turnstile : AggregateRoot, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
         public string Name { get; private set; }
         public string Location { get; private set; }
         public string HardwareId { get; private set; }

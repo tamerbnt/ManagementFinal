@@ -5,5 +5,5 @@ using System.Collections.Generic;
 
 namespace Management.Application.Features.Plans.Queries.GetPlans
 {
-    public record GetPlansQuery(bool ActiveOnly = true) : IRequest<Result<List<MembershipPlanDto>>>;
+    public record GetPlansQuery(bool ActiveOnly = true, Guid? FacilityId = null) : IRequest<Result<List<MembershipPlanDto>>>;
 }

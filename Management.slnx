@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Management.Application/Management.Application.csproj" />
-  <Project Path="Management.Domain/Management.Domain.csproj" />
-  <Project Path="Management.Infrastructure/Management.Infrastructure.csproj" />
-  <Project Path="Management.Presentation/Management.Presentation.csproj" />
-</Solution>

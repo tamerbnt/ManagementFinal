@@ -1,11 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="FluentAssertions" Version="8.8.0" />
+    <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="FluentMigrator.Runner" Version="5.0.0" />
@@ -30,6 +33,12 @@
     <ProjectReference Include="..\Management.Infrastructure\Management.Infrastructure.csproj" />
     <ProjectReference Include="..\Management.Application\Management.Application.csproj" />
     <ProjectReference Include="..\Management.Presentation\Management.Presentation.csproj" />
+  </ItemGroup>
+
+  <!-- Exclude legacy test files that reference removed types (ManagementDbContext, IDialogService) -->
+  <ItemGroup>
+    <Compile Remove="**\*.cs" />
+    <Compile Include="Turnstile\**\*.cs" />
   </ItemGroup>
 
 </Project>

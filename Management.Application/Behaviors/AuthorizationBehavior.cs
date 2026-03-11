@@ -1,19 +1,12 @@
 using Management.Application.Abstractions.Messaging;
 using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Application.Behaviors
 {

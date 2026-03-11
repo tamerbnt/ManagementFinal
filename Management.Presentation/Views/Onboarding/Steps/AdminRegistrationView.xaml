@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Onboarding.Steps.AdminRegistrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <converters:PasswordStrengthToColorConverter x:Key="StrengthToColorConverter" />
+        <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+        <Geometry x:Key="Icon.Copy">M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z</Geometry>
+    </UserControl.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,0,20">
+                <!-- Header -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
+                    <Path Data="{StaticResource IconMembers}" 
+                          Fill="{DynamicResource Brush.Brand.Primary}" 
+                          Width="64" Height="64" Stretch="Uniform" />
+                    <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.CreateAdministrator}" 
+                               FontSize="24" FontWeight="SemiBold" 
+                               Foreground="{DynamicResource Brush.Text.Primary}"
+                               Margin="0,16,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Error Message -->
+                <Border Background="{DynamicResource Brush.Danger.Dim}" 
+                        CornerRadius="{DynamicResource Corner.MD}" 
+                        Padding="12"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding HasError, Converter={StaticResource BoolToVisConverter}}">
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="{DynamicResource Brush.Danger}" 
+                               FontSize="14"
+                               TextWrapping="Wrap"/>
+                </Border>
+
+                <!-- Inputs -->
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.FullName}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,16">
+                    <TextBlock Text="{DynamicResource Strings.Auth.EMAILADDRESS}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                    <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock Text="{DynamicResource Strings.Auth.PASSWORD}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                    
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <PasswordBox Grid.Column="0" 
+                                     behaviors:PasswordBoxHelper.BindPassword="True"
+                                     behaviors:PasswordBoxHelper.BoundPassword="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource Input.Apple.Password}" />
+                        
+                        <Button Grid.Column="1" Margin="8,0,0,0"
+                                Command="{Binding CopyPasswordCommand}"
+                                Background="Transparent" BorderThickness="0"
+                                ToolTip="{DynamicResource Strings.Onboarding\Steps.CopyPassword}">
+                            <Path Data="{StaticResource Icon.Copy}" 
+                                  Fill="{DynamicResource Brush.Text.Secondary}"
+                                  Width="16" Height="16" Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Create Account Button with Loading State -->
+                <Grid>
+                    <Button Content="{DynamicResource Strings.Onboarding\Steps.CreateAccount}" 
+                            Command="{Binding CreateAccountCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                            Style="{StaticResource Button.Primary}"/>
+                    
+                    <!-- Loading Spinner Overlay -->
+                    <Grid Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisConverter}}"
+                          Background="Transparent"
+                          IsHitTestVisible="False">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.CreatingAccount}" 
+                                       Foreground="White" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+
+</UserControl>

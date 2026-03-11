@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
 
 namespace Management.Domain.Models
 {
-    public class SaleItem : Entity
+    public class SaleItem : Entity, ITenantEntity
     {
+        public Guid TenantId { get; set; }
         public Guid SaleId { get; private set; }
         public Guid ProductId { get; private set; }
         public string ProductNameSnapshot { get; private set; }

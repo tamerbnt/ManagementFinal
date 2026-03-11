@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -10,8 +12,12 @@ namespace Management.Application.Stores
     /// Registered as a Singleton to persist state across navigation changes.
     /// Handles all financial calculations (Subtotal, Tax, Total) centrally.
     /// </summary>
-    public class SaleStore
+    public class SaleStore : IStateResettable
     {
+        public void ResetState()
+        {
+            Clear();
+        }
         // Fired whenever items are added/removed/updated so the UI can refresh totals
         public event Action? CartChanged;
 

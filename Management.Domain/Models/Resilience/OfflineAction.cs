@@ -3,16 +3,10 @@ using Management.Domain.Primitives;
 
 namespace Management.Domain.Models.Resilience
 {
-    public enum OfflineActionType
+    public class OfflineAction : Entity, ITenantEntity, IFacilityEntity
     {
-        Create,
-        Update,
-        Delete,
-        Sync
-    }
-
-    public class OfflineAction : Entity
-    {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
         public string EntityType { get; set; } = string.Empty;
         public OfflineActionType ActionType { get; set; }

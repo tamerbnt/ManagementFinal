@@ -1,25 +1,22 @@
 using System.Collections.Generic;
 using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 
 namespace Management.Domain.Interfaces
 {
     public interface ISettingsService
     {
-        Task<Result<GeneralSettingsDto>> GetGeneralSettingsAsync();
-        Task<Result> UpdateGeneralSettingsAsync(GeneralSettingsDto dto);
+        Task<Result<GeneralSettingsDto>> GetGeneralSettingsAsync(System.Guid facilityId);
+        Task<Result> UpdateGeneralSettingsAsync(System.Guid facilityId, GeneralSettingsDto dto);
 
-        Task<Result<FacilitySettingsDto>> GetFacilitySettingsAsync();
-        Task<Result> UpdateFacilitySettingsAsync(FacilitySettingsDto dto);
+        Task<Result<FacilitySettingsDto>> GetFacilitySettingsAsync(System.Guid facilityId);
+        Task<Result> UpdateFacilitySettingsAsync(System.Guid facilityId, FacilitySettingsDto dto);
 
-        Task<Result<List<IntegrationDto>>> GetIntegrationsAsync();
+        Task<Result<List<IntegrationDto>>> GetIntegrationsAsync(System.Guid facilityId);
 
-        Task<Result<AppearanceSettingsDto>> GetAppearanceSettingsAsync();
-        Task<Result> UpdateAppearanceSettingsAsync(AppearanceSettingsDto dto);
+        Task<Result<AppearanceSettingsDto>> GetAppearanceSettingsAsync(System.Guid facilityId);
+        Task<Result> UpdateAppearanceSettingsAsync(System.Guid facilityId, AppearanceSettingsDto dto);
     }
 }

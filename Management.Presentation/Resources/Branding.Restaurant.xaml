@@ -1,12 +1,18 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Identity Layer: RESTAURANT FACILITY -->
     
     <!-- Sidebar -->
-    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#7C2D12"/>
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="{StaticResource Color.Midnight.800}"/>
     
     <!-- Accents -->
     <Color x:Key="FacilityAccentColor">#F87171</Color>
+    <Color x:Key="FacilityAccentShadowColor">#F87171</Color>
+    <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#F87171" Offset="0"/>
+        <GradientStop Color="#FCA5A5" Offset="1"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
     <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
     
@@ -14,12 +20,27 @@
     <SolidColorBrush x:Key="OnAccentPrimary" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#FFE4E6"/>
     
-    <!-- Identity Elevation (Dark Mode Glow) -->
-    <Color x:Key="ElevationColor">#F87171</Color>
-     
     <!-- Aliases for compatibility -->
     <SolidColorBrush x:Key="AccentBrush" Color="#F87171"/>
+    <Color x:Key="AccentColor">#F87171</Color>
+    <SolidColorBrush x:Key="IllustrationBackgroundBrush" Color="#FFE4E6"/>
+    <SolidColorBrush x:Key="OverlayBackdropBrush" Color="#80000000"/>
+    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#0FFFFFFF" Opacity="0.06"/>
+    <Color x:Key="AccentLightColor">#FFE4E6</Color>
+
+    <!-- Floor Plan Table Status Brushes -->
+    <SolidColorBrush x:Key="Brush.Table.Available"  Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="Brush.Table.Seated"     Color="#1E3A5F"/>
+    <SolidColorBrush x:Key="Brush.Table.Ordered"    Color="#92400E"/>
+    <SolidColorBrush x:Key="Brush.Table.BillReady"  Color="#14532D"/>
+    <SolidColorBrush x:Key="Brush.Table.Reserved"   Color="#4C1D95"/>
+    <SolidColorBrush x:Key="Brush.Table.Cleaning"   Color="#44403C"/>
+
+    <!-- Legacy/Alias Tokens (Fix Startup Crash) -->
+    <SolidColorBrush x:Key="Brush.Brand.Primary" Color="#F87171"/>
+    <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="{StaticResource Color.Midnight.800}"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#F87171"/>
     
     <!-- Terminology -->
-    <sys:String x:Key="TerminologyLabel" xmlns:sys="clr-namespace:System;assembly=mscorlib">Guest</sys:String>
+    <sys:String x:Key="TerminologyLabel">Guest</sys:String>
 </ResourceDictionary>

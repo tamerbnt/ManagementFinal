@@ -1,58 +1,73 @@
 using Management.Application.Features.Staff.Queries.GetStaff;
 using Management.Application.Services;
 using Management.Application.Features.Staff.Commands.CreateStaff;
-using Management.Application.Services;
 using Management.Application.Features.Staff.Commands.UpdateStaff;
-using Management.Application.Services;
 using Management.Application.Features.Staff.Commands.TerminateStaff;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Management.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Management.Infrastructure.Services
 {
     public class StaffService : IStaffService
     {
         private readonly ISender _sender;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public StaffService(ISender sender)
+        public StaffService(ISender sender, IServiceScopeFactory scopeFactory)
         {
             _sender = sender;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<IEnumerable<Management.Domain.Models.StaffMember>> GetAllAsync()
         {
-            // Return mock data for salon staff selection using factory method
-            var email = Management.Domain.ValueObjects.Email.Create("staff@example.com").Value;
-            var phone = Management.Domain.ValueObjects.PhoneNumber.Create("555-0100").Value;
+            var result = await _sender.Send(new GetAllStaffQuery());
+            if (result is not { IsSuccess: true, Value: var staffList })
+            {
+                return Enumerable.Empty<Management.Domain.Models.StaffMember>();
+            }
 
-            var results = new List<Management.Domain.Models.StaffMember>();
-            
-            var elena = Management.Domain.Models.StaffMember.Recruit("Elena Gilbert", email, phone, Management.Domain.Enums.StaffRole.Trainer);
-            if (elena.IsSuccess) results.Add(elena.Value);
-            
-            var damon = Management.Domain.Models.StaffMember.Recruit("Damon Salvatore", email, phone, Management.Domain.Enums.StaffRole.Trainer);
-            if (damon.IsSuccess) results.Add(damon.Value);
-            
-            var bonnie = Management.Domain.Models.StaffMember.Recruit("Bonnie Bennett", email, phone, Management.Domain.Enums.StaffRole.Trainer);
-            if (bonnie.IsSuccess) results.Add(bonnie.Value);
-            
-            var caroline = Management.Domain.Models.StaffMember.Recruit("Caroline Forbes", email, phone, Management.Domain.Enums.StaffRole.Trainer);
-            if (caroline.IsSuccess) results.Add(caroline.Value);
+            var staffMembers = new List<Management.Domain.Models.StaffMember>();
+            foreach (var dto in staffList)
+            {
+                try
+                {
+                    var emailResult = Management.Domain.ValueObjects.Email.Create(dto.Email);
+                    var phoneResult = Management.Domain.ValueObjects.PhoneNumber.Create(dto.PhoneNumber);
+                    
+                    if (emailResult.IsFailure) continue;
 
-            return results;
+                    var recruitResult = Management.Domain.Models.StaffMember.Recruit(
+                        dto.TenantId,
+                        dto.FacilityId,
+                        dto.FullName,
+                        emailResult.Value,
+                        phoneResult.IsSuccess ? phoneResult.Value : Management.Domain.ValueObjects.PhoneNumber.None,
+                        (Management.Domain.Enums.StaffRole)dto.Role,
+                        dto.Salary > 0 ? dto.Salary : 2000,
+                        dto.PaymentDay > 0 ? dto.PaymentDay : 1
+                    );
+
+                    if (recruitResult.IsSuccess)
+                    {
+                        staffMembers.Add(recruitResult.Value);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Skip invalid records to prevent service-level crash
+                }
+            }
+
+            return staffMembers;
         }
 
         public async Task<Result<List<StaffDto>>> GetAllStaffAsync()
@@ -82,8 +97,20 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result<List<string>>> GetAvailableFacilitiesForStaffAsync(Guid staffId)
         {
-            // Mock: Admin has access to all, others may vary
-            return Result.Success(new List<string> { "Gym", "Salon", "Restaurant" });
+            using var scope = _scopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            
+            var staff = await context.StaffMembers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == staffId);
+
+            if (staff == null)
+            {
+                return Result.Success(new List<string>());
+            }
+
+            // AllowedModules is a list of facility types (Gym, Salon, Restaurant)
+            return Result.Success(staff.AllowedModules ?? new List<string>());
         }
 
         public async Task<Result> UpdatePermissionsAsync(Guid staffId, List<PermissionDto> permissions)

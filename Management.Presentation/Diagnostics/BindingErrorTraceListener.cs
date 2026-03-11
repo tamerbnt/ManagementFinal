@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Windows;
+using Management.Application.Services;
 using Management.Presentation.Services;
 
 namespace Management.Presentation.Diagnostics
@@ -21,6 +23,9 @@ namespace Management.Presentation.Diagnostics
             // Binding errors come through WriteLine, not Write
         }
 
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, DateTime> _recentErrors = new();
+        private readonly TimeSpan _throttleWindow = TimeSpan.FromSeconds(5);
+
         public override void WriteLine(string? message)
         {
             if (string.IsNullOrEmpty(message))
@@ -31,24 +36,32 @@ namespace Management.Presentation.Diagnostics
                 message.Contains("BindingExpression") ||
                 message.Contains("Cannot find"))
             {
-                // Extract method name from stack trace if available
-                var stackTrace = new StackTrace(true);
-                var methodName = "XAML Binding";
-
-                // Try to extract the binding path from the error message
-                var bindingPath = ExtractBindingPath(message);
-                if (!string.IsNullOrEmpty(bindingPath))
+                // Throttling: Avoid flooding logs with the same error
+                var now = DateTime.UtcNow;
+                if (_recentErrors.TryGetValue(message, out var lastSeen))
                 {
-                    methodName = $"Binding: {bindingPath}";
+                    if (now - lastSeen < _throttleWindow)
+                    {
+                        return; // Throttle
+                    }
                 }
+                _recentErrors[message] = now;
+
+                // Cleanup periodically (simple implementation: clear if it gets too big)
+                if (_recentErrors.Count > 100) _recentErrors.Clear();
+
+                // Note: We removed the expensive StackTrace(true) call here as it causes UI hangs
+                // when a flood of binding errors occurs.
+                
+                var bindingPath = ExtractBindingPath(message);
+                var context = !string.IsNullOrEmpty(bindingPath) ? $"Binding: {bindingPath}" : "XAML Binding";
 
                 _diagnosticService.LogError(
-                    Models.DiagnosticCategory.Binding,
-                    methodName,
-                    message,
-                    null,
-                    Models.DiagnosticSeverity.Warning
-                );
+                    Management.Application.Services.DiagnosticCategory.Binding, 
+                    context, 
+                    message, 
+                    null, 
+                    Management.Application.Services.DiagnosticSeverity.Warning);
             }
         }
 

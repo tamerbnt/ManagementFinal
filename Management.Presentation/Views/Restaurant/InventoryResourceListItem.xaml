@@ -1,0 +1,119 @@
+﻿<UserControl x:Class="Management.Presentation.Views.Restaurant.InventoryResourceListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Restaurant"
+             mc:Ignorable="d"
+             d:DesignHeight="320" d:DesignWidth="240">
+
+    <UserControl.Resources>
+    </UserControl.Resources>
+
+    <Border x:Name="CardBorder"
+            Height="320" Width="240"
+            Padding="20"
+            CornerRadius="16"
+            Margin="0,0,20,20">
+        <Border.Style>
+            <Style TargetType="Border" BasedOn="{StaticResource ElevatedCardStyleInteractive}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.5"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="140"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 1. ICON AREA -->
+            <Grid Grid.Row="0">
+                <Border Background="{DynamicResource SurfaceBgTertiary}" CornerRadius="12">
+                    <Path Data="{StaticResource IconBox}"
+                          Fill="{DynamicResource TextTertiaryBrush}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Opacity="0.3"
+                          Width="32" Height="32" Stretch="Uniform">
+                        <Path.Style>
+                            <Style TargetType="Path">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Fill" Value="White"/>
+                                        <Setter Property="Opacity" Value="0.6"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Path.Style>
+                    </Path>
+                </Border>
+                
+                <!-- Selection Pill -->
+                <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8"
+                        Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="8,4"
+                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.SELECTED}" Style="{StaticResource Micro}" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="Bold"/>
+                </Border>
+            </Grid>
+
+            <!-- 2. CONTENT AREA -->
+            <StackPanel Grid.Row="1" Margin="0,12,0,0" VerticalAlignment="Top">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="44">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <TextBlock Text="{Binding TotalDisplay}" Margin="0,2,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Title3}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Stock Status -->
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                    <Ellipse Width="8" Height="8" 
+                             Fill="#10B981" 
+                             VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="{DynamicResource Strings.Restaurant.INSTOCK}" 
+                               FontSize="12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Opacity" Value="0.8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

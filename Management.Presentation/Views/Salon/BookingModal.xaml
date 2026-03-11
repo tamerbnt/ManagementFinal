@@ -3,87 +3,231 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
         mc:Ignorable="d"
-        Title="New Appointment" Height="600" Width="880"
+        Title="{DynamicResource Terminology.Salon.Booking.Title}" 
+        Height="650" Width="500"
+        FlowDirection="{DynamicResource GlobalFlowDirection}"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterOwner">
-    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="24" BorderBrush="{DynamicResource FacilityAccentBrush}" BorderThickness="1">
-        <Grid Margin="32">
+    <Border Style="{DynamicResource GlobalModalContainerStyle}"
+            Width="450"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+
+        <!-- Animation Removed for Debugging -->
+
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- Form -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,24">
-                <TextBlock Text="{DynamicResource TerminologyNewAppointmentLabel}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Text="Schedule a salon service for a client" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+            <!-- 1. Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,32">
+                <Border Width="64" Height="64" 
+                        Background="{DynamicResource Brush.Brand.Primary.Fade}" 
+                        CornerRadius="32" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,0,0,16">
+                    <Path Data="{StaticResource IconSalon}" 
+                          Style="{StaticResource Style.Icon.Large}" 
+                          Stroke="{DynamicResource Brush.Brand.Primary}" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Title}" 
+                           Style="{StaticResource Text.Title2}" 
+                           Foreground="{DynamicResource Brush.Text.Primary}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Subtitle}" 
+                           Style="{StaticResource Text.Caption}" 
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
             </StackPanel>
 
-            <!-- Content -->
-            <Grid Grid.Row="1">
+            <!-- 2. Form Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,24">
+                <StackPanel>
+                    <!-- SECTION: CLIENT & PLAN -->
+                    <Border Background="{DynamicResource Brush.Surface.Card}" 
+                            Padding="24" CornerRadius="16" Margin="0,0,0,20"
+                            BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Section.ClientPlan}" Style="{StaticResource Text.Caption}" 
+                                     Foreground="{DynamicResource Brush.Text.Tertiary}" FontWeight="Bold" 
+                                     Margin="0,0,0,16"/>
+
+                            <!-- Client Selection -->
+                            <StackPanel Margin="0,0,0,20">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Path Data="{StaticResource IconMembers}" 
+                                          Style="{StaticResource Style.Icon.Micro}" 
+                                          Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                          Margin="0,0,6,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Members.Detail.Name}" Style="{StaticResource FormLabel}"/>
+                                </StackPanel>
+                                <ComboBox ItemsSource="{Binding Clients}" 
+                                          SelectedValue="{Binding SelectedClientId}" 
+                                          SelectedValuePath="Id"
+                                          DisplayMemberPath="FullName"
+                                          Text="{Binding SelectedClientName, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          Style="{StaticResource Input.ComboBox}"/>
+                            </StackPanel>
+
+                            <!-- Service Selection -->
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Path Data="{StaticResource IconTag}" 
+                                          Style="{StaticResource Style.Icon.Micro}" 
+                                          Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                          Margin="0,0,6,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Service}" Style="{StaticResource FormLabel}"/>
+                                </StackPanel>
+                                <ComboBox ItemsSource="{Binding AvailableServices}" 
+                                          SelectedItem="{Binding SelectedService}"
+                                          SelectedValuePath="Id"
+                                          IsEditable="False"
+                                          Style="{StaticResource Input.ComboBox}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Service Price -->
+                            <StackPanel Margin="0,20,0,0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Path Data="{StaticResource IconTag}" 
+                                          Style="{StaticResource Style.Icon.Micro}" 
+                                          Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                          Margin="0,0,6,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Price}" Style="{StaticResource FormLabel}"/>
+                                </StackPanel>
+                                <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}" 
+                                         Style="{StaticResource Input.Apple}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- SECTION: STAFF & SCHEDULE -->
+                    <Border Background="{DynamicResource Brush.Surface.Card}" 
+                            Padding="24" CornerRadius="16"
+                            BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Section.StaffSchedule}" Style="{StaticResource Text.Caption}" 
+                                     Foreground="{DynamicResource Brush.Text.Tertiary}" FontWeight="Bold" 
+                                     Margin="0,0,0,16"/>
+
+                            <!-- Staff Selection -->
+                            <StackPanel Margin="0,0,0,20">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <Path Data="{StaticResource IconUsers}" 
+                                          Style="{StaticResource Style.Icon.Micro}" 
+                                          Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                          Margin="0,0,6,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Staff}" Style="{StaticResource FormLabel}"/>
+                                </StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox ItemsSource="{Binding QualifiedStaff}" 
+                                              SelectedItem="{Binding SelectedStaff}"
+                                              SelectedValuePath="Id"
+                                              IsEditable="False"
+                                              Style="{StaticResource Input.ComboBox}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding FullName}"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Button Grid.Column="1" Command="{Binding AutoAssignCommand}" 
+                                            Style="{StaticResource Button.Ghost}" Margin="8,0,0,0"
+                                            Width="40" Height="40"
+                                            ToolTip="{DynamicResource Terminology.Salon.Booking.AutoAssign.Tooltip}">
+                                        <Path Data="M12 2L9.19 8.63 2 12l7.19 3.37L12 22l2.81-6.63L22 12l-7.19-3.37L12 2z" 
+                                              Style="{StaticResource Style.Icon.Small}"
+                                              Stroke="{DynamicResource Brush.Brand.Primary}"/>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Date & Time Row -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Date -->
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource IconCalendar}" 
+                                              Style="{StaticResource Style.Icon.Micro}" 
+                                              Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                              Margin="0,0,6,0"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Global.Date}" Style="{StaticResource FormLabel}"/>
+                                    </StackPanel>
+                                    <DatePicker SelectedDate="{Binding BookingDate}" Style="{StaticResource DatePickerField}"/>
+                                </StackPanel>
+
+                                <!-- Time -->
+                                <StackPanel Grid.Column="2">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource IconClock}" 
+                                              Style="{StaticResource Style.Icon.Micro}" 
+                                              Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                              Margin="0,0,6,0"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Global.Time}" Style="{StaticResource FormLabel}"/>
+                                    </StackPanel>
+                                    <TextBox Text="{Binding BookingTime, StringFormat=\{0:hh\\:mm\}}" Style="{StaticResource Input.Apple}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- 3. Footer Actions -->
+            <Grid Grid.Row="2" Margin="0,12,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="32"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.5*"/>
                 </Grid.ColumnDefinitions>
-
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource TerminologyClientLabel}" Style="{StaticResource InputLabel}"/>
-                    <ComboBox ItemsSource="{Binding Clients}" 
-                              SelectedValue="{Binding SelectedClientId}" 
-                              SelectedValuePath="Id"
-                              DisplayMemberPath="FullName"
-                              Style="{StaticResource PremiumComboBox}"
-                              Margin="0,0,0,20"/>
-
-                    <TextBlock Text="{DynamicResource TerminologyServiceLabel}" Style="{StaticResource InputLabel}"/>
-                    <ComboBox ItemsSource="{Binding Services}" 
-                              SelectedValue="{Binding SelectedServiceId}" 
-                              SelectedValuePath="Id"
-                              DisplayMemberPath="Name"
-                              Style="{StaticResource PremiumComboBox}"
-                              Margin="0,0,0,20"/>
-
-                    <TextBlock Text="STAFF" Style="{StaticResource InputLabel}"/>
-                    <Grid Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <ComboBox ItemsSource="{Binding QualifiedStaff}" 
-                                  SelectedValue="{Binding SelectedStaffId}" 
-                                  SelectedValuePath="Id"
-                                  DisplayMemberPath="FullName"
-                                  Style="{StaticResource PremiumComboBox}"
-                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <Button Grid.Column="1" Command="{Binding AutoAssignCommand}" 
-                                Style="{StaticResource GhostButton}" Margin="8,0,0,0" ToolTip="Auto Assign">
-                            <Path Data="M12 2L9.19 8.63 2 12l7.19 3.37L12 22l2.81-6.63L22 12l-7.19-3.37L12 2z" 
-                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Width="16" Height="16"/>
-                        </Button>
-                    </Grid>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="DATE" Style="{StaticResource InputLabel}"/>
-                    <DatePicker SelectedDate="{Binding BookingDate}" Style="{StaticResource PremiumDatePicker}" Margin="0,0,0,20"/>
-
-                    <TextBlock Text="TIME" Style="{StaticResource InputLabel}"/>
-                    <TextBox Text="{Binding BookingTime, StringFormat=\{0:hh\\:mm\}}" Style="{StaticResource PremiumTextBox}" Margin="0,0,0,20"/>
-
-                    <TextBlock Text="NOTES" Style="{StaticResource InputLabel}"/>
-                    <TextBox Text="{Binding Notes}" Style="{StaticResource PremiumTextBox}" Height="100" AcceptsReturn="True" VerticalContentAlignment="Top"/>
-                </StackPanel>
+                
+                <Button Grid.Column="0" 
+                        Content="{DynamicResource Terminology.Global.Cancel}" 
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        MinWidth="120" HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                
+                <Button Grid.Column="1" 
+                        Content="{DynamicResource Terminology.Salon.Booking.Action.Confirm}" 
+                        Command="{Binding BookCommand}"
+                        Style="{StaticResource PrimaryButton}"
+                        MinWidth="180" HorizontalAlignment="Left"/>
             </Grid>
 
-            <!-- Footer -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
-                <Button Content="CANCEL" Command="{Binding CancelCommand}" Style="{StaticResource GhostButton}" Margin="0,0,12,0"/>
-                <Button Content="BOOK APPOINTMENT" Command="{Binding SaveCommand}" Style="{StaticResource PrimaryButton}" Background="{DynamicResource FacilityAccentBrush}"/>
-            </StackPanel>
+            <!-- Loading Overlay -->
+            <Grid Grid.RowSpan="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" Panel.ZIndex="1000">
+                <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16"/>
+                <ProgressBar Style="{DynamicResource MaterialProgressBar}" 
+                             IsIndeterminate="True" 
+                             VerticalAlignment="Center" 
+                             Width="150" 
+                             Height="4"
+                             HorizontalAlignment="Center"/>
+            </Grid>
         </Grid>
     </Border>
 </Window>

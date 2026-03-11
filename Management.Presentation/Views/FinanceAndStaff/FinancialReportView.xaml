@@ -23,7 +23,7 @@
                   HorizontalScrollBarVisibility="Disabled"
                   >
         <ScrollViewer.Resources>
-            <Style TargetType="ScrollBar" BasedOn="{DynamicResource GlobalScrollBarStyle}"/>
+            <Style TargetType="ScrollBar" BasedOn="{StaticResource GlobalScrollBarStyle}"/>
         </ScrollViewer.Resources>
 
         <StackPanel Margin="{StaticResource MarginPage}">
@@ -64,7 +64,7 @@
                                     Padding="{StaticResource PaddingPill}"
                                     VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="↑" 
+                                    <TextBlock Text="?" 
                                                Foreground="{Binding RevenueTrend, Converter={StaticResource TrendToBrushConverter}}"
                                                FontWeight="Bold"
                                                Margin="0,0,4,0"/>
@@ -126,7 +126,8 @@
                                    Style="{StaticResource Title1}" 
                                    Foreground="{DynamicResource StatusSuccessBrush}"/>
                         <TextBlock Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}">
-                            <Run Text="New "/>
+                            <Run Text="{DynamicResource Terminology.Financial.New}"/>
+                            <Run Text=" "/>
                             <Run Text="{DynamicResource TerminologyPluralLabel}"/>
                         </TextBlock>
                     </StackPanel>
@@ -140,7 +141,8 @@
                     <StackPanel VerticalAlignment="Bottom">
                         <TextBlock Text="{Binding TotalMembersCount}" Style="{StaticResource Title1}"/>
                         <TextBlock Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}">
-                            <Run Text="Total "/>
+                            <Run Text="{DynamicResource Terminology.Financial.Total}"/>
+                            <Run Text=" "/>
                             <Run Text="{DynamicResource TerminologyPluralLabel}"/>
                         </TextBlock>
                     </StackPanel>
@@ -201,7 +203,7 @@
                             VerticalAlignment="Center">
                         <TextBlock Text="{Binding FailedPayments.Count}" 
                                    Style="{StaticResource Micro}" 
-                                   Foreground="#FFFFFF" 
+                                   Foreground="{DynamicResource CardBackgroundBrush}" 
                                    FontWeight="Bold"/>
                     </Border>
                 </StackPanel>
@@ -227,7 +229,7 @@
                                     <Ellipse Grid.Column="0" 
                                              Width="{StaticResource SizeAvatarSmall}" 
                                              Height="{StaticResource SizeAvatarSmall}"
-                                             Fill="{DynamicResource AccentColor}"
+                                             Fill="{DynamicResource AccentBrush}"
                                              Margin="{StaticResource MarginCardRight}"/>
 
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -236,7 +238,7 @@
                                     </StackPanel>
 
                                     <TextBlock Grid.Column="2" 
-                                               Text="{Binding Amount, StringFormat='{}{0:C}'}" 
+                                               Text="{Binding Amount, StringFormat='{}{0:N2} DA'}" 
                                                Style="{StaticResource BodyMedium}" 
                                                Foreground="{DynamicResource StatusErrorBrush}"
                                                VerticalAlignment="Center"

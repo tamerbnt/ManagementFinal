@@ -1,10 +1,9 @@
-﻿<Application x:Class="Management.Presentation.App"
+<Application x:Class="Management.Presentation.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Management.Presentation"
              xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
-             xmlns:dashboard="clr-namespace:Management.Presentation.Views.Dashboard" 
-             xmlns:access="clr-namespace:Management.Presentation.Views.AccessControl" 
+             xmlns:dashboard="clr-namespace:Management.Presentation.Views.Shell" 
              xmlns:members="clr-namespace:Management.Presentation.Views.Members" 
              xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations" 
              xmlns:history="clr-namespace:Management.Presentation.Views.History"
@@ -12,63 +11,161 @@
              xmlns:shop="clr-namespace:Management.Presentation.Views.Shop" 
              xmlns:settings="clr-namespace:Management.Presentation.Views.Settings" 
              xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
-             xmlns:restaurant="clr-namespace:Management.Presentation.Views.Restaurant"
              xmlns:salon="clr-namespace:Management.Presentation.Views.Salon"
-             xmlns:converters="clr-namespace:Management.Presentation.Converters">
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+              xmlns:shell="clr-namespace:Management.Presentation.ViewModels.Shell"
+              xmlns:accessvm="clr-namespace:Management.Presentation.ViewModels.AccessControl"
+              xmlns:membersvm="clr-namespace:Management.Presentation.ViewModels.Members"
+              xmlns:regvm="clr-namespace:Management.Presentation.ViewModels.Registrations"
+              xmlns:historyvm="clr-namespace:Management.Presentation.ViewModels.History"
+              xmlns:financevm="clr-namespace:Management.Presentation.ViewModels.Finance"
+              xmlns:shopvm="clr-namespace:Management.Presentation.ViewModels.Shop"
+              xmlns:settingsvm="clr-namespace:Management.Presentation.ViewModels.Settings"
+              xmlns:gymhome="clr-namespace:Management.Presentation.Views.GymHome"
+              xmlns:gymhomevm="clr-namespace:Management.Presentation.ViewModels.GymHome"
+              xmlns:shared="clr-namespace:Management.Presentation.Views.Shared"
+              xmlns:sharedvm="clr-namespace:Management.Presentation.ViewModels.Shared"
+               xmlns:helpers="clr-namespace:Management.Presentation.Helpers"
+               xmlns:salonvm="clr-namespace:Management.Presentation.ViewModels.Salon"
+               xmlns:restaurantvm="clr-namespace:Management.Presentation.ViewModels.Restaurant"
+               xmlns:resv="clr-namespace:Management.Presentation.Views.Restaurant">
 
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
 
 
-                <!-- 1. BASE PRIMITIVES -->
-                <ResourceDictionary Source="Resources/Spacing.xaml"/>
-                <ResourceDictionary Source="Resources/Typography.xaml"/>
-                <ResourceDictionary Source="Resources/Iconography.xaml"/>
-                <ResourceDictionary Source="Resources/Colors.Base.xaml"/>
-                <ResourceDictionary Source="Resources/Animations.xaml"/>
-                <ResourceDictionary Source="Resources/Shadows.xaml"/>
-                <ResourceDictionary Source="Resources/Converters.xaml"/>
+                <!-- 1. BASE PRIMITIVES (Empty now, but keeping slot) -->
+                <!-- <ResourceDictionary Source="Resources/Primitives/Brushes.xaml"/> MOVED DOWN -->
                 
-                <!-- 2. WORKSPACE LAYER (Theme) -->
+                <!-- 2. TOKENS (Depend on Primitives) -->
+                <ResourceDictionary Source="Resources/Tokens/Colors.xaml"/>
+                <ResourceDictionary Source="Resources/Colors.Base.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Spacing.xaml"/>
+                <ResourceDictionary Source="Resources/Spacing.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Typography.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Corners.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Elevation.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Motion.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/Icons.xaml"/>
+                <ResourceDictionary Source="Resources/Tokens/DesignTokens.xaml"/>
+                <ResourceDictionary Source="Resources/Converters.xaml"/>
+
+                <!-- 3. THEME & CONSUMERS (Depends on Tokens) -->
+                <ResourceDictionary Source="Resources/Primitives/Brushes.xaml"/> <!-- Moved here to consume Tokens -->
                 <ResourceDictionary Source="Resources/Theme.Light.xaml"/>
 
-                <!-- 3. IDENTITY LAYER (Branding) -->
+                <!-- 4. BASE STYLES (Depend on Tokens & Theme) -->
+                <ResourceDictionary Source="Resources/Typography.xaml"/>
+                <ResourceDictionary Source="Resources/Iconography.xaml"/>
+                <ResourceDictionary Source="Resources/Animations.xaml"/>
+                <ResourceDictionary Source="Resources/Shadows.xaml"/>
+                <ResourceDictionary Source="Resources/Durations.xaml"/>
+
+                <!-- 5. CONTROL STYLES (Depend on Base Styles) -->
+                <ResourceDictionary Source="Resources/Controls/Buttons.xaml"/>
+                <ResourceDictionary Source="Resources/Controls/Inputs.xaml"/>
+                <ResourceDictionary Source="Resources/Controls/CheckBoxes.xaml"/>
+                <ResourceDictionary Source="Resources/Controls/TransitioningContentControl.xaml"/>
+
+                <!-- 6. BRANDING (Depends on Tokens) -->
                 <ResourceDictionary Source="Resources/Branding.Gym.xaml"/>
+                <ResourceDictionary Source="Resources/Branding.Restaurant.xaml"/>
+                <ResourceDictionary Source="Resources/Terminology.Restaurant.xaml"/>
+                <ResourceDictionary Source="Resources/Branding.Salon.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Base.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
 
-                <!-- 4. COMPONENTS & SHARED -->
+                <!-- 7. COMPONENTS & COMPOSITES (Depend on Controls) -->
                 <ResourceDictionary Source="Resources/Components.xaml"/>
-                <ResourceDictionary Source="Resources/SharedResources.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
 
-            <DataTemplate DataType="{x:Type viewmodels:DashboardViewModel}">
+                <!-- 8. GLOBAL & SHARED (Aggregate everything) -->
+                <ResourceDictionary Source="Resources/SharedResources.xaml"/>
+
+                <!-- 9. FEATURE STYLES (Depend on everything) -->
+                <ResourceDictionary Source="Resources/Styles/TextStyles.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/OnboardingStyles.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/SettingsStyles.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/ChartStyles.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/DataGridStyle.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/Registrations.xaml"/>
+
+            </ResourceDictionary.MergedDictionaries>
+            
+            <DataTemplate DataType="{x:Type shell:DashboardViewModel}">
                 <dashboard:DashboardView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:AccessControlViewModel}">
-                <access:AccessControlView/>
+            <DataTemplate DataType="{x:Type gymhomevm:GymHomeViewModel}">
+                <gymhome:GymHomeView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:MembersViewModel}">
+            <DataTemplate DataType="{x:Type salonvm:SalonHomeViewModel}">
+                <salon:SalonHomeView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:RestaurantHomeViewModel}">
+                <resv:RestaurantHomeView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:FloorPlanViewModel}">
+                <resv:FloorPlanView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:TableDetailViewModel}">
+                <resv:TableDetailView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:AddTableViewModel}">
+                <resv:AddTableView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type settingsvm:SettingsViewModel}">
+                <settings:SettingsModalView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type settingsvm:MenuManagementViewModel}">
+                <settings:MenuManagementView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:SelectTableViewModel}">
+                <resv:SelectTableView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:OpenOrdersViewModel}">
+                <resv:OpenOrdersView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type restaurantvm:RestaurantOrderingViewModel}">
+                <resv:RestaurantOrderingView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type membersvm:MembersViewModel}">
                 <members:MembersView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:RegistrationsViewModel}">
+            <DataTemplate DataType="{x:Type regvm:RegistrationsViewModel}">
                 <reg:RegistrationsView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:HistoryViewModel}">
-                <history:HistoryView/>
+            <DataTemplate DataType="{x:Type sharedvm:ConfirmationModalViewModel}">
+                <shared:ConfirmationModal/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:FinanceAndStaffViewModel}">
-                <finance:FinanceAndStaffView/>
+            <DataTemplate DataType="{x:Type historyvm:HistoryViewModel}">
+                <ContentControl Content="{Binding}">
+                    <ContentControl.ContentTemplateSelector>
+                        <helpers:FacilityViewSelector DefaultViewType="{x:Type history:HistoryView}"/>
+                    </ContentControl.ContentTemplateSelector>
+                </ContentControl>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:ShopViewModel}">
+            <DataTemplate DataType="{x:Type financevm:FinanceAndStaffViewModel}">
+                <ContentControl Content="{Binding}">
+                    <ContentControl.ContentTemplateSelector>
+                        <helpers:FacilityViewSelector DefaultViewType="{x:Type finance:FinanceAndStaffView}"/>
+                    </ContentControl.ContentTemplateSelector>
+                </ContentControl>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type financevm:AddStaffViewModel}">
+                <finance:AddStaffView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type shopvm:ShopViewModel}">
                 <shop:ShopView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:SettingsViewModel}">
-                <settings:SettingsView/>
+            <DataTemplate DataType="{x:Type settingsvm:DeviceManagementViewModel}">
+                <settings:DeviceManagementView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
-                <auth:LoginView/>
+            <DataTemplate DataType="{x:Type settingsvm:MembershipPlanEditorViewModel}">
+                <settings:MembershipPlanEditorView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type settingsvm:SalonServiceEditorViewModel}">
+                <settings:SalonServiceEditorView/>
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewmodels:SessionExpiredViewModel}">
                 <auth:SessionExpiredView/>
@@ -79,33 +176,45 @@
             <DataTemplate DataType="{x:Type viewmodels:RegistrationDetailViewModel}">
                 <reg:RegistrationDetailView/>
             </DataTemplate>
-            <converters:FacilityToVisibilityConverter x:Key="FacilityToVis"/>
-            <converters:IntToVisibilityConverter x:Key="IntToVis"/>
-            <converters:TimeSpanToOverdueBrushConverter x:Key="TimeSpanToOverdueBrush"/>
-            <converters:DensityToHeightConverter x:Key="DensityToHeight"/>
-            <converters:MinuteToPixelConverter x:Key="MinuteToPixel"/>
-            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
-                <reg:ConfirmDeclineModal/>
+            <DataTemplate DataType="{x:Type membersvm:QuickRegistrationViewModel}">
+                <members:QuickRegistrationView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type membersvm:MemberAccessViewModel}">
+                <members:MemberAccessView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewmodels:ProductDetailViewModel}">
                 <shop:ProductDetailView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:CheckoutViewModel}">
+            <DataTemplate DataType="{x:Type shopvm:QuickSaleViewModel}">
+                <shop:QuickSaleViewNew/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type gymhomevm:MultiSaleCartViewModel}">
+                <gymhome:MultiSaleCartModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type gymhomevm:WalkInConfirmationViewModel}">
+                <gymhome:WalkInConfirmationModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type shell:ChangeFacilityViewModel}">
+                <dashboard:FacilitySelectionModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type shell:FacilityAuthViewModel}">
+                <dashboard:FacilityAuthModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type shopvm:AddProductViewModel}">
+                <shop:AddProductView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type shopvm:CheckoutViewModel}">
                 <shop:CheckoutView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type restaurant:TablesViewModel}">
-                <restaurant:TablesView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type restaurant:KitchenDisplayViewModel}">
-                <restaurant:KitchenDisplayView/>
-            </DataTemplate>
+
             <DataTemplate DataType="{x:Type salon:AppointmentsViewModel}">
                 <salon:AppointmentsView/>
             </DataTemplate>
+
             <DataTemplate DataType="{x:Type salon:ServicesViewModel}">
                 <salon:ServicesView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:LicenseEntryViewModel}">
                 <auth:LicenseEntryView/>
             </DataTemplate>
@@ -114,6 +223,16 @@
                 <auth:OnboardingOwnerView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+                <auth:LoginView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
+                <reg:ConfirmDeclineModal/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type sharedvm:NotificationDetailViewModel}">
+                <shared:NotificationDetailView/>
+            </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

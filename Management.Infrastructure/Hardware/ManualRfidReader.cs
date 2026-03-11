@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Management.Domain.Services;
 
 namespace Management.Infrastructure.Hardware
@@ -12,6 +12,7 @@ namespace Management.Infrastructure.Hardware
     public class ManualRfidReader : IRfidReader
     {
         public event Action<string>? CardScanned;
+        public event Action<bool>? ConnectionStatusChanged;
 
         public bool IsConnected { get; private set; }
 
@@ -19,11 +20,13 @@ namespace Management.Infrastructure.Hardware
         {
             // Virtual device is always ready
             IsConnected = true;
+            ConnectionStatusChanged?.Invoke(true);
         }
 
         public void Stop()
         {
             IsConnected = false;
+            ConnectionStatusChanged?.Invoke(false);
         }
 
         /// <summary>

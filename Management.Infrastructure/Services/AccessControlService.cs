@@ -1,0 +1,176 @@
+using System.Linq;
+using System.Threading.Tasks;
+using Management.Domain.Enums;
+using Management.Application.Services;
+using Management.Domain.Interfaces;
+using Management.Domain.Models;
+using Management.Domain.Services;
+
+namespace Management.Infrastructure.Services
+{
+    public class AccessControlService : IAccessControlService
+    {
+        private readonly IMemberRepository _memberRepository;
+        private readonly IStaffRepository _staffRepository;
+        private readonly IRepository<MembershipPlan> _planRepository;
+        private readonly IRepository<FacilitySchedule> _scheduleRepository;
+        private readonly IFacilityContextService _facilityService;
+        private readonly IAccessControlCache _cache;
+
+        public AccessControlService(
+            IMemberRepository memberRepository,
+            IStaffRepository staffRepository,
+            IRepository<MembershipPlan> planRepository,
+            IRepository<FacilitySchedule> scheduleRepository,
+            IFacilityContextService facilityService,
+            IAccessControlCache cache)
+        {
+            _memberRepository = memberRepository;
+            _staffRepository = staffRepository;
+            _planRepository = planRepository;
+            _scheduleRepository = scheduleRepository;
+            _facilityService = facilityService;
+            _cache = cache;
+        }
+
+        public async Task<ScanResult> ProcessScanAsync(string barcode)
+        {
+            // 0. Staff Override (Staff ignore all behavioral rules)
+            var staff = await _staffRepository.GetByCardIdAsync(barcode);
+            if (staff != null)
+            {
+                if (!staff.IsActive)
+                    return ScanResult.Denied("Staff Inactive", null);
+
+                return ScanResult.Granted($"Staff: {staff.FullName}", null);
+            }
+
+            // 1. Identity
+            var member = await _memberRepository.GetByCardIdAsync(barcode);
+            if (member == null)
+            {
+                return ScanResult.Denied("Unknown ID");
+            }
+
+            // 2. Subscription Status
+            if (!member.IsActive)
+            {
+                if (member.Status == MemberStatus.Banned)
+                    return ScanResult.Denied("Member Banned", member);
+                
+                return ScanResult.Denied("Membership Expired", member);
+            }
+
+            // [QA CHECK] Facility Context & Shared Access
+            var currentFacilityId = _facilityService.CurrentFacilityId;
+            var currentFacilityType = _facilityService.CurrentFacility;
+            
+            // Get Plan for detailed checks
+            MembershipPlan? plan = null;
+            if (member.MembershipPlanId.HasValue)
+            {
+                plan = await _planRepository.GetByIdAsync(member.MembershipPlanId.Value);
+            }
+
+            // 3. Cross-Facility Validation
+            if (plan != null)
+            {
+                // ALLOW if:
+                // A. The plan explicitely lists this facility
+                // B. The plan belongs to this facility (Home Gym Rule)
+                var isHomeFacility = plan.FacilityId == currentFacilityId;
+                var isRoamingAllowed = plan.AccessibleFacilities.Any(f => f.Id == currentFacilityId);
+
+                if (!isHomeFacility && !isRoamingAllowed)
+                {
+                    return ScanResult.Denied("Plan not valid for this Facility", member);
+                }
+            }
+            else if (currentFacilityType != FacilityType.General)
+            {
+                return ScanResult.Denied("Premium Access Required", member);
+            }
+
+            // 4. Behavioral Access Rules (Gender & Scheduling)
+            
+            // A. Gender Rule (Plan Level)
+            if (plan != null && plan.GenderRule != 0) // 0: Both
+            {
+                var memberGenderInt = (int)member.Gender; // Assuming Enum mapping matches
+                // Rule 1: MaleOnly (1), Rule 2: FemaleOnly (2)
+                if (plan.GenderRule == 1 && member.Gender != Gender.Male)
+                    return ScanResult.Denied("Plan is Male-Only", member);
+                if (plan.GenderRule == 2 && member.Gender != Gender.Female)
+                    return ScanResult.Denied("Plan is Female-Only", member);
+            }
+
+            // B. Scheduling (Facility Level)
+            var facilityWindows = await GetFacilitySchedulesAsync(currentFacilityId);
+            var (facilityOk, _, facReason) = ScheduleValidator.ValidateAccess(facilityWindows, DateTime.Now);
+            if (!facilityOk)
+            {
+                return ScanResult.Denied(facReason ?? "Facility is Closed", member);
+            }
+
+            // C. Scheduling (Plan Level)
+            if (plan != null && !string.IsNullOrEmpty(plan.ScheduleJson))
+            {
+                var planWindows = GetPlanSchedules(plan);
+                var (planOk, _, planReason) = ScheduleValidator.ValidateAccess(planWindows, DateTime.Now);
+                if (!planOk)
+                {
+                    return ScanResult.Denied(planReason ?? "Plan Outside Active Hours", member);
+                }
+            }
+
+            // 5. Session Deduction
+            if (plan != null && plan.IsSessionPack)
+            {
+                if (member.RemainingSessions <= 0)
+                {
+                    return ScanResult.Denied("No Sessions Left", member);
+                }
+
+                member.SetRemainingSessions(member.RemainingSessions - 1);
+                await _memberRepository.UpdateAsync(member);
+            }
+
+            // 6. Grant with Warning
+            var daysLeft = (member.ExpirationDate - DateTime.UtcNow).TotalDays;
+            if (daysLeft < 3 && daysLeft > 0)
+            {
+                return ScanResult.Warning($"Expires in {Math.Ceiling(daysLeft)} days", member);
+            }
+
+            return ScanResult.Granted("Welcome", member);
+        }
+
+        private async Task<List<ScheduleWindow>> GetFacilitySchedulesAsync(Guid facilityId)
+        {
+            var cached = _cache.GetFacilitySchedules();
+            if (cached.Any()) return cached;
+
+            // Load from DB (Lazy Init)
+            var schedules = await _scheduleRepository.GetAllAsync();
+            var windows = schedules.Select(s => new ScheduleWindow
+            {
+                DayOfWeek = s.DayOfWeek,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                RuleType = s.RuleType
+            }).ToList();
+
+            _cache.UpdateFacilitySchedules(windows);
+            return windows;
+        }
+
+        private List<ScheduleWindow> GetPlanSchedules(MembershipPlan plan)
+        {
+            var cached = _cache.GetPlanSchedule(plan.Id);
+            if (cached.Any()) return cached;
+
+            _cache.UpdatePlanSchedule(plan.Id, plan.ScheduleJson);
+            return _cache.GetPlanSchedule(plan.Id);
+        }
+    }
+}

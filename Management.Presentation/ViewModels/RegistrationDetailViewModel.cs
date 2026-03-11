@@ -1,27 +1,20 @@
 using System;
 using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using System.Windows.Input;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using Management.Presentation.Services;
-using Management.Application.Services;
 using Management.Presentation.Extensions;
-using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {
     public class RegistrationDetailViewModel : ViewModelBase, INavigationAware
     {
         private readonly IRegistrationService _registrationService;
-        private readonly IDialogService _dialogService; // Used to close itself
-        // private readonly RegistrationStore _registrationStore; // Optional if you need store updates
+        private readonly IDialogService _dialogService;
+        private readonly IFacilityContextService _facilityContext;
 
         private RegistrationDto _registration = null!;
         public RegistrationDto Registration
@@ -36,10 +29,12 @@ namespace Management.Presentation.ViewModels
 
         public RegistrationDetailViewModel(
             IRegistrationService registrationService,
-            IDialogService dialogService)
+            IDialogService dialogService,
+            IFacilityContextService facilityContext)
         {
             _registrationService = registrationService;
             _dialogService = dialogService;
+            _facilityContext = facilityContext;
 
             // Close logic for a Modal is handled by the DialogService/Store generally, 
             // but often we want a specific Close button in the view.
@@ -60,7 +55,7 @@ namespace Management.Presentation.ViewModels
         {
             if (parameter is Guid id)
             {
-                var result = await _registrationService.GetRegistrationAsync(id);
+                var result = await _registrationService.GetRegistrationAsync(_facilityContext.CurrentFacilityId, id);
                 if (result.IsSuccess)
                 {
                     Registration = result.Value;
@@ -76,7 +71,7 @@ namespace Management.Presentation.ViewModels
         private async Task ExecuteApprove()
         {
             if (Registration == null) return;
-            var result = await _registrationService.ApproveRegistrationAsync(Registration.Id);
+            var result = await _registrationService.ApproveRegistrationAsync(_facilityContext.CurrentFacilityId, Registration.Id);
             if (result.IsSuccess)
             {
                 // Signify success/close
@@ -86,7 +81,7 @@ namespace Management.Presentation.ViewModels
         private async Task ExecuteDecline()
         {
             if (Registration == null) return;
-            var result = await _registrationService.DeclineRegistrationAsync(Registration.Id);
+            var result = await _registrationService.DeclineRegistrationAsync(_facilityContext.CurrentFacilityId, Registration.Id);
             if (result.IsSuccess)
             {
                 // Signify success/close

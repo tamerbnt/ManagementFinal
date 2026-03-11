@@ -12,16 +12,16 @@ namespace Management.Application.Services
         /// <summary>
         /// Retrieves the current status of all registered hardware units.
         /// </summary>
-        Task<Result<List<TurnstileDto>>> GetAllTurnstilesAsync();
+        Task<Result<List<TurnstileDto>>> GetAllTurnstilesAsync(Guid facilityId);
 
         /// <summary>
         /// Manually updates the operational mode of a turnstile (e.g., Lockdown, Maintenance).
         /// </summary>
-        Task<Result> UpdateStatusAsync(Guid id, TurnstileStatus status);
+        Task<Result> UpdateStatusAsync(Guid id, Guid facilityId, TurnstileStatus status);
 
         /// <summary>
         /// Sends a "One-Time Open" command to the hardware (for manual staff override).
         /// </summary>
-        Task<Result> ForceOpenAsync(Guid id);
+        Task<Result> ForceOpenAsync(Guid id, Guid facilityId);
     }
 }

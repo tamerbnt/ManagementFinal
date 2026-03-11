@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// Categorizes retail items for Shop filtering and reporting.

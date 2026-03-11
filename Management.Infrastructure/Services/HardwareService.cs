@@ -2,18 +2,90 @@ using System;
 using System.Management;
 using System.Security.Cryptography;
 using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Linq;
+using Management.Application.Interfaces;
 
 namespace Management.Infrastructure.Services
 {
-    public interface IHardwareService
-    {
-        string GetHardwareId();
-    }
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class HardwareService : IHardwareService
     {
+        private readonly IServiceProvider _serviceProvider;
         private string _cachedId = string.Empty;
+        private readonly List<DeviceStatus> _statuses = new();
+
+        public event Action<DeviceStatus>? DeviceStatusChanged;
+
+        public HardwareService(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+            
+            // Initialize static statuses
+            _statuses.Add(new DeviceStatus { Name = "RFID Reader", Type = "RFID", IsConnected = false });
+            _statuses.Add(new DeviceStatus { Name = "Default Printer", Type = "Printer", IsConnected = true });
+            _statuses.Add(new DeviceStatus { Name = "Gym Turnstile", Type = "Turnstile", IsConnected = false });
+            _statuses.Add(new DeviceStatus { Name = "Barcode Scanner", Type = "Scanner", IsConnected = true });
+        }
+
+        public IEnumerable<DeviceStatus> GetDeviceStatuses() => _statuses;
+
+        public async Task<bool> TestDeviceAsync(string deviceType)
+        {
+            // Simple simulation/logic for testing
+            var status = _statuses.Find(s => s.Type == deviceType);
+            if (status == null) return false;
+
+            try
+            {
+                if (deviceType == "RFID")
+                {
+                    // Basic check: is port available?
+                    return true; 
+                }
+                else if (deviceType == "Printer")
+                {
+                    // Check specific printer status via WMI
+                    using var searcher = new ManagementObjectSearcher(
+                        "SELECT PrinterStatus, DetectedErrorState FROM Win32_Printer WHERE Default = True");
+                    
+                    foreach (var obj in searcher.Get())
+                    {
+                        var statusValue = Convert.ToInt32(obj["PrinterStatus"]);
+                        var errorValue = Convert.ToInt32(obj["DetectedErrorState"]);
+
+                        // Status 3 = Idle, 4 = Printing, 5 = Warming Up
+                        if (statusValue >= 3 && statusValue <= 5 && errorValue == 0)
+                        {
+                            return true;
+                        }
+                        
+                        status.LastError = $"Status: {statusValue}, Error: {errorValue}";
+                        return false;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                status.LastError = ex.Message;
+                DeviceStatusChanged?.Invoke(status);
+                return false;
+            }
+        }
+
+        public void NotifyStatusChanged(string deviceType, bool isConnected, string? error = null)
+        {
+            var status = _statuses.Find(s => s.Type == deviceType);
+            if (status != null)
+            {
+                status.IsConnected = isConnected;
+                status.LastError = error ?? string.Empty;
+                DeviceStatusChanged?.Invoke(status);
+            }
+        }
 
         public string GetHardwareId()
         {
@@ -23,9 +95,8 @@ namespace Management.Infrastructure.Services
             {
                 var motherboard = GetMotherboardId();
                 var cpu = GetCpuId();
-                var ram = GetTotalRam();
                 
-                var rawId = $"HW-{motherboard}-{cpu}-{ram}";
+                var rawId = $"HW-STB-{motherboard}-{cpu}";
                 _cachedId = HashString(rawId);
                 return _cachedId;
             }

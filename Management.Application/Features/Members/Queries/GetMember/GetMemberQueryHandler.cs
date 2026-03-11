@@ -3,6 +3,7 @@ using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Domain.Primitives;
 using MediatR;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,11 +13,13 @@ namespace Management.Application.Features.Members.Queries.GetMember
     {
         private readonly IMemberRepository _memberRepository;
         private readonly IMembershipPlanRepository _planRepository;
+        private readonly IAccessEventRepository _accessEventRepository;
 
-        public GetMemberQueryHandler(IMemberRepository memberRepository, IMembershipPlanRepository planRepository)
+        public GetMemberQueryHandler(IMemberRepository memberRepository, IMembershipPlanRepository planRepository, IAccessEventRepository accessEventRepository)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
+            _accessEventRepository = accessEventRepository;
         }
 
         public async Task<Result<MemberDto>> Handle(GetMemberQuery request, CancellationToken cancellationToken)
@@ -32,14 +35,12 @@ namespace Management.Application.Features.Members.Queries.GetMember
 
         private async Task<MemberDto> MapToDto(Member entity)
         {
-            string planName = "None";
-            if (entity.MembershipPlanId.HasValue)
-            {
-                // Note: In N+1 scenarios this is bad, but for single item get it's fine.
-                // In Search, we should prefer a Repo method that includes the plan or does a join.
-                var plan = await _planRepository.GetByIdAsync(entity.MembershipPlanId.Value);
-                if (plan != null) planName = plan.Name;
-            }
+            var plan = entity.MembershipPlanId.HasValue ? await _planRepository.GetByIdAsync(entity.MembershipPlanId.Value) : null;
+            string planName = plan?.Name ?? "None";
+            decimal planPrice = (decimal)(plan?.Price.Amount ?? 0);
+
+            var visitCount = await _accessEventRepository.GetVisitCountAsync(entity.Id);
+            var accessEvents = await _accessEventRepository.GetByMemberIdAsync(entity.Id);
 
             return new MemberDto
             {
@@ -54,6 +55,14 @@ namespace Management.Application.Features.Members.Queries.GetMember
                 ProfileImageUrl = entity.ProfileImageUrl,
                 MembershipPlanName = planName,
                 MembershipPlanId = entity.MembershipPlanId,
+                Balance = planPrice,
+                VisitCount = visitCount,
+                AccessEvents = accessEvents.Select(e => new AccessEventDto
+                {
+                    Timestamp = e.Timestamp,
+                    IsAccessGranted = e.IsAccessGranted,
+                    FailureReason = e.FailureReason ?? "Granted"
+                }).ToList(),
                 EmergencyContactName = entity.EmergencyContactName,
                 EmergencyContactPhone = entity.EmergencyContactPhone?.Value ?? string.Empty,
                 Notes = entity.Notes

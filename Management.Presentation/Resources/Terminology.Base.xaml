@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
     <!-- COMMON TERMINOLOGY (Facility Neutral) -->
     
@@ -19,11 +19,16 @@
     <sys:String x:Key="TerminologyFilterAllLabel">All</sys:String>
     <sys:String x:Key="TerminologyAllLabel">All</sys:String>
     <sys:String x:Key="TerminologyFilterFacilityLabel">Filter Facility</sys:String>
-    <sys:String x:Key="TerminologySelectionCountLabel">{0} Selected</sys:String>
+    <sys:String x:Key="TerminologySelectionCountLabel">{}{0} Selected</sys:String>
+    
+    <sys:String x:Key="Terminology.Staff.Filter.All">All Staff</sys:String>
+    <sys:String x:Key="Terminology.Staff.Filter.Active">Active</sys:String>
+    <sys:String x:Key="Terminology.Staff.Filter.Inactive">Inactive</sys:String>
     
     <!-- Common Statuses -->
     <sys:String x:Key="TerminologyStatusLabel">Status</sys:String>
     <sys:String x:Key="TerminologySuccessRateLabel">Success Rate</sys:String>
+    <sys:String x:Key="Terminology.Global.Unknown">Unknown</sys:String>
     
     <!-- Common Fields -->
     <sys:String x:Key="TerminologyPhoneLabel">Phone</sys:String>
@@ -59,4 +64,91 @@
     <sys:String x:Key="TerminologyPaymentHistoryName">Payment for {0}</sys:String>
     <sys:String x:Key="TerminologyCopyReceiptLabel">Copy Receipt Details</sys:String>
 
+    <!-- Settings -->
+    <sys:String x:Key="TerminologySettingsLabel">Settings</sys:String>
+    <sys:String x:Key="TerminologyGeneralLabel">General</sys:String>
+    <sys:String x:Key="TerminologyAppearanceLabel">Appearance</sys:String>
+    <sys:String x:Key="TerminologyMembershipPlansLabel">Membership Plans</sys:String>
+    <sys:String x:Key="TerminologyFacilityAccessLabel">Facility Access</sys:String>
+    <sys:String x:Key="TerminologyIntegrationsLabel">Integrations</sys:String>
+    <sys:String x:Key="TerminologyFacilityIdentityLabel">Facility Identity</sys:String>
+    <sys:String x:Key="TerminologyBrandLogoLabel">Brand Logo</sys:String>
+    <sys:String x:Key="TerminologyUploadLogoLabel">Upload Logo</sys:String>
+    <sys:String x:Key="TerminologyPngOrSvgLabel">PNG or SVG supported</sys:String>
+    <sys:String x:Key="TerminologyFacilityNameLabel">Facility Name</sys:String>
+    <sys:String x:Key="TerminologyContactDetailsLabel">Contact Details</sys:String>
+    <sys:String x:Key="TerminologyOfficialEmailLabel">Official Email</sys:String>
+    <sys:String x:Key="TerminologyLocationLabel">Location</sys:String>
+    <sys:String x:Key="TerminologyPhysicalAddressLabel">Physical Address</sys:String>
+    <sys:String x:Key="TerminologySaveChangesLabel">Save Changes</sys:String>
+    <sys:String x:Key="TerminologySystemSettingsLabel">System Settings</sys:String>
+    <sys:String x:Key="TerminologyFacilityDetailsLabel">Facility Details</sys:String>
+    <sys:String x:Key="TerminologyDateFormatLabel">Date Format</sys:String>
+    <sys:String x:Key="TerminologyVisualPreferencesLabel">Visual Preferences</sys:String>
+    <sys:String x:Key="TerminologyDarkModeLabel">Dark Mode</sys:String>
+    <sys:String x:Key="TerminologyDataDensityLabel">Data Density</sys:String>
+    <sys:String x:Key="TerminologyComfortableLabel">Comfortable</sys:String>
+    <sys:String x:Key="TerminologyCompactLabel">Compact</sys:String>
+    <sys:String x:Key="TerminologyNotificationsLabel">Notifications</sys:String>
+    <sys:String x:Key="TerminologySoundAndAlertsLabel">Sound and Alerts</sys:String>
+    <sys:String x:Key="TerminologyMasterVolumeLabel">Master Volume</sys:String>
+    <sys:String x:Key="TerminologyFacilityChimesLabel">Facility Chimes</sys:String>
+    <sys:String x:Key="TerminologyEnableSoundAlertsLabel">Enable sound alerts</sys:String>
+    <sys:String x:Key="TerminologyPermissionsLabel">Permissions</sys:String>
+    <sys:String x:Key="TerminologyAccessMatrixLabel">Access Matrix</sys:String>
+    <sys:String x:Key="TerminologyFinancialDataLabel">Financial Data</sys:String>
+    <sys:String x:Key="TerminologyAdminLabel">Admin</sys:String>
+    <sys:String x:Key="TerminologyManagerLabel">Manager</sys:String>
+    <sys:String x:Key="TerminologyStaffLabel">Staff</sys:String>
+    <sys:String x:Key="TerminologyChangesAutoSaveLabel">Changes are saved automatically to your profile.</sys:String>
+    <sys:String x:Key="TerminologyPricingTiersLabel">Pricing Tiers</sys:String>
+    <sys:String x:Key="TerminologyCreateNewPlanLabel">Create New Plan</sys:String>
+    <sys:String x:Key="TerminologyNoMembershipPlansLabel">No Membership Plans</sys:String>
+    <sys:String x:Key="TerminologyCreatePlansPromptLabel">Create plans to start enrolling members.</sys:String>
+    <sys:String x:Key="TerminologyPerMonthLabel">per month</sys:String>
+    <sys:String x:Key="TerminologyPlanDetailsLabel">Plan Details</sys:String>
+    <sys:String x:Key="TerminologyPlanDescriptionLabel">Configure plan identity and pricing.</sys:String>
+    <sys:String x:Key="TerminologyPlanNameLabel">Plan Name</sys:String>
+    <sys:String x:Key="TerminologyMonthlyPriceLabel">Monthly Price</sys:String>
+    <sys:String x:Key="TerminologyDurationDaysLabel">Duration (Days)</sys:String>
+    <sys:String x:Key="TerminologyAccessibleFacilitiesLabel">Accessible Facilities</sys:String>
+    <sys:String x:Key="TerminologyPlanActiveLabel">This plan is currently active</sys:String>
+    <sys:String x:Key="TerminologyRequiredLabel">Required</sys:String>
+    <sys:String x:Key="TerminologyThemeAndBrandingLabel">Theme &amp; Branding</sys:String>
+    <sys:String x:Key="TerminologyAccentColorLabel">Accent Color</sys:String>
+    <sys:String x:Key="TerminologyAppearanceModeLabel">Appearance Mode</sys:String>
+    <sys:String x:Key="TerminologyRegionalLabel">Regional Settings</sys:String>
+    <sys:String x:Key="TerminologyLightLabel">Light</sys:String>
+    <sys:String x:Key="TerminologyDarkLabel">Dark</sys:String>
+    <sys:String x:Key="TerminologyCapacityControlsLabel">Capacity Controls</sys:String>
+    <sys:String x:Key="TerminologyGlobalMaxOccupancyLabel">Global Max Occupancy</sys:String>
+    <sys:String x:Key="TerminologyTriggersAccessDenialLabel">Triggers automatic access denial</sys:String>
+    <sys:String x:Key="TerminologyEmergencyLockdownLabel">Emergency Lockdown</sys:String>
+    <sys:String x:Key="TerminologyDenyAllAccessLabel">Deny all access now</sys:String>
+    <sys:String x:Key="TerminologyDayLabel">Day</sys:String>
+    <sys:String x:Key="TerminologyOpenTimeLabel">Open</sys:String>
+    <sys:String x:Key="TerminologyCloseTimeLabel">Close</sys:String>
+    <sys:String x:Key="TerminologyActiveLabel">Active</sys:String>
+    <sys:String x:Key="TerminologyFacilityZonesLabel">Facility Zones</sys:String>
+
+    <!-- Shop / Checkout -->
+    <sys:String x:Key="TerminologySubtotalLabel">Subtotal</sys:String>
+    <sys:String x:Key="TerminologyTaxLabel">Tax</sys:String>
+    <sys:String x:Key="TerminologyTotalLabel">Total</sys:String>
+    <sys:String x:Key="TerminologyCheckoutLabel">Checkout</sys:String>
+    <sys:String x:Key="TerminologyClearCartLabel">Clear Cart</sys:String>
+    <sys:String x:Key="TerminologyCartEmptyTitle">Your cart is empty</sys:String>
+    <sys:String x:Key="TerminologyCartEmptySubtitle">Add products to start a sale.</sys:String>
+    
+    <!-- Apparatus / Hardware Status -->
+    <sys:String x:Key="Terminology.Settings.Apparatus.Status">Hardware Status</sys:String>
+    <sys:String x:Key="Terminology.Settings.Apparatus.Disconnected">Disconnected</sys:String>
+    <sys:String x:Key="Terminology.Settings.Apparatus.Connected">Connected</sys:String>
+    <sys:String x:Key="Terminology.Settings.Apparatus.Test">Run Health Test</sys:String>
+    <sys:String x:Key="Terminology.Settings.Apparatus.Testing">Testing...</sys:String>
+    <sys:String x:Key="TerminologyDeviceManagementLabel">Device Management</sys:String>
+    <sys:String x:Key="TerminologyDeviceManagementDesc">Manage the machines authorized to access this facility's Titan secure network.</sys:String>
+    <sys:String x:Key="TerminologyThisDeviceLabel">THIS DEVICE</sys:String>
+    <sys:String x:Key="TerminologyRevokeAccessLabel">Revoke Access</sys:String>
+    <sys:String x:Key="TerminologyLoadingDevicesLabel">Loading authorized devices...</sys:String>
 </ResourceDictionary>

@@ -1,0 +1,865 @@
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 4
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 1
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 5
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][TrendAggregator] GetRestaurantOccupancyTrendAsync orders rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][TrendAggregator] GetSalonOccupancyTrendAsync reservations rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 1
+[DIAG][ActivityAggregator] recentOrders rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 0
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 1
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 2
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 1
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 1
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 1
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 1
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 4
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 5
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 6
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 6
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 6
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 6
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 6
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 7
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 8
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 8
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 9
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 0
+[DIAG][ActivityAggregator] recentOrders rows: 0
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][RestaurantAggregator] PopularItems rows: 2
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][SalonAggregator] monthAppointments rows: 3
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10
+[DIAG][ActivityAggregator] recentOrders rows: 10

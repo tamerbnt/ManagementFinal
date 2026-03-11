@@ -7,7 +7,12 @@ namespace Management.Application.DTOs
     {
         Access,
         Sale,
-        Reservation
+        Reservation,
+        Payment,
+        Appointment,
+        Order,
+        Payroll,
+        Inventory
     }
 
     public record UnifiedHistoryEventDto
@@ -15,8 +20,15 @@ namespace Management.Application.DTOs
         public Guid Id { get; init; }
         public DateTime Timestamp { get; init; }
         public HistoryEventType Type { get; init; }
-        public AccessEventDto? AccessEvent { get; init; }
-        public SaleDto? SaleEvent { get; init; }
-        public ReservationDto? ReservationEvent { get; init; }
+        public string Title { get; init; } = string.Empty;
+        public string? TitleLocalizationKey { get; init; }
+        public string[]? TitleLocalizationArgs { get; init; }
+        public string Details { get; init; } = string.Empty;
+        public string? DetailsLocalizationKey { get; init; }
+        public string[]? DetailsLocalizationArgs { get; init; }
+        public decimal? Amount { get; init; }
+        public bool IsSuccessful { get; init; } = true;
+        public string? AuditNote { get; init; }
+        public string? Metadata { get; init; }
     }
 }

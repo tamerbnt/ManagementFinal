@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// UI Logic: Defines the filtering criteria for the Registrations Inbox.

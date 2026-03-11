@@ -1,39 +1,61 @@
-using Management.Application.Features.Registrations.Queries.SearchRegistrations;
-using Management.Application.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Management.Application.DTOs;
 using Management.Application.Services;
+using Management.Domain.Enums;
+using Management.Domain.Interfaces;
+using Management.Domain.Primitives;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
-using System.Collections.Generic;
-using Management.Application.Services;
-using System.Threading;
-using Management.Application.Services;
-using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Application.Features.Registrations.Queries.SearchRegistrations
 {
-    public class SearchRegistrationsHandler : IRequestHandler<SearchRegistrationsQuery, List<RegistrationDto>>
+    public class SearchRegistrationsHandler : IRequestHandler<SearchRegistrationsQuery, Result<PagedResult<RegistrationDto>>>
     {
-        private readonly IRegistrationService _registrationService;
+        private readonly IRegistrationRepository _registrationRepository;
+        private readonly IFacilityContextService _facilityContext;
 
-        public SearchRegistrationsHandler(IRegistrationService registrationService)
+        public SearchRegistrationsHandler(IRegistrationRepository registrationRepository, IFacilityContextService facilityContext)
         {
-            _registrationService = registrationService;
+            _registrationRepository = registrationRepository;
+            _facilityContext = facilityContext;
         }
 
-        public async Task<List<RegistrationDto>> Handle(SearchRegistrationsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<RegistrationDto>>> Handle(SearchRegistrationsQuery request, CancellationToken cancellationToken)
         {
-            var result = await _registrationService.SearchAsync(new RegistrationSearchRequest(request.SearchText, request.Filter));
+            var facilityId = _facilityContext.CurrentFacilityId == Guid.Empty ? (Guid?)null : _facilityContext.CurrentFacilityId;
             
-            if (result.IsSuccess)
-            {
-                return result.Value.Items.ToList();
-            }
+            var (items, totalCount) = await _registrationRepository.SearchPagedAsync(
+                request.SearchText,
+                facilityId,
+                request.Page,
+                request.PageSize,
+                request.Status,
+                request.Filter);
 
-            return new List<RegistrationDto>();
+            var dtos = items.Select(r => new RegistrationDto
+            {
+                Id = r.Id,
+                FullName = r.FullName,
+                Email = r.Email.Value,
+                PhoneNumber = r.PhoneNumber.Value,
+                Source = r.Source,
+                CreatedAt = r.CreatedAt,
+                Status = r.Status,
+                PreferredPlanId = r.PreferredPlanId,
+                PreferredPlanName = "Plan", // Simplified for now, similar to Member search optimization
+                Notes = r.Notes
+            }).ToList();
+
+            return Result.Success(new PagedResult<RegistrationDto>
+            {
+                Items = dtos,
+                TotalCount = totalCount,
+                PageNumber = request.Page,
+                PageSize = request.PageSize
+            });
         }
     }
 }

@@ -3,10 +3,20 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Management.Domain.Models;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
-    public class SyncStore
+    public class SyncStore : IStateResettable
     {
+        public void ResetState()
+        {
+            _isSyncing = false;
+            _lastSyncTime = null;
+            ConflictedMessages.Clear();
+            SyncStatusChanged?.Invoke();
+        }
+
         private bool _isSyncing;
         public bool IsSyncing
         {

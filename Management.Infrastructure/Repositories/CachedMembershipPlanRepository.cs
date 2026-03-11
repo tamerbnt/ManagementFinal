@@ -9,12 +9,13 @@ namespace Management.Infrastructure.Repositories
 {
     /// <summary>
     /// Decorator for IMembershipPlanRepository that adds caching capabilities.
+    /// The cache is keyed by facilityId to ensure data isolation.
     /// </summary>
     public class CachedMembershipPlanRepository : IMembershipPlanRepository
     {
         private readonly IMembershipPlanRepository _innerRepository;
         private readonly IMemoryCache _cache;
-        private const string PlansCacheKey = "MembershipPlans_Active";
+        private const string PlansCacheKeyPrefix = "MembershipPlans_Active_";
 
         public CachedMembershipPlanRepository(IMembershipPlanRepository innerRepository, IMemoryCache cache)
         {
@@ -22,43 +23,70 @@ namespace Management.Infrastructure.Repositories
             _cache = cache;
         }
 
-        public Task<MembershipPlan> GetByIdAsync(Guid id) => _innerRepository.GetByIdAsync(id);
+        public Task<MembershipPlan?> GetByIdAsync(Guid id, Guid? facilityId = null) => _innerRepository.GetByIdAsync(id, facilityId);
 
         public Task<IEnumerable<MembershipPlan>> GetAllAsync() => _innerRepository.GetAllAsync();
 
-        public Task<MembershipPlan> AddAsync(MembershipPlan entity) 
+        public async Task<MembershipPlan> AddAsync(MembershipPlan entity) 
         {
-            _cache.Remove(PlansCacheKey);
-            return _innerRepository.AddAsync(entity);
+            var result = await _innerRepository.AddAsync(entity);
+            InvalidateCache(entity.FacilityId);
+            return result;
         }
 
-        public Task UpdateAsync(MembershipPlan entity)
+        public async Task UpdateAsync(MembershipPlan entity)
         {
-            _cache.Remove(PlansCacheKey);
-            return _innerRepository.UpdateAsync(entity);
+            await _innerRepository.UpdateAsync(entity);
+            InvalidateCache(entity.FacilityId);
         }
 
-        public Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id)
         {
-            _cache.Remove(PlansCacheKey);
-            return _innerRepository.DeleteAsync(id);
+            await _innerRepository.DeleteAsync(id);
+            // We don't have the facilityId here easily unless we load the entity first,
+            // so we'll clear all as a fallback if specific invalidation is preferred elsewhere.
+            InvalidateCache(null); 
         }
 
-        public Task DeleteAsync(MembershipPlan entity)
+        public async Task DeleteAsync(MembershipPlan entity)
         {
-            _cache.Remove(PlansCacheKey);
-            return _innerRepository.DeleteAsync(entity.Id);
+            await _innerRepository.DeleteAsync(entity.Id);
+            InvalidateCache(entity.FacilityId);
         }
 
-        public async Task<IEnumerable<MembershipPlan>> GetActivePlansAsync()
+        public async Task<IEnumerable<MembershipPlan>> GetActivePlansAsync(Guid? facilityId = null, bool activeOnly = true)
         {
-            var plans = await _cache.GetOrCreateAsync(PlansCacheKey, entry =>
+            var cacheKey = PlansCacheKeyPrefix + (facilityId?.ToString() ?? "all") + (activeOnly ? "_active" : "_all");
+            if (_cache.TryGetValue(cacheKey, out IEnumerable<MembershipPlan> cachedPlans))
             {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
-                return _innerRepository.GetActivePlansAsync();
-            });
+                return cachedPlans;
+            }
 
-            return plans ?? [];
+            var plans = await _innerRepository.GetActivePlansAsync(facilityId, activeOnly);
+            
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10))
+                .SetAbsoluteExpiration(TimeSpan.FromHours(1));
+
+            _cache.Set(cacheKey, plans, cacheOptions);
+
+            return plans;
+        }
+
+        private void InvalidateCache(Guid? facilityId)
+        {
+            // Invalidate both the specific key and the global key
+            // Now also consider the activeOnly parameter in cache keys
+            var specificKeyPrefix = PlansCacheKeyPrefix + (facilityId?.ToString() ?? "all");
+            _cache.Remove(specificKeyPrefix + "_active");
+            _cache.Remove(specificKeyPrefix + "_all");
+
+            // Also invalidate the global "all facilities" keys if facilityId was null or if we want to be thorough
+            if (facilityId != null) // Only if a specific facility was updated, also clear the "all facilities" cache
+            {
+                _cache.Remove(PlansCacheKeyPrefix + "all" + "_active");
+                _cache.Remove(PlansCacheKeyPrefix + "all" + "_all");
+            }
         }
     }
 }

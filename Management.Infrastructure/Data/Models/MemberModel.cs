@@ -49,6 +49,9 @@ namespace Management.Infrastructure.Data.Models
         [Column("emergency_contact_phone")]
         public string? EmergencyContactPhone { get; set; }
 
+        [Column("segment_data_json")]
+        public string SegmentDataJson { get; set; } = "{}";
+
         [Column("notes")]
         public string Notes { get; set; } = string.Empty;
 

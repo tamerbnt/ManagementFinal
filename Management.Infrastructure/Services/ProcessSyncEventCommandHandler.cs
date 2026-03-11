@@ -14,12 +14,12 @@ namespace Management.Infrastructure.Services
 {
     public class ProcessSyncEventCommandHandler : IRequestHandler<ProcessSyncEventCommand, Result>
     {
-        private readonly GymDbContext _context;
+        private readonly AppDbContext _context;
         private readonly MemberStore _memberStore;
         private readonly RegistrationStore _registrationStore;
 
         public ProcessSyncEventCommandHandler(
-            GymDbContext context, 
+            AppDbContext context, 
             MemberStore memberStore, 
             RegistrationStore registrationStore)
         {

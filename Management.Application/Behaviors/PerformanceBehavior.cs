@@ -35,13 +35,21 @@ namespace Management.Application.Behaviors
 
             var elapsedMilliseconds = _timer.ElapsedMilliseconds;
 
-            if (elapsedMilliseconds > 500)
+            if (elapsedMilliseconds > 200)
             {
                 var requestName = typeof(TRequest).Name;
 
                 _logger.LogWarning(
-                    "Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@Request}",
-                    requestName, elapsedMilliseconds, request);
+                    "🔴 Performance Alert: {Name} took {ElapsedMilliseconds}ms (Threshold: 200ms)",
+                    requestName, elapsedMilliseconds);
+            }
+            else if (elapsedMilliseconds > 50)
+            {
+                var requestName = typeof(TRequest).Name;
+
+                _logger.LogInformation(
+                    "🟡 Metric: {Name} took {ElapsedMilliseconds}ms",
+                    requestName, elapsedMilliseconds);
             }
 
             return response;

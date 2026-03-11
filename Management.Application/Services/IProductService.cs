@@ -1,15 +1,10 @@
 using System;
 using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Enums;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 
 namespace Management.Application.Services
 {

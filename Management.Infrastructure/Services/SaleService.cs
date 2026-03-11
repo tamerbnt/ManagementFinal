@@ -1,21 +1,13 @@
 using Management.Application.Features.Sales.Queries.GetSales;
 using Management.Application.Services;
 using Management.Application.Features.Sales.Commands.ProcessCheckout;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
@@ -30,13 +22,25 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result> ProcessCheckoutAsync(Guid facilityId, CheckoutRequestDto request)
         {
-            var result = await _sender.Send(new ProcessCheckoutCommand(request));
+            var result = await _sender.Send(new ProcessCheckoutCommand(facilityId, request));
             return result.IsSuccess ? Result.Success() : Result.Failure(result.Error);
+        }
+
+        public async Task<Result<decimal>> GetTotalRevenueAsync(Guid facilityId, DateTime start, DateTime end)
+        {
+            try
+            {
+                return await _sender.Send(new GetTotalRevenueQuery { FacilityId = facilityId, Start = start, End = end });
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure<decimal>(new Error("Sale.RevenueFetchError", ex.Message));
+            }
         }
 
         public async Task<Result<List<SaleDto>>> GetSalesByRangeAsync(Guid facilityId, DateTime start, DateTime end)
         {
-            return await _sender.Send(new GetSalesHistoryQuery(start, end));
+            return await _sender.Send(new GetSalesHistoryQuery { FacilityId = facilityId, Start = start, End = end });
         }
 
         public async Task<Result<SaleDto>> GetSaleDetailsAsync(Guid facilityId, Guid saleId)

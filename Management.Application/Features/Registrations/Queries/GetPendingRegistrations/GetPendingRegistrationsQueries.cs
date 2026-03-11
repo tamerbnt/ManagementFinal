@@ -5,5 +5,5 @@ using System.Collections.Generic;
 
 namespace Management.Application.Features.Registrations.Queries.GetPendingRegistrations
 {
-    public record GetPendingRegistrationsQuery() : IRequest<Result<List<RegistrationDto>>>;
+    public record GetPendingRegistrationsQuery(System.Guid FacilityId) : IRequest<Result<List<RegistrationDto>>>;
 }

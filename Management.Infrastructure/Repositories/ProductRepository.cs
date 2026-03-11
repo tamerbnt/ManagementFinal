@@ -11,11 +11,13 @@ namespace Management.Infrastructure.Repositories
 {
     public class ProductRepository : Repository<Product>, IProductRepository
     {
-        public ProductRepository(GymDbContext context) : base(context) { }
+        public ProductRepository(AppDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm, ProductCategory? category = null)
+        public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm, ProductCategory? category = null, Guid? facilityId = null)
         {
-            var query = _dbSet.AsNoTracking().Where(p => p.IsActive);
+            var query = facilityId.HasValue 
+                ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && p.IsActive)
+                : _dbSet.AsNoTracking().Where(p => p.IsActive);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -33,31 +35,45 @@ namespace Management.Infrastructure.Repositories
             return await query.OrderBy(p => p.Name).ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetLowStockAsync()
+        public override async Task<Product?> GetByIdAsync(Guid id, Guid? facilityId = null)
         {
-            return await _dbSet.AsNoTracking()
-                .Where(p => p.IsActive && p.StockQuantity <= p.ReorderLevel)
+            if (facilityId.HasValue)
+            {
+                return await _dbSet.IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(p => p.Id == id && p.FacilityId == facilityId.Value);
+            }
+            return await base.GetByIdAsync(id);
+        }
+
+        public async Task<IEnumerable<Product>> GetLowStockAsync(Guid? facilityId = null)
+        {
+            var query = facilityId.HasValue
+                ? _dbSet.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && p.IsActive && p.StockQuantity <= p.ReorderLevel)
+                : _dbSet.AsNoTracking().Where(p => p.IsActive && p.StockQuantity <= p.ReorderLevel);
+
+            return await query
                 .OrderBy(p => p.StockQuantity)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetActiveProductsAsync()
+        public async Task<IEnumerable<Product>> GetActiveProductsAsync(Guid? facilityId = null)
         {
-            return await _dbSet.AsNoTracking()
-                .Where(p => p.IsActive)
+            var query = facilityId.HasValue
+                ? _dbSet.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && p.IsActive)
+                : _dbSet.AsNoTracking().Where(p => p.IsActive);
+
+            return await query
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetInventoryStatusAsync()
+        public async Task<IEnumerable<Product>> GetInventoryStatusAsync(Guid? facilityId = null)
         {
-             // For Inventory Dashboard, return all active products sorted by stock level implicitly?
-             // Or maybe even inactive ones if managing inventory?
-             // Let's return Active ones for now, sorted by name.
-             // Or better, sorted by StockQuantity to see what's low/high? LowStockAsync does that.
-             // Let's sort by Category then Name.
-             return await _dbSet.AsNoTracking()
-                .Where(p => p.IsActive)
+             var query = facilityId.HasValue
+                ? _dbSet.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && p.IsActive)
+                : _dbSet.AsNoTracking().Where(p => p.IsActive);
+
+             return await query
                 .OrderBy(p => p.Category)
                 .ThenBy(p => p.Name)
                 .ToListAsync();

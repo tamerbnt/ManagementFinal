@@ -1,5 +1,5 @@
 using System.Windows.Controls;
-using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.Members;
 
 namespace Management.Presentation.Views.Members
 {

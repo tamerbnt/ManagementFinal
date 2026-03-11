@@ -1,7 +1,7 @@
-ï»¿// ******************************************************************************************
+// ******************************************************************************************
 //  Management.Presentation/Services/IModalNavigationService.cs
-//  FINAL PRODUCTION VERSION â€“ v1.2.0-production
-//  Design System: Apple 2025 Edition â€“ v1.2 FINAL (LOCKED)
+//  FINAL PRODUCTION VERSION – v1.2.0-production
+//  Design System: Apple 2025 Edition – v1.2 FINAL (LOCKED)
 //  Status: PRODUCTION READY
 // ******************************************************************************************
 
@@ -16,7 +16,7 @@ namespace Management.Presentation.Services
     #region Enums
 
     /// <summary>
-    /// Modal size variants as per Design System Â§15.4
+    /// Modal size variants as per Design System §15.4
     /// </summary>
     public enum ModalSize
     {
@@ -37,7 +37,7 @@ namespace Management.Presentation.Services
     }
 
     /// <summary>
-    /// Modal animation types as per Design System Â§5.2, Â§33.5
+    /// Modal animation types as per Design System §5.2, §33.5
     /// </summary>
     public enum ModalAnimation
     {
@@ -104,7 +104,7 @@ namespace Management.Presentation.Services
     }
 
     /// <summary>
-    /// Interface for ViewModels with unsaved changes (Design System Â§33.4)
+    /// Interface for ViewModels with unsaved changes (Design System §33.4)
     /// </summary>
     public interface IHasUnsavedChanges
     {
@@ -203,12 +203,12 @@ namespace Management.Presentation.Services
         Task<bool> CloseAllModalsAsync(bool force = false);
 
         /// <summary>
-        /// Shows the unsaved changes dialog (Design System Â§33.4)
+        /// Shows the unsaved changes dialog (Design System §33.4)
         /// </summary>
         Task<bool> ShowUnsavedChangesDialogAsync();
 
         /// <summary>
-        /// Handles Escape key press (Design System Â§33.3)
+        /// Handles Escape key press (Design System §33.3)
         /// </summary>
         /// <returns>True if Escape was handled</returns>
         Task<bool> HandleEscapeKeyAsync();

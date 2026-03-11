@@ -1,31 +1,18 @@
 using Management.Application.Features.Products.Queries.GetProducts;
 using Management.Application.Services;
 using Management.Application.Features.Products.Commands.CreateProduct;
-using Management.Application.Services;
 using Management.Application.Features.Products.Commands.UpdateProduct;
-using Management.Application.Services;
 using Management.Application.Features.Products.Commands.DeleteProduct;
-using Management.Application.Services;
 using Management.Application.Features.Products.Commands.UpdateProductStock;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Enums;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System;
-using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
@@ -40,17 +27,17 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result<List<ProductDto>>> GetActiveProductsAsync(Guid facilityId)
         {
-            return await _sender.Send(new GetActiveProductsQuery());
+            return await _sender.Send(new GetActiveProductsQuery(facilityId));
         }
 
         public async Task<Result<ProductDto>> GetProductAsync(Guid facilityId, Guid id)
         {
-            return await _sender.Send(new GetProductByIdQuery(id));
+            return await _sender.Send(new GetProductByIdQuery(id, facilityId));
         }
 
         public async Task<Result<List<InventoryDto>>> GetInventoryStatusAsync(Guid facilityId)
         {
-            var result = await _sender.Send(new GetInventoryStatusQuery());
+            var result = await _sender.Send(new GetInventoryStatusQuery(facilityId));
             if (result.IsFailure) return Result.Failure<List<InventoryDto>>(result.Error);
             
             var list = result.Value.Select(p => new InventoryDto(
@@ -68,27 +55,27 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result<List<ProductDto>>> SearchProductsAsync(Guid facilityId, string searchTerm, ProductCategory? category = null)
         {
-            return await _sender.Send(new SearchProductsQuery(searchTerm));
+            return await _sender.Send(new SearchProductsQuery(searchTerm, facilityId));
         }
 
         public async Task<Result> CreateProductAsync(Guid facilityId, ProductDto product)
         {
-            return await _sender.Send(new CreateProductCommand(product));
+            return await _sender.Send(new CreateProductCommand(product, facilityId));
         }
 
         public async Task<Result> UpdateProductAsync(Guid facilityId, ProductDto product)
         {
-            return await _sender.Send(new UpdateProductCommand(product));
+            return await _sender.Send(new UpdateProductCommand(product, facilityId));
         }
 
         public async Task<Result> UpdateStockAsync(Guid facilityId, Guid productId, int quantityChange, string reason)
         {
-            return await _sender.Send(new UpdateProductStockCommand(productId, quantityChange, reason));
+            return await _sender.Send(new UpdateProductStockCommand(productId, quantityChange, reason, facilityId));
         }
 
         public async Task<Result> DeleteProductAsync(Guid facilityId, Guid id)
         {
-            return await _sender.Send(new DeleteProductCommand(id));
+            return await _sender.Send(new DeleteProductCommand(id, facilityId));
         }
     }
 }

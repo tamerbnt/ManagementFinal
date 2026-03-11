@@ -5,5 +5,5 @@ using System;
 
 namespace Management.Application.Features.Plans.Commands.CreatePlan
 {
-    public record CreatePlanCommand(MembershipPlanDto Plan) : IRequest<Result<Guid>>;
+    public record CreatePlanCommand(MembershipPlanDto Plan, Guid? FacilityId = null) : IRequest<Result<Guid>>;
 }

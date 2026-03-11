@@ -1,5 +1,5 @@
 using System.Windows.Controls;
-using Management.Presentation.ViewModels;
+using Management.Presentation.ViewModels.Shop;
 
 namespace Management.Presentation.Views.Shop
 {

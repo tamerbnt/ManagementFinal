@@ -1,12 +1,15 @@
-﻿using System;
+using System;
 using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
 using Management.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Management.Domain.Models
 {
-    public class Member : AggregateRoot, ITenantEntity
+    public class Member : AggregateRoot, ITenantEntity, IFacilityEntity
     {
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
 
         // Core Identity
         public string FullName { get; private set; } = string.Empty;
@@ -14,16 +17,80 @@ namespace Management.Domain.Models
         public PhoneNumber PhoneNumber { get; private set; } = null!;
 
         // Physical Access
-        public string CardId { get; private set; } = string.Empty; // RFID/NFC Tag ID
         public string ProfileImageUrl { get; private set; } = string.Empty;
+        public string SegmentDataJson { get; private set; } = "{}";
+
+        private IMemberMetadata? _metadata;
+
+        [NotMapped]
+        public IMemberMetadata Metadata 
+        { 
+            get => _metadata ??= DeserializeMetadata(); 
+            private set 
+            {
+                _metadata = value;
+                SegmentDataJson = System.Text.Json.JsonSerializer.Serialize(value, value.GetType());
+            }
+        }
 
         // Membership Status
         public MemberStatus Status { get; private set; }
-        public DateTime StartDate { get; private set; }
-        public DateTime ExpirationDate { get; private set; }
+        
+        // BACKWARD COMPATIBILITY: Proxies to Metadata if it's a GymMemberMetadata
+        public DateTime StartDate 
+        { 
+            get => _startDate;
+            private set 
+            { 
+                _startDate = value;
+                if (Metadata is GymMemberMetadata gm) UpdateMetadata(gm with { StartDate = value });
+            }
+        }
+        private DateTime _startDate;
 
-        // Foreign Key to Membership Plan
-        public Guid? MembershipPlanId { get; private set; }
+        public DateTime ExpirationDate 
+        { 
+            get => _expirationDate;
+            private set 
+            { 
+                _expirationDate = value;
+                if (Metadata is GymMemberMetadata gm) UpdateMetadata(gm with { ExpirationDate = value });
+            }
+        }
+        private DateTime _expirationDate;
+
+        public Guid? MembershipPlanId 
+        { 
+            get => _membershipPlanId;
+            private set 
+            { 
+                _membershipPlanId = value;
+                if (Metadata is GymMemberMetadata gm) UpdateMetadata(gm with { MembershipPlanId = value });
+            }
+        }
+        private Guid? _membershipPlanId;
+
+        public string CardId 
+        { 
+            get => _cardId;
+            private set 
+            { 
+                _cardId = value ?? string.Empty;
+                if (Metadata is GymMemberMetadata gm) UpdateMetadata(gm with { CardId = _cardId });
+            }
+        }
+        private string _cardId = string.Empty;
+
+        public int RemainingSessions 
+        { 
+            get => _remainingSessions;
+            private set 
+            { 
+                _remainingSessions = value;
+                if (Metadata is GymMemberMetadata gm) UpdateMetadata(gm with { RemainingSessions = value });
+            }
+        }
+        private int _remainingSessions;
 
         // Emergency Info
         public string EmergencyContactName { get; private set; } = string.Empty;
@@ -52,6 +119,34 @@ namespace Management.Domain.Models
 
         // EF Core & Supabase Constructor
         public Member() { }
+
+        // Infrastructure Reconstruction Constructor
+        public Member(
+            Guid id,
+            string fullName,
+            string email,
+            string phoneNumber,
+            string cardId,
+            string profileImageUrl,
+            MemberStatus status,
+            DateTime startDate,
+            DateTime expirationDate,
+            Guid? membershipPlanId,
+            Gender gender,
+            int remainingSessions) : base(id)
+        {
+            FullName = fullName;
+            Email = Email.Create(email).Value; 
+            PhoneNumber = PhoneNumber.Create(phoneNumber).Value;
+            CardId = cardId;
+            ProfileImageUrl = profileImageUrl;
+            Status = status;
+            StartDate = startDate;
+            ExpirationDate = expirationDate;
+            MembershipPlanId = membershipPlanId;
+            Gender = gender;
+            RemainingSessions = remainingSessions;
+        }
 
         public static Result<Member> Register(
             string fullName,
@@ -114,6 +209,8 @@ namespace Management.Domain.Models
 
         public bool IsActive => Status == MemberStatus.Active && ExpirationDate > DateTime.UtcNow;
 
+        public Gender Gender { get; private set; }
+
         public bool CanGrantAccess()
         {
             if (Status == MemberStatus.Expired || ExpirationDate <= DateTime.UtcNow)
@@ -123,6 +220,58 @@ namespace Management.Domain.Models
 
             return Status == MemberStatus.Active;
         }
+
+        public void SetRemainingSessions(int newCount)
+        {
+            RemainingSessions = newCount;
+            if (RemainingSessions < 0) RemainingSessions = 0;
+            UpdateTimestamp();
+        }
+
+        // Metadata Management
+        private void UpdateMetadata(IMemberMetadata metadata)
+        {
+            _metadata = metadata;
+            SegmentDataJson = System.Text.Json.JsonSerializer.Serialize(metadata, metadata.GetType());
+            UpdateTimestamp();
+        }
+
+        private IMemberMetadata DeserializeMetadata()
+        {
+            if (string.IsNullOrEmpty(SegmentDataJson) || SegmentDataJson == "{}")
+            {
+                // Fallback: Try to migrate legacy fields if they exist (from DB load)
+                return new GymMemberMetadata
+                {
+                    MembershipPlanId = _membershipPlanId,
+                    CardId = _cardId,
+                    RemainingSessions = _remainingSessions,
+                    StartDate = _startDate,
+                    ExpirationDate = _expirationDate
+                };
+            }
+
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(SegmentDataJson);
+                var root = doc.RootElement;
+                if (root.TryGetProperty("SegmentType", out var typeProp))
+                {
+                    var type = typeProp.GetString();
+                    return type switch
+                    {
+                        "Gym" => System.Text.Json.JsonSerializer.Deserialize<GymMemberMetadata>(SegmentDataJson)!,
+                        "Salon" => System.Text.Json.JsonSerializer.Deserialize<SalonMemberMetadata>(SegmentDataJson)!,
+                        "Restaurant" => System.Text.Json.JsonSerializer.Deserialize<RestaurantMemberMetadata>(SegmentDataJson)!,
+                        _ => new GymMemberMetadata() // Default
+                    };
+                }
+            } catch { }
+
+            return new GymMemberMetadata();
+        }
+
+        public void SetMetadata(IMemberMetadata metadata) => UpdateMetadata(metadata);
     }
 
         // Replaced by UpdateEmergencyContact

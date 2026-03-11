@@ -1,27 +1,20 @@
 using System;
 using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using Management.Infrastructure.Data;
-using Management.Application.Services;
 using Microsoft.EntityFrameworkCore;
-using Management.Application.Services;
 
 namespace Management.Infrastructure.Services
 {
     public class DataDoctorService : IDataDoctorService
     {
-        private readonly GymDbContext _context;
+        private readonly AppDbContext _context;
 
-        public DataDoctorService(GymDbContext context)
+        public DataDoctorService(AppDbContext context)
         {
             _context = context;
         }
@@ -32,19 +25,17 @@ namespace Management.Infrastructure.Services
             {
                 var report = new DataHealthReport();
 
-                // Run scans in parallel on background threads to prevent UI lag
+                // Run scans sequentially on a background thread to prevent UI lag and avoid DbContext thread-safety issues
                 await Task.Run(async () =>
                 {
-                    var duplicateTask = ScanForDuplicateMembersAsync(facilityId);
-                    var expiredTask = ScanForExpiredActiveMembersAsync(facilityId);
+                    var duplicates = await ScanForDuplicateMembersAsync(facilityId);
+                    var expired = await ScanForExpiredActiveMembersAsync(facilityId);
 
-                    await Task.WhenAll(duplicateTask, expiredTask);
+                    report.Issues.AddRange(duplicates);
+                    report.Issues.AddRange(expired);
 
-                    report.Issues.AddRange(duplicateTask.Result);
-                    report.Issues.AddRange(expiredTask.Result);
-
-                    report.DuplicateMembersCount = duplicateTask.Result.Count;
-                    report.ExpiredActiveCount = expiredTask.Result.Count;
+                    report.DuplicateMembersCount = duplicates.Count;
+                    report.ExpiredActiveCount = expired.Count;
                     report.StaleOrdersCount = 0;
                     report.ScanCompletedAt = DateTime.Now;
                 });

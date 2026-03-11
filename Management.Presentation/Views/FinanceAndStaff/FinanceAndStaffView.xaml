@@ -5,8 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.FinanceAndStaff"
+             xmlns:layout="clr-namespace:Management.Presentation.Components.Layout"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Finance"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -18,87 +20,202 @@
 
 	<UserControl.Resources>
 		<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+		<converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
+		<converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
 	</UserControl.Resources>
 
-	<Grid>
-		<!-- LAYER 0: MAIN CONTENT -->
+	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 		<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<!-- Header -->
+				<RowDefinition Height="Auto"/>
+				<!-- Search & Filter Bar -->
 				<RowDefinition Height="*"/>
-				<!-- Tabs -->
+				<!-- Content -->
 			</Grid.RowDefinitions>
+			
+			<!-- 1. Header & Primary Actions -->
+			<Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				
+				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+					<Path Data="{StaticResource IconFinance}" 
+						  Style="{StaticResource Style.Icon.Large}" 
+						  Stroke="{DynamicResource TextPrimaryBrush}"
+						  Margin="0,0,12,0"
+						  VerticalAlignment="Center"/>
+					<TextBlock Text="{DynamicResource Terminology.Staff.Header}" 
+							   Style="{StaticResource Title1}" 
+							   Foreground="{DynamicResource TextPrimaryBrush}"
+							   VerticalAlignment="Center"/>
+				</StackPanel>
 
-			<!-- 1. Header -->
-			<TextBlock Grid.Row="0"
-                       Text="{DynamicResource TerminologyFinanceStaffLabel}"
-                       Style="{StaticResource Title1}"
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       Margin="48,0,48,24"/>
+				<StackPanel Grid.Column="1" Orientation="Horizontal">
+					<!-- Primary Action: Add Staff -->
+					<Button Style="{StaticResource PrimaryButton}"
+							Command="{Binding OpenAddStaffCommand}"
+							Margin="{StaticResource MarginMediumRight}">
+						<StackPanel Orientation="Horizontal" Margin="4,0">
+							<Path Data="{StaticResource IconPlus}" 
+								   Stroke="White"
+								   Style="{StaticResource Style.Icon.Small}"
+								   Margin="{StaticResource MarginIconRight}"/>
+							<TextBlock Text="{DynamicResource Terminology.Staff.Action.Add}" FontWeight="SemiBold"/>
+						</StackPanel>
+					</Button>
 
-			<!-- 2. Top-Level Navigation Tabs -->
-			<TabControl Grid.Row="1"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Padding="0"
-                        SelectedIndex="{Binding SelectedTabIndex}">
+					<!-- Secondary Action: Print -->
+					<Button Command="{Binding PrintStaffListCommand}">
+						<Button.Style>
+							<Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+								<Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+								<Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+								<Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+								<Style.Triggers>
+									<Trigger Property="IsMouseOver" Value="True">
+										<Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+									</Trigger>
+								</Style.Triggers>
+							</Style>
+						</Button.Style>
+						<StackPanel Orientation="Horizontal" Margin="4,0">
+							<Path Data="{StaticResource IconPrinter}" 
+								   Fill="{DynamicResource TextPrimaryBrush}"
+								   Style="{StaticResource Style.Icon.Small}"
+								   Margin="{StaticResource MarginIconRight}"/>
+							<TextBlock Text="{DynamicResource Terminology.Staff.Action.Print}" FontWeight="Medium"/>
+						</StackPanel>
+					</Button>
+				</StackPanel>
+			</Grid>
 
-				<TabControl.Resources>
-					<!-- Align Tabs to Left -->
-					<Style TargetType="TabPanel">
-						<Setter Property="HorizontalAlignment" Value="Left"/>
-						<Setter Property="Margin" Value="48,0,0,32"/>
-					</Style>
-				</TabControl.Resources>
+			<!-- 2. Search & Filter Bar -->
+			<Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<!-- Filters & Actions -->
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
 
-				<!-- Tab 1: Finance -->
-				<TabItem Header="{DynamicResource TerminologyFinanceLabel}" Style="{StaticResource GlobalDetailTabStyle}">
-					<local:FinancialReportView />
-				</TabItem>
+				<!-- Status Filter Pills -->
+				<Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" HorizontalAlignment="Left">
+					<StackPanel Orientation="Horizontal">
+						<RadioButton Content="{DynamicResource Terminology.Staff.Filter.All}" 
+									 IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=All}" 
+									 GroupName="ViewGroup"
+									 Style="{StaticResource TogglePillStyle}" Margin="0,0,4,0"/>
+						<RadioButton Content="{DynamicResource Terminology.Staff.Filter.Active}" 
+									 IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Active}" 
+									 GroupName="ViewGroup"
+									 Style="{StaticResource TogglePillStyle}" Margin="0,0,4,0"/>
+						<RadioButton Content="{DynamicResource Terminology.Staff.Filter.Inactive}" 
+									 IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Inactive}" 
+									 GroupName="ViewGroup"
+									 Style="{StaticResource TogglePillStyle}"/>
+					</StackPanel>
+				</Border>
 
-				<!-- Tab 2: Staff -->
-				<TabItem Header="{DynamicResource TerminologyStaffLabel}" Style="{StaticResource GlobalDetailTabStyle}">
-					<local:StaffList />
-				</TabItem>
-			</TabControl>
+				<!-- Right Actions -->
+				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+					<Button Command="{Binding SwitchViewModeCommand}" 
+							CommandParameter="{x:Static vm:StaffViewMode.Grid}"
+							Style="{StaticResource IconButtonStyle}" 
+							ToolTip="{DynamicResource Terminology.FinanceAndStaff.View.Grid}" Margin="0,0,8,0">
+						<Path Data="{StaticResource IconDashboard}">
+							<Path.Style>
+								<Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+									<Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:StaffViewMode.Grid}">
+											<Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Path.Style>
+						</Path>
+					</Button>
+					<Button Command="{Binding SwitchViewModeCommand}" 
+							CommandParameter="{x:Static vm:StaffViewMode.List}"
+							Style="{StaticResource IconButtonStyle}" 
+							ToolTip="{DynamicResource Terminology.FinanceAndStaff.View.List}">
+						<Path Data="{StaticResource IconMenu}">
+							<Path.Style>
+								<Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+									<Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+									<Style.Triggers>
+										<DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:StaffViewMode.List}">
+											<Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
+										</DataTrigger>
+									</Style.Triggers>
+								</Style>
+							</Path.Style>
+						</Path>
+					</Button>
+				</StackPanel>
+			</Grid>
+
+			<!-- 3. Content Area -->
+			<Border Grid.Row="2" Background="Transparent">
+				<Grid>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+
+					<!-- Staff List Component -->
+					<Border Grid.Column="0" Background="Transparent">
+						<local:StaffList DataContext="{Binding}"/>
+					</Border>
+
+					<!-- Staff Detail Drawer -->
+					<Grid Grid.Column="1" 
+						  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
+						  Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+						<Grid.RenderTransform>
+							<TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Path=ActualWidth}"/>
+						</Grid.RenderTransform>
+						<Grid.Style>
+							<Style TargetType="Grid">
+								<Style.Triggers>
+									<DataTrigger Binding="{Binding IsDetailOpen}" Value="True">
+										<DataTrigger.EnterActions>
+											<BeginStoryboard>
+												<Storyboard>
+													<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+														<DoubleAnimation.EasingFunction>
+															<CubicEase EasingMode="EaseOut"/>
+														</DoubleAnimation.EasingFunction>
+													</DoubleAnimation>
+												</Storyboard>
+											</BeginStoryboard>
+										</DataTrigger.EnterActions>
+									</DataTrigger>
+								</Style.Triggers>
+							</Style>
+						</Grid.Style>
+
+						<!-- Shadow Layer -->
+						<Border Background="White" CornerRadius="32,0,0,32">
+							<Border.Effect>
+								<DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.15" Color="Black"/>
+							</Border.Effect>
+						</Border>
+
+						<!-- Content Layer -->
+						<Border Background="White" 
+								CornerRadius="32,0,0,32"
+								BorderThickness="1,0,0,0"
+								BorderBrush="{DynamicResource BorderBrush}"
+								ClipToBounds="True">
+							<local:StaffDetailView DataContext="{Binding SelectedStaff}"/>
+						</Border>
+					</Grid>
+				</Grid>
+			</Border>
 		</Grid>
-
-		<!-- LAYER 1: BACKDROP (Dimmer) -->
-		<!-- 
-            Uses Global OverlayBackdropBrush (Handles correct alpha/color).
-            Clicking backdrop triggers CloseDetailCommand.
-        -->
-		<Border Background="{DynamicResource OverlayBackdropBrush}"
-                Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
-                Panel.ZIndex="10">
-			<Border.InputBindings>
-				<MouseBinding MouseAction="LeftClick" Command="{Binding CloseDetailCommand}"/>
-			</Border.InputBindings>
-		</Border>
-
-		<!-- LAYER 2: SLIDE-IN DETAIL PANEL -->
-		<!-- 
-            Animation handled entirely by GlobalSidePanelBehavior.
-            No local Storyboards allowed.
-        -->
-        <Grid HorizontalAlignment="Right"
-              VerticalAlignment="Stretch"
-              Panel.ZIndex="20"
-              Width="{StaticResource SizeSidePanelWidth}">
-
-            <Grid.RenderTransform>
-                <TranslateTransform X="{StaticResource SizeSidePanelWidth}"/>
-            </Grid.RenderTransform>
-
-
-            <!-- 2. FIX: CORRECT BEHAVIOR SYNTAX -->
-            <i:Interaction.Behaviors>
-				<behaviors:GlobalSidePanelBehavior IsOpen="{Binding IsDetailOpen}" />
-			</i:Interaction.Behaviors>
-
-			<local:StaffDetailView DataContext="{Binding SelectedStaffViewModel}"/>
-		</Grid>
-
-	</Grid>
+	</ScrollViewer>
 </UserControl>

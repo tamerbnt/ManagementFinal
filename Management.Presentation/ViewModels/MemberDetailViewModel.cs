@@ -1,29 +1,18 @@
-using System;
-using Management.Application.Services;
+﻿using System;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Collections.ObjectModel;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using System.Windows.Input;
 using Management.Application.Services;
-using Management.Presentation.Services;
-using Management.Application.Services;
+using Management.Application.Interfaces.App;
 using Management.Application.Stores;
-using Management.Application.Services;
 using Management.Domain.Enums;
-using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
+using Management.Presentation.Services;
 using Management.Presentation.Extensions;
-using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {
@@ -35,6 +24,7 @@ namespace Management.Presentation.ViewModels
         private readonly IModalNavigationService _modalService;
         private readonly INotificationService _notificationService;
         private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
+        private readonly ITerminologyService _terminologyService;
 
         public ModalSize PreferredSize => ModalSize.Medium;
 
@@ -83,6 +73,7 @@ namespace Management.Presentation.ViewModels
             IAccessEventService accessEventService,
             IModalNavigationService modalService,
             INotificationService notificationService,
+            ITerminologyService terminologyService,
             Management.Domain.Services.IFacilityContextService facilityContext)
         {
             _memberService = memberService;
@@ -90,6 +81,7 @@ namespace Management.Presentation.ViewModels
             _accessEventService = accessEventService;
             _modalService = modalService;
             _notificationService = notificationService;
+            _terminologyService = terminologyService;
             _facilityContext = facilityContext;
 
             SaveCommand = new AsyncRelayCommand(ExecuteSaveAsync, CanExecuteSave);
@@ -103,7 +95,7 @@ namespace Management.Presentation.ViewModels
             try
             {
                 // 1. Load Plans
-                var plansResult = await _planService.GetAllPlansAsync();
+                var plansResult = await _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
                 if (plansResult.IsSuccess)
                 {
                     AvailablePlans.Clear();
@@ -199,7 +191,7 @@ namespace Management.Presentation.ViewModels
             var renewResult = await _memberService.RenewMembersAsync(_facilityContext.CurrentFacilityId, new List<Guid> { _memberId.Value });
             if (renewResult.IsSuccess)
             {
-                _notificationService.ShowSuccess("Membership renewed.");
+                _notificationService.ShowSuccess(_terminologyService.GetTerm("Strings.Global.Membershiprenewed"));
                 // Update local status/expiration if needed (or just close and refresh list)
                 await InitializeAsync(_memberId.Value);
             }

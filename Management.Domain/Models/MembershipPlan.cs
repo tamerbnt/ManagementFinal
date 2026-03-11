@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
 
@@ -7,31 +7,41 @@ namespace Management.Domain.Models
     /// <summary>
     /// Configuration for a pricing tier (e.g. "Gold - 1 Year").
     /// </summary>
-    public class MembershipPlan : AggregateRoot
+    public class MembershipPlan : AggregateRoot, ITenantEntity, IFacilityEntity
     {
-        public string Name { get; private set; }
-        public string Description { get; private set; }
-        public int DurationDays { get; private set; } // e.g., 30, 365
-        public Money Price { get; private set; }
-        public bool IsActive { get; private set; }
+        public Guid TenantId { get; set; }
+        public Guid FacilityId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int DurationDays { get; set; } // e.g., 30, 365
+        public Money Price { get; set; }
+        public bool IsActive { get; set; }
+        public virtual System.Collections.Generic.ICollection<Management.Domain.Models.Facility> AccessibleFacilities { get; set; } = new System.Collections.Generic.List<Management.Domain.Models.Facility>();
+        public bool IsSessionPack { get; set; }
+        public bool IsWalkIn { get; set; }
 
-        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price) : base(id)
+        // Behavioral Rules
+        public int GenderRule { get; set; } // 0: Both, 1: MaleOnly, 2: FemaleOnly
+        public string? ScheduleJson { get; set; } // JSON serialized schedule windows
+
+        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price, bool isWalkIn = false) : base(id)
         {
             Name = name;
             Description = description;
             DurationDays = durationDays;
             Price = price;
             IsActive = true;
+            IsWalkIn = isWalkIn;
         }
 
-        private MembershipPlan() 
+        public MembershipPlan() 
         {
             Name = default!;
             Description = default!;
             Price = default!;
         }
 
-        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price)
+        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price, bool isWalkIn = false)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Result.Failure<MembershipPlan>(new Error("Plan.EmptyName", "Name is required"));
@@ -39,10 +49,10 @@ namespace Management.Domain.Models
             if (durationDays <= 0)
                 return Result.Failure<MembershipPlan>(new Error("Plan.InvalidDuration", "Duration must be positive"));
 
-            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price));
+            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price, isWalkIn));
         }
 
-        public void UpdateDetails(string name, string description, int durationDays, Money price)
+        public void UpdateDetails(string name, string description, int durationDays, Money price, bool? isWalkIn = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty");
@@ -51,6 +61,7 @@ namespace Management.Domain.Models
             Description = description;
             DurationDays = durationDays;
             Price = price;
+            if (isWalkIn.HasValue) IsWalkIn = isWalkIn.Value;
             UpdateTimestamp();
         }
 

@@ -1,5 +1,5 @@
-using Management.Application.Stores;
 using Management.Application.DTOs;
+using Management.Application.Interfaces;
 using Management.Domain.Enums;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;
@@ -15,25 +15,33 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Result<Guid>>
     {
         private readonly IProductRepository _productRepository;
+        private readonly Domain.Services.ITenantService _tenantService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public CreateProductCommandHandler(IProductRepository productRepository)
+        public CreateProductCommandHandler(
+            IProductRepository productRepository, 
+            Domain.Services.ITenantService tenantService,
+            ICurrentUserService currentUserService)
         {
             _productRepository = productRepository;
+            _tenantService = tenantService;
+            _currentUserService = currentUserService;
         }
 
         public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Product;
 
-            if (!Enum.TryParse<ProductCategory>(dto.Category, out var category))
+            // Parse Category (String to Enum)
+            if (!Enum.TryParse<ProductCategory>(dto.Category, true, out var category))
             {
-                category = ProductCategory.Other; 
+                category = ProductCategory.Other; // Fallback
             }
 
-            var price = new Money(dto.Price, dto.Currency ?? "USD");
-            var cost = new Money(dto.Cost, dto.Currency ?? "USD"); 
-            
-            var result = Product.Create(
+            var price = new Money(dto.Price, dto.Currency ?? "DA");
+            var cost = new Money(dto.Cost, dto.Currency ?? "DA");
+
+            var productResult = Product.Create(
                 dto.Name,
                 dto.Description,
                 price,
@@ -44,13 +52,21 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
                 dto.ImageUrl,
                 dto.ReorderLevel);
 
-            if (result.IsFailure)
+            if (productResult.IsFailure)
             {
-                return Result.Failure<Guid>(result.Error);
+                return Result.Failure<Guid>(productResult.Error);
             }
 
-            var product = result.Value;
-            
+            var product = productResult.Value;
+
+            // Set multi-tenancy IDs
+            var tenantId = _tenantService.GetTenantId();
+            if (tenantId.HasValue) product.TenantId = tenantId.Value;
+
+            var facilityId = request.FacilityId ?? _currentUserService.CurrentFacilityId;
+            if (facilityId.HasValue && facilityId != Guid.Empty) product.FacilityId = facilityId.Value;
+
+            // Persist to Repository (Supabase via AppDbContext)
             await _productRepository.AddAsync(product);
 
             return Result.Success(product.Id);

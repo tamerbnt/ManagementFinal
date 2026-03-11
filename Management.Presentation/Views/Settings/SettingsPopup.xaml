@@ -1,4 +1,4 @@
-<UserControl x:Class="Management.Presentation.Views.Settings.SettingsPopup"
+﻿<UserControl x:Class="Management.Presentation.Views.Settings.SettingsPopup"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -50,9 +50,9 @@
                         </Grid>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="{DynamicResource TerminologyDateFormatLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                            <ComboBox SelectedIndex="0" HorizontalAlignment="Right" Width="200">
-                                <ComboBoxItem Content="DD/MM/YYYY"/>
-                                <ComboBoxItem Content="MM/DD/YYYY"/>
+                            <ComboBox SelectedIndex="0" HorizontalAlignment="Right" Width="200" Style="{StaticResource Input.ComboBox}" IsEditable="False">
+                                <ComboBoxItem Content="{DynamicResource Strings.Settings.DDMMYYYY}"/>
+                                <ComboBoxItem Content="{DynamicResource Strings.Settings.MMDDYYYY}"/>
                             </ComboBox>
                         </Grid>
                     </StackPanel>

@@ -66,7 +66,7 @@
                      ItemsSource="{Binding CartItems}"
                      Background="Transparent"
                      BorderThickness="0"
-                     Style="{StaticResource GlobalScrollBarStyle}"
+                     Style="{StaticResource PremiumListBox}"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      Padding="0">
 
@@ -79,12 +79,27 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <!-- Separator Border -->
-                                    <Border BorderBrush="{StaticResource SeparatorBrush}"
-                                            BorderThickness="0,0,0,1"
-                                            Background="{TemplateBinding Background}">
-                                        <ContentPresenter />
-                                    </Border>
+                                    <Grid>
+                                        <!-- Focus Ring -->
+                                        <Border x:Name="FocusRing"
+                                                BorderBrush="{DynamicResource FacilityAccentBrush}"
+                                                BorderThickness="2"
+                                                CornerRadius="{DynamicResource RadiusButton}"
+                                                Margin="-4"
+                                                Opacity="0"
+                                                SnapsToDevicePixels="True"/>
+                                        <!-- Separator Border -->
+                                        <Border BorderBrush="{StaticResource SeparatorBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Background="{TemplateBinding Background}">
+                                            <ContentPresenter />
+                                        </Border>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter TargetName="FocusRing" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
@@ -108,7 +123,7 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
 
-                                <TextBlock Text="{Binding UnitPrice, StringFormat='{}{0:C}'}" 
+                                <TextBlock Text="{Binding UnitPrice, StringFormat='{}{0:N2} DA'}" 
                                            Style="{StaticResource Caption}" 
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="{StaticResource MarginSmallTop}"/>
@@ -126,7 +141,7 @@
                                         Height="{StaticResource SizeQuantityButton}">
                                     <Path Data="{StaticResource IconMinus}" 
                                           Fill="{DynamicResource TextSecondaryBrush}" 
-                                          Style="{StaticResource IconSmall}"/>
+                                          Style="{StaticResource Style.Icon.Small}"/>
                                 </Button>
 
                                 <!-- Quantity -->
@@ -144,7 +159,7 @@
                                         Height="{StaticResource SizeQuantityButton}">
                                     <Path Data="{StaticResource IconPlus}" 
                                           Fill="{DynamicResource FacilityAccentBrush}" 
-                                          Style="{StaticResource IconSmall}"/>
+                                          Style="{StaticResource Style.Icon.Small}"/>
                                 </Button>
                             </StackPanel>
                         </Grid>
@@ -166,7 +181,7 @@
                     <!-- Subtotal -->
                     <Grid Margin="{StaticResource MarginSmallBottom}">
                         <TextBlock Text="{DynamicResource TerminologySubtotalLabel}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:C}'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding Subtotal, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <!-- Tax -->
@@ -175,13 +190,13 @@
                             <TextBlock Text="{DynamicResource TerminologyTaxLabel}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding TaxRateDisplay}" Style="{StaticResource Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="{StaticResource MarginSmallLeft}"/>
                         </StackPanel>
-                        <TextBlock Text="{Binding TaxAmount, StringFormat='{}{0:C}'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding TaxAmount, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Body}" HorizontalAlignment="Right"/>
                     </Grid>
 
                     <!-- Total -->
                     <Grid Margin="{StaticResource MarginSectionBottom}">
                         <TextBlock Text="{DynamicResource TerminologyTotalLabel}" Style="{StaticResource Title2}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                        <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:N2} DA'}" 
                                    Style="{StaticResource Title1}" 
                                    Foreground="{DynamicResource FacilityAccentBrush}" 
                                    HorizontalAlignment="Right"/>

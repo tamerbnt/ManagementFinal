@@ -1,6 +1,8 @@
 using System;
 using Management.Application.DTOs;
 
+using Management.Domain.Interfaces;
+
 namespace Management.Application.Stores
 {
     /// <summary>
@@ -8,8 +10,12 @@ namespace Management.Application.Stores
     /// Used to synchronize the "Pending Leads" counters on the Dashboard and Sidebar
     /// when items are processed in the Registrations View.
     /// </summary>
-    public class RegistrationStore
+    public class RegistrationStore : IStateResettable
     {
+        public void ResetState()
+        {
+            // Stateless aggregator, nothing to clear
+        }
         // Fired when a new lead is created (e.g. via API sync or manual add)
         public event Action<RegistrationDto>? RegistrationAdded;
 

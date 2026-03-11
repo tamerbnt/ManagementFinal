@@ -1,0 +1,12 @@
+﻿  Identification des projets ├á restaurer...
+  Tous les projets sont ├á jour pour la restauration.
+  Management.Domain -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\bin\Debug\net8.0\Management.Domain.dll
+  Management.Application -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Application\bin\Debug\net8.0\Management.Application.dll
+  Management.Infrastructure -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Infrastructure\bin\Debug\net8.0\Management.Infrastructure.dll
+  Management.Presentation -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\bin\Debug\net8.0-windows\Titan.Client.dll
+
+La g├®n├®ration a r├®ussi.
+    0 Avertissement(s)
+    0 Erreur(s)
+
+Temps ├®coul├® 00:00:06.41

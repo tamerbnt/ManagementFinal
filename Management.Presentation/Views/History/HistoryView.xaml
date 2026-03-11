@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.History"
-             xmlns:vm="clr-namespace:Management.Presentation.ViewModels"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.History"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -16,7 +16,7 @@
              Background="Transparent">
 
     <UserControl.Resources>
-        <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter" />
+        <!-- Shared converters used from App.xaml -->
 
         <!-- 
             POLYMORPHIC TEMPLATES (Section 28.6)
@@ -33,6 +33,22 @@
         <DataTemplate DataType="{x:Type vm:ReservationEventItemViewModel}">
             <local:ReservationHistoryList />
         </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:SaleEventItemViewModel}">
+            <local:SaleHistoryList />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:AppointmentEventItemViewModel}">
+            <local:AppointmentHistoryList />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:PayrollEventItemViewModel}">
+            <local:PayrollHistoryList />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:InventoryEventItemViewModel}">
+            <local:InventoryHistoryList />
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid>
@@ -40,124 +56,160 @@
             <RowDefinition Height="Auto"/>
             <!-- Header -->
             <RowDefinition Height="Auto"/>
-            <!-- Filter Bar -->
+            <!-- Filter / Selection Bar -->
             <RowDefinition Height="*"/>
             <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!-- 1. Header & Print Action -->
-        <Grid Grid.Row="0" Margin="{StaticResource MarginPageHeader}">
-            <TextBlock Text="{DynamicResource TerminologyHistoryLabel}" 
-                       Style="{StaticResource Title1}" 
-                       AutomationProperties.HeadingLevel="Level1"
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       VerticalAlignment="Center"/>
+        <!-- 1. Header & Primary Actions -->
+        <Grid Grid.Row="0" Margin="{DynamicResource MarginSectionBottom}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Path Data="{StaticResource IconHistory}" 
+                      Style="{StaticResource Style.Icon.Large}" 
+                      Stroke="{DynamicResource TextPrimaryBrush}"
+                      Margin="0,0,12,0"
+                      VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource Terminology.History.Header}" 
+                           Style="{StaticResource Title1}" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
 
-            <!-- Print Button (Section 43) -->
-            <Button Style="{StaticResource SecondaryButton}"
-                    HorizontalAlignment="Right"
-                    Command="{Binding PrintReportCommand}">
-                <StackPanel Orientation="Horizontal">
-                    <Path Data="{StaticResource IconPrinter}" 
-                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          Style="{StaticResource IconSmall}"
-                          Margin="{StaticResource MarginIconRight}"/>
-                    <TextBlock Text="{DynamicResource TerminologyPrintHistoryLabel}"/>
-                </StackPanel>
-            </Button>
+            <!-- Action Buttons Moved from Control Bar -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Print Action -->
+                <Button Command="{Binding PrintReportCommand}" Margin="{StaticResource MarginMediumRight}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal" Margin="4,0">
+                        <Path Data="{StaticResource IconPrinter}" 
+                               Fill="{DynamicResource TextPrimaryBrush}"
+                               Style="{StaticResource Style.Icon.Small}"
+                               Margin="{StaticResource MarginIconRight}"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Action.Print}" FontWeight="Medium"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- Export Action -->
+                <Button Command="{Binding ExportCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal" Margin="4,0">
+                        <Path Data="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" 
+                               Fill="{DynamicResource TextPrimaryBrush}"
+                               Style="{StaticResource Style.Icon.Small}"
+                               Margin="{StaticResource MarginIconRight}"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Action.Export}" FontWeight="Medium"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
 
-        <!-- 2. Filter Bar (Section 28.3) -->
-        <Grid Grid.Row="1" Margin="{StaticResource MarginPageContent}">
+        <!-- 2. Controls Area (Row 1) -->
+        <Grid Grid.Row="1" Margin="{DynamicResource MarginSectionBottom}">
+            <Border Background="{DynamicResource SurfaceBg}" 
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12" 
+                    Padding="4"
+                    Height="44"
+                    HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <!-- Previous Day -->
+                    <Button Style="{DynamicResource Button.Ghost}"
+                            Command="{Binding PreviousDayCommand}"
+                            Width="44" Padding="0">
+                        <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2" Width="10" Height="14" Stretch="Uniform"/>
+                    </Button>
+
+                    <!-- Selected Date Display & Quick Jump -->
+                    <Grid Margin="12,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Text="{Binding SelectedDay, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Format.Date.Medium'}" 
+                                   FontWeight="SemiBold" 
+                                   FontSize="15" 
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                        
+                        <!-- Hidden DatePicker mapped to Icon -->
+                        <Grid Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                            <DatePicker SelectedDate="{Binding SelectedDay, Mode=TwoWay}" 
+                                        Width="28" Height="28" 
+                                        Opacity="0"
+                                        VerticalAlignment="Center"
+                                        Cursor="Hand"/>
+                            <Path Data="M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H9V3c0-.55-.45-1-1-1s-1 .45-1 1v1H6c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h13c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H6V9h13v11zm0-13H6V6h13v1z" 
+                                  Fill="{DynamicResource TextSecondaryBrush}" 
+                                  Width="18" Height="18" 
+                                  IsHitTestVisible="False"
+                                  Stretch="Uniform"/>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Next Day -->
+                    <Button Style="{DynamicResource Button.Ghost}"
+                            Command="{Binding NextDayCommand}"
+                            Width="44" Padding="0">
+                        <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2" Width="10" Height="14" Stretch="Uniform"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- 3. Content Area (Row 2): Liquid Layout -->
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <!-- Search -->
-                <ColumnDefinition Width="24"/>
-                <!-- Gap -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Date Picker -->
-                <ColumnDefinition Width="*"/>
-                <!-- Spacer -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Export -->
+                <ColumnDefinition Width="*"/> <!-- List Column -->
+                <ColumnDefinition Width="Auto"/> <!-- Drawer Column -->
             </Grid.ColumnDefinitions>
 
-            <!-- A. Search Box (Fluid) -->
-            <Border Grid.Column="0"
-                    MinWidth="{StaticResource SizeInputMinWidth}"
-                    MaxWidth="{StaticResource SizeSearchBarWidth}"
-                    Height="{StaticResource SizeInputHeight}"
-                    Background="{DynamicResource SurfaceBg}"
-                    CornerRadius="{StaticResource RadiusSearchBar}"
-                    KeyboardNavigation.TabIndex="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Path Grid.Column="0"
-                          Data="{StaticResource IconSearch}"
-                          Fill="{DynamicResource TextTertiaryBrush}"
-                          Style="{StaticResource IconStandard}"
-                          Margin="{StaticResource MarginInputIcon}"/>
-
-                    <TextBox Grid.Column="1"
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource UnderlineTextBox}"
-                             Foreground="{DynamicResource TextPrimaryBrush}"
-                             BorderThickness="0"
-                             VerticalAlignment="Center"
-                             Tag="Search events by name, ID, type..."/>
-                </Grid>
-            </Border>
-
-            <!-- B. Date Range Picker (Global Component) -->
-            <!-- 
-                Uses 'DateRangePickerButtonStyle' defined in Components.xaml 
-                Encapsulates the "Fake Input" look, Calendar Icon, and Chevron.
-            -->
-            <Button Grid.Column="2"
-                    Style="{StaticResource DateRangePickerButtonStyle}"
-                    Content="{Binding DateRangeText, FallbackValue={DynamicResource TerminologySelectDatesLabel}}"
-                    Command="{Binding SelectDateRangeCommand}"
-                    KeyboardNavigation.TabIndex="2"/>
-
-            <!-- C. Export Button -->
-            <Button Grid.Column="4"
-                    Style="{StaticResource SecondaryButton}"
-                    Command="{Binding ExportCommand}"
-                    KeyboardNavigation.TabIndex="3">
-                <StackPanel Orientation="Horizontal">
-                    <Path Data="{StaticResource IconExport}" 
-                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          Style="{StaticResource IconSmall}"
-                          Margin="{StaticResource MarginIconRight}"/>
-                    <TextBlock Text="{DynamicResource TerminologyExportLabel}"/>
-                </StackPanel>
-            </Button>
-        </Grid>
-
-        <!-- 3. Timeline List (Row 2) -->
-        <Grid Grid.Row="2" Margin="{StaticResource MarginPageContent}">
-
-            <!-- Grouped ListBox -->
-            <ListBox ItemsSource="{Binding HistoryEventsView}"
+            <!-- A. Timeline List (Grouped) -->
+            <ListBox Grid.Column="0"
+                     ItemsSource="{Binding HistoryEventsView}"
                      Background="Transparent"
                      BorderThickness="0"
+                     Padding="0,0,12,0"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      VirtualizingPanel.IsVirtualizing="True"
                      VirtualizingPanel.IsVirtualizingWhenGrouping="True"
-                     ScrollViewer.CanContentScroll="True">
+                     SelectedItem="{Binding SelectedEvent, Mode=TwoWay}">
 
                 <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
+                     <Style TargetType="ListBoxItem">
                         <Setter Property="Padding" Value="0"/>
                         <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRingStyle}"/>
-                        <Setter Property="Margin" Value="{StaticResource MarginListVertical}"/>
-                        <!-- Gap between items -->
+                        <Setter Property="FocusVisualStyle" Value="{DynamicResource FocusRingStyle}"/>
+                        <Setter Property="Margin" Value="0"/> <!-- Handled by the Card margin -->
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
@@ -168,35 +220,56 @@
                     </Style>
                 </ListBox.ItemContainerStyle>
 
-                <!-- Group Headers (Date Labels) -->
-                <!-- Uses Global DataTemplate 'TimelineGroupHeaderTemplate' -->
+                <!-- Group Headers (Date Labels) - Reskinned -->
                 <ListBox.GroupStyle>
-                    <GroupStyle HeaderTemplate="{StaticResource TimelineGroupHeaderTemplate}"/>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" 
+                                           Style="{DynamicResource Title3}" 
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           Margin="0,24,0,8"/>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
                 </ListBox.GroupStyle>
             </ListBox>
 
-            <!-- Empty State Overlay -->
-            <Grid Visibility="{Binding HistoryEvents.Count, Converter={StaticResource ZeroIsVisibleConverter}}"
-                  IsHitTestVisible="False">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,64">
-                    <Path Data="{StaticResource IconHistory}"
-                          Fill="{StaticResource IllustrationBackgroundBrush}"
-                          Width="256" Height="256"
-                          Stretch="Uniform"
-                          Margin="{StaticResource MarginSectionBottom}"
-                          HorizontalAlignment="Center"/>
-
-                    <TextBlock Text="{DynamicResource TerminologyNoHistoryYetLabel}" 
-                               Style="{StaticResource Title2}" 
-                               Foreground="{DynamicResource TextSecondaryBrush}" 
-                               HorizontalAlignment="Center"
-                               Margin="{StaticResource MarginTextBottom}"/>
-                    <TextBlock Text="{DynamicResource TerminologyActivityEventsRecordedLabel}" 
-                               Style="{StaticResource Body}" 
-                               Foreground="{DynamicResource TextTertiaryBrush}" 
-                               HorizontalAlignment="Center"/>
-                </StackPanel>
-            </Grid>
+            <!-- B. Detail Drawer (Slide-in) -->
+            <Border Grid.Column="1" 
+                    Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
+                    MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
+                    VerticalAlignment="Stretch"
+                    Background="White" 
+                    BorderBrush="#E2E8F0" 
+                    BorderThickness="1,0,0,0"
+                    Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Path=ActualWidth}"/>
+                </Border.RenderTransform>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:HistoryView}}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                
+                <local:HistoryDetailView DataContext="{Binding SelectedEvent}"/>
+            </Border>
         </Grid>
+
     </Grid>
 </UserControl>

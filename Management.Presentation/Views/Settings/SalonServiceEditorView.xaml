@@ -1,0 +1,91 @@
+<UserControl x:Class="Management.Presentation.Views.Settings.SalonServiceEditorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Settings"
+             mc:Ignorable="d" 
+             d:DesignWidth="400" d:DesignHeight="600">
+
+    <Border Padding="24">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- Form -->
+                <RowDefinition Height="Auto"/> <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- 1. Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,32">
+                <Border Width="64" Height="64" 
+                        Background="{DynamicResource Brush.Brand.Primary.Fade}" 
+                        CornerRadius="32" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,0,0,16">
+                    <Path Data="{StaticResource IconSalon}" 
+                          Style="{DynamicResource Style.Icon.Large}" 
+                          Stroke="{DynamicResource Brush.Brand.Primary}" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Foreground="{DynamicResource Brush.Text.Primary}"
+                           HorizontalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Title2}">
+                            <Setter Property="Text" Value="Add New Service"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
+                                    <Setter Property="Text" Value="{DynamicResource Terminology.Salon.Services.Service}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="Service configuration for Salon" 
+                           Style="{DynamicResource Text.Caption}" 
+                           Foreground="{DynamicResource Brush.Text.Secondary}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+
+            <!-- 2. Form Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,24" Padding="0,0,12,0">
+                <StackPanel>
+                    <!-- Service Name -->
+                    <StackPanel Margin="0,0,0,24">
+                        <TextBlock Text="{DynamicResource Terminology.Salon.Services.Service}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.Apple}"/>
+                    </StackPanel>
+
+                    <!-- Category -->
+                    <StackPanel Margin="0,0,0,24">
+                        <TextBlock Text="{DynamicResource TerminologyCategoryLabel}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Category}" Style="{DynamicResource Input.Apple}"/>
+                    </StackPanel>
+
+                    <!-- Price & Duration -->
+                    <Grid Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock Text="{DynamicResource Terminology.Salon.Services.Price}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding BasePrice}" Style="{DynamicResource Input.Apple}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                            <TextBlock Text="{DynamicResource Terminology.Salon.Services.Duration}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding DurationMinutes}" Style="{DynamicResource Input.Apple}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- 3. Footer -->
+            <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,16,0,0">
+                <Button Command="{Binding SaveCommand}" Content="{DynamicResource Terminology.Salon.Services.Saved}" Style="{DynamicResource PrimaryButton}" Height="40" Margin="0,0,0,12"/>
+                <Button Command="{Binding CancelCommand}" Content="{DynamicResource TerminologyDeclineLabel}" Style="{DynamicResource GhostButton}" Height="40"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

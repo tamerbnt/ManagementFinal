@@ -1,4 +1,4 @@
-﻿namespace Management.Domain.Enums
+namespace Management.Domain.Enums
 {
     /// <summary>
     /// Visual Logic: Determines the color and icon direction of financial indicators (Growth/Loss).

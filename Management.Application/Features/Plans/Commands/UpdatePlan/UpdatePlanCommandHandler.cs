@@ -22,20 +22,25 @@ namespace Management.Application.Features.Plans.Commands.UpdatePlan
         public async Task<Result<Guid>> Handle(UpdatePlanCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Plan;
-            var plan = await _planRepository.GetByIdAsync(dto.Id);
+            var plan = await _planRepository.GetByIdAsync(dto.Id, request.FacilityId);
 
             if (plan == null)
             {
                  return Result.Failure<Guid>(new Error("Plan.NotFound", $"Plan with ID {dto.Id} not found"));
             }
 
-            var price = new Money(dto.Price, "USD");
+            var price = new Money(dto.Price, "DA");
 
             plan.UpdateDetails(
                 dto.Name,
                 dto.Description,
                 dto.DurationDays,
-                price);
+                price,
+                dto.IsWalkIn);
+
+            plan.GenderRule = dto.GenderRule;
+            plan.ScheduleJson = dto.ScheduleJson;
+            plan.IsSessionPack = dto.IsSessionPack;
 
             if (dto.IsActive) plan.Activate(); else plan.Deactivate();
 

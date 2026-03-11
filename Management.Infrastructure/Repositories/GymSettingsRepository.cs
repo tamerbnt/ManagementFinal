@@ -1,4 +1,4 @@
-﻿using Management.Domain.Interfaces;
+using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -10,25 +10,33 @@ namespace Management.Infrastructure.Repositories
 {
     public class GymSettingsRepository : IGymSettingsRepository
     {
-        private readonly GymDbContext _context;
+        private readonly AppDbContext _context;
         private readonly DbSet<GymSettings> _dbSet;
 
-        public GymSettingsRepository(GymDbContext context)
+        public GymSettingsRepository(AppDbContext context)
         {
             _context = context;
             _dbSet = context.Set<GymSettings>();
         }
 
-        public async Task<GymSettings> GetAsync()
+        public async Task<GymSettings> GetAsync(Guid facilityId)
         {
-            // Attempt to fetch the singleton row
-            var settings = await _dbSet.FirstOrDefaultAsync();
+            // Attempt to fetch the singleton row for this facility
+            var settings = await _dbSet.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(s => s.FacilityId == facilityId && !s.IsDeleted);
 
             if (settings == null)
             {
-                // Auto-Seed: Create default settings if database is empty
+                // Safety Guard: Don't auto-seed for empty facility ID (prevents Data Isolation Violation)
+                if (facilityId == Guid.Empty)
+                {
+                    return new GymSettings { FacilityId = Guid.Empty };
+                }
+
+                // Auto-Seed: Create default settings if not found for this facility
                 settings = new GymSettings
                 {
+                    FacilityId = facilityId,
                     GymName = "My Gym",
                     MaxOccupancy = 100,
                     IsMaintenanceMode = false,

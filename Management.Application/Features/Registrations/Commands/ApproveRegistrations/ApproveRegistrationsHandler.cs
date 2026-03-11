@@ -1,25 +1,22 @@
 using Management.Application.Features.Registrations.Commands.ApproveRegistrations;
 using Management.Application.Services;
 using Management.Domain.Services;
-using Management.Application.Services;
 using MediatR;
-using Management.Application.Services;
 using System.Linq;
-using Management.Application.Services;
 using System.Threading;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 
 namespace Management.Application.Features.Registrations.Commands.ApproveRegistrations
 {
     public class ApproveRegistrationsHandler : IRequestHandler<ApproveRegistrationsCommand, bool>
     {
         private readonly IRegistrationService _registrationService;
+        private readonly IFacilityContextService _facilityContext;
 
-        public ApproveRegistrationsHandler(IRegistrationService registrationService)
+        public ApproveRegistrationsHandler(IRegistrationService registrationService, IFacilityContextService facilityContext)
         {
             _registrationService = registrationService;
+            _facilityContext = facilityContext;
         }
 
         public async Task<bool> Handle(ApproveRegistrationsCommand request, CancellationToken cancellationToken)
@@ -27,13 +24,15 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             if (request.RegistrationIds == null || !request.RegistrationIds.Any())
                 return false;
 
+            var facilityId = _facilityContext.CurrentFacilityId;
+
             if (request.RegistrationIds.Count == 1)
             {
-                await _registrationService.ApproveRegistrationAsync(request.RegistrationIds.First());
+                await _registrationService.ApproveRegistrationAsync(request.RegistrationIds.First(), facilityId);
             }
             else
             {
-                await _registrationService.ApproveBatchAsync(request.RegistrationIds);
+                await _registrationService.ApproveBatchAsync(request.RegistrationIds, facilityId);
             }
 
             return true;

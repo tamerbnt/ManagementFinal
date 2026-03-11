@@ -1,13 +1,9 @@
 using System;
 using Management.Application.Services;
 using System.Collections.Generic;
-using Management.Application.Services;
 using System.Threading.Tasks;
-using Management.Application.Services;
 using Management.Application.DTOs;
-using Management.Application.Services;
 using Management.Domain.Primitives;
-using Management.Application.Services;
 
 namespace Management.Application.Services
 {
@@ -36,8 +32,11 @@ namespace Management.Application.Services
         Task<Result> SimulateScanAsync(Guid facilityId, Guid? turnstileId = null);
 
         /// <summary>
-        /// Processes a manual check-in request (e.g., from the Dashboard Quick Check-in).
+        /// Processes an access request (either from hardware scan or manual check-in).
         /// </summary>
-        Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId);
+        /// <param name="cardId">The card or member identifier.</param>
+        /// <param name="facilityId">The facility context.</param>
+        /// <param name="transactionId">Optional hardware-generated transaction ID.</param>
+        Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, string? transactionId = null);
     }
 }
