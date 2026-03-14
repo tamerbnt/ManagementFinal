@@ -15,8 +15,7 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
-        Background="{DynamicResource Brush.Window.Background}"
-        Icon="/Assets/titan.ico">
+        Background="{DynamicResource Brush.Window.Background}">
 
     <Window.InputBindings>
         <KeyBinding Key="K" Modifiers="Ctrl" Command="{Binding ToggleCommandPaletteCommand}"/>

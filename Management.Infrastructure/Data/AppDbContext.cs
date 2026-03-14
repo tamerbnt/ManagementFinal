@@ -59,15 +59,21 @@ namespace Management.Infrastructure.Data
             _outboxInterceptor = outboxInterceptor;
             _auditableInterceptor = auditableInterceptor;
             _secureStorage = secureStorage;
-            
-            // Try to load key from secure storage if available
-            if (_secureStorage != null)
+            // DO NOT call any async method safely here. Handled by SecretKey lazy property.
+        }
+
+        private string SecretKey
+        {
+            get
             {
-                var storedKey = _secureStorage.GetAsync("DatabaseEncryptionKey").GetAwaiter().GetResult();
-                if (!string.IsNullOrEmpty(storedKey))
+                if (_secureStorage != null && _secretKey == "GymProductionKey2026!")
                 {
-                    _secretKey = storedKey;
+                    // This runs on background thread via repository calls - safe
+                    var storedKey = _secureStorage.Get("DatabaseEncryptionKey");
+                    if (!string.IsNullOrEmpty(storedKey))
+                        _secretKey = storedKey;
                 }
+                return _secretKey;
             }
         }
 

@@ -15,7 +15,6 @@
         WindowStyle="None"
         AllowsTransparency="False"
         Background="{StaticResource SurfaceBg}"
-        Icon="/Assets/titan.ico"
         MouseDown="OnMouseLeftButtonDown">
 
     <Window.Resources>
