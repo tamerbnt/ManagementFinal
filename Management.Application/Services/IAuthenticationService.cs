@@ -47,5 +47,10 @@ namespace Management.Application.Services
         /// Ensures all standard facilities exist for the tenant, determining IDs (and auto-provisioning if Owner).
         /// </summary>
         Task<Dictionary<Management.Domain.Enums.FacilityType, Guid>> EnsureTenantFacilitiesAsync(Guid tenantId, Management.Domain.Enums.StaffRole userRole);
+
+        /// <summary>
+        /// Checks if the specified tenant already has an owner account registered in the cloud.
+        /// </summary>
+        Task<bool> TenantHasOwnerAccountAsync(Guid tenantId);
     }
 }

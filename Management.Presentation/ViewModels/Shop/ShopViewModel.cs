@@ -76,13 +76,18 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty] private bool _selectAll;
         private bool _isUpdatingSelection;
 
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private int _pageSize = 24;
+        [ObservableProperty] private bool _hasMoreItems;
+        [ObservableProperty] private int _totalCount;
+
         public ObservableRangeCollection<ProductItemViewModel> Products { get; } = new();
         public ObservableRangeCollection<ProductItemViewModel> InventoryItems => Products; // Unified for now
         public ObservableRangeCollection<ProductItemViewModel> QuickAddProducts { get; } = new();
         
         public int CartItemCount => CurrentCart?.Items.Count ?? 0;
 
-        public async void SetParameter(object parameter)
+        public async Task SetParameterAsync(object parameter)
         {
             if (parameter is string param)
             {
@@ -114,6 +119,7 @@ namespace Management.Presentation.ViewModels.Shop
 
 
         public IAsyncRelayCommand LoadProductsCommand { get; }
+        public IAsyncRelayCommand LoadMoreCommand { get; }
         public IAsyncRelayCommand<ProductDto> AddToCartCommand { get; }
         public IAsyncRelayCommand CheckoutCommand { get; }
         public IAsyncRelayCommand SubmitSaleCommand { get; }
@@ -154,8 +160,18 @@ namespace Management.Presentation.ViewModels.Shop
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>>(this);
 
             _productStore.StockUpdated += OnProductStockUpdated;
+            
+            LoadProductsCommand = new AsyncRelayCommand(async () => {
+                CurrentPage = 1;
+                await LoadProductsAsync(false);
+            });
 
-            LoadProductsCommand = new AsyncRelayCommand(LoadProductsAsync);
+            LoadMoreCommand = new AsyncRelayCommand(async () => {
+                if (!HasMoreItems || IsLoading) return;
+                CurrentPage++;
+                await LoadProductsAsync(true);
+            });
+
             AddToCartCommand = new AsyncRelayCommand<ProductDto>(AddToCartAsync);
             CheckoutCommand = new AsyncRelayCommand(CheckoutAsync);
             SubmitSaleCommand = new AsyncRelayCommand(SubmitSaleAsync);
@@ -403,22 +419,37 @@ namespace Management.Presentation.ViewModels.Shop
 
         private async Task LoadProductsAsync()
         {
+            await LoadProductsAsync(false);
+        }
+
+        private async Task LoadProductsAsync(bool isLoadMore)
+        {
             if (IsLoading) return;
             IsLoading = true;
 
             try
             {
                 var facilityId = _facilityContext.CurrentFacilityId;
-                var result = await _productService.GetActiveProductsAsync(facilityId);
+                var result = await _productService.SearchProductsPagedAsync(facilityId, SearchText, CurrentPage, PageSize);
 
                 if (result.IsSuccess)
                 {
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
-                        // Bulk Update
                         var selectedId = SelectedProduct?.Id;
-                        var viewModels = result.Value.Select(dto => new ProductItemViewModel(dto, this)).ToList();
-                        Products.ReplaceRange(viewModels);
+                        var viewModels = result.Value.Items.Select(dto => new ProductItemViewModel(dto, this)).ToList();
+                        
+                        if (isLoadMore)
+                        {
+                            Products.AddRange(viewModels);
+                        }
+                        else
+                        {
+                            Products.ReplaceRange(viewModels);
+                        }
+
+                        TotalCount = result.Value.TotalCount;
+                        HasMoreItems = Products.Count < TotalCount;
 
                         if (selectedId != null)
                         {

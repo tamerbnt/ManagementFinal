@@ -13,6 +13,11 @@ namespace Management.Application.Services
         Task<string?> GetAsync(string key);
 
         /// <summary>
+        /// Retrieves a value from secure storage synchronously.
+        /// </summary>
+        string? Get(string key);
+
+        /// <summary>
         /// Stores a value in secure storage.
         /// </summary>
         Task SetAsync(string key, string value);

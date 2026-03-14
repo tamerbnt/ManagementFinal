@@ -92,7 +92,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Width="48" Height="48" Background="#1A10B981" CornerRadius="24" Margin="0,0,16,0">
-                    <TextBlock Text="💵" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+                    <TextBlock Text="ðŸ’µ" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -124,7 +124,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Width="48" Height="48" Background="#1A3B82F6" CornerRadius="24" Margin="0,0,16,0">
-                    <TextBlock Text="🛍️" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
+                    <TextBlock Text="ðŸ›ï¸" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">

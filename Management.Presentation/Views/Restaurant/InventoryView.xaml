@@ -20,7 +20,7 @@
             <ColumnDefinition Width="Auto"/> <!-- Drawer -->
         </Grid.ColumnDefinitions>
 
-        <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MAIN CONTENT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+        <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â MAIN CONTENT Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
         <Grid Grid.Column="0" Margin="32">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -44,7 +44,7 @@
                     <TextBlock Text="{DynamicResource Strings.Restaurant.Inventory}" Style="{StaticResource Title.H2}"/>
                 </StackPanel>
 
-                <!-- ðŸ”„ View Toggle Button (Dashboard Style) -->
+                <!-- Ã°Å¸â€â€ž View Toggle Button (Dashboard Style) -->
                 <Button Grid.Column="1"
                         Command="{Binding RelativeSource={RelativeSource AncestorType=settings:MenuManagementView}, Path=DataContext.ToggleViewCommand}"
                         Width="160" Height="44" Margin="0,0,12,0" 
@@ -184,7 +184,7 @@
             </Border>
             </Grid>
 
-            <!-- â•â•â• DRAWER (Side Panel) â•â•â• -->
+            <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â DRAWER (Side Panel) Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
             <Border x:Name="Drawer" 
                     Grid.Column="1"
                     HorizontalAlignment="Right" 

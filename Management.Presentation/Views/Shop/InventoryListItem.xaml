@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
-             d:DesignWidth="800" d:DesignHeight="70">
+             d:DesignWidth="800" d:DesignHeight="70"
+             RenderOptions.CachingHint="Cache">
 
     <UserControl.Resources>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
@@ -14,21 +15,15 @@
 
     <Grid Margin="0,0,0,12">
         <!-- Shadow Border -->
-        <Border CornerRadius="16" Background="White">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1" Color="Black"/>
-            </Border.Effect>
-        </Border>
+        <Border CornerRadius="16" Background="White" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1"/>
 
         <!-- Content Border -->
         <Border x:Name="RowBorder" 
                 CornerRadius="16" 
                 Padding="16,12" 
-                BorderThickness="1">
+                BorderThickness="0">
         
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="Black"/>
-        </Border.Effect>
+
 
         <Border.Style>
             <Style TargetType="Border">
@@ -68,11 +63,8 @@
                             </Setter.Value>
                         </Setter>
                         <Setter Property="BorderBrush" Value="Transparent"/>
-                         <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
-                            </Setter.Value>
-                        </Setter>
+                          <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                          <Setter Property="BorderThickness" Value="2"/>
                          <Setter Property="TextBlock.Foreground" Value="White"/>
                     </DataTrigger>
                 </Style.Triggers>

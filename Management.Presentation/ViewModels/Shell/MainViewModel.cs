@@ -280,9 +280,8 @@ namespace Management.Presentation.ViewModels.Shell
 
 
 
-            // Subscribe to navigation changes — this is what keeps CurrentView in sync
-            var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
-            navigationStore.CurrentViewModelChanged += OnCurrentViewModelChanged;
+            // Subscribe to navigation changes
+            _serviceProvider.GetRequiredService<NavigationStore>().CurrentViewModelChanged += OnCurrentViewModelChanged;
             _resilienceService.ConnectivityChanged += (s, isOnline) => OnConnectionStatusChanged(isOnline);
             _sessionMonitor.SessionExpired += OnSessionExpired;
 
@@ -302,7 +301,7 @@ namespace Management.Presentation.ViewModels.Shell
             };
 
             // Initialize Commands
-            LogoutCommand = new RelayCommand(ExecuteLogout);
+            LogoutCommand = new AsyncRelayCommand(ExecuteLogout);
             OpenCommandPaletteCommand = new RelayCommand(() => _paletteService.Open());
             ToggleDiagnosticCommand = new RelayCommand(() => IsDiagnosticVisible = !IsDiagnosticVisible);
             UndoCommand = new AsyncRelayCommand(async () => await _undoService.UndoAsync(), () => _undoService.CanUndo);
@@ -332,12 +331,6 @@ namespace Management.Presentation.ViewModels.Shell
                     OnPropertyChanged(nameof(CurrentModalViewModel));
                     OnPropertyChanged(nameof(IsModalOpen));
                 }
-            };
-
-            navigationStore.CurrentViewModelChanged += () => 
-            {
-                IsNavigating = navigationStore.IsNavigating;
-                OnCurrentViewModelChanged();
             };
 
             InitializeMenu();
@@ -482,6 +475,8 @@ namespace Management.Presentation.ViewModels.Shell
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
                 var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
+                IsNavigating = navigationStore.IsNavigating;
+                
                 var currentVm = navigationStore.CurrentViewModel;
                 
                 // [Optimization]: Use Cached View Instance if available
@@ -519,7 +514,7 @@ namespace Management.Presentation.ViewModels.Shell
                 if (IsOperational)
                 {
                     UpdateContextAwareActions();
-                    _sessionMonitor.StartMonitoringAsync();
+                if (IsLoggedIn) _ = _sessionMonitor.StartMonitoringAsync();
                 }
                 else
                 {
@@ -529,7 +524,7 @@ namespace Management.Presentation.ViewModels.Shell
 
                     if (currentVm is LoginViewModel || IsOnboarding)
                     {
-                        _sessionMonitor.StopMonitoringAsync();
+                        _ = _sessionMonitor.StopMonitoringAsync();
                     }
                 }
 
@@ -613,7 +608,7 @@ namespace Management.Presentation.ViewModels.Shell
         private void ExecuteAddPayment() { }
         private void ExecuteAddProduct() { }
 
-        private async void ExecuteLogout()
+        private async Task ExecuteLogout()
         {
             if (await _dialogService.ShowConfirmationAsync(
                 "Are you sure you want to log out?",

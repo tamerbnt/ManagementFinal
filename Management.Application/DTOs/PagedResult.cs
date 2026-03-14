@@ -16,6 +16,16 @@ namespace Management.Application.DTOs
         public bool HasPreviousPage => PageNumber > 1;
         public bool HasNextPage => PageNumber < TotalPages;
         
+        public PagedResult() { }
+
+        public PagedResult(IEnumerable<T> items, int totalCount, int pageNumber = 1, int pageSize = 20)
+        {
+            Items = items;
+            TotalCount = totalCount;
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+        }
+
         public static PagedResult<T> Empty() => new PagedResult<T>();
     }
 }

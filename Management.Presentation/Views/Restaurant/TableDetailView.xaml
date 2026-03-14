@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Management.Presentation.Views.Restaurant.TableDetailView"
+<UserControl x:Class="Management.Presentation.Views.Restaurant.TableDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -199,7 +199,7 @@
                 </StackPanel>
             </Border>
 
-            <!-- ╔═ ACTIONS ═╗ -->
+            <!-- +- ACTIONS -+ -->
             <Grid Grid.Row="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -212,14 +212,14 @@
                         Style="{StaticResource Button.Ghost}"
                         Content="{DynamicResource Terminology.Global.Cancel}"/>
 
-                <!-- Open Table: available tables → start new order and go to POS -->
+                <!-- Open Table: available tables ? start new order and go to POS -->
                 <Button Grid.Column="2"
                         Command="{Binding OpenTableCommand}"
                         Style="{StaticResource Button.Primary}"
                         Content="{DynamicResource Strings.Restaurant.OpenTable}"
                         Visibility="{Binding IsAvailable, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                <!-- Pay Bill: occupied tables → print receipt + complete/pay order -->
+                <!-- Pay Bill: occupied tables ? print receipt + complete/pay order -->
                 <Button Grid.Column="2"
                         Command="{Binding PayBillCommand}"
                         Style="{StaticResource Button.Primary}"

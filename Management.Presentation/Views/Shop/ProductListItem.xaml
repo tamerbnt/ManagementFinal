@@ -10,7 +10,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             RenderOptions.CachingHint="Cache">
 
     <UserControl.Resources>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
@@ -36,11 +37,8 @@
                             </Setter.Value>
                         </Setter>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.5"/>
-                            </Setter.Value>
-                        </Setter>
+                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

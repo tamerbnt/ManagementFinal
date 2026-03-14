@@ -11,6 +11,13 @@ namespace Management.Domain.Interfaces
         // For Shop Grid (POS)
         Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm, ProductCategory? category = null, Guid? facilityId = null);
 
+        Task<(IEnumerable<Product> Items, int TotalCount)> SearchProductsPagedAsync(
+            string searchTerm, 
+            int page, 
+            int pageSize, 
+            ProductCategory? category = null, 
+            Guid? facilityId = null);
+
         // For Inventory Alerts
         Task<IEnumerable<Product>> GetLowStockAsync(Guid? facilityId = null);
 

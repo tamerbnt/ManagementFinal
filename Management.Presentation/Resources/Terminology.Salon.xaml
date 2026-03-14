@@ -182,7 +182,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Salon.Services.Service">Service</sys:String>
     <sys:String x:Key="Terminology.Salon.Services.Price">Price</sys:String>
     <sys:String x:Key="Terminology.Salon.Services.Duration">Duration</sys:String>
-    <sys:String x:Key="Terminology.Salon.Services.Saved">Saved ✓</sys:String>
+    <sys:String x:Key="Terminology.Salon.Services.Saved">Saved âœ“</sys:String>
     <sys:String x:Key="Terminology.Salon.Services.Minutes"> mins</sys:String>
     
     <!-- Activity Stream -->

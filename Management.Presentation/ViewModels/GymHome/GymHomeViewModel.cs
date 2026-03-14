@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Management.Application.Interfaces.ViewModels;
 using System.Collections.ObjectModel;
 using Management.Domain.Enums;
@@ -698,6 +698,7 @@ namespace Management.Presentation.ViewModels.GymHome
             // or rely on MainViewModel's orchestration to re-initialize if needed.
             // For now, clearing data prevents "Stale Data" from showing up.
         }
+
     }
 }
 

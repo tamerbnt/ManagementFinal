@@ -116,17 +116,31 @@ namespace Management.Presentation.Stores
 
                 if (viewModel is IModalAware modalAware)
                 {
+                    // FIX 6: Show the modal FIRST so the user sees it immediately,
+                    // then load data. Prevents UI appearing frozen during data fetch.
+                    _modalStack.Push(context);
+                    CurrentModalViewModel = viewModel;
+
+                    _logger?.LogInformation("Modal opened: {ViewModelType}", typeof(TViewModel).Name);
+                    ModalOpened?.Invoke(this, new ModalEventArgs(typeof(TViewModel).Name));
+
+                    // FIX: Release lock BEFORE awaiting to allow CloseAsync to acquire it
+                    _modalLock.Release();
+
                     await modalAware.OnModalOpenedAsync(parameter ?? new object(), token);
                 }
+                else
+                {
+                    _modalStack.Push(context);
+                    CurrentModalViewModel = viewModel;
 
-                _modalStack.Push(context);
-                CurrentModalViewModel = viewModel;
+                    _logger?.LogInformation("Modal opened: {ViewModelType}", typeof(TViewModel).Name);
+                    ModalOpened?.Invoke(this, new ModalEventArgs(typeof(TViewModel).Name));
 
-                _logger?.LogInformation("Modal opened: {ViewModelType}", typeof(TViewModel).Name);
-                ModalOpened?.Invoke(this, new ModalEventArgs(typeof(TViewModel).Name));
+                    // FIX: Release lock BEFORE awaiting completion
+                    _modalLock.Release();
+                }
 
-                // FIX: Release lock BEFORE awaiting completion to allow CloseAsync to acquire it
-                _modalLock.Release();
                 return await context.CompletionSource.Task;
             }
             catch (Exception ex)

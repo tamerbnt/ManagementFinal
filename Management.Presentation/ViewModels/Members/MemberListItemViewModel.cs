@@ -20,7 +20,7 @@ namespace Management.Presentation.ViewModels.Members
         public MemberListItemViewModel(Member member)
         {
             _member = member;
-            LoadAvatarAsync();
+            _ = LoadAvatarAsync();
         }
 
         public Member Member => _member;
@@ -44,7 +44,7 @@ namespace Management.Presentation.ViewModels.Members
             }
         }
 
-        private async void LoadAvatarAsync()
+        private async Task LoadAvatarAsync()
         {
             // Note: ProfileImageUrl is currently not in the SQL schema provided.
             // We use the property from the domain model if it exists, otherwise skip.

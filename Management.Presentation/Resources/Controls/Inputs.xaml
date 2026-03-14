@@ -121,11 +121,12 @@
                                       Style="{StaticResource Style.Icon.Micro}"/>
                             </Button>
                             <Popup x:Name="PART_Popup"
-                                   AllowsTransparency="True"
+
                                    Placement="Bottom"
                                    PlacementTarget="{Binding ElementName=PART_Root}"
+                                   AllowsTransparency="False"
                                    StaysOpen="False">
-                                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Effect="{DynamicResource Shadow2}">
+                                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
                                     <Calendar x:Name="PART_Calendar" Margin="4"/>
                                 </Border>
                             </Popup>
@@ -220,10 +221,11 @@
                         </Grid>
 
                         <Popup x:Name="PART_Popup" 
-                               AllowsTransparency="true" 
+                               
                                Placement="Bottom" 
-                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
-                               PopupAnimation="Fade">
+                               AllowsTransparency="False"
+                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+
                             <Border x:Name="DropDownBorder" 
                                     Background="{DynamicResource CardBackgroundBrush}" 
                                     BorderBrush="{DynamicResource Brush.Border.Subtle}" 
@@ -231,7 +233,6 @@
                                     MaxHeight="300"
                                     CornerRadius="12"
                                     Margin="0,4,0,0"
-                                    Effect="{DynamicResource Shadow2}"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ScrollViewer x:Name="DropDownScrollViewer" 
                                               Margin="4" 
@@ -357,10 +358,11 @@
                         </Grid>
 
                         <Popup x:Name="PART_Popup" 
-                               AllowsTransparency="true" 
+                               
                                Placement="Bottom" 
-                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
-                               PopupAnimation="Fade">
+                               AllowsTransparency="False"
+                               IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+
                             <Border x:Name="DropDownBorder" 
                                     Background="{DynamicResource CardBackgroundBrush}" 
                                     BorderBrush="{DynamicResource Brush.Border.Subtle}" 
@@ -368,7 +370,6 @@
                                     MaxHeight="300"
                                     CornerRadius="12"
                                     Margin="0,4,0,0"
-                                    Effect="{DynamicResource Shadow2}"
                                     MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ScrollViewer x:Name="DropDownScrollViewer" 
                                               Margin="4" 

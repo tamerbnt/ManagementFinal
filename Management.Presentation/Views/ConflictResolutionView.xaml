@@ -1,4 +1,4 @@
-﻿<Window x:Class="Management.Presentation.Views.ConflictResolutionView"
+<Window x:Class="Management.Presentation.Views.ConflictResolutionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,8 @@
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:ConflictResolutionViewModel}"
-             WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True" Background="Transparent"
+             WindowStyle="None" ResizeMode="NoResize" 
+             AllowsTransparency="False" Background="{DynamicResource SurfaceBg}"
              Title="{DynamicResource Strings.Global.ConflictResolution}" Height="450" Width="800">
     <Border Background="{DynamicResource Neutral50Brush}" 
             CornerRadius="8"

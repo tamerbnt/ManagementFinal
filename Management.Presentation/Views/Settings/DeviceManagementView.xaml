@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Management.Presentation.Views.Settings.DeviceManagementView"
+<UserControl x:Class="Management.Presentation.Views.Settings.DeviceManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -147,6 +147,19 @@
                                Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Grid>
+            <!-- Hardware Support Section -->
+            <Border Style="{DynamicResource GlassCardStyle}" Margin="0,24,0,0" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Hardware Support" Style="{DynamicResource BodyLargeBold}" Margin="0,0,0,8"/>
+                    <TextBlock Text="If your gate hardware is disconnected or unresponsive, you may need to manually register the controller drivers." 
+                               Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16"/>
+                    <Button Content="Register Gate SDK" 
+                            Command="{Binding RegisterSdkCommand}"
+                            Style="{DynamicResource Button.Primary}"
+                            HorizontalAlignment="Left"
+                            Padding="24,10"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Grid>
 </UserControl>

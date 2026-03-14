@@ -7,9 +7,9 @@
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
+        AllowsTransparency="False"
+        Background="{DynamicResource SurfaceBg}"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
         Title="{DynamicResource Terminology.Payroll.History.Title}"
         d:DesignHeight="640" d:DesignWidth="720">
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
@@ -58,7 +58,7 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                         <TextBlock Text="{DynamicResource Terminology.Payroll.History.PaymentDueToday}" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock Text=" ⚠" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text=" âš " FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
                     
                     <ItemsControl ItemsSource="{Binding TodayAlerts}">
@@ -101,7 +101,7 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="📋" FontSize="32" HorizontalAlignment="Center" Opacity="0.3"/>
+                        <TextBlock Text="ðŸ“‹" FontSize="32" HorizontalAlignment="Center" Opacity="0.3"/>
                         <TextBlock Text="{DynamicResource Terminology.Payroll.History.NoHistory}" 
                                    Style="{DynamicResource Body}"
                                    Foreground="{DynamicResource TextTertiaryBrush}" 

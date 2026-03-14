@@ -1,15 +1,23 @@
-﻿<Window x:Class="Management.Presentation.Views.Auth.LoginWindow"
+<Window x:Class="Management.Presentation.Views.Auth.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Auth.Login}" Height="768" Width="1024"
         WindowStyle="None"
-        AllowsTransparency="True"
-        Background="Transparent"
+        AllowsTransparency="False"
+        Background="{DynamicResource Brush.Window.Background}"
         WindowStartupLocation="CenterScreen">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0"
+                          GlassFrameThickness="-1"
+                          CornerRadius="24"
+                          ResizeBorderThickness="0"/>
+    </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
@@ -25,7 +33,7 @@
             <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
             <Setter Property="CaretBrush" Value="{DynamicResource Brush.Accent.Primary}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="PasswordChar" Value="â—"/>
+            <Setter Property="PasswordChar" Value="Ã¢â€”Â"/>
             
             <Setter Property="Template">
                 <Setter.Value>

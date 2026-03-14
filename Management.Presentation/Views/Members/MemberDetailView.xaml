@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Management.Presentation.Views.Members.MemberDetailView"
+<UserControl x:Class="Management.Presentation.Views.Members.MemberDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -97,17 +97,17 @@
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="{StaticResource MarginSectionTop}">
                     <Grid MaxWidth="{StaticResource MaxWidthForm}" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="{StaticResource WidthFormLabel}"/>
+                            <ColumnDefinition Width="160"/>
                             <!-- 160px -->
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <!-- Rows use resource height (e.g. 48px) -->
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
-                            <RowDefinition Height="{StaticResource SizeFormRowHeight}"/>
+                            <RowDefinition Height="48"/>
+                            <RowDefinition Height="48"/>
+                            <RowDefinition Height="48"/>
+                            <RowDefinition Height="48"/>
+                            <RowDefinition Height="48"/>
                         </Grid.RowDefinitions>
 
                         <!-- Phone -->

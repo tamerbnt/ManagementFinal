@@ -8,8 +8,18 @@
         Title="{DynamicResource Terminology.Salon.AppointmentDetail.Title}"
         Width="460" Height="520"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        WindowStyle="None" 
+        AllowsTransparency="False"
+        Background="{DynamicResource Brush.Window.Background}"
         WindowStartupLocation="CenterOwner">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0"
+                          GlassFrameThickness="-1"
+                          CornerRadius="24"
+                          ResizeBorderThickness="0"/>
+    </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <converters:TerminologyConverter x:Key="TerminologyConverter"/>
     </Window.Resources>

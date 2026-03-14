@@ -45,7 +45,7 @@ namespace Management.Presentation.Services
             _autoDismissTimer.Tick += OnAutoDismissTick;
             _autoDismissTimer.Start();
 
-            UndoCommand = new RelayCommand(ExecuteUndo);
+            UndoCommand = new AsyncRelayCommand(ExecuteUndo);
             DismissCommand = new RelayCommand(ExecuteDismiss);
         }
 
@@ -93,7 +93,7 @@ namespace Management.Presentation.Services
             // Implementation detail: MainWindow.xaml notification overlay will bind to this.
         }
 
-        private async void ExecuteUndo()
+        private async Task ExecuteUndo()
         {
             _undoTimer?.Stop();
             if (_pendingUndoAction != null) await _pendingUndoAction();
@@ -153,12 +153,9 @@ namespace Management.Presentation.Services
                     Message = message,
                     CreatedAt = DateTime.Now,
                     IsPaused = false,
-                    IsExiting = false,
-                    DismissCommand = new RelayCommand(() => DismissToast(Guid.Empty)) // Temporary ID until logic is refined, or use Guid.NewGuid() above
+                    IsExiting = false
                 };
-
-                // Re-assign with the correct ID if needed, but the error CS9035 requires it in initializer.
-                toast.DismissCommand = new RelayCommand(() => DismissToast(toast.Id));
+                toast.DismissCommand = new AsyncRelayCommand(() => DismissToastAsync(toast.Id));
 
                 // Queue Management: If full, force-dismiss the oldest one
                 if (_activeToasts.Count >= MaxVisibleToasts)
@@ -177,7 +174,7 @@ namespace Management.Presentation.Services
             });
         }
 
-        private async void DismissToast(Guid id)
+        private async Task DismissToastAsync(Guid id)
         {
             if (System.Windows.Application.Current == null) return;
 
@@ -226,7 +223,7 @@ namespace Management.Presentation.Services
 
             foreach (var toast in expiredItems)
             {
-                DismissToast(toast.Id);
+                _ = DismissToastAsync(toast.Id);
             }
         }
 

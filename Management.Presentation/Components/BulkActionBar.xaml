@@ -27,7 +27,7 @@
         <Grid Margin="48,0">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Command="{Binding CloseSelectionCommand}" Style="{StaticResource IconButtonStyle}" Margin="0,0,24,0">
-                    <TextBlock Text="✕" Foreground="White" FontSize="18"/>
+                    <TextBlock Text="âœ•" Foreground="White" FontSize="18"/>
                 </Button>
                 <TextBlock Text="{Binding SelectionCountText}" Foreground="White" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
             </StackPanel>

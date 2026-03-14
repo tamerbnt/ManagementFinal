@@ -1,8 +1,8 @@
-﻿// ******************************************************************************************
+// ******************************************************************************************
 //  Management.Presentation/Services/ModalNavigationService.cs
-//  FINAL PRODUCTION VERSION � v1.2.0-production
-//  Design System: Apple 2025 Edition � v1.2 FINAL (LOCKED)
-//  Status: PRODUCTION READY � DESIGN SYSTEM COMPLIANT
+//  FINAL PRODUCTION VERSION ? v1.2.0-production
+//  Design System: Apple 2025 Edition ? v1.2 FINAL (LOCKED)
+//  Status: PRODUCTION READY ? DESIGN SYSTEM COMPLIANT
 // ******************************************************************************************
 
 using System;
@@ -53,23 +53,23 @@ namespace Management.Presentation.Services
     {
         #region Constants
 
-        // Design System �33.1: Maximum modal stack depth
+        // Design System ?33.1: Maximum modal stack depth
         private const int MaxStackDepth = 2;
 
-        // Design System �33.5: Animation durations
+        // Design System ?33.5: Animation durations
         private static readonly TimeSpan OpenAnimationDuration = TimeSpan.FromMilliseconds(400);
         private static readonly TimeSpan CloseAnimationDuration = TimeSpan.FromMilliseconds(300);
 
-        // Design System �33.2: Backdrop opacity levels
+        // Design System ?33.2: Backdrop opacity levels
         private const double BackdropOpacityBase = 0.5;      // 50% for first modal
         private const double BackdropOpacityStacked = 0.6;   // 60% for second modal
 
-        // Design System �15.4: Modal size defaults
+        // Design System ?15.4: Modal size defaults
         private const int ModalWidthSmall = 640;
         private const int ModalWidthMedium = 880;
         private const int ModalWidthLarge = 1120;
 
-        // Minimum window size as per Design System �7.1
+        // Minimum window size as per Design System ?7.1
         private const int MinWindowWidth = 1280;
         private const int MinWindowHeight = 720;
 
@@ -89,7 +89,7 @@ namespace Management.Presentation.Services
         private object? _currentModalViewModel;
         private bool _isDisposed;
 
-        // Design System �33.1: Z-index layers
+        // Design System ?33.1: Z-index layers
         // Removed unused _nextZIndex
 
         #endregion
@@ -170,7 +170,7 @@ namespace Management.Presentation.Services
         {
             ThrowIfDisposed();
 
-            // Design System �33.1: Maximum 2 modals
+            // Design System ?33.1: Maximum 2 modals
             if (StackDepth >= MaxStackDepth)
             {
                 await ShowMaxDepthErrorAsync();
@@ -297,7 +297,7 @@ namespace Management.Presentation.Services
         {
             return await _dispatcher.InvokeAsync(() =>
             {
-                // Design System �33.4: Unsaved changes dialog
+                // Design System ?33.4: Unsaved changes dialog
                 var dialog = new Window
                 {
                     Title = "Unsaved Changes",
@@ -323,7 +323,7 @@ namespace Management.Presentation.Services
         }
         public async Task<bool> HandleEscapeKeyAsync()
         {
-            // Design System �33.3: Escape key handling priority
+            // Design System ?33.3: Escape key handling priority
             if (StackDepth == 0) return false;
 
             var currentState = _modalStack.Peek();
@@ -422,7 +422,7 @@ namespace Management.Presentation.Services
                 await initializable.InitializeAsync(parameter, cancellationToken);
             }
 
-            // Determine modal size (Design System �15.4)
+            // Determine modal size (Design System ?15.4)
             var size = requestedSize ??
                       (viewModel as IModalViewModel)?.PreferredSize ??
                       ModalSize.Medium;
@@ -490,7 +490,7 @@ namespace Management.Presentation.Services
 
             try
             {
-                // Check for unsaved changes (Design System �33.4)
+                // Check for unsaved changes (Design System ?33.4)
                 if (!force && state.ViewModel is IHasUnsavedChanges hasUnsaved && hasUnsaved.HasUnsavedChanges)
                 {
                     var shouldClose = await ShowUnsavedChangesDialogAsync();
@@ -583,19 +583,20 @@ namespace Management.Presentation.Services
 
         private void ConfigureModalWindow(Window window, ModalSize size, int stackDepth)
         {
-            // Design System �15.4: Modal dimensions
+            // Design System ?15.4: Modal dimensions
             window.Width = (int)size;
             window.SizeToContent = SizeToContent.Height;
             window.MaxHeight = System.Windows.Application.Current.MainWindow.ActualHeight * 0.9;
 
-            // Design System �15.4: Modal styling
+            // Design System ?15.4: Modal styling
             window.WindowStyle = WindowStyle.None;
+            window.AllowsTransparency = true;
             window.ResizeMode = ResizeMode.NoResize;
             window.ShowInTaskbar = false;
-            window.AllowsTransparency = true;
+            
             window.Background = System.Windows.Media.Brushes.Transparent;
 
-            // Design System �33.1: Z-index layering
+            // Design System ?33.1: Z-index layering
             window.Topmost = true;
 
             // Center on owner
@@ -610,7 +611,7 @@ namespace Management.Presentation.Services
 
         private void ApplyBackdropEffect(Window window, int stackDepth)
         {
-            // Design System �33.2: Backdrop opacity levels
+            // Design System ?33.2: Backdrop opacity levels
             var opacity = stackDepth == 0 ? BackdropOpacityBase : BackdropOpacityStacked;
 
             // Create backdrop effect (would be implemented with a separate overlay window)
@@ -619,7 +620,7 @@ namespace Management.Presentation.Services
 
         private void ApplyOpenAnimation(Window window)
         {
-            // Design System �33.5: Scale 0.94?1.0 + Opacity 0?1, 400ms
+            // Design System ?33.5: Scale 0.94?1.0 + Opacity 0?1, 400ms
             var storyboard = System.Windows.Application.Current.Resources["ModalFadeIn"] as System.Windows.Media.Animation.Storyboard;
             if (storyboard != null)
             {
@@ -686,7 +687,7 @@ namespace Management.Presentation.Services
 
         private void OnModalWindowPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            // Design System �33.3: Escape key handling
+            // Design System ?33.3: Escape key handling
             if (e.Key == Key.Escape && !e.Handled)
             {
                 _dispatcher.InvokeAsync(async () =>
@@ -721,7 +722,7 @@ namespace Management.Presentation.Services
 
         private bool IsReducedMotionEnabled()
         {
-            // Design System �5.4: Reduced motion detection
+            // Design System ?5.4: Reduced motion detection
             return !SystemParameters.MenuAnimation;
         }
 
@@ -752,7 +753,7 @@ namespace Management.Presentation.Services
 
         private async Task ShowMaxDepthErrorAsync()
         {
-            // Design System �33.1: Third modal attempt blocked
+            // Design System ?33.1: Third modal attempt blocked
             await _dispatcher.InvokeAsync(() =>
             {
                 // Would typically show a toast notification
@@ -877,7 +878,7 @@ namespace Management.Presentation.Services
 
     #region Supporting Internal Classes
 
-    // Internal classes for unsaved changes dialog (Design System �33.4)
+    // Internal classes for unsaved changes dialog (Design System ?33.4)
     internal sealed class UnsavedChangesDialogViewModel : ViewModelBase
     {
         private readonly Action _discardCallback;
@@ -919,7 +920,7 @@ namespace Management.Presentation.Services
                 Margin = new Thickness(24)
             };
 
-            // Icon (Design System �33.4: ?? 48px)
+            // Icon (Design System ?33.4: ?? 48px)
             var icon = new System.Windows.Controls.TextBlock
             {
                 Text = "??",

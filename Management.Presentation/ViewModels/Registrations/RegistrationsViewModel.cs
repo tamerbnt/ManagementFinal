@@ -14,6 +14,7 @@ using Management.Presentation.Services;
 using Management.Domain.Services;
 using Management.Presentation.Helpers;
 using Management.Application.DTOs;
+using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.ViewModels.Registrations
 {
@@ -31,7 +32,7 @@ namespace Management.Presentation.ViewModels.Registrations
         Grid
     }
 
-    public partial class RegistrationsViewModel : ViewModelBase
+    public partial class RegistrationsViewModel : ViewModelBase, INavigationalLifecycle
     {
         [ObservableProperty]
         private string _terminologyPluralLabel = "Registrations";
@@ -112,7 +113,6 @@ namespace Management.Presentation.ViewModels.Registrations
         {
             _registrationService = registrationService;
             _facilityContext = facilityContext;
-            Title = "Registrations";
             
             LoadRegistrationsCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadRegistrationsAsync);
             NextPageCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => { PageNumber++; await LoadRegistrationsAsync(); });
@@ -188,8 +188,23 @@ namespace Management.Presentation.ViewModels.Registrations
                         r.PropertyChanged -= OnRegistrationPropertyChanged;
                 }
             };
+        }
 
-            _ = LoadRegistrationsAsync();
+        public Task PreInitializeAsync()
+        {
+            Title = "Registrations";
+            return Task.CompletedTask;
+        }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task LoadDeferredAsync()
+        {
+            IsActive = true;
+            await ExecuteLoadingAsync(async () =>
+            {
+                await LoadRegistrationsAsync();
+            });
         }
 
         partial void OnSelectedFilterChanged(RegistrationFilterStatus value) => _ = LoadRegistrationsAsync();

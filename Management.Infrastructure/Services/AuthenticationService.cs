@@ -610,6 +610,30 @@ namespace Management.Infrastructure.Services
             }
         }
 
+        public async Task<bool> TenantHasOwnerAccountAsync(Guid tenantId)
+        {
+            try
+            {
+                Serilog.Log.Information($"[AuthService] Checking for existing owner account for tenant {tenantId}...");
+
+                // Query 'profiles' table for role = 1 (Owner) and tenant_id
+                // StaffRole.Owner is usually 1 (verified in StaffMember mapping)
+                var result = await _supabase.From<SupabaseStaffMember>()
+                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
+                    .Filter("role", Supabase.Postgrest.Constants.Operator.Equals, (int)StaffRole.Owner)
+                    .Get();
+
+                bool hasOwner = result.Models.Any();
+                Serilog.Log.Information($"[AuthService] Existing owner check for {tenantId}: {hasOwner}");
+                return hasOwner;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, $"[AuthService] Failed to check for existing owner account for tenant {tenantId}");
+                return false; // Fail safe to account creation if we can't verify balance
+            }
+        }
+
         // --- Helper: Seed Local Facilities from Supabase ---
         // Called during Cloud Recovery, AFTER Supabase authentication succeeds but BEFORE
         // local facility type validation. This populates the local SQLite Facilities table

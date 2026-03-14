@@ -14,6 +14,7 @@ namespace Management.Application.Services
         Task<Result<ProductDto>> GetProductAsync(Guid facilityId, Guid id);
         Task<Result<List<InventoryDto>>> GetInventoryStatusAsync(Guid facilityId);
         Task<Result<List<ProductDto>>> SearchProductsAsync(Guid facilityId, string searchTerm, ProductCategory? category = null);
+        Task<Result<PagedResult<ProductDto>>> SearchProductsPagedAsync(Guid facilityId, string searchTerm, int page = 1, int pageSize = 20, ProductCategory? category = null);
         Task<Result> CreateProductAsync(Guid facilityId, ProductDto product);
         Task<Result> UpdateProductAsync(Guid facilityId, ProductDto product);
         Task<Result> UpdateStockAsync(Guid facilityId, Guid productId, int quantityChange, string reason);

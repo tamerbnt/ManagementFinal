@@ -23,7 +23,7 @@ namespace Management.Presentation.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly IOnboardingService _onboardingService;
-        private readonly IToastNotificationService _toastService;
+
 
         [ObservableProperty]
         private string _email = string.Empty;
@@ -45,12 +45,13 @@ namespace Management.Presentation.ViewModels
             Title = _localizationService?.GetString("Strings.Auth.Title.VerifyEmail") ?? "Verify Email";
         }
 
-        public void SetParameter(object parameter)
+        public Task SetParameterAsync(object parameter)
         {
             if (parameter is string email)
             {
                 Email = email;
             }
+            return Task.CompletedTask;
         }
 
         [RelayCommand]

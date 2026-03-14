@@ -133,7 +133,7 @@ namespace Management.Presentation.ViewModels
 
             _isInitializingApp = true; // Block UI immediately until App.xaml.cs clears it
 
-            LoginCommand = new RelayCommand<object>(ExecuteLogin, CanExecuteLogin);
+            LoginCommand = new AsyncRelayCommand<object>(ExecuteLogin, CanExecuteLogin);
             ForgotPasswordCommand = new RelayCommand(ExecuteForgotPassword);
             SelectFacilityCommand = new RelayCommand<FacilityTypeOption>(f => SelectedFacility = f);
 
@@ -146,7 +146,7 @@ namespace Management.Presentation.ViewModels
             return !IsBusy && !IsInitializingApp && !string.IsNullOrWhiteSpace(Email);
         }
 
-        private async void ExecuteLogin(object? parameter)
+        private async Task ExecuteLogin(object? parameter)
         {
             if (parameter is not PasswordBox passwordBox) return;
 

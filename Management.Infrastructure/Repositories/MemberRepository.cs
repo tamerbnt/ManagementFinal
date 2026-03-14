@@ -129,13 +129,12 @@ namespace Management.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                // Note: We avoid .ToLower() on columns if the DB collation is already case-insensitive (NOCASE in SQLite)
-                // to allow index usage. 
+                string pattern = $"%{searchTerm}%";
                 query = query.Where(m => 
-                    m.FullName.Contains(searchTerm) ||
-                    (m.Email != null && m.Email.Value.Contains(searchTerm)) ||
-                    (m.PhoneNumber != null && m.PhoneNumber.Value.Contains(searchTerm)) ||
-                    (m.CardId != null && m.CardId.Contains(searchTerm))
+                    EF.Functions.Like(m.FullName, pattern) ||
+                    (m.Email != null && EF.Functions.Like(m.Email.Value, pattern)) ||
+                    (m.PhoneNumber != null && EF.Functions.Like(m.PhoneNumber.Value, pattern)) ||
+                    (m.CardId != null && EF.Functions.Like(m.CardId, pattern))
                 );
             }
 

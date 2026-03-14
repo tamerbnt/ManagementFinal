@@ -99,11 +99,11 @@
                             <!-- CONTENT: appointment info (visible when there is one) -->
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="0,4,0,0"
                                         Visibility="{Binding HasNoUpcoming, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="{Binding CurrentUpcoming.ClientName, FallbackValue='—'}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="{Binding CurrentUpcoming.ServiceName, FallbackValue='—'}" FontSize="13" Foreground="{DynamicResource FacilityAccentBrush}"/>
+                                <TextBlock Text="{Binding CurrentUpcoming.ClientName, FallbackValue='â€”'}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding CurrentUpcoming.ServiceName, FallbackValue='â€”'}" FontSize="13" Foreground="{DynamicResource FacilityAccentBrush}"/>
                                 <StackPanel Orientation="Horizontal" Opacity="0.8" Margin="0,2,0,0">
                                     <TextBlock Text="{Binding CurrentUpcoming.StartTime, StringFormat=HH:mm}" FontSize="12" Foreground="{DynamicResource Brush.Neutral.White}" FontWeight="Medium"/>
-                                    <TextBlock Text=" • " Foreground="{DynamicResource Brush.Neutral.White}"/>
+                                    <TextBlock Text=" â€¢ " Foreground="{DynamicResource Brush.Neutral.White}"/>
                                     <TextBlock Text="{Binding CurrentUpcoming.StaffName}" FontSize="12" Foreground="{DynamicResource Brush.Neutral.White}"/>
                                 </StackPanel>
                             </StackPanel>

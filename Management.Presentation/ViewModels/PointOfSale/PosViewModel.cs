@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Management.Application.DTOs; // Added DTOs
 using Management.Application.Interfaces;
@@ -23,6 +23,7 @@ namespace Management.Presentation.ViewModels.PointOfSale
     {
         private readonly IProductService _productService;
         private readonly IPrinterService _printerService;
+        private readonly Action _onPaymentFinalizedHandler;
 
         private const decimal TaxRate = 0m; // Removed hardcoded tax as per request
 
@@ -74,6 +75,7 @@ namespace Management.Presentation.ViewModels.PointOfSale
         {
             _productService = productService;
             _printerService = printerService;
+            _onPaymentFinalizedHandler = () => _ = OnPaymentFinalizedHandlerAsync();
 
             _ = LoadProductsAsync();
         }
@@ -98,7 +100,7 @@ namespace Management.Presentation.ViewModels.PointOfSale
             {
                 if (PaymentVm != null)
                 {
-                    PaymentVm.OnPaymentFinalized -= OnPaymentFinalizedHandler;
+                    PaymentVm.OnPaymentFinalized -= _onPaymentFinalizedHandler;
                     if (PaymentVm is IDisposable disposablePayment)
                     {
                         disposablePayment.Dispose();
@@ -232,15 +234,15 @@ namespace Management.Presentation.ViewModels.PointOfSale
             // Ensure previous VM is cleaned up if it was somehow left over
             if (PaymentVm != null)
             {
-                PaymentVm.OnPaymentFinalized -= OnPaymentFinalizedHandler;
+                PaymentVm.OnPaymentFinalized -= _onPaymentFinalizedHandler;
             }
 
             PaymentVm = new PaymentViewModel(TotalAmount);
-            PaymentVm.OnPaymentFinalized += OnPaymentFinalizedHandler;
+            PaymentVm.OnPaymentFinalized += _onPaymentFinalizedHandler;
             ShowPaymentModal = true;
         }
 
-        private async void OnPaymentFinalizedHandler()
+        private async Task OnPaymentFinalizedHandlerAsync()
         {
             await ProcessCheckoutAsync();
         }
@@ -250,7 +252,7 @@ namespace Management.Presentation.ViewModels.PointOfSale
         {
             if (PaymentVm != null)
             {
-                PaymentVm.OnPaymentFinalized -= OnPaymentFinalizedHandler;
+                PaymentVm.OnPaymentFinalized -= _onPaymentFinalizedHandler;
             }
             ShowPaymentModal = false;
             PaymentVm = null;

@@ -1,4 +1,4 @@
-﻿<controls:ModernWindow x:Class="Management.Presentation.Views.Shell.MainWindow"
+<controls:ModernWindow x:Class="Management.Presentation.Views.Shell.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -15,7 +15,8 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
-        Background="{DynamicResource Brush.Window.Background}">
+        Background="{DynamicResource Brush.Window.Background}"
+        Icon="/Assets/titan.ico">
 
     <Window.InputBindings>
         <KeyBinding Key="K" Modifiers="Ctrl" Command="{Binding ToggleCommandPaletteCommand}"/>
@@ -66,8 +67,8 @@
                           UseAeroCaptionButtons="False"/>
     </shell:WindowChrome.WindowChrome>
 
-    <!-- Root: Gradient background to ground the atmospheric nebula -->
-    <Grid x:Name="RootGrid" Background="{DynamicResource WindowBg}" Focusable="True">
+    <!-- Root: Solid background to ground the atmospheric nebula and prevent corner artifacts when AllowsTransparency=False -->
+    <Grid x:Name="RootGrid" Background="{DynamicResource Brush.Window.Background}" Focusable="True">
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>
                 <Style TargetType="Grid">

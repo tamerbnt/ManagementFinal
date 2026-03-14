@@ -104,6 +104,10 @@ namespace Management.Presentation.Services
 
         private async Task ExecuteNavigation(Type viewModelType, object? parameter)
         {
+            // Yield to the UI thread to allow high-priority rendering (like window corners/chrome) 
+            // to process before any potentially heavy ViewModel initialization starts.
+            await Task.Yield();
+
             try
             {
                 _logger?.LogInformation("Navigating to {ViewModelType} with parameter {Parameter}", viewModelType.Name, parameter);
@@ -121,7 +125,7 @@ namespace Management.Presentation.Services
 
                 if (parameter != null && viewModel is IParameterReceiver receiver)
                 {
-                    receiver.SetParameter(parameter);
+                    await receiver.SetParameterAsync(parameter);
                 }
 
                 // 3. Visual Swap (Triggers WPF DataTemplate switch)
@@ -130,9 +134,6 @@ namespace Management.Presentation.Services
                 // 4. Deferred Loading (Wait for UI Transition & Collection Population)
                 if (viewModel is INavigationalLifecycle deferredVm)
                 {
-                    // Allow WPF transition animation (250ms) to complete before heavy DB work
-                    await Task.Delay(250);
-                    
                     _logger?.LogInformation("Triggering Deferred Loading for {ViewModelType}", viewModelType.Name);
                     await deferredVm.LoadDeferredAsync();
                 }

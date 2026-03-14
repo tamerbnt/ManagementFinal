@@ -47,7 +47,7 @@
                         Width="32" Height="32"
                         Style="{StaticResource Button.Ghost}"
                         Click="Close_Click"
-                        Content="✕"
+                        Content="âœ•"
                         Margin="0,-16,-16,0"/>
 
                 <ContentPresenter Grid.Row="1" Content="{Binding ModalContent, RelativeSource={RelativeSource AncestorType=UserControl}}"/>

@@ -1,35 +1,46 @@
-// Management.Presentation/Services/ThemeService.cs
-// v1.2 FINAL – LIGHT MODE ONLY – NO SWITCHING ALLOWED
-// Exists to satisfy CODE STRUCTURE FINAL.txt – functionality locked
-
+ï»¿using System;
 using System.ComponentModel;
+using System.Windows;
+using Management.Application.Interfaces.App;
+using Management.Domain.Enums;
 
 namespace Management.Presentation.Services
 {
     /// <summary>
-    /// Required by official code structure.
-    /// In v1.2 Final: Light mode only. No runtime switching. No dark mode.
-    /// </summary>
-    public interface IThemeService : INotifyPropertyChanged
-    {
-        bool IsDarkMode { get; }  // Always false
-        bool IsLightMode { get; } // Always true
-    }
-
-    /// <summary>
-    /// Minimal, locked implementation.
-    /// Satisfies DI and structure requirements without enabling dark mode.
+    /// FINAL PRODUCTION VERSION - v1.2.0-production
+    /// Light Mode Only. Locked.
+    /// Includes skip guard as requested in build verification.
     /// </summary>
     public sealed class ThemeService : IThemeService
     {
-        #pragma warning disable 0067
+        private bool _isDarkMode = false;
+
         public event PropertyChangedEventHandler? PropertyChanged;
-        #pragma warning restore 0067
 
-        public bool IsDarkMode => false;
-        public bool IsLightMode => true;
+        public bool IsDarkMode => false; // Always false in production
+        public bool IsLightMode => true;  // Always true in production
 
-        // No methods. No state. No switching.
-        // Dark mode is physically impossible in v1.2.
+        public void SetTheme(bool isDark)
+        {
+            // Skip Guard
+            if (_isDarkMode == isDark) return;
+
+            // Forced to false for production
+            _isDarkMode = false; 
+            
+            OnPropertyChanged(nameof(IsDarkMode));
+            OnPropertyChanged(nameof(IsLightMode));
+        }
+
+        public void SetTheme(FacilityType facilityType)
+        {
+            // Facility-specific theme loading can be implemented here if needed,
+            // but for v1.2 we stick to the primary light theme.
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

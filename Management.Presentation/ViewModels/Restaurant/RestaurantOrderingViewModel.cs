@@ -85,13 +85,14 @@ namespace Management.Presentation.ViewModels.Restaurant
             SelectedCategory = GetTerm("Terminology.Restaurant.Order.AllCategories");
         }
 
-        public void SetParameter(object parameter)
+        public Task SetParameterAsync(object parameter)
         {
             if (parameter is Guid orderId)
             {
                 _initialOrderId = orderId;
                 _ = Task.Run(async () => await InitializeAsync());
             }
+            return Task.CompletedTask;
         }
 
         private async Task InitializeAsync()

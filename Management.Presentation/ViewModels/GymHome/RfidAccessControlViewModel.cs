@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -120,7 +120,8 @@ namespace Management.Presentation.ViewModels.GymHome
             {
                 var memberId = Result.Member.Id;
                 await _modalNavigationStore.CloseAsync(ModalResult.Success());
-                await _dialogService.ShowCustomDialogAsync<MemberDetailViewModel>(memberId);
+                // Open the QuickRegistration Form in Renew/Modify mode instead of the detailed view
+                await _dialogService.ShowCustomDialogAsync<QuickRegistrationViewModel>(memberId);
             }
         }
 

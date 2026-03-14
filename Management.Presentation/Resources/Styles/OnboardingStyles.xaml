@@ -219,7 +219,7 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Primary}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="PasswordChar" Value="●"/>
+        <Setter Property="PasswordChar" Value="â—"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">

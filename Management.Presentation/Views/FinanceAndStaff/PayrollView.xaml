@@ -1,4 +1,4 @@
-﻿<Window x:Class="Management.Presentation.Views.FinanceAndStaff.PayrollView"
+<Window x:Class="Management.Presentation.Views.FinanceAndStaff.PayrollView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -8,8 +8,8 @@
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        Background="Transparent"
-        AllowsTransparency="True"
+        AllowsTransparency="False"
+        Background="{DynamicResource SurfaceBg}"
         WindowStyle="None"
         mc:Ignorable="d" 
         d:DesignHeight="600" d:DesignWidth="500">

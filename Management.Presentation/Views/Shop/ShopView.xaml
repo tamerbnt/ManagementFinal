@@ -18,13 +18,12 @@
         <converters:WindowWidthToColumnsConverter x:Key="WindowWidthToColumnsConverter"/>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header -->
-                <RowDefinition Height="Auto"/> <!-- Controls -->
-                <RowDefinition Height="*"/>    <!-- Content -->
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Controls -->
+            <RowDefinition Height="*"/>    <!-- Content -->
+        </Grid.RowDefinitions>
 
             <!-- 1. Header & Actions -->
             <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
@@ -200,12 +199,21 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- A. GRID VIEW (Visual Shopping) -->
-                <ListBox Grid.Column="0" 
-                         ItemsSource="{Binding Products}" 
-                         Background="Transparent" 
-                         BorderThickness="0" 
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         SelectedItem="{Binding SelectedProduct}">
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <ListBox Grid.Row="0"
+                             ItemsSource="{Binding Products}" 
+                             Background="Transparent" 
+                             BorderThickness="0" 
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.CanContentScroll="True"
+                             SelectedItem="{Binding SelectedProduct}">
                     <ListBox.Visibility>
                         <Binding Path="ViewMode" Converter="{StaticResource EqualToVisibilityConverter}" ConverterParameter="{x:Static vm:ShopViewMode.Grid}"/>
                     </ListBox.Visibility>
@@ -248,15 +256,36 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
+                <!-- Load More Button (Grid View) -->
+                <Button Grid.Row="1" 
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding LoadMoreCommand}"
+                        Visibility="{Binding HasMoreItems, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
                 <!-- B. LIST VIEW (Inventory Management) -->
-                <ListBox Grid.Column="0" 
-                         ItemsSource="{Binding InventoryItems}" 
-                         Background="Transparent" 
-                         BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         VirtualizingPanel.IsVirtualizing="True"
-                         SelectedItem="{Binding SelectedProduct}">
+                <Grid Grid.Column="0" Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.List}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox Grid.Row="0"
+                             ItemsSource="{Binding InventoryItems}" 
+                             Background="Transparent" 
+                             BorderThickness="0"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.CanContentScroll="True"
+                             SelectedItem="{Binding SelectedProduct}">
                      <ListBox.Visibility>
                         <Binding Path="ViewMode" Converter="{StaticResource EqualToVisibilityConverter}" ConverterParameter="{x:Static vm:ShopViewMode.List}"/>
                     </ListBox.Visibility>
@@ -284,6 +313,20 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+
+                <!-- Load More Button (List View) -->
+                <Button Grid.Row="1" 
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding LoadMoreCommand}"
+                        Visibility="{Binding HasMoreItems, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
 
                 <!-- C. DETAIL SLIDE-OUT -->
                  <Border Grid.Column="1" 
@@ -332,7 +375,6 @@
                     
                     <local:ProductDetailView DataContext="{Binding SelectedProduct}"/>
                 </Border>
-            </Grid>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

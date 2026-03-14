@@ -91,7 +91,7 @@ namespace Management.Presentation.ViewModels.Finance
         [ObservableProperty]
         private StaffMemberViewModel? _selectedStaff;
 
-        public async void SetParameter(object parameter)
+        public async Task SetParameterAsync(object parameter)
         {
             if (parameter is string param && Guid.TryParse(param, out Guid staffId))
             {

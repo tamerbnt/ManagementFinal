@@ -58,6 +58,11 @@ namespace Management.Infrastructure.Services
             return await _sender.Send(new SearchProductsQuery(searchTerm, facilityId));
         }
 
+        public async Task<Result<PagedResult<ProductDto>>> SearchProductsPagedAsync(Guid facilityId, string searchTerm, int page = 1, int pageSize = 20, ProductCategory? category = null)
+        {
+            return await _sender.Send(new SearchProductsPagedQuery(searchTerm, page, pageSize, facilityId));
+        }
+
         public async Task<Result> CreateProductAsync(Guid facilityId, ProductDto product)
         {
             return await _sender.Send(new CreateProductCommand(product, facilityId));

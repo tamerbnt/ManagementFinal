@@ -13,6 +13,7 @@ namespace Management.Application.Features.Products.Queries.GetProducts
     public class GetProductsQueryHandler : 
         IRequestHandler<GetActiveProductsQuery, Result<List<ProductDto>>>,
         IRequestHandler<SearchProductsQuery, Result<List<ProductDto>>>,
+        IRequestHandler<SearchProductsPagedQuery, Result<PagedResult<ProductDto>>>,
         IRequestHandler<GetInventoryStatusQuery, Result<List<ProductDto>>>,
         IRequestHandler<GetProductByIdQuery, Result<ProductDto>>
     {
@@ -33,6 +34,18 @@ namespace Management.Application.Features.Products.Queries.GetProducts
         {
             var products = await _productRepository.SearchProductsAsync(request.SearchTerm, facilityId: request.FacilityId);
             return Result.Success(products.Select(MapToDto).ToList());
+        }
+
+        public async Task<Result<PagedResult<ProductDto>>> Handle(SearchProductsPagedQuery request, CancellationToken cancellationToken)
+        {
+            var (items, totalCount) = await _productRepository.SearchProductsPagedAsync(
+                request.SearchTerm, 
+                request.Page, 
+                request.PageSize, 
+                facilityId: request.FacilityId);
+
+            var dtos = items.Select(MapToDto).ToList();
+            return Result.Success(new PagedResult<ProductDto>(dtos, totalCount, request.Page, request.PageSize));
         }
 
         public async Task<Result<List<ProductDto>>> Handle(GetInventoryStatusQuery request, CancellationToken cancellationToken)

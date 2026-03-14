@@ -47,7 +47,7 @@ namespace Management.Presentation.ViewModels.Diagnostic
             
             if (LastError == null)
             {
-                Refresh();
+                _ = RefreshAsync();
             }
         }
 
@@ -61,7 +61,7 @@ namespace Management.Presentation.ViewModels.Diagnostic
             });
         }
 
-        public async void Refresh()
+        public async Task RefreshAsync()
         {
             // Check in-memory first (for runtime crashes)
             var last = _diagnosticService.GetAllEntries().LastOrDefault();

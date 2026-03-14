@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Management.Domain.Enums;
 
 namespace Management.Domain.Services
@@ -9,7 +10,7 @@ namespace Management.Domain.Services
         FacilityType CurrentFacility { get; }
         Guid CurrentFacilityId { get; }
         event Action<FacilityType> FacilityChanged;
-        void SwitchFacility(FacilityType type);
+        Task SwitchFacility(FacilityType type);
         void SetFacility(FacilityType type);
         void SaveLanguage(string languageCode);
         void UpdateFacilities(System.Collections.Generic.Dictionary<FacilityType, Guid> facilityMappings);

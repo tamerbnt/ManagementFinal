@@ -15,15 +15,20 @@ namespace Management.Presentation.Services.Infrastructure
         public SecureStorageService()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var folder = Path.Combine(appData, "GymOS");
-            Directory.CreateDirectory(folder);
-            _filePath = Path.Combine(folder, "secrets.dat");
+            var titanFolder = Path.Combine(appData, "Titan");
+            if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
+            _filePath = Path.Combine(titanFolder, "secrets.dat");
         }
 
         public Task<string?> GetAsync(string key)
         {
+            return Task.FromResult(Get(key));
+        }
+
+        public string? Get(string key)
+        {
             var data = GetAll();
-            return Task.FromResult(data.TryGetValue(key, out var value) ? value : null);
+            return data.TryGetValue(key, out var value) ? value : null;
         }
 
         public Task SetAsync(string key, string value)

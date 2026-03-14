@@ -98,6 +98,9 @@
             <DataTemplate DataType="{x:Type gymhomevm:GymHomeViewModel}">
                 <gymhome:GymHomeView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type gymhomevm:RfidAccessControlViewModel}">
+                <gymhome:RfidAccessControlView/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type salonvm:SalonHomeViewModel}">
                 <salon:SalonHomeView/>
             </DataTemplate>

@@ -23,7 +23,7 @@ namespace Management.Presentation.Services
     {
         private readonly IDispatcher _dispatcher;
         private readonly ILocalizationService _localizationService;
-        private const string ConfigFileName = "facility-config.json";
+        private readonly string _configPath;
         
         // Default seed IDs removed (Relying on discovery)
         private readonly Dictionary<FacilityType, Guid> _dynamicFacilityIds = new();
@@ -33,10 +33,10 @@ namespace Management.Presentation.Services
         public string LanguageCode { get; private set; } = "en";
         public event Action<FacilityType>? FacilityChanged;
 
-        public void SetFacility(FacilityType type)
+        public async void SetFacility(FacilityType type)
         {
             Serilog.Log.Information("[FacilityContext] SetFacility({Type}) called. CurrentFacilityId at this moment: {Id}", type, _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty));
-            SwitchFacility(type);
+            await SwitchFacility(type);
         }
 
         public void SaveLanguage(string languageCode)
@@ -75,22 +75,29 @@ namespace Management.Presentation.Services
             _dispatcher = dispatcher;
             _localizationService = localizationService;
             
+            // FIX: Absolute path in %LOCALAPPDATA%\Titan
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var titanFolder = Path.Combine(localAppData, "Titan");
+            if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
+            
+            _configPath = Path.Combine(titanFolder, "facility-config.json");
+
             // Subscribe to language changes to reload terminology
             _localizationService.LanguageChanged += (s, e) => RefreshResources();
         }
 
-        private void RefreshResources()
+        private async void RefreshResources()
         {
-            SwitchFacility(CurrentFacility);
+            await SwitchFacility(CurrentFacility);
         }
 
         public void Initialize()
         {
             try
             {
-                if (File.Exists(ConfigFileName))
+                if (File.Exists(_configPath))
                 {
-                    var json = File.ReadAllText(ConfigFileName);
+                    var json = File.ReadAllText(_configPath);
                     var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
                     var config = JsonSerializer.Deserialize<FacilityConfig>(json, options);
                     CurrentFacility = config?.InitialFacility ?? FacilityType.General;
@@ -126,17 +133,17 @@ namespace Management.Presentation.Services
         /// Finalises the facility switch after auto-discovery has populated the ID map.
         /// Must be called exactly once by App.xaml.cs after UpdateFacilities / UpdateFacilityId.
         /// </summary>
-        public void CommitFacility()
+        public async void CommitFacility()
         {
             Serilog.Log.Information("[FacilityContext] CommitFacility called. CurrentFacility={Type} CurrentFacilityId={Id}", CurrentFacility, CurrentFacilityId);
-            SwitchFacility(CurrentFacility);
+            await SwitchFacility(CurrentFacility);
         }
 
-        public void SwitchFacility(FacilityType type)
+        public async Task SwitchFacility(FacilityType type)
         {
             CurrentFacility = type;
 
-            _dispatcher.Invoke(() =>
+            await _dispatcher.InvokeAsync(() =>
             {
                 var appResources = System.Windows.Application.Current.Resources;
                 
@@ -275,13 +282,13 @@ namespace Management.Presentation.Services
                     Converters = { new JsonStringEnumConverter() }
                 };
                 var json = JsonSerializer.Serialize(config, options);
-                var tempPath = ConfigFileName + ".tmp";
+                var tempPath = _configPath + ".tmp";
                 File.WriteAllText(tempPath, json);
-                File.Move(tempPath, ConfigFileName, overwrite: true);
+                File.Move(tempPath, _configPath, overwrite: true);
             }
             catch (Exception ex)
             {
-                Serilog.Log.Warning(ex, "[FacilityContext] Failed to save config.");
+                Serilog.Log.Warning(ex, "[FacilityContext] Failed to save config to {Path}", _configPath);
             }
             finally
             {

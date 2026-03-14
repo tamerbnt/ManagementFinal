@@ -48,6 +48,16 @@ namespace Management.Application.Stores
             }
         }
 
+        private readonly System.Collections.Generic.HashSet<Type> _persistentTypes = new();
+
+        /// <summary>
+        /// Registers a ViewModel type as persistent (Singleton/never disposed on navigation).
+        /// </summary>
+        public void RegisterPersistentType(Type type)
+        {
+            _persistentTypes.Add(type);
+        }
+
         /// <summary>
         /// The currently active ViewModel (e.g., DashboardViewModel, MembersViewModel).
         /// </summary>
@@ -59,13 +69,8 @@ namespace Management.Application.Stores
                 // 1. Cleanup Logic (Memory Management)
                 if (_currentViewModel is IDisposable disposableVm)
                 {
-                    bool isPersistent = value != null && (
-                        value.GetType().Name.EndsWith("ViewModel") && 
-                        !value.GetType().Name.Contains("Modal") &&
-                        !value.GetType().Name.Contains("Detail")
-                    );
-
-                    if (!isPersistent)
+                    // Only dispose if outgoing VM is not registered as persistent
+                    if (!_persistentTypes.Contains(_currentViewModel.GetType()))
                     {
                         disposableVm.Dispose();
                     }

@@ -23,7 +23,7 @@ namespace Management.Presentation.ViewModels.Settings
 {
     public partial class MenuManagementViewModel : FacilityAwareViewModelBase, INavigationalLifecycle, IParameterReceiver
     {
-        public async void SetParameter(object parameter)
+        public async Task SetParameterAsync(object parameter)
         {
             if (parameter is string param)
             {
@@ -268,10 +268,17 @@ namespace Management.Presentation.ViewModels.Settings
 
         private async void OnMenuItemEditorSaved(object? sender, EventArgs e)
         {
-            IsDrawerOpen = false;
-            if (SelectedItem != null) SelectedItem.IsActive = false;
-            CleanupEditor();
-            await LoadDataAsync();
+            try
+            {
+                IsDrawerOpen = false;
+                if (SelectedItem != null) SelectedItem.IsActive = false;
+                CleanupEditor();
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Error occurred in OnMenuItemEditorSaved");
+            }
         }
 
         private void OnEditorCanceled(object? sender, EventArgs e)

@@ -140,7 +140,7 @@ namespace Management.Presentation.Services
         }
 
 
-        private async void ExecuteBookAppointment() { await _modalService.OpenModalAsync<BookingViewModel>(); }
+        private async Task ExecuteBookAppointmentAsync() { await _modalService.OpenModalAsync<BookingViewModel>(); }
     }
 
     public class CommandItemViewModel : ViewModelBase
@@ -162,6 +162,14 @@ namespace Management.Presentation.Services
             Label = label;
             Description = description;
             Command = new RelayCommand(action);
+            Category = category;
+        }
+
+        public CommandItemViewModel(string label, string description, Func<Task> asyncAction, string category)
+        {
+            Label = label;
+            Description = description;
+            Command = new AsyncRelayCommand(asyncAction);
             Category = category;
         }
     }

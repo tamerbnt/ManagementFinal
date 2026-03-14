@@ -71,7 +71,7 @@
                                                 Background="{DynamicResource Brush.Brand.Primary}"
                                                 CornerRadius="24"
                                                 Margin="0,0,16,0">
-                                            <TextBlock Text="✂" 
+                                            <TextBlock Text="âœ‚" 
                                                        FontSize="24" 
                                                        Foreground="White"
                                                        HorizontalAlignment="Center"

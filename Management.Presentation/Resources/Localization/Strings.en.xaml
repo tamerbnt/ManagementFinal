@@ -336,7 +336,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <!-- Formats -->
     <sys:String x:Key="Terminology.Format.Time">{}{0:h:mm tt}</sys:String>
-    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  â€¢  h:mm tt}</sys:String>
+    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  Ã¢â‚¬Â¢  h:mm tt}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Medium">{}{0:dddd, MMMM d}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Short">{}{0:MMM dd}</sys:String>
     <sys:String x:Key="Terminology.Format.Currency">{}{0:N2} DA</sys:String>
@@ -577,13 +577,19 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
     <!-- Member Creation (Fixing missing keys) -->
     <sys:String x:Key="Terminology.Members.Add.Title">Add New Member</sys:String>
-    <sys:String x:Key="Terminology.Members.Add.Subtitle">Enrolling a new member.</sys:String>
+    <sys:String x:Key="Terminology.Members.Add.Subtitle">Enter the details of the new member below.</sys:String>
+    <sys:String x:Key="Terminology.Members.Add.Plan">Membership Plan</sys:String>
+    <sys:String x:Key="Terminology.Members.Add.Fingerprint">Fingerprint Scan</sys:String>
+    <sys:String x:Key="Terminology.Members.Add.Action.Clear">Clear Form</sys:String>
+    <sys:String x:Key="Terminology.Members.Add.Action.Register">Register Member</sys:String>
+
+    <sys:String x:Key="Terminology.Members.Renew.Title">Renew / Modify Profile</sys:String>
+    <sys:String x:Key="Terminology.Members.Renew.Subtitle">Update details and assign a new plan</sys:String>
+    <sys:String x:Key="Terminology.Members.Renew.Action.Save">Save &amp; Renew</sys:String>
     <sys:String x:Key="Terminology.Members.Add.ProfilePhoto">Profile Photo</sys:String>
     <sys:String x:Key="Terminology.Members.Add.DragDrop">Drag &amp; Drop to Upload</sys:String>
     <sys:String x:Key="Terminology.Members.Add.PersonalInfo">Personal Information</sys:String>
-    <sys:String x:Key="Terminology.Members.Add.Plan">Membership Plan</sys:String>
     <sys:String x:Key="Terminology.Members.Add.Action.Save">Save Member</sys:String>
-    <sys:String x:Key="Terminology.Members.Add.Action.Register">Register Member</sys:String>
 
     <!-- Salon Home -->
     <sys:String x:Key="Terminology.Salon.Home.NextAppointment">NEXT APPOINTMENT</sys:String>
@@ -677,7 +683,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Restaurant.Order.SelectBillToPay">Select an active order to process payment</sys:String>
     <!-- Floor Plan keys -->
     <sys:String x:Key="Terminology.FloorPlan.Legend.Title">TABLE STATUS</sys:String>
-    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map — click a table to manage</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map â€” click a table to manage</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Total">Total</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Available">Available</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Occupied">Occupied</sys:String>
@@ -965,7 +971,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Settings\Pages.AccessibleFacilities">Accessible Facilities</sys:String>
     <sys:String x:Key="Strings.Settings\Pages.Thisplaniscurrentlyactive">This plan is currently active and available for purchase</sys:String>
     <sys:String x:Key="Strings.Shared.WorkinginLocalMode">Working in Local Mode</sys:String>
-    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">â€¢ Changes will sync when online</sys:String>
+    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">Ã¢â‚¬Â¢ Changes will sync when online</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyPlan">Revenue by Plan</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyProduct">Revenue by Product</sys:String>
     <sys:String x:Key="Strings.Shell.DA">DA</sys:String>
@@ -1169,6 +1175,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.History.Inventory.Title">Inventory: {0}</sys:String>
     <sys:String x:Key="Terminology.History.Inventory.Details">Bought {0} {1} - Total: {3} DA (Note: {2})</sys:String>
     <sys:String x:Key="Terminology.Restaurant.Order.Ticket">Ticket #{0}</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.MembershipPlan">Membership Plan</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.NoMembershipPlan">No Membership Plan</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Service">Salon Service</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.NoService">No Service</sys:String>
     <sys:String x:Key="TerminologyDeviceManagementLabel">Device Management</sys:String>
     <sys:String x:Key="Terminology.Global.Unknown">Unknown</sys:String>
 </ResourceDictionary>

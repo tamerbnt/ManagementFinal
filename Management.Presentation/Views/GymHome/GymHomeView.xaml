@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Management.Presentation.Views.GymHome.GymHomeView"
+<UserControl x:Class="Management.Presentation.Views.GymHome.GymHomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -28,9 +28,9 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <Grid VerticalAlignment="Stretch">
         <Grid Margin="0">
-            <i:Interaction.Triggers>
+        <i:Interaction.Triggers>
                 <i:EventTrigger EventName="Loaded">
                     <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
                 </i:EventTrigger>
@@ -255,6 +255,7 @@
                         </Border>
                     </Grid>
                 </Grid>
+
             </Grid>
 
             <!-- ====================================================================== -->
@@ -364,5 +365,5 @@
                 </Border>
             </Grid>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

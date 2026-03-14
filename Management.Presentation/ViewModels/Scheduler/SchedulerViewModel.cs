@@ -54,7 +54,7 @@ namespace Management.Presentation.ViewModels.Scheduler
         public void OnScreenActivated() => IsActive = true;
         public void OnScreenDeactivated() => IsActive = false;
 
-        public void SetParameter(object parameter)
+        public Task SetParameterAsync(object parameter)
         {
             if (parameter is string param && Guid.TryParse(param, out Guid id))
             {
@@ -65,6 +65,7 @@ namespace Management.Presentation.ViewModels.Scheduler
                     // but we can set a property if AppointmentViewModel supports it.
                 }
             }
+            return Task.CompletedTask;
         }
 
         private async Task LoadStaffAsync()

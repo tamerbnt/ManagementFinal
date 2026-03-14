@@ -15,16 +15,40 @@ namespace Management.Infrastructure.Repositories
 
         public async Task<IEnumerable<Product>> SearchProductsAsync(string searchTerm, ProductCategory? category = null, Guid? facilityId = null)
         {
+            var query = BuildSearchQuery(searchTerm, category, facilityId);
+            return await query.OrderBy(p => p.Name).ToListAsync();
+        }
+
+        public async Task<(IEnumerable<Product> Items, int TotalCount)> SearchProductsPagedAsync(
+            string searchTerm, 
+            int page, 
+            int pageSize, 
+            ProductCategory? category = null, 
+            Guid? facilityId = null)
+        {
+            var query = BuildSearchQuery(searchTerm, category, facilityId);
+            var totalCount = await query.CountAsync();
+            var items = await query
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        private IQueryable<Product> BuildSearchQuery(string searchTerm, ProductCategory? category, Guid? facilityId)
+        {
             var query = facilityId.HasValue 
                 ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && p.IsActive)
                 : _dbSet.AsNoTracking().Where(p => p.IsActive);
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                string term = searchTerm.ToLower();
+                string pattern = $"%{searchTerm}%";
                 query = query.Where(p =>
-                    p.Name.ToLower().Contains(term) ||
-                    p.SKU.ToLower().Contains(term));
+                    EF.Functions.Like(p.Name, pattern) ||
+                    EF.Functions.Like(p.SKU, pattern));
             }
 
             if (category.HasValue)
@@ -32,7 +56,7 @@ namespace Management.Infrastructure.Repositories
                 query = query.Where(p => p.Category == category.Value);
             }
 
-            return await query.OrderBy(p => p.Name).ToListAsync();
+            return query;
         }
 
         public override async Task<Product?> GetByIdAsync(Guid id, Guid? facilityId = null)

@@ -12,7 +12,7 @@ namespace Management.Presentation.ViewModels.Shared
         public ToastType Type { get; set; }
         public required string Message { get; set; }
         public DateTime CreatedAt { get; set; }
-        public required ICommand DismissCommand { get; set; }
+        public ICommand DismissCommand { get; set; } = null!;
 
         private bool _isPaused;
         public bool IsPaused

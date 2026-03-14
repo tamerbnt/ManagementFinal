@@ -35,7 +35,7 @@
                     <Button Width="40" Height="40"
                             Style="{StaticResource Button.Ghost}"
                             Click="Close_Click"
-                            Content="←"
+                            Content="â†"
                             FontSize="20"/>
                     <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                VerticalAlignment="Center"

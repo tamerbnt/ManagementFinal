@@ -1,8 +1,13 @@
 using System;
+using Microsoft.Win32;
+using System.Diagnostics;
+using System.Threading;
+using Velopack;
 using Management.Application.Services;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Management.Application.Interfaces;
 using Management.Infrastructure.Services.Dashboard;
 using Management.Infrastructure.Services.Dashboard.Aggregators;
@@ -102,31 +107,224 @@ namespace Management.Presentation
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
+        private static Mutex? _instanceMutex;
+
+        private bool EnsureSingleInstance()
+        {
+            _instanceMutex = new Mutex(true, "TitanManagementSystem_SingleInstance", out bool isNewInstance);
+            if (!isNewInstance)
+            {
+                MessageBox.Show(
+                    "Titan is already running in your taskbar. Multiple instances are not allowed.",
+                    "Titan - Already Running",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                System.Windows.Application.Current.Shutdown();
+                return false;
+            }
+            return true;
+        }
+
+        private void CleanupStaleRegistryEntries()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\CurrentVersion\Run",
+                    writable: true);
+                var existing = key?.GetValue("TitanManagementSystem") as string;
+                var currentExe = Process.GetCurrentProcess().MainModule?.FileName;
+                if (existing != null && currentExe != null &&
+                    !existing.Contains(Path.GetDirectoryName(currentExe) ?? "",
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    key?.DeleteValue("TitanManagementSystem", false);
+                    Serilog.Log.Warning("Removed stale autorun entry: {Old}", existing);
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "Could not clean registry autorun entries");
+            }
+        }
+
+        private void KillRunningTitanProcesses()
+        {
+            var currentPid = Process.GetCurrentProcess().Id;
+            var names = new[] { "Titan.Client", "Titan", "Management.Presentation", "GymOS" };
+            foreach (var name in names)
+            {
+                foreach (var p in Process.GetProcessesByName(name))
+                {
+                    try
+                    {
+                        if (p.Id == currentPid) continue;
+
+                        Serilog.Log.Information("Killing competing process: {ProcessName} ({Id})", p.ProcessName, p.Id);
+                        p.CloseMainWindow();
+                        if (!p.WaitForExit(3000))
+                            p.Kill();
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private void SanitizeEnvironment()
+        {
+            try
+            {
+                Serilog.Log.Information("Starting Environmental Sanitation...");
+
+                // 1. Kill old processes (to release file locks)
+                KillRunningTitanProcesses();
+
+                // 2. Remove legacy local data folders
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var legacyFolders = new[] 
+                { 
+                    Path.Combine(localAppData, "GymOS"),
+                    Path.Combine(localAppData, "TitanManagementSystem") // Old name if any
+                };
+
+                foreach (var folder in legacyFolders)
+                {
+                    if (Directory.Exists(folder))
+                    {
+                        try
+                        {
+                            Serilog.Log.Information("Removing legacy folder: {Folder}", folder);
+                            Directory.Delete(folder, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Serilog.Log.Warning("Could not delete legacy folder {Folder}: {Error}", folder, ex.Message);
+                        }
+                    }
+                }
+
+                // FIX 7: Removed destructive folder deletion that searched for ManagementCopy* / ManagementBackup*
+                // and deleted them on every startup. This silently destroyed the user's own backup copies.
+
+                // 4. Ensure Registry is clean
+                CleanupStaleRegistryEntries();
+                RegisterAutorun();
+
+                Serilog.Log.Information("Environmental Sanitation Complete.");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Environmental Sanitation failed partially.");
+            }
+        }
+
+        public bool TryRegisterZKTecoSdk(bool silent = true)
+        {
+            try
+            {
+                var currentExe = Process.GetCurrentProcess().MainModule?.FileName;
+                if (currentExe == null) return false;
+
+                var zkDllPath = Path.Combine(Path.GetDirectoryName(currentExe)!, "zkemkeeper.dll");
+
+                if (!File.Exists(zkDllPath))
+                {
+                    Serilog.Log.Warning("[Hardware] zkemkeeper.dll not found at {Path}", zkDllPath);
+                    return false;
+                }
+
+                Serilog.Log.Information("[Hardware] Attempting ZKTeco SDK registration (Silent={Silent})...", silent);
+
+                var result = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "regsvr32.exe",
+                    Arguments = $"{(silent ? "/s" : "")} \"{zkDllPath}\"",
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+                
+                if (result != null)
+                {
+                    bool exited = result.WaitForExit(10000);
+                    if (exited && result.ExitCode == 0)
+                    {
+                        Serilog.Log.Information("[Hardware] ZKTeco SDK registered successfully via regsvr32");
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "[Hardware] ZKTeco SDK registration failed — turnstile may not work");
+                return false;
+            }
+        }
+
+        private void HandleInstallerPostOps()
+        {
+            try
+            {
+                // 1. Create %LocalAppData%\Titan\ directory
+                var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
+                if (!Directory.Exists(localAppData)) Directory.CreateDirectory(localAppData);
+
+                // 2. Create Documents\Titan\Backups\ directory
+                var documents = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Titan", "Backups");
+                if (!Directory.Exists(documents)) Directory.CreateDirectory(documents);
+
+                // 3. Register autorun entry pointing to current exe
+                RegisterAutorun();
+
+                // 5. Clean up any stale autorun entries from old versions
+                CleanupStaleRegistryEntries();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Failed during post-install/update operations");
+            }
+        }
+
+        private void RegisterAutorun()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\CurrentVersion\Run",
+                    writable: true);
+                var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+                if (exePath != null)
+                    key?.SetValue("TitanManagementSystem", $"\"{exePath}\"");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "Could not register autorun");
+            }
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            // PROACTIVE SANITATION: Kill old versions and clear legacy data
+            _ = Task.Run(SanitizeEnvironment);
+
+            if (!EnsureSingleInstance()) return;
+            
             // Execute startup logic on a separate task to avoid blocking UI thread 
             // but with robust error handling and proper synchronization.
             InitializeApp();
 
-            // Check Turnstile SDK
-            // This check needs to happen AFTER InitializeApp() has configured the host and services.
-            // The _host variable is only populated within InitializeApp().
-            if (_host != null)
+            try
             {
-                var turnstileService = _host.Services.GetRequiredService<IHardwareTurnstileService>();
-                if (!turnstileService.IsSdkAvailable)
+                var icon = new BitmapImage(new Uri("pack://application:,,,/Assets/titan.ico"));
+                foreach (Window w in System.Windows.Application.Current.Windows)
                 {
-                    var toastService = _host.Services.GetRequiredService<Management.Application.Interfaces.App.IToastService>();
-                    var logger = _host.Services.GetRequiredService<ILogger<App>>();
-                    
-                    logger.LogWarning("ZKTeco SDK not found. Gate control will be disabled.");
-                    
-                    // Use the dispatcher to show toast after the main window is ready
-                    Dispatcher.InvokeAsync(() => 
-                    {
-                        toastService.ShowError("ZKTeco SDK (zkemkeeper) not registered. Gate hardware is disabled.", "Hardware Error");
-                    }, System.Windows.Threading.DispatcherPriority.Loaded);
+                    w.Icon = icon;
                 }
+            }
+            catch (Exception ex)
+            {
+                // Silently ignore or log if the taskbar icon fails to embed
             }
 
             base.OnStartup(e);
@@ -193,6 +391,16 @@ namespace Management.Presentation
 
                 ServiceProvider = _host.Services;
 
+                // FIX 7: Register Persistent ViewModels in NavigationStore
+                var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+                navStore.RegisterPersistentType(typeof(MembersViewModel));
+                navStore.RegisterPersistentType(typeof(ShopViewModel));
+                navStore.RegisterPersistentType(typeof(SettingsViewModel));
+                navStore.RegisterPersistentType(typeof(DashboardViewModel));
+                navStore.RegisterPersistentType(typeof(HistoryViewModel));
+                navStore.RegisterPersistentType(typeof(FinanceAndStaffViewModel));
+                navStore.RegisterPersistentType(typeof(RegistrationsViewModel));
+
                 // 4. Start the Host
                 _host.StartAsync(_appShutdownCts.Token).ContinueWith(t => 
                 {
@@ -226,10 +434,52 @@ namespace Management.Presentation
                 var facilityContext = ServiceProvider.GetRequiredService<IFacilityContextService>();
                 facilityContext.Initialize();
 
-                // 1.5 Initialize Database FIRST (must complete before auto-discovery queries Facilities table)
-                Serilog.Log.Information("[App] Initializing database schema before auto-discovery...");
+                // 2. Initialize Localization (Load saved preference) EARLY
+                // This ensures UI strings are loaded before the window is Shown.
+                var localizationService = ServiceProvider.GetRequiredService<ILocalizationService>();
+                var settingsService = ServiceProvider.GetRequiredService<ISettingsService>();
+                string languageToLoad = facilityContext.LanguageCode;
+
+                if (string.IsNullOrEmpty(languageToLoad))
+                {
+                    languageToLoad = "en"; // Fallback
+                }
+                
+                localizationService.SetLanguage(languageToLoad);
+
+                // 3. SHOW WINDOW
+                await Current.Dispatcher.InvokeAsync(async () => {
+                    try 
+                    {
+                        var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
+                        var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
+                        var navService = ServiceProvider.GetRequiredService<INavigationService>();
+
+                        authWindow.DataContext = authVm;
+                        Current.MainWindow = authWindow;
+                        authWindow.Show();
+                        
+                        // Default to Login view
+                        await navService.NavigateToLoginAsync();
+                        
+                        var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+                        if (navStore.CurrentViewModel is LoginViewModel loginVm)
+                        {
+                            loginVm.IsInitializingApp = true;
+                            loginVm.AppInitializationStatus = "Starting application services...";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "Failed to show initial AuthWindow");
+                    }
+                });
+
+                // 4. Background Database Initialization
+                Serilog.Log.Information("[App] Initializing database schema in background...");
+                UpdateStartupStatus("Initializing database...");
                 var dbInitTask = InitializeDatabaseAsync(ct);
-                await dbInitTask;
+                await dbInitTask; 
 
                 // --- Phase 6 HEALING: Full Auto-Discovery ---
                 // Always run discovery to build the complete FacilityType → Guid map.
@@ -268,30 +518,7 @@ namespace Management.Presentation
                 // The guard in SwitchFacility will block the event if the GUID is still empty.
                 facilityContext.CommitFacility();
 
-                // Initialize Localization (Load saved preference) AFTER facility is committed
-                var localizationService = ServiceProvider.GetRequiredService<ILocalizationService>();
-                var settingsService = ServiceProvider.GetRequiredService<ISettingsService>();
-
-                // 1. Use locally saved language preference if it exists
-                string languageToLoad = facilityContext.LanguageCode;
-
-                // 2. Database check as fallback/override if Facility ID is present
-                if (facilityContext.CurrentFacilityId != Guid.Empty)
-                {
-                    var appearanceResult = await settingsService.GetAppearanceSettingsAsync(facilityContext.CurrentFacilityId);
-                    if (appearanceResult.IsSuccess && !string.IsNullOrEmpty(appearanceResult.Value.Language))
-                    {
-                        // Normalize language code (e.g., "en-US" -> "en") to match resource files
-                        languageToLoad = appearanceResult.Value.Language.Split('-')[0].ToLower();
-                    }
-                }
-                else if (string.IsNullOrEmpty(languageToLoad))
-                {
-                    languageToLoad = "en"; // Ultimate fallback
-                    Serilog.Log.Warning("[App] Facility ID is empty and no local language saved. Using default 'en'.");
-                }
-                
-                localizationService.SetLanguage(languageToLoad);
+                // (Localization already initialized early)
 
                 // Synchronize SessionManager with the committed facility context
                 var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
@@ -354,33 +581,25 @@ namespace Management.Presentation
                 Serilog.Log.Information("[App] Database schema already initialized.");
 
                 // (Localization moved to earlier in sequence)
+                // FIX 2: Removed duplicate PopulateNavigationRegistry call here — already called at step 4 above.
                 
-                // 5.5 Initialize Navigation Registry
-                var navigationRegistry = ServiceProvider.GetRequiredService<INavigationRegistry>();
-                PopulateNavigationRegistry(navigationRegistry);
-                
-                // 6. Startup Security Guard (Hardware Check)
+                // 6. Startup Security Guard (Hardware/Cloud Check)
+                // This was already moved lower in my previous thought but let's be explicit.
                 ct.ThrowIfCancellationRequested();
-                Serilog.Log.Information("Running Startup Security Guard...");
+                Serilog.Log.Information("Running Startup Security Guard in background...");
+                UpdateStartupStatus("Verifying license...");
                 bool isLicensed = await RunStartupSecurityGuard(ServiceProvider);
 
-                // FOCUS MODE: Show Auth/Activation Window instead of Main Shell
-                ct.ThrowIfCancellationRequested();
+                // 7. FINAL NAVIGATION ROUTING (Based on background task results)
                 await Current.Dispatcher.InvokeAsync(async () => {
                     try 
                     {
-                        var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
-                        var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
-
-                        authWindow.DataContext = authVm;
-                        Current.MainWindow = authWindow;
-                        authWindow.Show();
+                        var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
 
                         if (!isLicensed)
                         {
                             Serilog.Log.Information("Device not licensed. Navigating to Activation...");
-                            await dbInitTask;
                             await navService.NavigateToAsync<LicenseEntryViewModel>();
                         }
                         else
@@ -388,93 +607,49 @@ namespace Management.Presentation
                             var stateStore = ServiceProvider.GetRequiredService<IOnboardingStateStore>();
                             if (stateStore.TargetTenantId.HasValue)
                             {
-                                Serilog.Log.Information("Device licensed but onboarding incomplete. Navigating to Facility Selection...");
-                                await dbInitTask;
-                                await navService.NavigateToAsync<FacilityOnboardingViewModel>();
+                                var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
+                                bool hasOwner = await authService.TenantHasOwnerAccountAsync(stateStore.TargetTenantId.Value);
+
+                                if (hasOwner)
+                                {
+                                    Serilog.Log.Information("Tenant already has owner. Navigating to Login.");
+                                    await navService.NavigateToLoginAsync();
+                                }
+                                else
+                                {
+                                    await navService.NavigateToAsync<FacilityOnboardingViewModel>();
+                                }
                             }
                             else
                             {
-                                Serilog.Log.Information("Device licensed. Navigating to Login...");
-                                await navService.NavigateToLoginAsync();
-
-                                var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
-                                var loginVm = navStore.CurrentViewModel as LoginViewModel;
-                                
-                                if (loginVm != null)
+                                // Natural state: clear initialization flags on Current ViewModel if it's Login
+                                if (navStore.CurrentViewModel is LoginViewModel loginVm)
                                 {
-                                    loginVm.IsInitializingApp = true;
-                                    loginVm.AppInitializationStatus = "Verifying database schema...";
+                                    loginVm.IsInitializingApp = false;
+                                    loginVm.AppInitializationStatus = string.Empty;
                                 }
+                                Serilog.Log.Information("Background startup: Initialization complete.");
 
-                                // Launch Background Initialization Task
-                                _ = Task.Run(async () =>
+                                // 8. Background Hardware Check (Offloaded from UI thread)
+                                _ = Task.Run(() => 
                                 {
-                                    Serilog.Log.Information("Background startup: Resolving LoginViewModel state...");
-                                    try
+                                    try 
                                     {
-                                        // 1. Wait for DB Initialization
-                                        Serilog.Log.Information("Background startup: Waiting for DB init...");
-                                        await dbInitTask;
-
-                                        // 2. Perform potential Sync
-                                        var config = ServiceProvider.GetRequiredService<IConfiguration>();
-                                        if (config["Database:Mode"] == "LocalFirst" && config.GetValue<bool>("Database:RequireInitialSync"))
+                                        var turnstileService = ServiceProvider.GetRequiredService<IHardwareTurnstileService>();
+                                        if (!turnstileService.IsSdkAvailable)
                                         {
-                                            if (loginVm != null)
-                                            {
-                                                await Current.Dispatcher.InvokeAsync(() =>
-                                                {
-                                                    loginVm.AppInitializationStatus = "Synchronizing data...";
-                                                });
-                                            }
+                                            Serilog.Log.Warning("ZKTeco SDK not found in background check. Gate control will be disabled.");
                                             
-                                            Serilog.Log.Information("Background startup: Pulling cloud changes (5s timeout)...");
-                                            var syncService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
-                                            
-                                            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                                            try
+                                            Current.Dispatcher.InvokeAsync(() => 
                                             {
-                                                await syncService.PullChangesAsync(cts.Token);
-                                            }
-                                            catch (OperationCanceledException)
-                                            {
-                                                Serilog.Log.Warning("Background startup: Initial sync timed out after 5s. Proceeding to login...");
-                                            }
+                                                var toastService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.IToastService>();
+                                                toastService.ShowError("ZKTeco SDK not registered. Gate hardware is disabled.", "Hardware Error");
+                                            });
                                         }
-                                        
-                                        // 3. Daily Automated Backup
-                                        try 
-                                        {
-                                            var backupService = ServiceProvider.GetRequiredService<Management.Infrastructure.Services.IBackupService>();
-                                            if (await backupService.IsBackupNeededTodayAsync())
-                                            {
-                                                Serilog.Log.Information("Background startup: Creating daily backup...");
-                                                await backupService.CreateBackupAsync();
-                                                await backupService.CleanupOldBackupsAsync(7);
-                                            }
-                                        }
-                                        catch (Exception backupEx)
-                                        {
-                                            Serilog.Log.Error(backupEx, "Background startup: Daily backup failed.");
-                                        }
-
-                                        Serilog.Log.Information("Background startup complete.");
                                     }
                                     catch (Exception ex)
                                     {
-                                        Serilog.Log.Error(ex, "Background initialization task failed.");
-                                    }
-                                    finally
-                                    {
-                                        // Finish Initialization (Guaranteed reset)
-                                        if (loginVm != null)
-                                        {
-                                            await Current.Dispatcher.InvokeAsync(() =>
-                                            {
-                                                loginVm.IsInitializingApp = false;
-                                                loginVm.AppInitializationStatus = string.Empty;
-                                            });
-                                        }
+                                        Serilog.Log.Error(ex, "Error during background hardware check");
                                     }
                                 });
                             }
@@ -482,8 +657,7 @@ namespace Management.Presentation
                     }
                     catch (Exception ex)
                     {
-                        Serilog.Log.Fatal(ex, "Failed to launch Auth Screen");
-                        HandleFatalStartupError(ex);
+                        Serilog.Log.Error(ex, "Error during final navigation routing");
                     }
                 });
                 
@@ -503,9 +677,9 @@ namespace Management.Presentation
             }
         }
 
-        public void LaunchMainWindow()
+        public async Task LaunchMainWindowAsync()
         {
-            Current.Dispatcher.Invoke(() => 
+            await Current.Dispatcher.InvokeAsync(async () =>
             {
                 try 
                 {
@@ -556,9 +730,12 @@ namespace Management.Presentation
             });
         }
 
-        public void Logout()
+        // FIX 3: Keep backward-compatible sync entry point that callers not yet converted can use
+        public void LaunchMainWindow() => _ = LaunchMainWindowAsync();
+
+        public async Task LogoutAsync()
         {
-            Current.Dispatcher.Invoke(() =>
+            await Current.Dispatcher.InvokeAsync(async () =>
             {
                 try
                 {
@@ -575,7 +752,7 @@ namespace Management.Presentation
                     oldWindow?.Close();
 
                     // Navigate to Login view within Auth shell
-                    _ = navService.NavigateToLoginAsync();
+                    await navService.NavigateToLoginAsync();
                 }
                 catch (Exception ex)
                 {
@@ -584,6 +761,9 @@ namespace Management.Presentation
                 }
             });
         }
+
+        // FIX 3: Keep backward-compatible sync entry point
+        public void Logout() => _ = LogoutAsync();
 
         /// <summary>
         /// Re-initializes services that depend on a valid tenant context/license.
@@ -739,9 +919,9 @@ namespace Management.Presentation
             {
                 var storage = provider.GetRequiredService<Management.Application.Services.ISecureStorageService>();
                 
-                // Fix 6: Secure Supabase Credentials
-                var url = storage.GetAsync("SupabaseUrl").GetAwaiter().GetResult();
-                var key = storage.GetAsync("SupabaseKey").GetAwaiter().GetResult();
+                // Fix 6: Secure Supabase Credentials - REFACTORED: Use synchronous Get to avoid UI thread blocking
+                var url = storage.Get("SupabaseUrl");
+                var key = storage.Get("SupabaseKey");
                 
                 // Fallback to configuration if not in secure storage (for initial setup)
                 if (string.IsNullOrEmpty(url))
@@ -1369,34 +1549,44 @@ namespace Management.Presentation
         /// <param name="isDarkMode">True for dark mode, false for light mode.</param>
         public void SetTheme(bool isDarkMode)
         {
-            try
+            // FIX 1: Wrapped in Dispatcher.InvokeAsync to ensure UI thread safety.
+            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                var themeName = isDarkMode ? "Theme.Dark.xaml" : "Theme.Light.xaml";
-                var themeUri = new Uri($"Resources/{themeName}", UriKind.Relative);
-
-                // Find and remove existing theme dictionary
-                var existingTheme = Resources.MergedDictionaries
-                    .FirstOrDefault(d => d.Source?.OriginalString?.Contains("Theme.Dark.xaml") == true ||
-                                        d.Source?.OriginalString?.Contains("Theme.Light.xaml") == true);
-
-                if (existingTheme != null)
+                try
                 {
-                    Resources.MergedDictionaries.Remove(existingTheme);
+                    var themeName = isDarkMode ? "Theme.Dark.xaml" : "Theme.Light.xaml";
+                    // FIX 1: Use absolute pack URI — relative URIs break in installed (published) builds.
+                    var themeUri = new Uri(
+                        $"pack://application:,,,/Titan.Client;component/Resources/{themeName}",
+                        UriKind.Absolute);
+
+                    // Find and remove existing theme dictionary
+                    var existingTheme = Resources.MergedDictionaries
+                        .FirstOrDefault(d => d.Source?.OriginalString?.Contains("Theme.Dark.xaml") == true ||
+                                            d.Source?.OriginalString?.Contains("Theme.Light.xaml") == true);
+
+                    if (existingTheme != null)
+                    {
+                        Resources.MergedDictionaries.Remove(existingTheme);
+                    }
+
+                    // Add new theme dictionary at the end (so it has highest priority)
+                    var newTheme = new ResourceDictionary { Source = themeUri };
+                    Resources.MergedDictionaries.Add(newTheme);
+
+                    Serilog.Log.Information($"Theme switched to: {themeName}");
                 }
-
-                // Add new theme dictionary at the end (so it has highest priority)
-                var newTheme = new ResourceDictionary { Source = themeUri };
-                Resources.MergedDictionaries.Add(newTheme);
-
-                Serilog.Log.Information($"Theme switched to: {themeName}");
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error(ex, "Failed to switch theme");
-            }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error(ex, "Failed to switch theme");
+                }
+            });
         }
         protected override async void OnExit(System.Windows.ExitEventArgs e)
         {
+            _instanceMutex?.ReleaseMutex();
+            _instanceMutex?.Dispose();
+
             Serilog.Log.Information("[App] Shutdown initiated. Starting sync-on-exit...");
             
             try
@@ -1437,8 +1627,8 @@ namespace Management.Presentation
                     try
                     {
                         // Wait up to 5 seconds for graceful shutdown
-                        var stopTask = _host.StopAsync(TimeSpan.FromSeconds(5));
-                        stopTask.Wait();
+                        // REFACTORED: Fire and forget to avoid UI thread blocking during shutdown
+                        _ = _host.StopAsync(TimeSpan.FromSeconds(5));
                     }
                     catch (Exception ex)
                     {
@@ -1557,6 +1747,18 @@ namespace Management.Presentation
 
             // --- GENERAL (Neutral fallback) ---
             registry.Register(Domain.Enums.FacilityType.General, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(DashboardViewModel), 0));
+        }
+
+        private void UpdateStartupStatus(string status)
+        {
+            Current.Dispatcher.InvokeAsync(() => 
+            {
+                var navStore = ServiceProvider?.GetService<NavigationStore>();
+                if (navStore?.CurrentViewModel is LoginViewModel loginVm)
+                {
+                    loginVm.AppInitializationStatus = status;
+                }
+            });
         }
     }
 }

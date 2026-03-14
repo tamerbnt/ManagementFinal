@@ -38,11 +38,11 @@ namespace Management.Presentation.ViewModels
             _navigationService = navigationService;
             _modalService = modalService;
 
-            LoginCommand = new RelayCommand(ExecuteLogin);
-            CloseCommand = new RelayCommand(ExecuteLogout);
+            LoginCommand = new AsyncRelayCommand(ExecuteLogin);
+            CloseCommand = new AsyncRelayCommand(ExecuteLogout);
         }
 
-        private async void ExecuteLogin()
+        private async Task ExecuteLogin()
         {
             // Close modal first
             await _modalService.CloseCurrentModalAsync();
@@ -51,7 +51,7 @@ namespace Management.Presentation.ViewModels
             await _navigationService.NavigateToLoginAsync();
         }
 
-        private async void ExecuteLogout()
+        private async Task ExecuteLogout()
         {
             await _modalService.CloseCurrentModalAsync();
             await _authService.LogoutAsync();

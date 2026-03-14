@@ -41,6 +41,7 @@ namespace Management.Presentation.Views.Salon
         public ObservableCollection<StaffMember> QualifiedStaff { get; } = new();
         public ObservableCollection<MemberDto> Clients { get; } = new();
         public ObservableCollection<SalonService> AvailableServices { get; } = new();
+        public ObservableCollection<MembershipPlanDto> AvailableMembershipPlans { get; } = new();
 
         private StaffMember? _selectedStaff;
         public StaffMember? SelectedStaff
@@ -64,12 +65,35 @@ namespace Management.Presentation.Views.Salon
                 if (SetProperty(ref _selectedService, value))
                 {
                     SelectedPlanId = value?.Id;
-                    if (value != null)
-                    {
-                        Price = value.BasePrice;
-                    }
+                    UpdatePrice();
                 }
             }
+        }
+
+        private MembershipPlanDto? _selectedMembershipPlan;
+        public MembershipPlanDto? SelectedMembershipPlan
+        {
+            get => _selectedMembershipPlan;
+            set
+            {
+                if (SetProperty(ref _selectedMembershipPlan, value))
+                {
+                    UpdatePrice();
+                }
+            }
+        }
+
+        private void UpdatePrice()
+        {
+            decimal total = 0;
+            if (SelectedService != null)
+                total += SelectedService.BasePrice;
+            
+            if (SelectedMembershipPlan != null)
+                total += SelectedMembershipPlan.Price;
+            
+            Price = total;
+            ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
         }
 
         private Guid _selectedStaffId;
@@ -242,8 +266,9 @@ namespace Management.Presentation.Views.Salon
                 var clientsTask = _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, new MemberSearchRequest("", Management.Domain.Enums.MemberFilterType.All));
                 var servicesInitTask = _salonService.LoadServicesAsync();
                 var staffTask = _salonService.GetQualifiedStaffAsync(Guid.Empty);
+                var plansTask = _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
 
-                await Task.WhenAll(clientsTask, servicesInitTask, staffTask);
+                await Task.WhenAll(clientsTask, servicesInitTask, staffTask, plansTask);
 
                 var clientsResult = await clientsTask;
                 if (clientsResult.IsSuccess)
@@ -261,6 +286,14 @@ namespace Management.Presentation.Views.Salon
                 var staff = await staffTask;
                 QualifiedStaff.Clear();
                 foreach (var s in staff) QualifiedStaff.Add(s);
+
+                var plansResult = await plansTask;
+                AvailableMembershipPlans.Clear();
+                if (plansResult.IsSuccess)
+                {
+                    foreach (var plan in plansResult.Value.Where(p => !p.IsWalkIn && p.IsActive))
+                        AvailableMembershipPlans.Add(plan);
+                }
                 
                 // Re-sync selected items if IDs were already set (e.g. from SalonBookArgs)
                 if (SelectedStaffId != Guid.Empty && SelectedStaff == null)
@@ -295,15 +328,15 @@ namespace Management.Presentation.Views.Salon
         private bool CanSave() => 
             !string.IsNullOrWhiteSpace(SelectedClientName) && 
             SelectedStaffId != Guid.Empty && 
-            SelectedPlanId.HasValue &&
+            (SelectedService != null || SelectedMembershipPlan != null) &&
             BookingDate.Date >= DateTime.Today;
 
         private async Task ExecuteSave()
         {
             // Fix 4: Robust Validation Guards
-            if (SelectedService == null || SelectedPlanId == null || SelectedPlanId == Guid.Empty)
+            if (SelectedService == null && SelectedMembershipPlan == null)
             {
-                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.ServiceRequired") ?? "Please select a service.", NotificationType.Error);
+                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.Required") ?? "Please select a service or a membership plan.", NotificationType.Error);
                 return;
             }
 
@@ -344,7 +377,10 @@ namespace Management.Presentation.Views.Salon
                     FullName = SelectedClientName,
                     Status = MemberStatus.Active,
                     StartDate = DateTime.UtcNow,
-                    ExpirationDate = DateTime.UtcNow.AddYears(1), // Default to 1 year for salon clients
+                    ExpirationDate = SelectedMembershipPlan != null 
+                        ? DateTime.UtcNow.AddDays(SelectedMembershipPlan.DurationDays) 
+                        : DateTime.UtcNow.AddYears(1),
+                    MembershipPlanId = SelectedMembershipPlan?.Id,
                     Notes = "Auto-created from salon booking"
                 };
 
@@ -360,6 +396,21 @@ namespace Management.Presentation.Views.Salon
                     _notificationService.ShowNotification("Failed to create client record, booking as guest.", NotificationType.Warning);
                 }
             }
+            else if (clientId != Guid.Empty && SelectedMembershipPlan != null)
+            {
+                // Update existing client with new membership
+                var existingMemberResult = await _memberService.GetMemberAsync(_facilityContext.CurrentFacilityId, clientId);
+                if (existingMemberResult.IsSuccess)
+                {
+                    var member = existingMemberResult.Value;
+                    member.MembershipPlanId = SelectedMembershipPlan.Id;
+                    member.StartDate = DateTime.UtcNow;
+                    member.ExpirationDate = DateTime.UtcNow.AddDays(SelectedMembershipPlan.DurationDays);
+                    member.Status = MemberStatus.Active;
+                    
+                    await _memberService.UpdateMemberAsync(_facilityContext.CurrentFacilityId, member);
+                }
+            }
 
             var appt = new Appointment
             {
@@ -370,8 +421,8 @@ namespace Management.Presentation.Views.Salon
                 ClientName = SelectedClientName,
                 StaffId = SelectedStaffId,
                 StaffName = SelectedStaff.FullName, // Fix 2: Using property from SelectedStaff
-                ServiceId = SelectedPlanId ?? Guid.Empty,
-                ServiceName = SelectedService.Name, // Fix 1: Properly storing Service Name
+                ServiceId = SelectedService?.Id ?? Guid.Empty, // Could be Empty if only plan selected
+                ServiceName = SelectedService?.Name ?? (SelectedMembershipPlan?.Name ?? "Membership Only"),
                 StartTime = startTime,
                 EndTime = endTime,
                 Price = Price,

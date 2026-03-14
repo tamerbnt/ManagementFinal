@@ -72,11 +72,11 @@ namespace Management.Presentation.Views.Salon
             CompleteCommand = new RelayCommand(async () => await ExecuteComplete());
             CancelCommand = new RelayCommand(() => _modalService.CloseModal());
 
-            LoadProducts();
+            _ = LoadProductsAsync();
             CalculateTotal();
         }
 
-        private async void LoadProducts()
+        private async Task LoadProductsAsync()
         {
             var facilityId = _facilityContext.CurrentFacilityId;
             var result = await _productService.GetActiveProductsAsync(facilityId);

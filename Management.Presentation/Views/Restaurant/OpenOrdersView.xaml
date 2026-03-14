@@ -36,7 +36,7 @@
                            Text="{DynamicResource Terminology.Restaurant.Order.PayBill}" 
                            FontSize="26" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
                 
-                <!-- CLOSE BUTTON — uses Stroke path, always visible -->
+                <!-- CLOSE BUTTON â€” uses Stroke path, always visible -->
                 <Button Grid.Column="1" Command="{Binding CancelCommand}" 
                         Width="40" Height="40"
                         BorderThickness="0"
@@ -125,7 +125,7 @@
                                             </StackPanel>
                                         </StackPanel>
                                         
-                                        <!-- PAY BUTTON — larger and more prominent -->
+                                        <!-- PAY BUTTON â€” larger and more prominent -->
                                         <Button Grid.Column="2" 
                                                 Style="{StaticResource Button.Primary}" 
                                                 Command="{Binding DataContext.PayOrderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"

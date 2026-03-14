@@ -9,8 +9,8 @@ namespace Management.Presentation.Resources.Controls
         {
             // Default styles for modern windows
             this.WindowStyle = WindowStyle.None;
-            this.AllowsTransparency = true;
-            this.Background = System.Windows.Media.Brushes.Transparent;
+            this.AllowsTransparency = false;
+            this.Background = System.Windows.Media.Brushes.White; // Solid background for HW acceleration
             
             // Default chrome settings if not overridden
             WindowChrome.SetWindowChrome(this, new WindowChrome

@@ -74,7 +74,7 @@ namespace Management.Infrastructure.Hardware
             {
                 _logger?.LogError(ex, "Failed to open RFID reader on {Port}", _portName);
                 (_hardwareService as HardwareService)?.NotifyStatusChanged("RFID", false, ex.Message);
-                StartAutoReconnect();
+                _ = StartAutoReconnectAsync();
             }
         }
 
@@ -114,10 +114,10 @@ namespace Management.Infrastructure.Hardware
         {
             ConnectionStatusChanged?.Invoke(false);
             (_hardwareService as HardwareService)?.NotifyStatusChanged("RFID", false, reason);
-            StartAutoReconnect();
+            _ = StartAutoReconnectAsync();
         }
 
-        private async void StartAutoReconnect()
+        private async Task StartAutoReconnectAsync()
         {
             if (_isReconnecting) return;
             _isReconnecting = true;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -111,6 +111,32 @@ namespace Management.Presentation.ViewModels.Settings
                 else
                 {
                     await _dialogService.ShowAlertAsync("Error", result.Error.Message);
+                }
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task RegisterSdk()
+        {
+            IsBusy = true;
+            try
+            {
+                var app = System.Windows.Application.Current as App;
+                if (app == null) return;
+
+                bool success = await Task.Run(() => app.TryRegisterZKTecoSdk(silent: false));
+                
+                if (success)
+                {
+                    _toastService.ShowSuccess("SDK Registered", "ZKTeco SDK has been registered successfully. Please restart the application for changes to take effect.");
+                }
+                else
+                {
+                    await _dialogService.ShowAlertAsync("Registration Failed", "Failed to register the ZKTeco SDK. Ensure the SDK drivers are present in the app folder and you accepted the administrative prompt.");
                 }
             }
             finally

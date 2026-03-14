@@ -155,11 +155,11 @@
                 </TextBox>
                 
                 <Popup x:Name="SearchPopup" 
+                       AllowsTransparency="False"
                        IsOpen="{Binding IsSearchPopupOpen}"
                        PlacementTarget="{Binding ElementName=GlobalSearchBox}"
                        Placement="Bottom"
                        VerticalOffset="8"
-                       AllowsTransparency="True"
                        StaysOpen="True"
                        PopupAnimation="Fade">
                     <Border Background="{DynamicResource CardBackgroundBrush}" 
@@ -169,9 +169,7 @@
                             Width="{Binding ElementName=GlobalSearchBox, Path=ActualWidth}"
                             MinHeight="100"
                             Padding="2">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="30" ShadowDepth="12" Opacity="0.12" Color="{DynamicResource ShadowColor}"/>
-                        </Border.Effect>
+
                         <Grid>
                             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="500">
                                 <ItemsControl ItemsSource="{Binding SearchResults}">
@@ -439,12 +437,13 @@
                 </ToggleButton>
 
                 <Popup IsOpen="{Binding IsChecked, ElementName=NotifToggle}" 
+                       AllowsTransparency="False"
                        StaysOpen="False" 
                        PlacementTarget="{Binding ElementName=NotifToggle}"
                        Placement="Bottom" 
                        VerticalOffset="12"
                        HorizontalOffset="-134"
-                       AllowsTransparency="True">
+                       >
                     <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Padding="0" Width="300"
                             RenderTransformOrigin="0.5,0">
                         <Border.RenderTransform>
@@ -476,9 +475,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="24" ShadowDepth="12" Opacity="0.08" Color="{DynamicResource ShadowColor}"/>
-                        </Border.Effect>
+
                         
                         <Grid>
                             <Grid.RowDefinitions>
@@ -639,12 +636,13 @@
 
             <!-- Profile Popup Menu -->
             <Popup IsOpen="{Binding IsChecked, ElementName=ProfileToggle}" 
+                   AllowsTransparency="False"
                    StaysOpen="False" 
                    PlacementTarget="{Binding ElementName=ProfileToggle}"
                    Placement="Bottom" 
                    VerticalOffset="12"
                    HorizontalOffset="-40"
-                   AllowsTransparency="True">
+                   >
                 <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Padding="8" Width="200"
                         RenderTransformOrigin="0.5,0">
                     <Border.RenderTransform>
@@ -676,9 +674,7 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="24" ShadowDepth="12" Opacity="0.08" Color="{DynamicResource ShadowColor}"/>
-                    </Border.Effect>
+
                     <StackPanel>
                         <Button Command="{Binding OpenAccountSettingsCommand}" 
                                 Style="{DynamicResource Button.Ghost}" 

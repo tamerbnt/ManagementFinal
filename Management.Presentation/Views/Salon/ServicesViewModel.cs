@@ -58,7 +58,7 @@ namespace Management.Presentation.Views.Salon
                 {
                     _model.BasePrice = value;
                     OnPropertyChanged();
-                    TriggerSaveIndicator();
+                    _ = TriggerSaveIndicatorAsync();
                 }
             }
         }
@@ -72,12 +72,12 @@ namespace Management.Presentation.Views.Salon
                 {
                     _model.DurationMinutes = value;
                     OnPropertyChanged();
-                    TriggerSaveIndicator();
+                    _ = TriggerSaveIndicatorAsync();
                 }
             }
         }
 
-        private async void TriggerSaveIndicator()
+        private async Task TriggerSaveIndicatorAsync()
         {
             IsSaved = true;
             await Task.Delay(2000);

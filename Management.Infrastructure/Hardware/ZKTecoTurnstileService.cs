@@ -62,7 +62,11 @@ namespace Management.Infrastructure.Hardware
 
         public async Task<bool> ConnectAsync(string ip, int port)
         {
-            if (_zk == null || _isConnecting) return false;
+            if (!IsSdkAvailable || _zk == null || _isConnecting) 
+            {
+                if (!IsSdkAvailable) _logger.LogWarning("ZKTeco: Connection aborted. SDK not available.");
+                return false;
+            }
             _isConnecting = true;
 
             try
@@ -74,11 +78,12 @@ namespace Management.Infrastructure.Hardware
                 while (!connected && attempts < 3)
                 {
                     attempts++;
-                    connected = _zk.Connect_Net(ip, port);
+                    // Wrap the dynamic COM call in Task.Run to prevent ANY blocking on the calling thread
+                    connected = await Task.Run(() => (bool)_zk.Connect_Net(ip, port)).ConfigureAwait(false);
                     if (!connected)
                     {
                         _logger.LogWarning("Connection attempt {Attempt} failed. Retrying...", attempts);
-                        await Task.Delay(2000);
+                        await Task.Delay(2000).ConfigureAwait(false);
                     }
                 }
 
@@ -120,7 +125,7 @@ namespace Management.Infrastructure.Hardware
 
         public async Task<bool> OpenGateAsync()
         {
-            if (!IsConnected || _zk == null) return false;
+            if (!IsSdkAvailable || !IsConnected || _zk == null) return false;
 
             try
             {
@@ -151,7 +156,7 @@ namespace Management.Infrastructure.Hardware
 
         public async Task<bool> PingAsync()
         {
-            if (!IsConnected || _zk == null) return false;
+            if (!IsSdkAvailable || !IsConnected || _zk == null) return false;
 
             try
             {

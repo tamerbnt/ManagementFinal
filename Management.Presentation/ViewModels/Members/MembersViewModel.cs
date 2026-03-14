@@ -19,6 +19,7 @@ using Management.Presentation.Services.Localization;
 using Management.Application.DTOs;
 using Management.Domain.Enums;
 using Management.Presentation.Helpers;
+using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.ViewModels.Members
 {
@@ -43,10 +44,10 @@ namespace Management.Presentation.ViewModels.Members
         Female
     }
 
-    public partial class MembersViewModel : FacilityAwareViewModelBase, IParameterReceiver, 
+    public partial class MembersViewModel : FacilityAwareViewModelBase, IParameterReceiver, INavigationalLifecycle,
         CommunityToolkit.Mvvm.Messaging.IRecipient<Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Member>>
     {
-        public async void SetParameter(object parameter)
+        public async Task SetParameterAsync(object parameter)
         {
             if (parameter is string param)
             {
@@ -125,6 +126,18 @@ namespace Management.Presentation.ViewModels.Members
         [ObservableProperty]
         private bool _selectAll;
 
+        [ObservableProperty]
+        private int _currentPage = 1;
+
+        [ObservableProperty]
+        private int _pageSize = 25;
+
+        [ObservableProperty]
+        private bool _hasMoreItems;
+
+        [ObservableProperty]
+        private int _totalCount;
+
         partial void OnSelectedFilterChanged(MemberFilterStatus value) { LoadMembersCommand.Execute(null); }
         partial void OnGenderFilterChanged(MemberGenderFilter value) { LoadMembersCommand.Execute(null); }
         partial void OnFilterStartDateChanged(DateTime? value) { RefreshFilters(); }
@@ -159,6 +172,7 @@ namespace Management.Presentation.ViewModels.Members
         private void RefreshFilters()
         {
             UpdateIsAnyFilterActive();
+            CurrentPage = 1;
             LoadMembersCommand.Execute(null);
         }
 
@@ -250,6 +264,7 @@ namespace Management.Presentation.ViewModels.Members
         public IRelayCommand ResetFiltersCommand { get; }
 
         public IAsyncRelayCommand LoadMembersCommand { get; }
+        public IAsyncRelayCommand LoadMoreCommand { get; }
 
         private readonly IMemberService _memberService;
         private readonly Management.Domain.Services.IDialogService _dialogService;
@@ -420,7 +435,19 @@ namespace Management.Presentation.ViewModels.Members
             ToggleSelectionCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => IsSelectionMode = !IsSelectionMode);
             SwitchViewModeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<MemberViewMode>(mode => ViewMode = mode);
             ResetFiltersCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ResetFilters);
-            LoadMembersCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadMembersAsync);
+            
+            LoadMembersCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                CurrentPage = 1;
+                await LoadMembersAsync(false);
+            });
+
+            LoadMoreCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (!HasMoreItems || IsLoading) return;
+                CurrentPage++;
+                await LoadMembersAsync(true);
+            });
 
             BindingOperations.EnableCollectionSynchronization(FilteredMembers, _membersLock);
 
@@ -471,6 +498,11 @@ namespace Management.Presentation.ViewModels.Members
 
         private async Task LoadMembersAsync()
         {
+            await LoadMembersAsync(false);
+        }
+
+        private async Task LoadMembersAsync(bool isLoadMore)
+        {
             if (IsLoading) return;
             IsLoading = true;
 
@@ -499,12 +531,23 @@ namespace Management.Presentation.ViewModels.Members
                     FilterStartDate,
                     FilterEndDate);
 
-                var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request);
+                var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request, CurrentPage, PageSize);
 
                 if (result.IsSuccess)
                 {
                     var selectedId = SelectedMember?.Id;
-                    FilteredMembers.ReplaceRange(result.Value.Items);
+                    
+                    if (isLoadMore)
+                    {
+                        FilteredMembers.AddRange(result.Value.Items);
+                    }
+                    else
+                    {
+                        FilteredMembers.ReplaceRange(result.Value.Items);
+                    }
+
+                    TotalCount = result.Value.TotalCount;
+                    HasMoreItems = FilteredMembers.Count < TotalCount;
                     
                     if (selectedId != null)
                     {

@@ -22,7 +22,7 @@ using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.ViewModels.Settings
 {
-    public partial class SettingsViewModel : ViewModelBase 
+    public partial class SettingsViewModel : ViewModelBase, INavigationalLifecycle 
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IDialogService _dialogService;
@@ -86,7 +86,7 @@ namespace Management.Presentation.ViewModels.Settings
         public bool IsGymFacility => _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Gym;
         public bool IsRestaurantFacility => _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Restaurant;
         public bool IsSalonFacility => _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Salon;
-        public bool ShowMembershipPlans => IsGymFacility;
+        public bool ShowMembershipPlans => IsGymFacility || IsSalonFacility;
         public bool ShowWalkInPlans => IsGymFacility || IsSalonFacility;
         public bool ShowSalonServices => IsSalonFacility;
 
@@ -192,6 +192,21 @@ namespace Management.Presentation.ViewModels.Settings
                 SupportedLanguages.Add(lang);
             }
             SelectedLanguage = _localizationService.CurrentCulture;
+        }
+
+        public Task PreInitializeAsync()
+        {
+            Title = _localizationService.GetString("Terminology.Sidebar.Settings");
+            return Task.CompletedTask;
+        }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public Task LoadDeferredAsync()
+        {
+            IsActive = true;
+            UpdateUserInfo();
+            return Task.CompletedTask;
         }
 
         public override async Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default)
@@ -620,10 +635,17 @@ namespace Management.Presentation.ViewModels.Settings
 
         private async void OnEditorSaved(object? sender, EventArgs e)
         {
-            _plansLoaded = false;
-            IsDrawerOpen = false;
-            CleanupEditor();
-            await LoadPlansAsync();
+            try
+            {
+                _plansLoaded = false;
+                IsDrawerOpen = false;
+                CleanupEditor();
+                await LoadPlansAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Error occurred in OnEditorSaved");
+            }
         }
 
         private void OnEditorCanceled(object? sender, EventArgs e)
@@ -634,10 +656,17 @@ namespace Management.Presentation.ViewModels.Settings
 
         private async void OnSalonServiceSaved(object? sender, EventArgs e)
         {
-            _servicesLoaded = false;
-            IsDrawerOpen = false;
-            CleanupEditor();
-            await LoadSalonServicesAsync();
+            try
+            {
+                _servicesLoaded = false;
+                IsDrawerOpen = false;
+                CleanupEditor();
+                await LoadSalonServicesAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Error occurred in OnSalonServiceSaved");
+            }
         }
 
         private void OnSalonServiceCanceled(object? sender, EventArgs e)

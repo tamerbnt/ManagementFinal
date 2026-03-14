@@ -18,9 +18,9 @@
     <UserControl.Resources>
         <!-- Polymorphic Templates / Local logic only -->
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <Grid.RowDefinitions>
+    <Grid>
+        <!-- Liquid Layout Header -->
+        <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -278,7 +278,14 @@
             </Grid.ColumnDefinitions>
 
             <!-- A. Interactive List -->
-            <ListBox ItemsSource="{Binding FilteredMembers}"
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <ListBox Grid.Row="0"
+                         ItemsSource="{Binding FilteredMembers}"
                      Background="Transparent"
                      BorderThickness="0"
                      Padding="0,0,12,0"
@@ -318,7 +325,6 @@
                             Margin="4,4,4,12"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                            Effect="{StaticResource Shadow1}"
                             RenderOptions.CachingHint="Cache">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" 
@@ -424,11 +430,7 @@
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
-                                <Setter TargetName="RowBorder" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="RowBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
                                 <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
                                 <Setter TargetName="IdText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
@@ -446,10 +448,31 @@
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-            </ListBox>
+                </ListBox>
+
+                <!-- Load More Button (List View) -->
+                <Button Grid.Row="1" 
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding LoadMoreCommand}"
+                        Visibility="{Binding HasMoreItems, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
 
             <!-- Grid View Layout -->
-            <ListBox ItemsSource="{Binding FilteredMembers}"
+            <Grid Grid.Column="0" Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:MemberViewMode.Grid}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <ListBox Grid.Row="0"
+                         ItemsSource="{Binding FilteredMembers}"
                      Background="Transparent"
                      BorderThickness="0"
                      Padding="0,0,12,0"
@@ -487,8 +510,7 @@
                             Margin="0,0,20,20"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                            Effect="{StaticResource Shadow1}"
-                            RenderOptions.CachingHint="Cache"
+                             RenderOptions.CachingHint="Cache"
                             Width="260"> <!-- Fixed width for Grid cards -->
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" 
@@ -580,16 +602,26 @@
                                 <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
                                 <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
                                 <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="GridCard" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="30" ShadowDepth="0" Opacity="0.4"/>
-                                    </Setter.Value>
-                                </Setter>
+                                 <Setter TargetName="GridCard" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-            </ListBox>
+                </ListBox>
+
+                <!-- Load More Button (Grid View) -->
+                <Button Grid.Row="1" 
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding LoadMoreCommand}"
+                        Visibility="{Binding HasMoreItems, Converter={StaticResource BoolToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
 
             <!-- B. Member Detail Drawer -->
             <Border Grid.Column="1" 
@@ -696,6 +728,5 @@
                 </StackPanel>
             </Border>
         </Grid>
-        </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

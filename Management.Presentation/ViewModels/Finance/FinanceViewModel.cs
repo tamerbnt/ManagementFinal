@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -11,10 +11,11 @@ using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Services.Localization;
 using Management.Application.Interfaces.App;
 using Management.Domain.Services;
+using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.ViewModels.Finance
 {
-    public partial class FinanceViewModel : FacilityAwareViewModelBase
+    public partial class FinanceViewModel : FacilityAwareViewModelBase, INavigationalLifecycle
     {
         private readonly IFinanceService _financeService;
 
@@ -84,6 +85,20 @@ namespace Management.Presentation.ViewModels.Finance
             PreviousStepCommand = new RelayCommand(() => CurrentStep--);
             
             LoadDraft();
+        }
+
+        public Task PreInitializeAsync()
+        {
+            Title = GetTerm("Strings.Finance.Title");
+            return Task.CompletedTask;
+        }
+
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task LoadDeferredAsync()
+        {
+            IsActive = true;
+            await LoadFinanceDataAsync();
         }
 
         partial void OnActualCashChanged(decimal value) => SaveDraft();
