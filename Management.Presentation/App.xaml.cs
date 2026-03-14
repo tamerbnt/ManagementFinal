@@ -183,8 +183,7 @@ namespace Management.Presentation
                 var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 var legacyFolders = new[] 
                 { 
-                    Path.Combine(localAppData, "GymOS"),
-                    Path.Combine(localAppData, "TitanManagementSystem") // Old name if any
+                    Path.Combine(localAppData, "GymOS")
                 };
 
                 foreach (var folder in legacyFolders)
