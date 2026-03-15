@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Auth.Login}" Height="768" Width="1024"
         WindowStyle="None"
-        AllowsTransparency="True"
+        AllowsTransparency="False"
         Background="{DynamicResource Brush.Window.Background}"
         WindowStartupLocation="CenterScreen">
 

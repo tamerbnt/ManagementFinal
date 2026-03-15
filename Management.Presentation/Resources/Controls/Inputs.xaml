@@ -124,7 +124,7 @@
 
                                    Placement="Bottom"
                                    PlacementTarget="{Binding ElementName=PART_Root}"
-                                   AllowsTransparency="True"
+                                   AllowsTransparency="False"
                                    StaysOpen="False">
                                 <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
                                     <Calendar x:Name="PART_Calendar" Margin="4"/>
@@ -223,7 +223,7 @@
                         <Popup x:Name="PART_Popup" 
                                
                                Placement="Bottom" 
-                               AllowsTransparency="True"
+                               AllowsTransparency="False"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 
@@ -360,7 +360,7 @@
                         <Popup x:Name="PART_Popup" 
                                
                                Placement="Bottom" 
-                               AllowsTransparency="True"
+                               AllowsTransparency="False"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 

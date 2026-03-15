@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        AllowsTransparency="True"
+        AllowsTransparency="False"
         Background="{DynamicResource SurfaceBg}"
         WindowStyle="None"
         Title="{DynamicResource Terminology.Payroll.History.Title}"

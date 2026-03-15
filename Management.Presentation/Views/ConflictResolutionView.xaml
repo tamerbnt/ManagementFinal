@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:ConflictResolutionViewModel}"
              WindowStyle="None" ResizeMode="NoResize" 
-             AllowsTransparency="True" Background="{DynamicResource SurfaceBg}"
+             AllowsTransparency="False" Background="{DynamicResource SurfaceBg}"
              Title="{DynamicResource Strings.Global.ConflictResolution}" Height="450" Width="800">
     <Border Background="{DynamicResource Neutral50Brush}" 
             CornerRadius="8"

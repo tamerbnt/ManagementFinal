@@ -11,7 +11,7 @@
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Onboarding.Onboarding}" Height="680" Width="980"
         WindowStyle="None"
-        AllowsTransparency="True"
+        AllowsTransparency="False"
         Background="{DynamicResource Brush.Window.Background}"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
