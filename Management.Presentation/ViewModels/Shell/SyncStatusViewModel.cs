@@ -5,9 +5,10 @@ using Management.Application.Interfaces.App;
 
 namespace Management.Presentation.ViewModels.Shell
 {
-    public partial class SyncStatusViewModel : ObservableObject
+    public partial class SyncStatusViewModel : ObservableObject, IDisposable
     {
         private readonly ISyncService _syncService;
+        private bool _disposed;
 
         [ObservableProperty]
         private string _statusText = "Idle";
@@ -25,6 +26,13 @@ namespace Management.Presentation.ViewModels.Shell
             
             // Initial update
             UpdateUI(_syncService.Status);
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _syncService.SyncStatusChanged -= OnSyncStatusChanged;
+            _disposed = true;
         }
 
         private void OnSyncStatusChanged(object? sender, SyncStatus status)
