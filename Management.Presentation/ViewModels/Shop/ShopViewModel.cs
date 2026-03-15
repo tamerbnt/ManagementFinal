@@ -358,7 +358,7 @@ namespace Management.Presentation.ViewModels.Shop
 
         private void OnProductStockUpdated(ProductDto updatedProduct)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
             {
                 var productVm = Products.FirstOrDefault(p => p.Id == updatedProduct.Id);
                 if (productVm != null)
