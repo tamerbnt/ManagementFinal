@@ -12,9 +12,6 @@
                 Padding="24"
                 BorderBrush="{DynamicResource SeparatorStroke}"
                 BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.04" Color="Black"/>
-            </Border.Effect>
             
             <StackPanel>
                 <TextBlock Text="{DynamicResource Terminology.Settings.Account.Info}" 

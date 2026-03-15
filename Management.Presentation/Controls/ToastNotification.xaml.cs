@@ -45,7 +45,6 @@ namespace Management.Presentation.Controls
         {
             // Border & Shadow
             ToastBorder.BorderBrush = CreateGradientBrush("#6610B981", "#3310B981", "#6610B981");
-            ToastShadow.Color = (Color)ColorConverter.ConvertFromString("#10B981");
 
             // Show success icon
             SuccessIcon.Visibility = Visibility.Visible;
@@ -68,7 +67,6 @@ namespace Management.Presentation.Controls
         {
             // Border & Shadow
             ToastBorder.BorderBrush = CreateGradientBrush("#66EF4444", "#33EF4444", "#66EF4444");
-            ToastShadow.Color = (Color)ColorConverter.ConvertFromString("#EF4444");
 
             // Show error icon
             SuccessIcon.Visibility = Visibility.Collapsed;
@@ -92,7 +90,6 @@ namespace Management.Presentation.Controls
         {
             // Border & Shadow
             ToastBorder.BorderBrush = CreateGradientBrush("#66F59E0B", "#33F59E0B", "#66F59E0B");
-            ToastShadow.Color = (Color)ColorConverter.ConvertFromString("#F59E0B");
 
             // Show warning icon
             SuccessIcon.Visibility = Visibility.Collapsed;

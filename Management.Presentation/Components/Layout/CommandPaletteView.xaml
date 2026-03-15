@@ -78,9 +78,6 @@
                 BorderBrush="{DynamicResource Brush.Border.Subtle}" 
                 BorderThickness="1" 
                 CornerRadius="20">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="80" ShadowDepth="30" Color="Black" Opacity="0.2"/>
-            </Border.Effect>
 
             <Grid>
                 <Grid.RowDefinitions>

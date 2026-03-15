@@ -68,15 +68,8 @@
         <Setter Property="Width" Value="480" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="15"
-                                  ShadowDepth="5"
-                                  Direction="270"
-                                  Opacity="0.05"
-                                  Color="Black" />
-            </Setter.Value>
-        </Setter>
+        <Setter Property="BorderBrush" Value="#33FFFFFF" />
+        <Setter Property="BorderThickness" Value="1.5" />
     </Style>
 
     <!-- Selectable Card Style (ListBoxItem) -->

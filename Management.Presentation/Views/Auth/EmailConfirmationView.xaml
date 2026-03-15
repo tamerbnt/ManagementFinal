@@ -40,9 +40,6 @@
                     <GradientStop Color="#663B82F6" Offset="1"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="80" ShadowDepth="0" Opacity="0.4"/>
-            </Border.Effect>
 
             <StackPanel>
                 <!-- Animated Mail Icon -->
@@ -67,9 +64,6 @@
                     <!-- Mail Icon -->
                     <Path Data="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" 
                           Fill="#3B82F6" Width="30" Height="30" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Path.Effect>
-                            <DropShadowEffect BlurRadius="15" Color="#3B82F6" Opacity="0.6" ShadowDepth="0"/>
-                        </Path.Effect>
                         <Path.Triggers>
                             <EventTrigger RoutedEvent="Loaded">
                                 <BeginStoryboard>

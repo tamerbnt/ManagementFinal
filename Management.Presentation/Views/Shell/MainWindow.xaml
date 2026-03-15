@@ -92,10 +92,9 @@
                     CornerRadius="16"
                     Background="{DynamicResource FacilitySidebarBrush}"
                     ClipToBounds="True"
+                    BorderBrush="#1A000000"
+                    BorderThickness="0,0,1,1"
                     shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                <Border.Effect>
-                    <StaticResource ResourceKey="Shadow3"/>
-                </Border.Effect>
                 <local:SidebarView DataContext="{Binding}"/>
             </Border>
             
@@ -108,10 +107,8 @@
                 </Grid.RowDefinitions>
                 
                 <!-- TOPBAR PANEL (Elite Glass Style) -->
-                <Border Grid.Row="0" CornerRadius="16" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0.8,0,0" ClipToBounds="False" MinHeight="80" VerticalAlignment="Stretch">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="20" ShadowDepth="8" Opacity="0.04" Color="Black"/>
-                    </Border.Effect>
+                <Border Grid.Row="0"
+                        BorderBrush="#1A000000" BorderThickness="0,0,0,1">
                     <local:TopBarView DataContext="{Binding TopBar}" VerticalAlignment="Stretch" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Border>
                 
@@ -212,9 +209,7 @@
                         <Border.RenderTransform>
                             <TranslateTransform Y="20"/>
                         </Border.RenderTransform>
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.05" Color="Black"/>
-                        </Border.Effect>
+
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

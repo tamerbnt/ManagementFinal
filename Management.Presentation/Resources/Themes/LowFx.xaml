@@ -8,5 +8,5 @@
     
     <!-- Disable Effects -->
     <BlurEffect x:Key="Effect.Blur.Background" Radius="0"/>
-    <DropShadowEffect x:Key="Effect.Shadow.Dialog" Opacity="0"/>
+    <x:Null x:Key="Effect.Shadow.Dialog"/>
 </ResourceDictionary>

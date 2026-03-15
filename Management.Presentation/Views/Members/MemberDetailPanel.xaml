@@ -150,9 +150,6 @@
         <!-- Edit Actions Bar -->
         <Border Grid.Row="2" VerticalAlignment="Bottom" Background="White" CornerRadius="16" Padding="16,12" Margin="0,0,0,12"
                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.1" Color="Black"/>
-            </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

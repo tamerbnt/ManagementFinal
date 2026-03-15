@@ -53,9 +53,6 @@
                     <Grid Margin="0,0,20,20" Width="260">
                         <!-- Shadow Border -->
                         <Border CornerRadius="20" Background="White">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.1" Color="Black"/>
-                            </Border.Effect>
                         </Border>
 
                         <!-- Content Border -->
@@ -144,11 +141,6 @@
                                 </Setter.Value>
                             </Setter>
                             <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                            <Setter TargetName="GridCard" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="30" ShadowDepth="0" Opacity="0.4"/>
-                                </Setter.Value>
-                            </Setter>
                             <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
                             <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
                         </DataTrigger>
@@ -190,9 +182,6 @@
                     <Grid Margin="0,0,0,12">
                         <!-- Shadow Border -->
                         <Border CornerRadius="16" Background="White">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Black"/>
-                            </Border.Effect>
                         </Border>
 
                         <!-- Content Border -->
@@ -300,11 +289,6 @@
                                         <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
                                         <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
                                     </LinearGradientBrush>
-                                </Setter.Value>
-                            </Setter>
-                            <Setter TargetName="RowBorder" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
                                 </Setter.Value>
                             </Setter>
                             <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>

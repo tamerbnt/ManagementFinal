@@ -33,9 +33,6 @@
     </UserControl.Triggers>
     
     <Border x:Name="ToastBorder" CornerRadius="16" BorderThickness="1.5" Background="#0DFFFFFF" Padding="16">
-        <Border.Effect>
-            <DropShadowEffect x:Name="ToastShadow" BlurRadius="40" ShadowDepth="0" Opacity="0.3"/>
-        </Border.Effect>
         
         <Grid>
             <Grid.ColumnDefinitions>

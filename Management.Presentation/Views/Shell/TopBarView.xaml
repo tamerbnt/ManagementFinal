@@ -620,10 +620,7 @@
                             CornerRadius="12" 
                             Background="{DynamicResource Brush.Brand.Primary}"
                             VerticalAlignment="Center"
-                            BorderThickness="1.5" BorderBrush="{DynamicResource CardBackgroundBrush}">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.12" Color="{DynamicResource ShadowColor}"/>
-                        </Border.Effect>
+                            BorderThickness="1" BorderBrush="#20000000">
                         <TextBlock Text="{Binding UserInitials}" 
                                    Foreground="White" 
                                    FontSize="14" 

@@ -51,9 +51,6 @@
         <!-- The Banner Pill -->
         <Border Background="{DynamicResource OverlayBackdropBrush}" CornerRadius="20" Padding="16,8" 
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.1" Color="{DynamicResource ShadowColor}"/>
-            </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

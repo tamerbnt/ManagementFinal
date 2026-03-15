@@ -21,11 +21,6 @@
                     <DataTrigger Binding="{Binding IsActive}" Value="True">
                         <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                         <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.5"/>
-                            </Setter.Value>
-                        </Setter>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

@@ -110,21 +110,13 @@
 
                         <!-- Glowing Logo Container -->
                         <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center"
-                                Background="{DynamicResource FacilityAccentGradient}">
-                            <Border.Effect>
-                                <!-- Enhanced Identity Glow (Standardized to History Row behavior) -->
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
-                            </Border.Effect>
+                                Background="{DynamicResource FacilityAccentGradient}" BorderBrush="#30FFFFFF" BorderThickness="1">
                             <Path Data="M18,15C18,15 15,15 12.5,19C10,23 8,23 6,23C4,23 2,21 2,18C2,15 5,12 8,12C11,12 11,15 11,15C11,15 14,15 16,11C18,7 21,7 23,7C25,7 27,9 27,12C27,15 24,18 21,18C18,18 18,15 18,15Z" 
                                   Fill="{DynamicResource Brush.Neutral.White}" Stretch="Uniform" Margin="12"/>
                         </Border>
 
                         <TextBlock Text="{DynamicResource Strings.Auth.TITAN}" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" FontSize="16"
-                                   HorizontalAlignment="Center" Margin="0,8,0,0">
-                             <TextBlock.Effect>
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
-                             </TextBlock.Effect>
-                        </TextBlock>
+                                   HorizontalAlignment="Center" Margin="0,8,0,0"/>
                     </StackPanel>
 
                     <!-- Collapsed State -->
@@ -132,11 +124,8 @@
                             Width="44" Height="44" CornerRadius="{DynamicResource Corner.MD}"
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BoolToVis}}"
-                            Background="{DynamicResource FacilityAccentGradient}">
-                        <Border.Effect>
-                             <!-- Stronger Identity Glow for Collapsed State -->
-                            <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
-                        </Border.Effect>
+                            Background="{DynamicResource FacilityAccentGradient}"
+                            BorderBrush="#30FFFFFF" BorderThickness="1">
                         <Path Data="M18,15C18,15 15,15 12.5,19C10,23 8,23 6,23C4,23 2,21 2,18C2,15 5,12 8,12C11,12 11,15 11,15C11,15 14,15 16,11C18,7 21,7 23,7C25,7 27,9 27,12C27,15 24,18 21,18C18,18 18,15 18,15Z" 
                               Fill="{DynamicResource Brush.Neutral.White}" Width="20" Height="20" Stretch="Uniform"
                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -254,12 +243,8 @@
                             <DynamicResource ResourceKey="FacilityAccentGradient"/>
                         </Border.Background>
                         
-                        <Border.BorderThickness>0</Border.BorderThickness>
-
-                        <Border.Effect>
-                            <!-- Soft Identity Shadow (Standardized Glow) -->
-                            <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
-                        </Border.Effect>
+                        <Border.BorderThickness>1</Border.BorderThickness>
+                        <Border.BorderBrush>#10FFFFFF</Border.BorderBrush>
                         
                         <!-- No internal dot for CoachPro style, just solid gradient -->
                     </Border>

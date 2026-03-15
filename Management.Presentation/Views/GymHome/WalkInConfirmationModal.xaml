@@ -105,11 +105,6 @@
                                             </Setter>
                                             <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                                             <Setter TargetName="CheckMark" Property="Fill" Value="White"/>
-                                            <Setter TargetName="ItemBorder" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.4" Color="{DynamicResource FacilityAccentColor}"/>
-                                                </Setter.Value>
-                                            </Setter>
                                             <!-- Invert text colors for readability on dark background -->
                                             <Setter TargetName="NameText" Property="Foreground" Value="White"/>
                                             <Setter TargetName="DurationText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>

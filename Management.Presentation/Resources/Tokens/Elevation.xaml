@@ -1,15 +1,10 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Elevation / DropShadowEffect System -->
-    <DropShadowEffect x:Key="Shadow.Level1" BlurRadius="4" ShadowDepth="2" Opacity="0.08" Color="Black" />
-    <DropShadowEffect x:Key="Shadow.Level2" BlurRadius="12" ShadowDepth="4" Opacity="0.12" Color="Black" />
-    <DropShadowEffect x:Key="Shadow.Level3" BlurRadius="24" ShadowDepth="8" Opacity="0.16" Color="Black" />
-
-    <!-- Inner Shadow Placeholder (Requires a custom style/behavior for realization in WPF) -->
-    <DropShadowEffect x:Key="Shadow.Inner" BlurRadius="2" ShadowDepth="1" Opacity="0.2" Color="Black" RenderingBias="Quality" />
-
-    <!-- Elevation Color used by Effects -->
-    <!-- ElevationColor moved to Theme.Light.xaml and Theme.Dark.xaml to avoid conflicts -->
+    <!-- Elevation / DropShadowEffect System REFACTORED -->
+    <x:Null x:Key="Shadow.Level1" />
+    <x:Null x:Key="Shadow.Level2" />
+    <x:Null x:Key="Shadow.Level3" />
+    <x:Null x:Key="Shadow.Inner" />
 
 </ResourceDictionary>

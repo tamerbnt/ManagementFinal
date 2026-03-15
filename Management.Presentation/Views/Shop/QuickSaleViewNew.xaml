@@ -176,11 +176,6 @@
                                                             </LinearGradientBrush>
                                                         </Setter.Value>
                                                     </Setter>
-                                                    <Setter TargetName="OuterBorder" Property="Effect">
-                                                        <Setter.Value>
-                                                            <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="20" ShadowDepth="4" Opacity="0.4"/>
-                                                        </Setter.Value>
-                                                    </Setter>
                                                     <Setter TargetName="OuterBorder" Property="BorderBrush" Value="Transparent"/>
                                                     <Setter TargetName="NameText" Property="Foreground" Value="White"/>
                                                     <Setter TargetName="CategoryText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>

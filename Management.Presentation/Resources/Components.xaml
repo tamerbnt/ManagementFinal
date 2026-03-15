@@ -50,14 +50,6 @@
 
                             <!-- Shadow / Glow Logic -->
                             <!-- Uses ElevationColor for Dark Mode Glow -->
-                            <Border.Effect>
-                                <DropShadowEffect x:Name="PART_Shadow"
-                                                  BlurRadius="12"
-                                                  ShadowDepth="3"
-                                                  Opacity="0.12"
-                                                  Direction="270"
-                                                  Color="{DynamicResource ElevationColor}"/>
-                            </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -157,15 +149,6 @@
                                     <TranslateTransform/>
                                 </TransformGroup>
                             </Border.RenderTransform>
-
-                            <!-- Premium Titan Glow -->
-                            <Border.Effect>
-                                <DropShadowEffect x:Name="PART_Glow"
-                                                  BlurRadius="15"
-                                                  ShadowDepth="0"
-                                                  Opacity="0.4"
-                                                  Color="#26C6DA"/> <!-- Vibrant Cyan/Blue -->
-                            </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -669,12 +652,6 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         
-        <!-- Default Shadow (Level 1) -->
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <Style x:Key="InteractiveCardStyle" TargetType="Border" BasedOn="{StaticResource StandardCardStyle}">
@@ -730,12 +707,6 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         
-        <!-- Enhanced Shadow (Level 2) for Elevated Content -->
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.12" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- Elevated Card Style with Hover Interaction -->
@@ -787,11 +758,6 @@
         <Setter Property="Padding" Value="{DynamicResource PaddingCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="48" ShadowDepth="8" Opacity="0.15" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
@@ -800,11 +766,6 @@
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusModal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="48" ShadowDepth="12" Opacity="0.25" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- ============================================================= -->
@@ -958,11 +919,6 @@
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin" Value="0,32,0,0"/> <!-- Offset from top -->
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="24" ShadowDepth="8" Opacity="0.2" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
         <!-- Animation logic handled by View/ViewModel visibility triggers or behaviors usually, 
              but style defines the premium look (Radius 24, Width 600). -->
     </Style>
@@ -1119,9 +1075,6 @@
                             <Border.RenderTransform>
                                 <TranslateTransform X="0"/>
                             </Border.RenderTransform>
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1"/>
-                            </Border.Effect>
                         </Border>
                     </Grid>
                     <ControlTemplate.Triggers>

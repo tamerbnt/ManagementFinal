@@ -93,9 +93,6 @@
                                                 CornerRadius="16"
                                                 Padding="16"
                                                 Margin="8">
-                                            <Border.Effect>
-                                                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="Black"/>
-                                            </Border.Effect>
                                             <Grid VerticalAlignment="Center">
                                                 <StackPanel HorizontalAlignment="Center">
                                                     <TextBlock Text="{DynamicResource Strings.Restaurant.TABLE}" 

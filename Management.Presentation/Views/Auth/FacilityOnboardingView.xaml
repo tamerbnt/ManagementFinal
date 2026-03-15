@@ -69,9 +69,6 @@
                     <GradientStop Color="#668B5CF6" Offset="1"/>
                 </LinearGradientBrush>
             </Border.BorderBrush>
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="80" ShadowDepth="0" Opacity="0.4"/>
-            </Border.Effect>
 
         <StackPanel>
             <!-- Animated Building Icon -->
@@ -109,18 +106,12 @@
                 <!-- Building Icon -->
                 <Path Data="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" 
                       Fill="#8B5CF6" Width="32" Height="32" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Path.Effect>
-                        <DropShadowEffect BlurRadius="25" Color="#8B5CF6" Opacity="0.8" ShadowDepth="0"/>
-                    </Path.Effect>
                 </Path>
             </Grid>
 
             <!-- Title -->
             <TextBlock Text="{DynamicResource Strings.Auth.FacilitySelection}" FontSize="32" FontWeight="ExtraBold" Foreground="White" 
                        Margin="0,0,0,12" HorizontalAlignment="Center">
-                <TextBlock.Effect>
-                    <DropShadowEffect BlurRadius="8" Color="Black" Opacity="0.3" ShadowDepth="2"/>
-                </TextBlock.Effect>
             </TextBlock>
             <TextBlock Text="{DynamicResource Strings.Auth.Selecttheindustrythatbest}" 
                        TextWrapping="Wrap" TextAlignment="Center" FontSize="14" Foreground="#94A3B8" MaxWidth="360" Margin="0,0,0,40" LineHeight="20"/>
@@ -174,20 +165,10 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="border" Property="Background" Value="#1AFFFFFF"/>
                                             <Setter TargetName="border" Property="BorderBrush" Value="#508B5CF6"/>
-                                            <Setter TargetName="border" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" Color="#8B5CF6" Opacity="0.3" ShadowDepth="0"/>
-                                                </Setter.Value>
-                                            </Setter>
                                         </Trigger>
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                             <Setter TargetName="border" Property="BorderBrush" Value="#8B5CF6"/>
                                             <Setter TargetName="border" Property="Background" Value="#1A8B5CF6"/>
-                                            <Setter TargetName="border" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" Color="#8B5CF6" Opacity="0.5" ShadowDepth="0"/>
-                                                </Setter.Value>
-                                            </Setter>
                                         </DataTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

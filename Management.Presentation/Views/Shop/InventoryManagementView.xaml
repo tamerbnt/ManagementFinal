@@ -98,11 +98,6 @@
                                                 </LinearGradientBrush>
                                             </Setter.Value>
                                         </Setter>
-                                        <Setter Property="Effect">
-                                            <Setter.Value>
-                                                <DropShadowEffect BlurRadius="15" ShadowDepth="0" Color="#26C6DA" Opacity="0.4"/>
-                                            </Setter.Value>
-                                        </Setter>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

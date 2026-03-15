@@ -2,59 +2,16 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- 
-        APPLE 2025 DEPTH SYSTEM
+        APPLE 2025 DEPTH SYSTEM - REFACTORED FOR PERFORMANCE
         
-        Logic: Shadows are "Dynamic Glows".
-        - Light Mode: ElevationColor = #000000 (Standard Shadow)
-        - Dark Mode: ElevationColor = {FacilityAccentBrush} (Neon Glow)
-        
-        This file consumes {DynamicResource ElevationColor}.
-        Ensure this key is defined in your Theme files (Theme.Light.xaml / Theme.Dark.xaml).
+        Shadows have been disabled to improve rendering performance.
+        Elevation is now achieved through BorderBrush and BorderThickness.
     -->
 
-    <!-- Level 1: Subtle (Cards / List Items) -->
-    <!-- 12px Blur, 2px Depth -->
-    <DropShadowEffect x:Key="Shadow1" x:Shared="False" 
-                      Color="{DynamicResource ElevationColor}" 
-                      Direction="270" 
-                      BlurRadius="12" 
-                      ShadowDepth="2" 
-                      Opacity="0.08"/>
-
-    <!-- Level 2: Standard (Dropdowns / Popovers) -->
-    <!-- 20px Blur, 4px Depth -->
-    <DropShadowEffect x:Key="Shadow2" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
-                      Direction="270" 
-                      BlurRadius="20" 
-                      ShadowDepth="4" 
-                      Opacity="0.12"/>
-
-    <!-- Level 3: Floating (Modals / Sticky Headers) -->
-    <!-- 32px Blur, 8px Depth -->
-    <DropShadowEffect x:Key="Shadow3" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
-                      Direction="270" 
-                      BlurRadius="32" 
-                      ShadowDepth="8" 
-                      Opacity="0.20"/>
-
-    <!-- Level 4: Deep (Dialogs / Alerts) -->
-    <!-- 48px Blur, 12px Depth -->
-    <DropShadowEffect x:Key="Shadow4" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
-                      Direction="270" 
-                      BlurRadius="48" 
-                      ShadowDepth="12" 
-                      Opacity="0.25"/>
-
-    <!-- Level 5: Brand Glow (Focus States / Accents) -->
-    <!-- Uses FacilityAccentColor instead of ElevationColor -->
-    <DropShadowEffect x:Key="ShadowGlow" x:Shared="False"
-                      Color="{DynamicResource FacilityAccentColor}" 
-                      Direction="270" 
-                      BlurRadius="24" 
-                      ShadowDepth="0" 
-                      Opacity="0.4"/>
+    <x:Null x:Key="Shadow1" />
+    <x:Null x:Key="Shadow2" />
+    <x:Null x:Key="Shadow3" />
+    <x:Null x:Key="Shadow4" />
+    <x:Null x:Key="ShadowGlow" />
 
 </ResourceDictionary>

@@ -109,10 +109,9 @@
         <Border x:Name="LoginCard" 
                 Width="420" VerticalAlignment="Center" HorizontalAlignment="Center"
                 Background="#FFFFFF"
-                CornerRadius="24" Padding="40">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="50" ShadowDepth="15" Opacity="0.3" Color="#000000" Direction="270"/>
-            </Border.Effect>
+                CornerRadius="24" Padding="40"
+                BorderBrush="#20000000"
+                BorderThickness="1">
 
             <StackPanel>
                 <TextBlock Text="{DynamicResource Strings.Auth.WelcomeBack}" 
