@@ -95,7 +95,7 @@ namespace Management.Presentation.Views.Salon
                             {
                                 await _salonService.UpdateAppointmentStatusAsync(apptId, statusToSet);
                                 
-                                System.Windows.Application.Current?.Dispatcher.Invoke(() => 
+                                System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
                                 {
                                     _notificationService.ShowSuccess(string.Format(successMessageTemplate, statusToSet));
                                 });
