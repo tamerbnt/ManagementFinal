@@ -146,7 +146,7 @@
         </ContentControl>
 
         <!-- GLOBAL MODAL HOST (Titan Overlay System) -->
-        <Grid Panel.ZIndex="1100">
+        <Grid Panel.ZIndex="1100" IsHitTestVisible="{Binding IsModalOpen}">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
