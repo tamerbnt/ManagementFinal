@@ -321,7 +321,7 @@ namespace Management.Presentation
                 // 1. Initialize Contexts (Must happen before Sync)
                 Serilog.Log.Information("Initializing Facility Context and Resilience...");
                 var facilityContext = ServiceProvider.GetRequiredService<IFacilityContextService>();
-                facilityContext.Initialize();
+                await Task.Run(() => facilityContext.Initialize());
 
                 // 2. Initialize Localization (Load saved preference) EARLY
                 // This ensures UI strings are loaded before the window is Shown.
