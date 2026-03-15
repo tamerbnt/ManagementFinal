@@ -27,8 +27,9 @@
                         Background="{DynamicResource CardBackgroundBrush}" 
                         CornerRadius="16" 
                         Padding="16"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                        BorderBrush="Transparent"
                         BorderThickness="1"
+                        Effect="{StaticResource Shadow1}"
                         RenderOptions.CachingHint="Cache">
                     <Border.InputBindings>
                         <MouseBinding MouseAction="LeftClick" 
@@ -132,8 +133,12 @@
                             </LinearGradientBrush>
                         </Setter.Value>
                     </Setter>
-                    <Setter TargetName="RowBorder" Property="BorderBrush" Value="{DynamicResource CardBackgroundBrush}"/>
-                    <Setter TargetName="RowBorder" Property="BorderThickness" Value="2"/>
+                    <Setter TargetName="RowBorder" Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
                     <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
                     <Setter TargetName="EmailText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
                     <Setter TargetName="SourceText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>

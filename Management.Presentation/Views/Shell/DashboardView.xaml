@@ -69,21 +69,20 @@
                                 <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" 
-                                                            BorderBrush="{TemplateBinding BorderBrush}" 
-                                                            BorderThickness="{TemplateBinding BorderThickness}" 
-                                                            CornerRadius="12"
-                                                            x:Name="ActionBorder">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                                                            <Setter TargetName="ActionBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                                    CornerRadius="12">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+                                                    <Setter Property="Effect" Value="{StaticResource Shadow2}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
                                     </Setter.Value>
                                 </Setter>
                             </Style>
@@ -155,8 +154,6 @@
                     <Border CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="Visibility" Value="Visible"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSalonMode}" Value="True">
@@ -165,6 +162,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
+                        <Border.Effect><StaticResource ResourceKey="Shadow3"/></Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -220,8 +218,6 @@
                     <Border CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter Property="BorderThickness" Value="1"/>
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSalonMode}" Value="True">
@@ -230,6 +226,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
+                        <Border.Effect><StaticResource ResourceKey="Shadow3"/></Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -293,7 +290,10 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Expiring -->
-                    <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
+                        <Border.Effect>
+                            <StaticResource ResourceKey="Shadow1"/>
+                        </Border.Effect>
                         <Grid Margin="16,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -332,7 +332,10 @@
                     </Border>
 
                     <!-- Pending -->
-                    <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
+                        <Border.Effect>
+                            <StaticResource ResourceKey="Shadow1"/>
+                        </Border.Effect>
                         <Grid Margin="16,12">
                              <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -372,7 +375,10 @@
                 </Grid>
 
                 <!-- 4. Revenue Snapshot (Replaces Quick Actions) -->
-                 <Border Grid.Column="3" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Height="170" BorderBrush="#20FFFFFF" BorderThickness="1">
+                 <Border Grid.Column="3" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Height="170">
+                    <Border.Effect>
+                        <StaticResource ResourceKey="Shadow2"/>
+                    </Border.Effect>
                     <Grid Margin="20">
                          <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -408,7 +414,10 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Chart Section -->
-            <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,24,24" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+            <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,24,24">
+                    <Border.Effect>
+                        <StaticResource ResourceKey="Shadow2"/>
+                    </Border.Effect>
                     <Grid Margin="32">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -435,7 +444,15 @@
                 <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,24">
 
                     <!-- Revenue by Plan -->
-                    <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </Style>
+                        </Border.Style>
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="4" Opacity="0.05" Direction="270" Color="{DynamicResource ShadowColor}"/>
+                        </Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -627,7 +644,10 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- 1. Master Financial Card -->
-                <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}" BorderBrush="#30FFFFFF" BorderThickness="1">
+                <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="10" Opacity="0.3" Direction="270" Color="{DynamicResource OverlayBackdropColor}"/>
+                    </Border.Effect>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -657,7 +677,10 @@
                 </Border>
 
                 <!-- 2. Revenue Card -->
-                <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" Height="170" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" Height="170">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="4" Opacity="0.05" Direction="270" Color="{DynamicResource ShadowColor}"/>
+                    </Border.Effect>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -681,7 +704,10 @@
                 </Border>
 
                 <!-- 3. Expenses Card -->
-                <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="170" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="170">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="10" ShadowDepth="4" Opacity="0.05" Direction="270" Color="{DynamicResource ShadowColor}"/>
+                    </Border.Effect>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -713,7 +739,10 @@
                 </Grid.RowDefinitions>
 
                 <!-- Revenue Chart -->
-                <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,24" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,24">
+                     <Border.Effect>
+                        <StaticResource ResourceKey="Shadow2"/>
+                    </Border.Effect>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -743,7 +772,10 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Recent Transactions -->
-                    <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0">
+                         <Border.Effect>
+                            <StaticResource ResourceKey="Shadow1"/>
+                        </Border.Effect>
                         <Grid Margin="20">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -886,7 +918,7 @@
                         </Border>
 
                     <!-- Popular Items / Member Development Card -->
-                    <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -897,6 +929,9 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
+                        <Border.Effect>
+                            <StaticResource ResourceKey="Shadow1"/>
+                        </Border.Effect>
                         <Grid Margin="20">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -994,7 +1029,10 @@
 
 
                     <!-- Quick Actions -->
-                     <Border Grid.Column="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" BorderBrush="#20FFFFFF" BorderThickness="1">
+                     <Border Grid.Column="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16">
+                         <Border.Effect>
+                            <StaticResource ResourceKey="Shadow1"/>
+                         </Border.Effect>
                         <Grid Margin="20">
                              <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

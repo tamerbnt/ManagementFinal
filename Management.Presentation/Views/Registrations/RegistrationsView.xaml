@@ -273,6 +273,12 @@
                     </Style>
                 </Grid.Style>
 
+                <!-- Shadow Layer -->
+                <Border Background="White" CornerRadius="32,0,0,32">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.15" Color="Black"/>
+                    </Border.Effect>
+                </Border>
 
                 <!-- Content Layer -->
                 <Border Background="White" 

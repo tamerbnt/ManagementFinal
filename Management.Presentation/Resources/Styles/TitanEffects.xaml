@@ -21,6 +21,9 @@
                             BorderThickness="1"
                             CornerRadius="12"
                             Padding="16">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.2" Color="Black"/>
+                        </Border.Effect>
                         <ContentPresenter />
                     </Border>
                 </ControlTemplate>

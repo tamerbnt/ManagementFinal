@@ -20,6 +20,9 @@
             <Border.RenderTransform>
                 <TranslateTransform x:Name="SheetTransform" X="450"/>
             </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="-5" Opacity="0.1" Color="Black"/>
+            </Border.Effect>
 
             <Grid Margin="24">
                 <Grid.RowDefinitions>

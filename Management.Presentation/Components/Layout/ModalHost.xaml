@@ -31,6 +31,9 @@
             <Border.RenderTransform>
                 <ScaleTransform x:Name="ModalScale" CenterX="200" CenterY="100" ScaleX="0.9" ScaleY="0.9"/>
             </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="30" ShadowDepth="10" Opacity="0.2" Color="Black"/>
+            </Border.Effect>
             
             <Grid>
                 <Grid.RowDefinitions>

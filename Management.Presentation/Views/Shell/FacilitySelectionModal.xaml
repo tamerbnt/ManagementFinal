@@ -20,7 +20,10 @@
         <StackPanel>
             <!-- Header -->
             <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
-                <Border Width="72" Height="72" CornerRadius="36" Margin="0,0,0,24" Background="{DynamicResource FacilityAccentBrush}" BorderBrush="#30FFFFFF" BorderThickness="1">
+                <Border Width="72" Height="72" CornerRadius="36" Margin="0,0,0,24" Background="{DynamicResource FacilityAccentBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource ElevationColor}" BlurRadius="40" ShadowDepth="0" Opacity="0.25"/>
+                    </Border.Effect>
                     <Path Data="{StaticResource Icon.Storefront}" 
                           Fill="White" 
                           Width="32" Height="32" 
@@ -96,7 +99,11 @@
                                             <Setter TargetName="ItemBorder" Property="BorderBrush" Value="Transparent"/>
                                             <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                                             <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
-                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="#40FFFFFF"/>
+                                            <Setter TargetName="ItemBorder" Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="40" ShadowDepth="2" Opacity="0.15" Color="{DynamicResource ElevationColor}"/>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Setter TargetName="IconContainer" Property="Background" Value="#33FFFFFF"/>
                                             <Setter TargetName="IconPath" Property="Fill" Value="White"/>
                                             <Setter TargetName="NameText" Property="Foreground" Value="White"/>

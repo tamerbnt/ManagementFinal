@@ -21,6 +21,9 @@
             Padding="16,12"
             BorderThickness="1">
         
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="Black"/>
+        </Border.Effect>
 
         <Border.InputBindings>
             <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
@@ -57,6 +60,11 @@
                     <DataTrigger Binding="{Binding IsActive}" Value="True">
                         <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                         <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                            </Setter.Value>
+                        </Setter>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

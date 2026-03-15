@@ -55,6 +55,11 @@
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="24"/>
                 <Setter Property="Padding" Value="32"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <StaticResource ResourceKey="Shadow4"/>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <!-- Override text styles for modal to use dark text on light bg -->
@@ -80,6 +85,9 @@
     <!-- Root: White window border -->
     <Border CornerRadius="24" Background="{StaticResource SurfaceBg}" ClipToBounds="True"
             BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+        <Border.Effect>
+            <StaticResource ResourceKey="Shadow4"/>
+        </Border.Effect>
         <Grid>
 
             <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -244,6 +252,9 @@
                                         Background="{StaticResource SurfaceBg}"
                                         CornerRadius="14"
                                         Padding="10,8">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Ellipse Width="30" Height="30"
                                                  Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.85"/>
@@ -265,6 +276,9 @@
                                         Background="{StaticResource SurfaceBg}"
                                         CornerRadius="14"
                                         Padding="12,10">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
                                     <StackPanel>
                                         <TextBlock Text="Revenue Today" FontSize="9"
                                                    Foreground="{DynamicResource Brush.Text.Secondary}"/>
@@ -286,6 +300,9 @@
                                         Background="{StaticResource SurfaceBg}"
                                         CornerRadius="14"
                                         Padding="10,8">
+                                    <Border.Effect>
+                                        <StaticResource ResourceKey="Shadow2"/>
+                                    </Border.Effect>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Ellipse Width="28" Height="28"
                                                  Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>

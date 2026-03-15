@@ -63,6 +63,11 @@
                                 <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="HeaderText" Property="Foreground" Value="White"/>
                                 <Setter TargetName="TabBorder" Property="BorderThickness" Value="0"/>
+                                <Setter TargetName="TabBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.3"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
@@ -306,6 +311,11 @@
                                             <DataTrigger Binding="{Binding IsInCurrentOrder}" Value="True">
                                                 <Setter TargetName="CardBorder" Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                                                 <Setter TargetName="CardBorder" Property="BorderThickness" Value="0"/>
+                                                <Setter TargetName="CardBorder" Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.4"/>
+                                                    </Setter.Value>
+                                                </Setter>
                                                 
                                                 <Setter TargetName="IconWell" Property="Background" Value="Transparent"/>
                                                 <Setter TargetName="CardIcon" Property="Fill" Value="White"/>
@@ -333,8 +343,7 @@
             <Border Grid.Column="1" 
                     Background="{DynamicResource CardBackgroundBrush}" 
                     CornerRadius="24" 
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
+                    Effect="{StaticResource Shadow2}"
                     Padding="24"
                     DataContext="{Binding CurrentSession}">
                 <Grid>

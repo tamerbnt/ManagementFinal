@@ -7,11 +7,18 @@
              d:DesignHeight="60" d:DesignWidth="190">
     <Border Background="{Binding BackgroundBrush}"
             CornerRadius="4"
-            BorderThickness="1"
-            BorderBrush="#1A000000"
+            BorderThickness="0"
             Padding="5"
             ClipToBounds="True"
             Opacity="0.95">
+        <Border.Effect>
+            <!-- Hardcoded V1 shadow as per request standard (fallback) -->
+            <DropShadowEffect BlurRadius="10" 
+                              ShadowDepth="2" 
+                              Direction="315" 
+                              Color="Black" 
+                              Opacity="0.15"/>
+        </Border.Effect>
         <StackPanel>
             <TextBlock Text="{Binding Title}" 
                        FontWeight="SemiBold" 

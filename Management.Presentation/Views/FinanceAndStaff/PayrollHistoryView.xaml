@@ -15,7 +15,9 @@
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
             Width="500"
             Margin="32">
-
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.15" Color="Black"/>
+        </Border.Effect>
 
         <Grid>
             <Grid.RowDefinitions>

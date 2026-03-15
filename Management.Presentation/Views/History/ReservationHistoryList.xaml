@@ -21,6 +21,9 @@
             Padding="16,12"
             BorderThickness="1">
         
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.05" Color="Black"/>
+        </Border.Effect>
 
         <Border.InputBindings>
             <MouseBinding MouseAction="LeftClick" Command="{Binding ViewDetailsCommand}"/>
@@ -64,6 +67,11 @@
                             </Setter.Value>
                         </Setter>
                         <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect Color="#F06292" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                            </Setter.Value>
+                        </Setter>
                     </DataTrigger>
                 </Style.Triggers>
             </Style>
