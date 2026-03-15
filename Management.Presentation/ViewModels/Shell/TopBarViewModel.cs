@@ -303,7 +303,7 @@ namespace Management.Presentation.ViewModels.Shell
                 var results = await _searchService.SearchAsync(query, _facilityContext.CurrentFacility);
                 if (token.IsCancellationRequested) return;
 
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     SearchResults.Clear();
                     foreach (var result in results)
@@ -318,7 +318,7 @@ namespace Management.Presentation.ViewModels.Shell
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Global Search Execution Error: {ex.Message}");
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     SearchResults.Clear();
                     IsSearchPopupOpen = false;
