@@ -83,14 +83,11 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                                ro.FacilityId == facilityId && 
                                ro.CompletedAt >= context.UtcDayStart && ro.CompletedAt < context.UtcDayEnd))
                 .GroupBy(oi => oi.Name)
-                .Select(g => new PopularItemDto
-                {
-                    ItemName = g.Key,
-                    Quantity = g.Sum(x => x.Quantity),
-                    Revenue = (decimal)g.Sum(x => (double)(x.Price * x.Quantity))
-
                 })
+                .OrderByDescending(x => x.Quantity)
+                .Take(5)
                 .ToListAsync();
+
 
             
             var totalQuantity = dto.PopularItems.Sum(x => x.Quantity);
