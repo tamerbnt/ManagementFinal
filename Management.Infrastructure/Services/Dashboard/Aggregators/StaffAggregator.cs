@@ -55,6 +55,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     AppointmentCount = group.Count(),
                     TotalSales = group.Sum(item => services.TryGetValue(item.ServiceId, out var price) ? price : 0)
                 })
+                .OrderByDescending(s => s.TotalSales)
+                .Take(5)
                 .ToList();
 
         }

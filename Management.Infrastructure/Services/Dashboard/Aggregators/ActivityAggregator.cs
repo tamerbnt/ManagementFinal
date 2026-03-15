@@ -78,6 +78,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .Where(o => o.FacilityId == facilityId && 
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
                     .OrderByDescending(o => o.CompletedAt ?? o.CreatedAt)
+                    .Take(10)
+                    .ToListAsync();
 
 
                 transactions.AddRange(recentOrders.Select(o => new TransactionDto
