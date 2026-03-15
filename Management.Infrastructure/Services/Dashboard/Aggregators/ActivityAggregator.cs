@@ -78,9 +78,6 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .Where(o => o.FacilityId == facilityId && 
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
                     .OrderByDescending(o => o.CompletedAt ?? o.CreatedAt)
-                    .Take(10)
-                    .ToListAsync();
-            System.IO.File.AppendAllText(@"c:\Users\techbox\.gemini\ManagementCopy\diagnostics.txt", $"[DIAG][ActivityAggregator] recentOrders rows: {(recentOrders == null ? 0 : recentOrders.Count)}\n");
 
 
                 transactions.AddRange(recentOrders.Select(o => new TransactionDto

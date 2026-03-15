@@ -46,12 +46,6 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
             if (!completed.Any()) return;
 
-            var services = await _dbContext.SalonServices
-                .AsNoTracking()
-                .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId)
-                .ToDictionaryAsync(s => s.Id, s => s.BasePrice);
-            System.IO.File.AppendAllText(@"c:\Users\techbox\.gemini\ManagementCopy\diagnostics.txt", $"[DIAG][StaffAggregator] services rows: {(services == null ? 0 : services.Count)}\n");
 
             dto.TopPerformingStaff = completed
                 .GroupBy(x => x.StaffName)
@@ -61,10 +55,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     AppointmentCount = group.Count(),
                     TotalSales = group.Sum(item => services.TryGetValue(item.ServiceId, out var price) ? price : 0)
                 })
-                .OrderByDescending(s => s.TotalSales)
-                .Take(5)
                 .ToList();
-            System.IO.File.AppendAllText(@"c:\Users\techbox\.gemini\ManagementCopy\diagnostics.txt", $"[DIAG][StaffAggregator] TopPerformingStaff rows: {(dto.TopPerformingStaff == null ? 0 : dto.TopPerformingStaff.Count)}\n");
+
         }
     }
 }

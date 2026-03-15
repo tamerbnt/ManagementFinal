@@ -90,10 +90,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     Revenue = (decimal)g.Sum(x => (double)(x.Price * x.Quantity))
 
                 })
-                .OrderByDescending(x => x.Quantity)
-                .Take(5)
                 .ToListAsync();
-            System.IO.File.AppendAllText(@"c:\Users\techbox\.gemini\ManagementCopy\diagnostics.txt", $"[DIAG][RestaurantAggregator] PopularItems rows: {(dto.PopularItems == null ? 0 : dto.PopularItems.Count)}\n");
+
             
             var totalQuantity = dto.PopularItems.Sum(x => x.Quantity);
             foreach (var item in dto.PopularItems)

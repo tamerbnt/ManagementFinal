@@ -10,7 +10,7 @@ namespace XamlValidator
             try
             {
                 XmlDocument doc = new XmlDocument();
-                // We're inside ValidateXaml dir, so go up one level to ManagementCopy
+                // Load XAML to validate structure
                 doc.Load(@"..\Management.Presentation\Views\Restaurant\RestaurantOrderingView.xaml");
                 Console.WriteLine("XAML is valid!");
             }
