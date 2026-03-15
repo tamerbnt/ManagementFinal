@@ -47,6 +47,9 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
             // Month clients
             var localMonthEnd = context.LocalToday.AddDays(1); // Placeholder logic as in original
+            var monthAppointments = (await _appointmentRepository.GetByDateRangeAsync(context.LocalToday.AddDays(-30), context.LocalToday.AddDays(1), facilityId))
+                                        .Where(a => !a.IsDeleted && a.Status != AppointmentStatus.NoShow)
+                                        .ToList();
 
             dto.ActiveClientsThisMonth = monthAppointments
                                         .Where(a => a.ClientId != Guid.Empty)

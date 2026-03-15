@@ -44,7 +44,11 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                       (a, s) => new { StaffId = a.StaffId, StaffName = s.FullName, ServiceId = a.ServiceId })
                 .ToListAsync();
 
-            if (!completed.Any()) return;
+            var services = await _dbContext.SalonServices
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .Where(s => s.FacilityId == facilityId)
+                .ToDictionaryAsync(s => s.Id, s => s.BasePrice);
 
 
             dto.TopPerformingStaff = completed
