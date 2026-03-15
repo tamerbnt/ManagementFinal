@@ -960,7 +960,6 @@ namespace Management.Presentation
             services.AddSingleton<Management.Domain.Services.IEmailService, Management.Infrastructure.Services.NullEmailService>();
             // Added Missing Domain Services
             services.AddTransient<Management.Application.Interfaces.App.IGymOperationService, Management.Application.Services.GymOperationService>();
-            services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<Management.Application.Interfaces.App.IAudioService, Management.Infrastructure.Services.Audio.AudioService>();
             services.AddSingleton<IAccessControlCache, AccessControlCache>();
             services.AddTransient<ITableService, TableService>();
@@ -1006,9 +1005,7 @@ namespace Management.Presentation
             services.AddSingleton<Management.Application.Services.IDiagnosticService, Management.Presentation.Services.DiagnosticService>();
             services.AddSingleton<DiagnosticViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<DiagnosticViewModel>());
-            services.AddTransient<Management.Presentation.ViewModels.Sync.ConflictResolutionViewModel>(); // Added for conflict modal
             services.AddSingleton<ConnectivityViewModel>(); // Shared VM for banner
-            services.AddTransient<MemberAccessViewModel>();
 
             // Sync Engine
             services.AddSingleton<Management.Application.Interfaces.App.ISyncService, SyncService>();
