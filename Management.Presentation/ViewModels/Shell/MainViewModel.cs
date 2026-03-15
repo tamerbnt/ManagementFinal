@@ -288,7 +288,7 @@ namespace Management.Presentation.ViewModels.Shell
             var localizationService = _serviceProvider.GetRequiredService<ILocalizationService>();
             localizationService.LanguageChanged += (s, e) => 
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     foreach (var item in MenuItems)
                     {
@@ -408,7 +408,7 @@ namespace Management.Presentation.ViewModels.Shell
         {
             var items = _navigationRegistry.GetItems(_facilityContext.CurrentFacility);
             
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 MenuItems.Clear();
                 foreach (var item in items)
@@ -472,7 +472,7 @@ namespace Management.Presentation.ViewModels.Shell
 
         private void OnCurrentViewModelChanged()
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
                 IsNavigating = navigationStore.IsNavigating;
@@ -536,7 +536,7 @@ namespace Management.Presentation.ViewModels.Shell
 
         private void OnSessionExpired(object? sender, Management.Domain.Services.SessionExpiredEventArgs e)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 _dialogService.ShowCustomDialogAsync<SessionExpiredViewModel>(e.Message);
             });
@@ -544,7 +544,7 @@ namespace Management.Presentation.ViewModels.Shell
 
         private void OnConflictDetected(Management.Domain.Models.OutboxMessage message)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(async () =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
             {
                 var parameters = new ConflictResolutionParameters
                 {
@@ -561,7 +561,7 @@ namespace Management.Presentation.ViewModels.Shell
 
         private void OnConnectionStatusChanged(bool isOnline)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(async () => {
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => {
                 IsOffline = !isOnline;
                 OnPropertyChanged(nameof(ShowOfflineBanner));
                 OnPropertyChanged(nameof(DiagnosticConnectivity));
