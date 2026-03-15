@@ -13,7 +13,7 @@
         Height="720" Width="980"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{StaticResource SurfaceBg}"
         MouseDown="OnMouseLeftButtonDown">
 

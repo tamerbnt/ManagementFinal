@@ -9,7 +9,7 @@
         Title="{DynamicResource Strings.Salon.AddStylistColumn}" Height="500" Width="450"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         WindowStyle="None" 
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{DynamicResource Brush.Window.Background}"
         WindowStartupLocation="CenterOwner" SizeToContent="Height">
 

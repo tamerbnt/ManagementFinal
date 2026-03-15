@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
         mc:Ignorable="d" 
         d:DataContext="{d:DesignInstance Type=vm:RfidAccessControlViewModel}"
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{DynamicResource SurfaceBg}"
         WindowStyle="None"
         

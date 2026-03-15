@@ -1197,7 +1197,7 @@
                                   VerticalAlignment="Center"/>
                         </Grid>
 
-                        <Popup x:Name="PART_Popup" Placement="Bottom" Margin="1" AllowsTransparency="False" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Popup x:Name="PART_Popup" Placement="Bottom" Margin="1" AllowsTransparency="True" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
                             <Border x:Name="DropDownBorder" 
                                     Background="{DynamicResource SurfaceBg}" 
                                     BorderBrush="{DynamicResource SeparatorStroke}" 

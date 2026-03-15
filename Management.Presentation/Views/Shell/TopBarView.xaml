@@ -155,7 +155,7 @@
                 </TextBox>
                 
                 <Popup x:Name="SearchPopup" 
-                       AllowsTransparency="False"
+                       AllowsTransparency="True"
                        IsOpen="{Binding IsSearchPopupOpen}"
                        PlacementTarget="{Binding ElementName=GlobalSearchBox}"
                        Placement="Bottom"
@@ -437,7 +437,7 @@
                 </ToggleButton>
 
                 <Popup IsOpen="{Binding IsChecked, ElementName=NotifToggle}" 
-                       AllowsTransparency="False"
+                       AllowsTransparency="True"
                        StaysOpen="False" 
                        PlacementTarget="{Binding ElementName=NotifToggle}"
                        Placement="Bottom" 
@@ -636,7 +636,7 @@
 
             <!-- Profile Popup Menu -->
             <Popup IsOpen="{Binding IsChecked, ElementName=ProfileToggle}" 
-                   AllowsTransparency="False"
+                   AllowsTransparency="True"
                    StaysOpen="False" 
                    PlacementTarget="{Binding ElementName=ProfileToggle}"
                    Placement="Bottom" 

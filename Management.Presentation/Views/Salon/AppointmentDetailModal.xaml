@@ -10,7 +10,7 @@
         FlowDirection="{DynamicResource GlobalFlowDirection}"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         WindowStyle="None" 
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{DynamicResource Brush.Window.Background}"
         WindowStartupLocation="CenterOwner">
 

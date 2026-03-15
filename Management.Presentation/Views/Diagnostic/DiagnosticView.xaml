@@ -9,7 +9,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Height="500" Width="450"
         WindowStartupLocation="CenterScreen"
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{StaticResource Safe.Background}"
         WindowStyle="None"
         ResizeMode="NoResize">

@@ -2,7 +2,7 @@ using System;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Threading;
-using Velopack;
+
 using Management.Application.Services;
 using System.IO;
 using System.Threading.Tasks;
@@ -125,30 +125,7 @@ namespace Management.Presentation
             return true;
         }
 
-        private void CleanupStaleRegistryEntries()
-        {
-            try
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"Software\Microsoft\Windows\CurrentVersion\Run",
-                    writable: true);
-                var existing = key?.GetValue("TitanManagementSystem") as string;
-                var currentExe = Process.GetCurrentProcess().MainModule?.FileName;
-                if (existing != null && currentExe != null &&
-                    !existing.Contains(Path.GetDirectoryName(currentExe) ?? "",
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    key?.DeleteValue("TitanManagementSystem", false);
-                    Serilog.Log.Warning("Removed stale autorun entry: {Old}", existing);
-                }
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Warning(ex, "Could not clean registry autorun entries");
-            }
-        }
-
-        private void KillRunningTitanProcesses()
+        public void KillRunningTitanProcesses()
         {
             var currentPid = Process.GetCurrentProcess().Id;
             var names = new[] { "Titan.Client", "Titan", "Management.Presentation", "GymOS" };
@@ -167,53 +144,6 @@ namespace Management.Presentation
                     }
                     catch { }
                 }
-            }
-        }
-
-        private void SanitizeEnvironment()
-        {
-            try
-            {
-                Serilog.Log.Information("Starting Environmental Sanitation...");
-
-                // 1. Kill old processes (to release file locks)
-                KillRunningTitanProcesses();
-
-                // 2. Remove legacy local data folders
-                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var legacyFolders = new[] 
-                { 
-                    Path.Combine(localAppData, "GymOS")
-                };
-
-                foreach (var folder in legacyFolders)
-                {
-                    if (Directory.Exists(folder))
-                    {
-                        try
-                        {
-                            Serilog.Log.Information("Removing legacy folder: {Folder}", folder);
-                            Directory.Delete(folder, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Serilog.Log.Warning("Could not delete legacy folder {Folder}: {Error}", folder, ex.Message);
-                        }
-                    }
-                }
-
-                // FIX 7: Removed destructive folder deletion that searched for ManagementCopy* / ManagementBackup*
-                // and deleted them on every startup. This silently destroyed the user's own backup copies.
-
-                // 4. Ensure Registry is clean
-                CleanupStaleRegistryEntries();
-                RegisterAutorun();
-
-                Serilog.Log.Information("Environmental Sanitation Complete.");
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error(ex, "Environmental Sanitation failed partially.");
             }
         }
 
@@ -261,51 +191,11 @@ namespace Management.Presentation
             }
         }
 
-        private void HandleInstallerPostOps()
-        {
-            try
-            {
-                // 1. Create %LocalAppData%\Titan\ directory
-                var localAppData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
-                if (!Directory.Exists(localAppData)) Directory.CreateDirectory(localAppData);
 
-                // 2. Create Documents\Titan\Backups\ directory
-                var documents = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Titan", "Backups");
-                if (!Directory.Exists(documents)) Directory.CreateDirectory(documents);
-
-                // 3. Register autorun entry pointing to current exe
-                RegisterAutorun();
-
-                // 5. Clean up any stale autorun entries from old versions
-                CleanupStaleRegistryEntries();
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error(ex, "Failed during post-install/update operations");
-            }
-        }
-
-        private void RegisterAutorun()
-        {
-            try
-            {
-                using var key = Registry.CurrentUser.OpenSubKey(
-                    @"Software\Microsoft\Windows\CurrentVersion\Run",
-                    writable: true);
-                var exePath = Process.GetCurrentProcess().MainModule?.FileName;
-                if (exePath != null)
-                    key?.SetValue("TitanManagementSystem", $"\"{exePath}\"");
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Warning(ex, "Could not register autorun");
-            }
-        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // PROACTIVE SANITATION: Kill old versions and clear legacy data
-            _ = Task.Run(SanitizeEnvironment);
+
 
             if (!EnsureSingleInstance()) return;
             

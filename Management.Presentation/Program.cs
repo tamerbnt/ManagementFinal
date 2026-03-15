@@ -13,10 +13,6 @@ namespace Management.Presentation
         {
             try
             {
-                // Velopack initialization MUST be first to handle update/install hooks
-                Velopack.VelopackApp.Build()
-                    .Run();
-
                 // Basic console logging for immediate feedback
                 Console.WriteLine("PROGRAM STARTED");
                 

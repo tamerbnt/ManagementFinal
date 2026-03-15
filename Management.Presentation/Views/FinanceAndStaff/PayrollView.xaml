@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         ResizeMode="NoResize"
-        AllowsTransparency="False"
+        AllowsTransparency="True"
         Background="{DynamicResource SurfaceBg}"
         WindowStyle="None"
         mc:Ignorable="d" 
