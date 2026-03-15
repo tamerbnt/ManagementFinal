@@ -385,8 +385,11 @@ namespace Management.Presentation.ViewModels.Shell
         public void InitializeInitialView()
         {
             // Set null first to ensure the property change fires for the same index (0) if needed
-            _selectedMenuItem = null!; 
-            SelectedMenuItem = MenuItems[0]; // Home
+            _selectedMenuItem = null!;
+            if (MenuItems.Count > 0)
+            {
+                SelectedMenuItem = MenuItems[0]; // Home
+            }
         }
 
         [RelayCommand]
@@ -407,19 +410,17 @@ namespace Management.Presentation.ViewModels.Shell
         private void RefreshMenu()
         {
             var items = _navigationRegistry.GetItems(_facilityContext.CurrentFacility);
-            
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+
+            // Populate synchronously so MenuItems is ready before InitializeInitialView() is called
+            MenuItems.Clear();
+            foreach (var item in items)
             {
-                MenuItems.Clear();
-                foreach (var item in items)
-                {
-                    MenuItems.Add(new NavigationItemViewModel(
-                        _terminologyService.GetTerm(item.ResourceKey), 
-                        item.ResourceKey, 
-                        item.IconKey, 
-                        item.TargetViewModelType));
-                }
-            });
+                MenuItems.Add(new NavigationItemViewModel(
+                    _terminologyService.GetTerm(item.ResourceKey),
+                    item.ResourceKey,
+                    item.IconKey,
+                    item.TargetViewModelType));
+            }
         }
 
         [RelayCommand]
