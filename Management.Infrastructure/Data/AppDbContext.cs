@@ -581,16 +581,15 @@ namespace Management.Infrastructure.Data
         private void ApplyFacilityFilter<T>(ModelBuilder modelBuilder) where T : class, IFacilityEntity
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
-                (_facilityContext.CurrentFacilityId != Guid.Empty && e.FacilityId == _facilityContext.CurrentFacilityId) || 
-                e.FacilityId == Guid.Empty);
+                _facilityContext.CurrentFacilityId == Guid.Empty || 
+                e.FacilityId == _facilityContext.CurrentFacilityId);
         }
 
         private void ApplyCompositeFilter<T>(ModelBuilder modelBuilder) where T : class, ITenantEntity, IFacilityEntity
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
                 (_tenantService.GetTenantId() == null || e.TenantId == _tenantService.GetTenantId() || e.TenantId == Guid.Empty) &&
-                ((_facilityContext.CurrentFacilityId != Guid.Empty && e.FacilityId == _facilityContext.CurrentFacilityId) || 
-                 e.FacilityId == Guid.Empty));
+                (_facilityContext.CurrentFacilityId == Guid.Empty || e.FacilityId == _facilityContext.CurrentFacilityId));
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
