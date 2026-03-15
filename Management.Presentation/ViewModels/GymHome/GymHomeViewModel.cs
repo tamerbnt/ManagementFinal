@@ -669,7 +669,7 @@ namespace Management.Presentation.ViewModels.GymHome
             _logger?.LogInformation("Resetting state for GymHomeViewModel");
             
             // 1. Clear Data Collections
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 ActivityStream.Clear();
                 OccupancySparklineData.Clear();

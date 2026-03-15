@@ -706,7 +706,7 @@ namespace Management.Presentation.ViewModels.Shell
         private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
         {
              // Run on UI thread to ensure properties update correctly
-             System.Windows.Application.Current.Dispatcher.Invoke(() => 
+             System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
              {
                  _logger?.LogInformation("[Dashboard] FacilityChanged to {Type}. Resetting state.", type);
                  
