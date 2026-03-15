@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -80,7 +80,7 @@ namespace Management.Presentation.ViewModels.Salon
         {
              if (message.Value != _facilityContext.CurrentFacilityId) return;
              
-             System.Windows.Application.Current.Dispatcher.Invoke(async () => 
+             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
              {
                  await RefreshDataAsync();
              });
@@ -185,7 +185,7 @@ namespace Management.Presentation.ViewModels.Salon
         {
             IsActive = true;
             // Set initial clock values on UI Thread
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
             {
                 CurrentTime = DateTime.Now.ToString("HH:mm:ss");
                 CurrentDate = DateTime.Now.ToString(_terminologyService.GetTerm("Terminology.Salon.Home.DateFullFormat"), _localizationService.CurrentCulture);
@@ -490,7 +490,7 @@ namespace Management.Presentation.ViewModels.Salon
         {
              IsActive = false;
              _logger?.LogInformation("Resetting state for SalonHomeViewModel");
-             System.Windows.Application.Current.Dispatcher.Invoke(() =>
+             System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
              {
                  TodayAgenda.Clear();
                  ScanInput = string.Empty;

@@ -381,7 +381,7 @@ namespace Management.Presentation.ViewModels.Settings
 
         private void OnDeviceStatusChanged(DeviceStatus status)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 var existing = LocalDevices.FirstOrDefault(d => d.Type == status.Type);
                 if (existing != null)

@@ -107,7 +107,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 var cats = new List<string> { GetTerm("Terminology.Restaurant.Order.AllCategories") };
                 cats.AddRange(_allItems.Select(i => i.Category).Distinct().OrderBy(c => c));
                 
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     Categories = new ObservableCollection<string>(cats);
                 });
@@ -137,7 +137,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                     var existing = OpenSessions.FirstOrDefault(s => s.OrderId == _initialOrderId);
                     if (existing != null)
                     {
-                        System.Windows.Application.Current.Dispatcher.Invoke(() => CurrentSession = existing);
+                        System.Windows.Application.Current.Dispatcher.InvokeAsync(() => CurrentSession = existing);
                     }
                     else
                     {
@@ -147,11 +147,11 @@ namespace Management.Presentation.ViewModels.Restaurant
                 else if (OpenSessions.Any())
                 {
                     // If no specific order was requested, select the first available open session
-                    System.Windows.Application.Current.Dispatcher.Invoke(() => CurrentSession = OpenSessions.FirstOrDefault());
+                    System.Windows.Application.Current.Dispatcher.InvokeAsync(() => CurrentSession = OpenSessions.FirstOrDefault());
                 }
                 // REMOVED: the auto-create logic if initial is empty and there are no sessions.
 
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     OnPropertyChanged(nameof(IsEmptyState));
                 });
@@ -197,7 +197,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 session.CurrentOrder = orderResult.Value;
             }
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 OpenSessions.Add(session);
                 if (CurrentSession == null || orderId == _initialOrderId)
@@ -220,7 +220,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 bool wasEmpty = session.CurrentOrder == null || !session.CurrentOrder.Items.Any();
 
                 // Remove from local list
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     OpenSessions.Remove(session);
                 });
@@ -234,7 +234,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 }
 
                 // Update selection
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (CurrentSession == session)
                     {
@@ -275,7 +275,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 filtered = filtered.Where(i => i.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
             }
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 FilteredItems = new ObservableCollection<SelectableMenuItemViewModel>(
                     filtered.Select(dto => new SelectableMenuItemViewModel(dto)));
@@ -523,7 +523,7 @@ namespace Management.Presentation.ViewModels.Restaurant
             {
                 // All three mutations must run on the UI thread so WPF binding
                 // notifications (PropertyChanged) are processed correctly.
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     CurrentSession.CurrentOrder = result.Value;
                     CurrentSession.RefreshTotals();

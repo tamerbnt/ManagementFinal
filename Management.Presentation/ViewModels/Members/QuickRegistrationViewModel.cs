@@ -142,7 +142,7 @@ namespace Management.Presentation.ViewModels.Members
 
         private void OnCardScanned(object? sender, Domain.Events.TurnstileScanEventArgs e)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
             {
                 CardId = e.CardId;
                 _toastService?.ShowInfo($"Card Scanned: {e.CardId}", "RFID Captured");

@@ -70,7 +70,7 @@ namespace Management.Presentation.ViewModels.Settings
                             .Select(device => new DeviceItemViewModel(device, device.HardwareId == currentHardwareId, RevokeDeviceCommand))
                             .ToList();
 
-                        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                        System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                         {
                             Devices.ReplaceRange(deviceViewModels);
                         });

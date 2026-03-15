@@ -145,7 +145,7 @@ namespace Management.Presentation.ViewModels
                 }
 
                 // 3. Update Global Context
-                var tenantService = (ITenantService)System.Windows.Application.Current.Dispatcher.Invoke(() => 
+                var tenantService = (ITenantService)await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     ((App)System.Windows.Application.Current).ServiceProvider.GetRequiredService<ITenantService>());
                 tenantService.SetTenantId(tenantId);
 
