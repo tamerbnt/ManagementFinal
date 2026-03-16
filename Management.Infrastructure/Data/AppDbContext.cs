@@ -639,7 +639,7 @@ namespace Management.Infrastructure.Data
                 if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                 
                 var dbPath = Path.Combine(dbFolder, "GymManagement.db");
-                optionsBuilder.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Cache=Shared;Foreign Keys=True;Pooling=True;");
+                optionsBuilder.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Foreign Keys=True;Pooling=True;");
             }
             
             // Add Interceptors if they were provided (avoids resolution loop in App.xaml.cs delegate)

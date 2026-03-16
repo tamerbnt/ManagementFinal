@@ -789,7 +789,7 @@ namespace Management.Presentation
                     if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                     
                     var dbPath = Path.Combine(dbFolder, "GymManagement.db");
-                    options.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Cache=Shared;Foreign Keys=True;Pooling=True;", b => b.MigrationsAssembly("Management.Infrastructure"));
+                    options.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Foreign Keys=True;Pooling=True;", b => b.MigrationsAssembly("Management.Infrastructure"));
                 }
                 else
                 {
