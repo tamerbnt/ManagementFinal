@@ -128,8 +128,8 @@ namespace Management.Infrastructure.Services
         private string GetOrCreatePersistentGuid()
         {
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var titanDir = System.IO.Path.Combine(appDataPath, "Titan");
-            var deviceIdFile = System.IO.Path.Combine(titanDir, "device.id");
+            var luxuryaDir = System.IO.Path.Combine(appDataPath, "Luxurya");
+            var deviceIdFile = System.IO.Path.Combine(luxuryaDir, "device.id");
 
             try
             {
@@ -143,7 +143,7 @@ namespace Management.Infrastructure.Services
                 }
 
                 // Generate new GUID and persist it
-                System.IO.Directory.CreateDirectory(titanDir);
+                System.IO.Directory.CreateDirectory(luxuryaDir);
                 var newGuid = Guid.NewGuid().ToString();
                 System.IO.File.WriteAllText(deviceIdFile, newGuid);
                 return HashString($"FALLBACK-{newGuid}");

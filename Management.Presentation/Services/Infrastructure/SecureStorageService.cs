@@ -15,9 +15,9 @@ namespace Management.Presentation.Services.Infrastructure
         public SecureStorageService()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var titanFolder = Path.Combine(appData, "Titan");
-            if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
-            _filePath = Path.Combine(titanFolder, "secrets.dat");
+                var luxuryaFolder = Path.Combine(appData, "Luxurya");
+                if (!Directory.Exists(luxuryaFolder)) Directory.CreateDirectory(luxuryaFolder);
+                _filePath = Path.Combine(luxuryaFolder, "secrets.dat");
         }
 
         public Task<string?> GetAsync(string key)

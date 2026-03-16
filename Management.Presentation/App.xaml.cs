@@ -1359,9 +1359,9 @@ namespace Management.Presentation
         {
             try
             {
-                var titanFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
-                if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
-                string logPath = Path.Combine(titanFolder, "crash_log.txt");
+                var luxuryaFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+                if (!Directory.Exists(luxuryaFolder)) Directory.CreateDirectory(luxuryaFolder);
+                string logPath = Path.Combine(luxuryaFolder, "crash_log.txt");
                 string content = $"\n\n[{DateTime.Now}] FATAL CRASH: {type}\n" +
                                  $"Exception: {ex?.GetType().Name}\n" +
                                  $"Message: {ex?.Message}\n" +

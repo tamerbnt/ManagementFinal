@@ -324,7 +324,7 @@ namespace Management.Infrastructure.Services
 
         public async Task<string> GenerateDailyPdfReportAsync(DailyReportDto data)
         {
-            var reportsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Titan", "Reports");
+            var reportsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Luxurya", "Reports");
             if (!Directory.Exists(reportsFolder)) Directory.CreateDirectory(reportsFolder);
 
             var fileName = $"Daily_Report_{data.ReportDate:yyyy_MM_dd}_{DateTime.Now:HHmmss}.pdf";
