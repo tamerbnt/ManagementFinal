@@ -52,7 +52,7 @@
         <Border x:Name="CardAhmed"
                 Background="White" CornerRadius="14" Padding="12,10"
                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="0,160,430,0"
+                Margin="0,160,460,0"
                 Opacity="0" RenderTransformOrigin="0.5,0.5">
             <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
             <Border.Effect>
@@ -171,6 +171,32 @@
                 </StackPanel>
             </StackPanel>
         </Border>
+
+        <!-- Tagline below illustration -->
+        <TextBlock Text="Luxurya management system powering the heart beat of your facility"
+                   HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                   Margin="0,0,50,80"
+                   Width="400"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   FontSize="15"
+                   FontWeight="SemiBold"
+                   Foreground="#475569"
+                   FontFamily="Segoe UI Variable Display, Segoe UI"
+                   Opacity="0"
+                   x:Name="TaglineText">
+            <TextBlock.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.9">
+                            <DoubleAnimation Storyboard.TargetName="TaglineText"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0" To="0.9" Duration="0:0:0.6"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </TextBlock.Triggers>
+        </TextBlock>
 
         <!-- ══════════════════════════════════════════════════════════
              LAYER 3 — FLOATING WHITE FORM CARD (left side)

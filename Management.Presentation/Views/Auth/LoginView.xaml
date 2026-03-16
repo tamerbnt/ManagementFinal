@@ -46,7 +46,7 @@
                     <Ellipse Width="7" Height="7" Fill="#0EA5E9" Margin="0,0,8,0"
                              VerticalAlignment="Center"/>
                     <TextBlock Text="Luxurya"
-                               FontSize="13" FontWeight="Bold"
+                               FontSize="18" FontWeight="ExtraBold"
                                Foreground="#111827"
                                VerticalAlignment="Center"
                                FontFamily="Segoe UI Variable Display, Segoe UI"/>
