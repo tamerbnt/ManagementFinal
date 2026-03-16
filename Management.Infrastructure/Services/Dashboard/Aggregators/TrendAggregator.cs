@@ -61,7 +61,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var salesData = await _dbContext.Sales
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == context.FacilityId && s.Timestamp >= utcStartThreshold)
+                .Where(s => s.FacilityId == context.FacilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= utcStartThreshold)
                 .GroupBy(s => s.Timestamp.Date)
                 .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
                 .ToListAsync();

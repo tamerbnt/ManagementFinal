@@ -6,6 +6,7 @@ namespace Management.Infrastructure.Services.Dashboard
     public class DashboardContext
     {
         public Guid FacilityId { get; set; }
+        public Guid? TenantId { get; set; }
         public FacilityType FacilityType { get; set; }
         public DateTime LocalToday { get; set; }
         public DateTime UtcDayStart { get; set; }

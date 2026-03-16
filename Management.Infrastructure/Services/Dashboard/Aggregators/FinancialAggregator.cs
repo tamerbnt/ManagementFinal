@@ -72,10 +72,10 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             }
 
             // 2. Expenses
-            dto.DailyExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcDayStart, context.UtcDayEnd);
+            dto.DailyExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcDayStart, context.UtcDayEnd, context);
 
-            dto.MonthlyExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcMonthStart, context.UtcNow);
-            var yesterdayExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcYesterdayStart, context.UtcYesterdayEnd);
+            dto.MonthlyExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcMonthStart, context.UtcNow, context);
+            var yesterdayExpenses = await GetTotalExpensesInRangeAsync(facilityId, context.UtcYesterdayStart, context.UtcYesterdayEnd, context);
 
             // 3. Profit & Trends
             dto.NetProfit = dto.DailyRevenue - dto.DailyExpenses;
@@ -90,24 +90,24 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var settings = await _dbContext.GymSettings
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(s => s.FacilityId == facilityId);
+                .FirstOrDefaultAsync(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty));
             dto.DailyRevenueTarget = settings?.DailyRevenueTarget ?? 10_000m;
         }
 
-        private async Task<decimal> GetTotalExpensesInRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        private async Task<decimal> GetTotalExpensesInRangeAsync(Guid facilityId, DateTime start, DateTime end, DashboardContext context)
         {
             // COGS
             var salesIds = await _dbContext.Sales
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp < end)
+                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= start && s.Timestamp < end)
                 .Select(s => s.Id)
                 .ToListAsync();
 
             var cogsSumDouble = await _dbContext.SaleItems
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(si => salesIds.Contains(si.SaleId))
-                .Join(_dbContext.Products.IgnoreQueryFilters(), 
+                .Where(si => salesIds.Contains(si.SaleId) && (si.TenantId == context.TenantId || si.TenantId == Guid.Empty))
+                .Join(_dbContext.Products.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty)), 
                       si => si.ProductId, 
                       p => p.Id, 
                       (si, p) => si.Quantity * p.Cost.Amount)
@@ -117,8 +117,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var cogsCount = await _dbContext.SaleItems
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(si => salesIds.Contains(si.SaleId))
-                .Join(_dbContext.Products.IgnoreQueryFilters(), 
+                .Where(si => salesIds.Contains(si.SaleId) && (si.TenantId == context.TenantId || si.TenantId == Guid.Empty))
+                .Join(_dbContext.Products.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty)), 
                       si => si.ProductId, 
                       p => p.Id, 
                       (si, p) => si.Quantity * p.Cost.Amount)
@@ -131,14 +131,14 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var payrollSumDouble = await _dbContext.PayrollEntries
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(p => p.FacilityId == facilityId && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
+                .Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
                 .Select(p => (double)p.PaidAmount.Amount)
                 .SumAsync();
 
             var payrollCount = await _dbContext.PayrollEntries
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(p => p.FacilityId == facilityId && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
+                .Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
                 .CountAsync();
 
             var payroll = (decimal)payrollSumDouble;

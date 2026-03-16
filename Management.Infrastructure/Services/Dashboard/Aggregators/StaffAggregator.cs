@@ -34,11 +34,12 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(a => a.FacilityId == facilityId && 
+                            (a.TenantId == context.TenantId || a.TenantId == Guid.Empty) &&
                             !a.IsDeleted &&
                             a.StartTime >= context.UtcMonthStart && a.StartTime < context.UtcNow && 
                             a.Status == AppointmentStatus.Completed && 
                             a.StaffId != Guid.Empty)
-                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters(), 
+                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty)), 
                       a => a.StaffId, 
                       s => s.Id, 
                       (a, s) => new { StaffId = a.StaffId, StaffName = s.FullName, ServiceId = a.ServiceId })
@@ -47,7 +48,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var services = await _dbContext.SalonServices
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId)
+                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty))
                 .ToDictionaryAsync(s => s.Id, s => s.BasePrice);
 
 

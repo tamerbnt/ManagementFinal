@@ -71,6 +71,7 @@ namespace Management.Infrastructure.Services
             var context = new Dashboard.DashboardContext
             {
                 FacilityId = facilityId,
+                TenantId = _tenantService.GetTenantId(),
                 FacilityType = _facilityContext.CurrentFacilityId == facilityId 
                     ? _facilityContext.CurrentFacility 
                     : (overrideFacilityId.HasValue ? await GetFacilityTypeByIdAsync(facilityId) : Management.Domain.Enums.FacilityType.General),
@@ -273,11 +274,12 @@ namespace Management.Infrastructure.Services
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(a => a.FacilityId == facilityId && 
+                            (a.TenantId == _tenantService.GetTenantId() || a.TenantId == Guid.Empty) &&
                             !a.IsDeleted &&
                             a.StartTime >= start && a.StartTime < end && 
                             a.Status == AppointmentStatus.Completed && 
                             a.StaffId != Guid.Empty)
-                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters(), 
+                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId && (s.TenantId == _tenantService.GetTenantId() || s.TenantId == Guid.Empty)), 
                       a => a.StaffId, 
                       s => s.Id, 
                       (a, s) => new { StaffId = a.StaffId, StaffName = s.FullName, ServiceId = a.ServiceId })
@@ -299,7 +301,7 @@ namespace Management.Infrastructure.Services
                     {
                         var service = await _dbContext.SalonServices
                             .IgnoreQueryFilters()
-                            .FirstOrDefaultAsync(s => s.Id == item.ServiceId);
+                            .FirstOrDefaultAsync(s => s.Id == item.ServiceId && (s.TenantId == _tenantService.GetTenantId() || s.TenantId == Guid.Empty));
                         if (service != null) totalRevenue += service.BasePrice;
                     }
                 }
@@ -328,7 +330,7 @@ namespace Management.Infrastructure.Services
                 var facility = await _dbContext.Facilities
                     .AsNoTracking()
                     .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(f => f.Id == facilityId);
+                    .FirstOrDefaultAsync(f => f.Id == facilityId && (f.TenantId == _tenantService.GetTenantId() || f.TenantId == Guid.Empty));
                 
                 if (facility != null)
                 {
