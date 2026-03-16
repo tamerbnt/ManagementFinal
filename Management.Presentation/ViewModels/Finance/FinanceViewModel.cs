@@ -53,7 +53,7 @@ namespace Management.Presentation.ViewModels.Finance
 
         private string DraftPath => System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Titan",
+            "Luxurya",
             "reconciliation_draft.bin");
 
         public IAsyncRelayCommand LoadFinanceDataCommand { get; }

@@ -13,6 +13,9 @@ namespace Management.Application.ViewModels.Base
 {
     public abstract partial class ViewModelBase : ObservableObject, IDisposable, IStateResettable, IModalAware
     {
+        // Concurrency guards to prevent double-execution of load/save operations
+        private readonly SemaphoreSlim _loadingLock = new(1, 1);
+        private readonly SemaphoreSlim _executionLock = new(1, 1);
         public virtual void ResetState()
         {
             // Default implementation for Singletons to clear transient state
@@ -97,13 +100,19 @@ namespace Management.Application.ViewModels.Base
 
         /// <summary>
         /// Use for USER ACTIONS (Saving, Deleting). Locks the UI via IsBusy.
+        /// Enforces single-execution concurrency.
         /// </summary>
         protected async Task ExecuteSafeAsync(Func<Task> action, string? errorMsg = null)
         {
-            if (IsBusy) return; // Prevent double-click
+            if (IsBusy) return; // Quick synchronous check
 
+            // Wait for lock. If already locked, we wait instead of failing silently 
+            // to ensure sequential processing of user commands (e.g., fast double-clicks).
+            await _executionLock.WaitAsync(); 
             try
             {
+                if (IsBusy) return; // Double-check after acquiring lock
+                
                 IsBusy = true;
                 HasError = false;
                 ErrorMessage = null;
@@ -116,15 +125,27 @@ namespace Management.Application.ViewModels.Base
             finally
             {
                 IsBusy = false;
+                _executionLock.Release();
             }
         }
 
         /// <summary>
         /// Use for DATA FETCHING (Navigation, Initial Load). Shows Skeleton Loader via IsLoading.
+        /// Enforces single-execution to prevent double-loading on facility/navigation overlap.
         /// </summary>
         protected async Task ExecuteLoadingAsync(Func<Task> action, string? errorMsg = null)
         {
-            // Note: We don't check IsBusy here because we might want to reload data even if "busy"
+            if (IsLoading) return; // Quick synchronous check
+
+            // If we can't get the lock immediately (0ms), it means another load is actively happening.
+            // We just return instead of waiting. This prevents the "double load" when Navigation 
+            // and FacilityChanged trigger at the exact same millisecond.
+            if (!await _loadingLock.WaitAsync(0))
+            {
+                _logger?.LogDebug("[ViewModelBase] ExecuteLoadingAsync aborted: already loading.");
+                return;
+            }
+
             try
             {
                 IsLoading = true; // Triggers Skeleton View in XAML
@@ -139,6 +160,7 @@ namespace Management.Application.ViewModels.Base
             finally
             {
                 IsLoading = false; // Hides Skeleton, shows Content
+                _loadingLock.Release();
             }
         }
 
@@ -156,6 +178,13 @@ namespace Management.Application.ViewModels.Base
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed) return;
+            
+            if (disposing)
+            {
+                _loadingLock.Dispose();
+                _executionLock.Dispose();
+            }
+            
             _isDisposed = true;
         }
     }

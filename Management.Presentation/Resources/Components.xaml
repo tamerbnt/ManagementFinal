@@ -51,12 +51,7 @@
                             <!-- Shadow / Glow Logic -->
                             <!-- Uses ElevationColor for Dark Mode Glow -->
                             <Border.Effect>
-                                <DropShadowEffect x:Name="PART_Shadow"
-                                                  BlurRadius="12"
-                                                  ShadowDepth="3"
-                                                  Opacity="0.12"
-                                                  Direction="270"
-                                                  Color="{DynamicResource ElevationColor}"/>
+                                <StaticResource ResourceKey="Shadow.Level1" />
                             </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -158,13 +153,12 @@
                                 </TransformGroup>
                             </Border.RenderTransform>
 
-                            <!-- Premium Titan Glow -->
+                            <!-- Premium Titan Glow (Restored name for Storyboard targeting) -->
                             <Border.Effect>
-                                <DropShadowEffect x:Name="PART_Glow"
-                                                  BlurRadius="15"
-                                                  ShadowDepth="0"
-                                                  Opacity="0.4"
-                                                  Color="#26C6DA"/> <!-- Vibrant Cyan/Blue -->
+                                <DropShadowEffect x:Name="PART_Glow" 
+                                                  Color="{DynamicResource FacilityAccentColor}" 
+                                                  Direction="270" BlurRadius="24" ShadowDepth="0" Opacity="0.3" 
+                                                  RenderingBias="Performance" />
                             </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -670,11 +664,7 @@
         <Setter Property="UseLayoutRounding" Value="True"/>
         
         <!-- Default Shadow (Level 1) -->
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.08" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Level1}"/>
     </Style>
 
     <Style x:Key="InteractiveCardStyle" TargetType="Border" BasedOn="{StaticResource StandardCardStyle}">
@@ -731,11 +721,7 @@
         <Setter Property="UseLayoutRounding" Value="True"/>
         
         <!-- Enhanced Shadow (Level 2) for Elevated Content -->
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.12" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Level2}"/>
     </Style>
 
     <!-- Elevated Card Style with Hover Interaction -->
@@ -787,11 +773,7 @@
         <Setter Property="Padding" Value="{DynamicResource PaddingCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="48" ShadowDepth="8" Opacity="0.15" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{StaticResource Shadow.Modal}"/>
     </Style>
 
     <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
@@ -1197,7 +1179,7 @@
                                   VerticalAlignment="Center"/>
                         </Grid>
 
-                        <Popup x:Name="PART_Popup" Placement="Bottom" Margin="1" AllowsTransparency="False" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                        <Popup x:Name="PART_Popup" Placement="Bottom" Margin="1" AllowsTransparency="True" IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
                             <Border x:Name="DropDownBorder" 
                                     Background="{DynamicResource SurfaceBg}" 
                                     BorderBrush="{DynamicResource SeparatorStroke}" 

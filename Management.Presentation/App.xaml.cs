@@ -111,12 +111,12 @@ namespace Management.Presentation
 
         private bool EnsureSingleInstance()
         {
-            _instanceMutex = new Mutex(true, "TitanManagementSystem_SingleInstance", out bool isNewInstance);
+            _instanceMutex = new Mutex(true, "LuxuryaManagementSystem_SingleInstance", out bool isNewInstance);
             if (!isNewInstance)
             {
                 MessageBox.Show(
-                    "Titan is already running in your taskbar. Multiple instances are not allowed.",
-                    "Titan - Already Running",
+                    "Luxurya is already running in your taskbar. Multiple instances are not allowed.",
+                    "Luxurya - Already Running",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 System.Windows.Application.Current.Shutdown();
@@ -128,7 +128,7 @@ namespace Management.Presentation
         public void KillRunningTitanProcesses()
         {
             var currentPid = Process.GetCurrentProcess().Id;
-            var names = new[] { "Titan.Client", "Titan", "Management.Presentation", "GymOS" };
+            var names = new[] { "Luxurya.Client", "Luxurya", "Management.Presentation", "GymOS" };
             foreach (var name in names)
             {
                 foreach (var p in Process.GetProcessesByName(name))
@@ -205,7 +205,7 @@ namespace Management.Presentation
 
             try
             {
-                var icon = new BitmapImage(new Uri("pack://application:,,,/Assets/titan.ico"));
+                var icon = new BitmapImage(new Uri("pack://application:,,,/Assets/luxurya.ico"));
                 foreach (Window w in System.Windows.Application.Current.Windows)
                 {
                     w.Icon = icon;
@@ -290,11 +290,18 @@ namespace Management.Presentation
                 navStore.RegisterPersistentType(typeof(FinanceAndStaffViewModel));
                 navStore.RegisterPersistentType(typeof(RegistrationsViewModel));
 
-                // 4. Start the Host
-                _host.StartAsync(_appShutdownCts.Token).ContinueWith(t => 
+                // 4. Start the Host (Off-load to background thread to ensure STA initialization doesn't touch UI thread)
+                _ = Task.Run(async () => 
                 {
-                    if (t.IsFaulted) Serilog.Log.Error(t.Exception, "Host failed to start");
-                }, TaskContinuationOptions.OnlyOnFaulted);
+                    try 
+                    {
+                        await _host.StartAsync(_appShutdownCts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "Host failed to start");
+                    }
+                });
 
                 // 5. Async Initialization
                 _ = Task.Run(async () => await RunInitializationSequenceAsync(_appShutdownCts.Token))
@@ -559,7 +566,7 @@ namespace Management.Presentation
             catch (Exception ex)
             {
                 Serilog.Log.Fatal(ex, "Fatal error during initialization sequence.");
-                Dispatcher.Invoke(() =>
+                Dispatcher.InvokeAsync(() =>
                 {
                     HandleFatalStartupError(ex);
                 });
@@ -699,7 +706,7 @@ namespace Management.Presentation
             if (_isHandlingException) return;
             _isHandlingException = true;
 
-            Current.Dispatcher.Invoke(() => {
+            Current.Dispatcher.InvokeAsync(() => {
                 try 
                 {
                     // Ensure the error is logged to the diagnostic service so it appears in the window
@@ -778,7 +785,7 @@ namespace Management.Presentation
 
                 if (databaseMode == "LocalFirst")
                 {
-                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
+                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
                     if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                     
                     var dbPath = Path.Combine(dbFolder, "GymManagement.db");
@@ -1352,7 +1359,7 @@ namespace Management.Presentation
         {
             try
             {
-                var titanFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
+                var titanFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
                 if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
                 string logPath = Path.Combine(titanFolder, "crash_log.txt");
                 string content = $"\n\n[{DateTime.Now}] FATAL CRASH: {type}\n" +
@@ -1406,7 +1413,7 @@ namespace Management.Presentation
 
         private void ShowDiagnosticWindow(Exception ex)
         {
-            Current.Dispatcher.Invoke(() => {
+            Current.Dispatcher.InvokeAsync(() => {
                 try 
                 {
                     var diagnosticViewModel = ServiceProvider?.GetService<DiagnosticViewModel>();
@@ -1443,7 +1450,7 @@ namespace Management.Presentation
                     var themeName = isDarkMode ? "Theme.Dark.xaml" : "Theme.Light.xaml";
                     // FIX 1: Use absolute pack URI — relative URIs break in installed (published) builds.
                     var themeUri = new Uri(
-                        $"pack://application:,,,/Titan.Client;component/Resources/{themeName}",
+                        $"pack://application:,,,/Luxurya.Client;component/Resources/{themeName}",
                         UriKind.Absolute);
 
                     // Find and remove existing theme dictionary

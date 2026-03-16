@@ -10,340 +10,126 @@
              UseLayoutRounding="True"
              Background="{StaticResource SurfaceBg}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                    MaxWidth="420" Margin="40,32">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Animated User Avatar Icon -->
-            <Grid Width="60" Height="60" Margin="0,0,0,16" HorizontalAlignment="Center">
-                <!-- Outer Rotating Ring -->
-                <Ellipse Width="54" Height="54" StrokeThickness="1.5" StrokeDashArray="4 2">
-                    <Ellipse.Stroke>
-                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}" Opacity="0.35"/>
-                    </Ellipse.Stroke>
-                    <Ellipse.RenderTransform>
-                        <RotateTransform CenterX="27" CenterY="27"/>
-                    </Ellipse.RenderTransform>
-                    <Ellipse.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                     From="0" To="360" Duration="0:0:20" RepeatBehavior="Forever"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Ellipse.Triggers>
-                </Ellipse>
-
-                <!-- Inner Core -->
-                <Ellipse Width="44" Height="44" Opacity="0.12">
-                    <Ellipse.Fill>
-                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}"/>
-                    </Ellipse.Fill>
-                    <Ellipse.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                     From="0.08" To="0.2" Duration="0:0:2"
-                                                     AutoReverse="True" RepeatBehavior="Forever"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Ellipse.Triggers>
-                </Ellipse>
-
-                <!-- User Icon -->
-                <Path Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
-                      Fill="{DynamicResource FacilityAccentBrush}"
-                      Width="24" Height="24" Stretch="Uniform"
-                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
-            <!-- Title -->
-            <TextBlock Text="{DynamicResource Strings.Auth.AccountSetup}"
-                       FontSize="22" FontWeight="Bold"
-                       Foreground="{DynamicResource Brush.Text.Primary}"
-                       Margin="0,0,0,24" HorizontalAlignment="Center"/>
-
-            <!-- Business Name Input -->
-            <StackPanel Margin="0,0,0,12">
-                <TextBlock Text="{DynamicResource Strings.Auth.BUSINESSNAME}"
-                           FontSize="11" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Text.Tertiary}"
-                           Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceBg}"
-                        CornerRadius="{DynamicResource Corner.LG}"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="1.5" Padding="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0"
-                              Data="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" 
-                              Fill="{DynamicResource Brush.Text.Tertiary}"
-                              Width="18" Height="18" Stretch="Uniform"/>
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource Brush.Text.Primary}" 
-                                 FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                 Margin="0,0,12,0"
-                                 CaretBrush="{DynamicResource Brush.Accent.Primary}"/>
-                    </Grid>
-                </Border>
+        <!-- Premium Top Bar Branding -->
+        <Border Grid.Row="0" Height="80" Padding="40,20" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Grid Width="32" Height="32" Margin="0,0,16,0">
+                    <Ellipse Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.1"/>
+                    <Path Data="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" 
+                          Fill="{DynamicResource FacilityAccentBrush}" 
+                          Width="18" Height="18" Stretch="Uniform"/>
+                </Grid>
+                <StackPanel>
+                    <TextBlock Text="LUXURYA" FontSize="18" FontWeight="Black" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding FacilityName}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.7"/>
+                </StackPanel>
             </StackPanel>
+        </Border>
 
-            <!-- Admin Full Name Input -->
-            <StackPanel Margin="0,0,0,12">
-                <TextBlock Text="{DynamicResource Strings.Auth.ADMINFULLNAME}"
-                           FontSize="11" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Text.Tertiary}"
-                           Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceBg}"
-                        CornerRadius="{DynamicResource Corner.LG}"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="1.5" Padding="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0"
-                              Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" 
-                              Fill="{DynamicResource Brush.Text.Tertiary}"
-                              Width="18" Height="18" Stretch="Uniform"/>
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding AdminFullName, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource Brush.Text.Primary}" 
-                                 FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                 Margin="0,0,12,0"
-                                 CaretBrush="{DynamicResource Brush.Accent.Primary}"/>
-                    </Grid>
-                </Border>
-            </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="500" Margin="60,40">
+                
+                <!-- Large Premium Title -->
+                <TextBlock Text="{DynamicResource Strings.Auth.AccountSetup}" 
+                           FontSize="42" FontWeight="Black" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Margin="0,0,0,8"/>
+                
+                <TextBlock Text="Finalize your workstation account to begin managing your facility." 
+                           FontSize="16" Foreground="{DynamicResource TextSecondaryBrush}" 
+                           TextWrapping="Wrap" LineHeight="24"
+                           Margin="0,0,0,48" Opacity="0.8"/>
 
-            <!-- Admin Email Input -->
-            <StackPanel Margin="0,0,0,12">
-                <TextBlock Text="{DynamicResource Strings.Auth.ADMINEMAIL}"
-                           FontSize="11" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Text.Tertiary}"
-                           Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceBg}"
-                        CornerRadius="{DynamicResource Corner.LG}"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="1.5" Padding="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0"
-                              Data="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" 
-                              Fill="{DynamicResource Brush.Text.Tertiary}"
-                              Width="18" Height="18" Stretch="Uniform"/>
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding AdminEmail, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource Brush.Text.Primary}" 
-                                 FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                 Margin="0,0,12,0"
-                                 CaretBrush="{DynamicResource Brush.Accent.Primary}"/>
-                    </Grid>
-                </Border>
-            </StackPanel>
+                <Grid ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <!-- Password Input -->
-            <StackPanel Margin="0,0,0,28">
-                <TextBlock Text="{DynamicResource Strings.Auth.SECUREPASSWORD}"
-                           FontSize="11" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Text.Tertiary}"
-                           Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceBg}"
-                        CornerRadius="{DynamicResource Corner.LG}"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="1.5" Padding="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="44"/>
-                        </Grid.ColumnDefinitions>
+                    <!-- Business Name -->
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,24">
+                        <TextBlock Text="{DynamicResource Strings.Auth.BUSINESSNAME}" Style="{StaticResource PremiumInputLabelStyle}"/>
+                        <TextBox Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource PremiumTextBoxStyle}"
+                                 Tag="e.g. Elite Fitness Center"/>
+                    </StackPanel>
 
-                        <!-- Lock icon -->
-                        <Path Grid.Column="0"
-                              Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z"
-                              Fill="{DynamicResource Brush.Text.Tertiary}"
-                              Width="18" Height="18" Stretch="Uniform"/>
+                    <!-- Admin Name -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,24">
+                        <TextBlock Text="{DynamicResource Strings.Auth.ADMINFULLNAME}" Style="{StaticResource PremiumInputLabelStyle}"/>
+                        <TextBox Text="{Binding AdminFullName, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource PremiumTextBoxStyle}"
+                                 Tag="e.g. John Doe"/>
+                    </StackPanel>
 
-                        <!-- Password input area -->
-                        <Grid Grid.Column="1">
-                            <PasswordBox x:Name="OnboardingPasswordBox"
-                                         PasswordChanged="PasswordBox_PasswordChanged"
-                                         Background="Transparent" BorderThickness="0"
-                                         Foreground="{DynamicResource Brush.Text.Primary}"
-                                         FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                         CaretBrush="{DynamicResource Brush.Accent.Primary}"/>
-                            <TextBox x:Name="OnboardingPasswordTextBox"
-                                     TextChanged="OnboardingPasswordTextBox_TextChanged"
-                                     Background="Transparent" BorderThickness="0"
-                                     Foreground="{DynamicResource Brush.Text.Primary}"
-                                     FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                     CaretBrush="{DynamicResource Brush.Accent.Primary}"
-                                     Visibility="Collapsed"/>
-                        </Grid>
+                    <!-- Admin Email -->
+                    <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,24">
+                        <TextBlock Text="{DynamicResource Strings.Auth.ADMINEMAIL}" Style="{StaticResource PremiumInputLabelStyle}"/>
+                        <TextBox Text="{Binding AdminEmail, UpdateSourceTrigger=PropertyChanged}" 
+                                 Style="{StaticResource PremiumTextBoxStyle}"
+                                 Tag="admin@luxurya.com"/>
+                    </StackPanel>
 
-                        <!-- Eye toggle button -->
-                        <Button Grid.Column="2"
-                                Click="TogglePasswordVisibility_Click"
-                                Background="Transparent" BorderThickness="0"
-                                Cursor="Hand" ToolTip="Show/Hide password"
-                                VerticalAlignment="Center" HorizontalAlignment="Center"
-                                Width="32" Height="32" Focusable="False">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="Transparent">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                            <Grid Width="18" Height="18">
-                                <!-- Eye open — shown when password is hidden -->
-                                <Path x:Name="OnboardingEyeOpenIcon"
-                                      Data="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-                                      Fill="{DynamicResource Brush.Text.Tertiary}"
-                                      Stretch="Uniform"/>
-                                <!-- Eye closed — shown when password is visible -->
-                                <Path x:Name="OnboardingEyeClosedIcon"
-                                      Data="M11.83,9L15,12.16C15,12.11 15,12.05 15,12A3,3 0 0,0 12,9C11.94,9 11.89,9 11.83,9M7.53,9.8L9.08,11.35C9.03,11.56 9,11.77 9,12A3,3 0 0,0 12,15C12.22,15 12.44,14.97 12.65,14.92L14.2,16.47C13.53,16.8 12.79,17 12,17A5,5 0 0,1 7,12C7,11.21 7.2,10.47 7.53,9.8M2,4.27L4.28,6.55L4.73,7C3.08,8.3 1.78,10 1,12C2.73,16.39 7,19.5 12,19.5C13.55,19.5 15.03,19.22 16.38,18.7L16.81,19.13L19.73,22L21,20.73L3.27,3M12,7A5,5 0 0,1 17,12C17,12.64 16.87,13.26 16.64,13.82L19.57,16.75C21.07,15.5 22.27,13.86 23,12C21.27,7.61 17,4.5 12,4.5C10.6,4.5 9.26,4.76 8,5.2L10.17,7.35C10.74,7.13 11.35,7 12,7Z"
-                                      Fill="{DynamicResource Brush.Text.Tertiary}"
-                                      Stretch="Uniform" Visibility="Collapsed"/>
-                            </Grid>
-                        </Button>
-
-                    </Grid>
-                </Border>
-            </StackPanel>
-
-            <!-- Complete Registration Button -->
-            <Button Command="{Binding CompleteOnboardingCommand}" Height="54">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
+                    <!-- Password -->
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,32">
+                        <TextBlock Text="{DynamicResource Strings.Auth.SECUREPASSWORD}" Style="{StaticResource PremiumInputLabelStyle}"/>
                         <Grid>
-                            <Border x:Name="border" CornerRadius="14">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
-                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <Border.Effect>
-                                    <StaticResource ResourceKey="ShadowGlow"/>
-                                </Border.Effect>
+                            <PasswordBox x:Name="OnboardingPasswordBox" 
+                                         Style="{StaticResource PremiumPasswordBoxStyle}"
+                                         Tag="Enter a secure password"
+                                         PasswordChanged="PasswordBox_PasswordChanged"/>
+                            
+                            <TextBox x:Name="OnboardingPasswordTextBox"
+                                     Style="{StaticResource PremiumTextBoxStyle}"
+                                     Visibility="Collapsed"
+                                     Tag="Enter a secure password"
+                                     TextChanged="OnboardingPasswordTextBox_TextChanged"/>
+
+                            <Button Style="{StaticResource IconButtonSmall}"
+                                    HorizontalAlignment="Right" Margin="0,0,12,0"
+                                    Click="TogglePasswordVisibility_Click">
                                 <Grid>
-                                    <!-- Shimmer Effect -->
-                                    <Border x:Name="shimmer" CornerRadius="14" Opacity="0">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                                <GradientStop Color="Transparent" Offset="0"/>
-                                                <GradientStop Color="#33FFFFFF" Offset="0.5"/>
-                                                <GradientStop Color="Transparent" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                        <Border.RenderTransform>
-                                            <TranslateTransform X="-200"/>
-                                        </Border.RenderTransform>
-                                    </Border>
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <ContentPresenter.Content>
-                                            <StackPanel Orientation="Horizontal">
-                                                <!-- Busy spinner -->
-                                                <Grid Width="16" Height="16" Margin="0,0,10,0"
-                                                      Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                    <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"
-                                                          Fill="{DynamicResource Brush.Neutral.White}">
-                                                        <Path.RenderTransform>
-                                                            <RotateTransform CenterX="8" CenterY="8"/>
-                                                        </Path.RenderTransform>
-                                                        <Path.Triggers>
-                                                            <EventTrigger RoutedEvent="Loaded">
-                                                                <BeginStoryboard>
-                                                                    <Storyboard>
-                                                                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                                                         From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </EventTrigger>
-                                                        </Path.Triggers>
-                                                    </Path>
-                                                </Grid>
-                                                <TextBlock Text="{DynamicResource Strings.Auth.CompleteRegistration}"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource Brush.Neutral.White}"
-                                                           FontSize="14" VerticalAlignment="Center"/>
-                                                <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-                                                      Fill="{DynamicResource Brush.Neutral.White}"
-                                                      Width="14" Height="14" Stretch="Uniform" Margin="8,0,0,0"/>
-                                            </StackPanel>
-                                        </ContentPresenter.Content>
-                                    </ContentPresenter>
+                                    <Path x:Name="OnboardingEyeOpenIcon" 
+                                          Data="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5M12,17.5A5.5,5.5 0 0,1 6.5,12A5.5,5.5 0 0,1 12,6.5A5.5,5.5 0 0,1 17.5,12A5.5,5.5 0 0,1 12,17.5Z"
+                                          Fill="{DynamicResource TextSecondaryBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Path x:Name="OnboardingEyeClosedIcon" 
+                                          Data="M11.83,9L15,12.17C14.84,12.63 14.63,13.06 14.36,13.46L11.83,10.93M2,4.27L3.27,3L21,20.73L19.73,22L16.46,18.73A11.39,11.39 0 0,1 12,19.5C7,19.5 2.73,16.39 1,12C1.96,9.54 3.61,7.44 5.75,5.92L2,4.27M12,4.5C17,4.5 21.27,7.61 23,12C22.25,13.88 20.91,15.5 19.31,16.7L17.75,15.13C18.66,14.24 19.41,13.18 19.89,12C18.25,8.24 14.45,5.5 10,5.5C9.3,5.5 8.61,5.6 7.96,5.78L6.2,4.03C8.04,3.37 10,3 12,3M12,4.5C17,4.5 21.27,7.61 23,12C21.27,7.61 17,4.5 12,4.5M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z" 
+                                          Fill="{DynamicResource TextSecondaryBrush}" Width="16" Height="16" Stretch="Uniform" Visibility="Collapsed"/>
                                 </Grid>
-                            </Border>
+                            </Button>
                         </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
-                                    <Condition Binding="{Binding IsBusy}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <MultiDataTrigger.EnterActions>
-                                    <BeginStoryboard x:Name="ShimmerStoryboard">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                             From="-200" To="200" Duration="0:0:0.8" RepeatBehavior="Forever"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.EnterActions>
-                                <MultiDataTrigger.ExitActions>
-                                    <StopStoryboard BeginStoryboardName="ShimmerStoryboard"/>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.ExitActions>
-                            </MultiDataTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Brush.Border.Subtle}"/>
-                                <Setter TargetName="border" Property="Effect" Value="{x:Null}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+                    </StackPanel>
+                </Grid>
 
-            <!-- Help Footer -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,24,0,0">
-                <TextBlock Text="{DynamicResource Strings.Auth.Alreadyhaveanaccount}"
-                           Foreground="{DynamicResource Brush.Text.Secondary}"
-                           FontSize="12.5" Margin="0,0,6,0"/>
-                <TextBlock FontSize="12.5">
-                    <Hyperlink Command="{Binding NavigateBackCommand}"
-                               Foreground="{DynamicResource Brush.Accent.Primary}"
-                               FontWeight="SemiBold" TextDecorations="{x:Null}">
-                        Back to License
-                    </Hyperlink>
-                </TextBlock>
+                <!-- Action Button -->
+                <Button Command="{Binding CompleteSetupCommand}"
+                        Content="{DynamicResource Strings.Auth.CompleteRegistration}"
+                        Height="64" FontSize="18" FontWeight="Bold"
+                        Style="{StaticResource PremiumPrimaryButtonStyle}"/>
+
             </StackPanel>
+        </ScrollViewer>
 
-        </StackPanel>
-    </ScrollViewer>
+        <!-- Footer Branding -->
+        <Border Grid.Row="2" Padding="40,24" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Opacity="0.5">
+                <TextBlock Text="POWERED BY" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                <TextBlock Text="FROM SCRATCH" FontSize="10" FontWeight="Black" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </UserControl>

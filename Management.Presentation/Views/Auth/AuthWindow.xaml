@@ -4,17 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
-        xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
         xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
         xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations"
         mc:Ignorable="d"
-        Title="{DynamicResource Strings.Auth.TitanActivation}" 
+        Title="{DynamicResource Strings.Auth.LuxuryaActivation}"
         Height="720" Width="980"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        AllowsTransparency="False"
-        Background="{StaticResource SurfaceBg}"
+        AllowsTransparency="True"
+        Background="Transparent"
         MouseDown="OnMouseLeftButtonDown">
 
     <Window.Resources>
@@ -23,32 +22,26 @@
                 <ResourceDictionary Source="../../Resources/Converters.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Explicit DataTemplates to bypass resolution issues -->
+            <!-- View routing DataTemplates -->
             <DataTemplate DataType="{x:Type viewmodels:LicenseEntryViewModel}">
                 <auth:LicenseEntryView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:OnboardingOwnerViewModel}">
                 <auth:OnboardingOwnerView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
                 <auth:LoginView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:FacilityOnboardingViewModel}">
                 <auth:FacilityOnboardingView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:EmailConfirmationViewModel}">
                 <auth:EmailConfirmationView/>
             </DataTemplate>
-
             <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
                 <reg:ConfirmDeclineModal/>
             </DataTemplate>
 
-            <!-- Modal container updated for light theme -->
             <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
                 <Setter Property="Background" Value="#F0FFFFFF"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
@@ -56,13 +49,9 @@
                 <Setter Property="CornerRadius" Value="24"/>
                 <Setter Property="Padding" Value="32"/>
                 <Setter Property="Effect">
-                    <Setter.Value>
-                        <StaticResource ResourceKey="Shadow4"/>
-                    </Setter.Value>
+                    <Setter.Value><StaticResource ResourceKey="Shadow4"/></Setter.Value>
                 </Setter>
             </Style>
-
-            <!-- Override text styles for modal to use dark text on light bg -->
             <Style x:Key="Title2" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="20"/>
                 <Setter Property="FontWeight" Value="Bold"/>
@@ -72,295 +61,186 @@
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
             </Style>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Window.Resources>
 
     <WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="40" 
-                      GlassFrameThickness="0" 
-                      CornerRadius="24" 
-                      ResizeBorderThickness="0"/>
+        <shell:WindowChrome CaptionHeight="0"
+                            GlassFrameThickness="-1"
+                            CornerRadius="24"
+                            ResizeBorderThickness="0"/>
     </WindowChrome.WindowChrome>
 
-    <!-- Root: White window border -->
-    <Border CornerRadius="24" Background="{StaticResource SurfaceBg}" ClipToBounds="True"
-            BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
-        <Border.Effect>
-            <StaticResource ResourceKey="Shadow4"/>
-        </Border.Effect>
-        <Grid>
+    <!-- ROOT BORDER: clips everything into rounded corners.
+         #CCE3F0 is the specific light blue color from the illustration background. -->
+    <Border CornerRadius="24" ClipToBounds="True" Background="#CCE3F0">
 
-            <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-                 SPLIT LAYOUT: Left Illustration | Right Form
-                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="400"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <Grid MouseDown="OnMouseLeftButtonDown">
 
-                <!-- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                     LEFT PANEL: Illustrated Brand
-                     Background is a soft facility-accent tint (light, never dark)
-                     â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-                <Border Grid.Column="0"
-                        Background="{DynamicResource FacilityAccentDimBrush}"
-                        CornerRadius="24,0,0,24"
-                        ClipToBounds="True">
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 1 — ILLUSTRATION BACKGROUND
+                 OpacityMask creates a "feathered" edge effect so the 
+                 image blends seamlessly into the blue background.
+                 ══════════════════════════════════════════════════════ -->
+            <Image Source="pack://application:,,,/Luxurya.Client;component/Resources/Images/login_illustration.png"
+                   Stretch="Uniform"
+                   Height="520"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   Margin="0,30,30,0"
+                   IsHitTestVisible="False">
+                <Image.OpacityMask>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.45" RadiusY="0.45">
+                        <GradientStop Color="#FF000000" Offset="0.5"/>
+                        <GradientStop Color="#00000000" Offset="1.0"/>
+                    </RadialGradientBrush>
+                </Image.OpacityMask>
+            </Image>
 
-                    <Grid>
-                        <!-- Soft ambient circle accent (background depth) -->
-                        <Ellipse Width="500" Height="500" HorizontalAlignment="Right"
-                                 VerticalAlignment="Bottom" Margin="0,0,-150,-150"
-                                 Opacity="0.35">
-                            <Ellipse.Fill>
-                                <RadialGradientBrush>
-                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
-                                    <GradientStop Color="Transparent" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <Ellipse Width="280" Height="280" HorizontalAlignment="Left"
-                                 VerticalAlignment="Top" Margin="-60,-60,0,0"
-                                 Opacity="0.2">
-                            <Ellipse.Fill>
-                                <RadialGradientBrush>
-                                    <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
-                                    <GradientStop Color="Transparent" Offset="1"/>
-                                </RadialGradientBrush>
-                            </Ellipse.Fill>
-                        </Ellipse>
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 2 — FLOATING INFO CARDS (right side)
+                 ══════════════════════════════════════════════════════ -->
 
-                        <!-- Main content stack -->
-                        <Grid Margin="36,36,36,36">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>  <!-- Logo row -->
-                                <RowDefinition Height="*"/>     <!-- Illustration center -->
-                                <RowDefinition Height="Auto"/>  <!-- Tagline row -->
-                            </Grid.RowDefinitions>
+            <!-- Ahmed S. / Active (Moved further left to clear head, and made smaller) -->
+            <Border x:Name="CardAhmed"
+                    Background="White" CornerRadius="12" Padding="10,8"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,175,300,0"
+                    Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
+                </Border.Effect>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard BeginTime="0:0:0.3">
+                                <DoubleAnimation Storyboard.TargetName="CardAhmed" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="CardAhmed" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="30" Height="30" CornerRadius="6" Background="#0EA5E9" Margin="0,0,8,0">
+                        <TextBlock Text="AS" FontSize="11" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Ahmed S." FontSize="12" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,1"/>
+                        <TextBlock Text="Active" FontSize="10" FontWeight="Medium" Foreground="#10B981"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-                            <!-- â”€â”€ Row 0: Logo + Wordmark â”€â”€ -->
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top">
-                                <Border Width="40" Height="40" CornerRadius="10"
-                                        Background="{DynamicResource FacilityAccentBrush}">
-                                    <Path Data="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z"
-                                          Fill="{DynamicResource Brush.Neutral.White}"
-                                          Stretch="Uniform" Margin="10"/>
-                                </Border>
-                                <TextBlock Text="TITAN" Margin="12,0,0,0"
-                                           FontSize="18" FontWeight="Black" VerticalAlignment="Center"
-                                           Foreground="{DynamicResource Brush.Text.Primary}"/>
-                            </StackPanel>
+            <!-- Revenue Today (Smaller) -->
+            <Border x:Name="CardRevenue"
+                    Background="White" CornerRadius="12" Padding="12,10"
+                    HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Margin="0,40,75,0"
+                    Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
+                </Border.Effect>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard BeginTime="0:0:0.5">
+                                <DoubleAnimation Storyboard.TargetName="CardRevenue" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="CardRevenue" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+                <StackPanel>
+                    <TextBlock Text="Revenue Today" FontSize="10" Foreground="#9CA3AF" Margin="0,0,0,3"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="4,820 DA" FontSize="18" FontWeight="Bold" Foreground="#111827"/>
+                        <Path Data="M7,14L12,9L17,14H7Z" Fill="#10B981"
+                              Width="10" Height="10" Stretch="Uniform"
+                              Margin="6,0,0,1" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-                            <!-- â”€â”€ Row 1: Flat Illustration + Floating Cards â”€â”€ -->
-                            <Canvas Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    Width="320" Height="320">
+            <!-- Karim M. / Checked In (Smaller) -->
+            <Border x:Name="CardKarim"
+                    Background="White" CornerRadius="12" Padding="10,8"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Margin="0,0,320,120"
+                    Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
+                </Border.Effect>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard BeginTime="0:0:0.7">
+                                <DoubleAnimation Storyboard.TargetName="CardKarim" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="CardKarim" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
+                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="30" Height="30" CornerRadius="6" Background="#6366F1" Margin="0,0,8,0">
+                        <TextBlock Text="KM" FontSize="11" FontWeight="Bold" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Karim M." FontSize="12" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,1"/>
+                        <TextBlock Text="Checked In" FontSize="10" FontWeight="Medium" Foreground="#0EA5E9"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-                                <!-- â•â• FLAT CHARACTER: Facility Manager at Desk â•â• -->
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 3 — FLOATING WHITE FORM CARD (LEFT)
+                 ══════════════════════════════════════════════════════ -->
+            <Border Width="450"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    Background="{StaticResource SurfaceBg}"
+                    CornerRadius="20"
+                    Margin="50,50,0,50">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="60" ShadowDepth="10" Opacity="0.13"
+                                      Direction="270" Color="#000000"/>
+                </Border.Effect>
+                <Grid>
+                    <!-- Fallback skeleton: visible ONLY when CurrentView is null -->
+                    <auth:LoginSkeletonView Visibility="{Binding CurrentView, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                    
+                    <!-- Main content: fades in/out as views change -->
+                    <ContentControl Content="{Binding CurrentView}"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"/>
+                </Grid>
+            </Border>
 
-                                <!-- Desk surface -->
-                                <Rectangle Canvas.Left="50" Canvas.Top="230" Width="220" Height="10"
-                                           RadiusX="5" RadiusY="5"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.15"/>
-                                <!-- Desk left leg -->
-                                <Rectangle Canvas.Left="60" Canvas.Top="240" Width="8" Height="60"
-                                           RadiusX="3" RadiusY="3"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
-                                <!-- Desk right leg -->
-                                <Rectangle Canvas.Left="252" Canvas.Top="240" Width="8" Height="60"
-                                           RadiusX="3" RadiusY="3"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
-
-                                <!-- Monitor stand -->
-                                <Rectangle Canvas.Left="148" Canvas.Top="195" Width="6" Height="36"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
-                                <Rectangle Canvas.Left="135" Canvas.Top="228" Width="32" Height="5"
-                                           RadiusX="2" RadiusY="2"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
-
-                                <!-- Monitor screen border -->
-                                <Border Canvas.Left="112" Canvas.Top="148"
-                                        Width="78" Height="52"
-                                        BorderThickness="3" CornerRadius="6"
-                                        BorderBrush="{DynamicResource Brush.Text.Primary}">
-                                    <Border.OpacityMask>
-                                        <SolidColorBrush Color="White" Opacity="0.5"/>
-                                    </Border.OpacityMask>
-                                </Border>
-
-                                <!-- Border workaround: inline rectangle for monitor border -->
-                                <Rectangle Canvas.Left="112" Canvas.Top="148" Width="78" Height="52"
-                                           RadiusX="6" RadiusY="6"
-                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.18"/>
-                                <Rectangle Canvas.Left="115" Canvas.Top="151" Width="72" Height="46"
-                                           RadiusX="4" RadiusY="4"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.06"/>
-
-                                <!-- Monitor: mini dashboard lines (screen content decoration) -->
-                                <Rectangle Canvas.Left="122" Canvas.Top="162" Width="30" Height="4"
-                                           RadiusX="2" RadiusY="2"
-                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.7"/>
-                                <Rectangle Canvas.Left="122" Canvas.Top="170" Width="20" Height="3"
-                                           RadiusX="1" RadiusY="1"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.25"/>
-                                <Rectangle Canvas.Left="122" Canvas.Top="176" Width="24" Height="3"
-                                           RadiusX="1" RadiusY="1"
-                                           Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.18"/>
-                                <Rectangle Canvas.Left="158" Canvas.Top="162" Width="22" Height="28"
-                                           RadiusX="2" RadiusY="2"
-                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.35"/>
-
-                                <!-- Person: Head -->
-                                <Ellipse Canvas.Left="131" Canvas.Top="72" Width="58" Height="58"
-                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.85"/>
-                                <!-- Person: Head highlight -->
-                                <Ellipse Canvas.Left="138" Canvas.Top="78" Width="22" Height="18"
-                                         Fill="White" Opacity="0.3"/>
-
-                                <!-- Person: Hair block (top of head) -->
-                                <Path Data="M131,97 Q140,64 189,76 Q182,66 160,63 Q140,61 131,80Z"
-                                      Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.75"/>
-
-                                <!-- Person: Body/Torso -->
-                                <Rectangle Canvas.Left="122" Canvas.Top="130" Width="76" Height="72"
-                                           RadiusX="32" RadiusY="12"
-                                           Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.9"/>
-
-                                <!-- Person: Left arm (resting toward desk) -->
-                                <Path Data="M122,148 Q92,172 82,220"
-                                      Stroke="{DynamicResource FacilityAccentBrush}"
-                                      StrokeThickness="18" StrokeEndLineCap="Round"
-                                      StrokeStartLineCap="Round" Opacity="0.9"/>
-                                <!-- Left hand on desk -->
-                                <Ellipse Canvas.Left="74" Canvas.Top="212" Width="18" Height="18"
-                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
-
-                                <!-- Person: Right arm (resting toward desk) -->
-                                <Path Data="M198,148 Q224,178 234,220"
-                                      Stroke="{DynamicResource FacilityAccentBrush}"
-                                      StrokeThickness="18" StrokeEndLineCap="Round"
-                                      StrokeStartLineCap="Round" Opacity="0.9"/>
-                                <!-- Right hand on desk -->
-                                <Ellipse Canvas.Left="228" Canvas.Top="212" Width="18" Height="18"
-                                         Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
-
-                                <!-- â•â• FLOATING MINI APP CARDS â•â• -->
-
-                                <!-- Card 1: Member Card (top-left) -->
-                                <Border Canvas.Left="-10" Canvas.Top="28"
-                                        Width="138" Height="54"
-                                        Background="{StaticResource SurfaceBg}"
-                                        CornerRadius="14"
-                                        Padding="10,8">
-                                    <Border.Effect>
-                                        <StaticResource ResourceKey="Shadow2"/>
-                                    </Border.Effect>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="30" Height="30"
-                                                 Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.85"/>
-                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="Ahmed S." FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                            <Border CornerRadius="6" Padding="5,1" HorizontalAlignment="Left"
-                                                    Background="{DynamicResource Brush.Success.Dim}" Margin="0,2,0,0">
-                                                <TextBlock Text="Active" FontSize="9" FontWeight="Bold"
-                                                           Foreground="{DynamicResource Brush.Success}"/>
-                                            </Border>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Card 2: Revenue Stat Card (right side) -->
-                                <Border Canvas.Right="-16" Canvas.Top="130"
-                                        Width="128" Height="62"
-                                        Background="{StaticResource SurfaceBg}"
-                                        CornerRadius="14"
-                                        Padding="12,10">
-                                    <Border.Effect>
-                                        <StaticResource ResourceKey="Shadow2"/>
-                                    </Border.Effect>
-                                    <StackPanel>
-                                        <TextBlock Text="Revenue Today" FontSize="9"
-                                                   Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,3,0,0">
-                                            <TextBlock Text="4,820 DA" FontSize="15" FontWeight="ExtraBold"
-                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                            <Path Data="M7,15L12,10L17,15" Stroke="{DynamicResource Brush.Status.Success}"
-                                                  StrokeThickness="2" StrokeEndLineCap="Round" StrokeStartLineCap="Round"
-                                                  StrokeLineJoin="Round"
-                                                  Width="14" Height="10" Stretch="Uniform"
-                                                  Margin="6,2,0,0" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Card 3: Check-in Card (bottom-left) -->
-                                <Border Canvas.Left="-10" Canvas.Bottom="10"
-                                        Width="150" Height="52"
-                                        Background="{StaticResource SurfaceBg}"
-                                        CornerRadius="14"
-                                        Padding="10,8">
-                                    <Border.Effect>
-                                        <StaticResource ResourceKey="Shadow2"/>
-                                    </Border.Effect>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Ellipse Width="28" Height="28"
-                                                 Fill="{DynamicResource Brush.Text.Primary}" Opacity="0.12"/>
-                                        <StackPanel Margin="8,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="Karim M." FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                            <TextBlock FontSize="10" Foreground="{DynamicResource Brush.Status.Success}"
-                                                       FontWeight="Medium">
-                                                <Run Text="âœ“ Checked In"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                            </Canvas>
-                            <!-- End illustration Canvas -->
-
-                            <!-- â”€â”€ Row 2: Tagline â”€â”€ -->
-                            <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,0,0,8">
-                                <TextBlock Text="{DynamicResource Strings.Auth.Poweringtheheartbeatofyou}"
-                                           TextWrapping="Wrap" TextAlignment="Center"
-                                           FontSize="20" FontWeight="ExtraBold"
-                                           Foreground="{DynamicResource Brush.Text.Primary}"
-                                           LineHeight="28" LineStackingStrategy="BlockLineHeight"/>
-                                <TextBlock Text="{DynamicResource Strings.Auth.Unlockworldclassmanagemen}"
-                                           TextWrapping="Wrap" TextAlignment="Center"
-                                           FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}"
-                                           Margin="0,8,0,0"/>
-                            </StackPanel>
-
-                        </Grid>
-                    </Grid>
-                </Border>
-                <!-- End left panel -->
-
-                <!-- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-                     RIGHT PANEL: Dynamic form content (no changes to logic)
-                     â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-                <Border Grid.Column="1"
-                        Background="{StaticResource SurfaceBg}"
-                        CornerRadius="0,24,24,0">
-                    <Grid>
-                        <ContentControl Content="{Binding CurrentView}"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"/>
-                    </Grid>
-                </Border>
-                <!-- End right panel -->
-
-            </Grid>
-            <!-- End split layout grid -->
-
-            <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-                 MODAL OVERLAY (unchanged)
-                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-            <Grid Visibility="{Binding IsModalOpen, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" Panel.ZIndex="1000">
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 4 — MODAL OVERLAY
+                 ══════════════════════════════════════════════════════ -->
+            <Grid Visibility="{Binding IsModalOpen, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+                  Panel.ZIndex="1000">
                 <Border Background="#66000000" MouseDown="OnMouseLeftButtonDown"/>
-                <ContentControl Content="{Binding CurrentModal}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ContentControl Content="{Binding CurrentModal}"
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
                     <ContentControl.Resources>
                         <Style TargetType="ContentControl">
                             <Style.Triggers>
@@ -373,27 +253,65 @@
                 </ContentControl>
             </Grid>
 
-            <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-                 WINDOW CONTROLS (unchanged)
-                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Margin="0,14,16,0"
-                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Panel.ZIndex="2000">
-                <Button Click="MinimizeButton_Click" Margin="0,0,8,0" Style="{StaticResource GhostButton}" BorderThickness="0">
-                    <Path Data="M20,14H4V10H20V14Z" Fill="{DynamicResource Brush.Text.Secondary}" Width="12" Height="12" Stretch="Uniform"/>
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 5 — MINIMIZE + CLOSE BUTTONS (top-right)
+                 ══════════════════════════════════════════════════════ -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,16,20,0"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                        Panel.ZIndex="2000">
+
+                <Button Click="MinimizeButton_Click" Margin="0,0,8,0"
+                        Width="30" Height="30"
+                        Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" Focusable="False">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bg" Background="Transparent" CornerRadius="15">
+                                <Path x:Name="icon" Data="M19,13H5V11H19V13Z" Fill="#374151"
+                                      Stretch="Uniform" Width="12" Height="2"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bg" Property="Background" Value="#18000000"/>
+                                    <Setter TargetName="icon" Property="Fill" Value="#111827"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
-                <Button Click="CloseButton_Click" Style="{StaticResource GhostButton}" BorderThickness="0">
-                    <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-                          Fill="{DynamicResource Brush.Text.Secondary}" Width="14" Height="14" Stretch="Uniform"/>
+
+                <Button Click="CloseButton_Click"
+                        Width="30" Height="30"
+                        Background="Transparent" BorderThickness="0"
+                        Cursor="Hand" Focusable="False">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bg" Background="Transparent" CornerRadius="15">
+                                <Path x:Name="icon"
+                                      Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                                      Fill="#374151" Stretch="Uniform" Width="12" Height="12"
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bg" Property="Background" Value="#18EF4444"/>
+                                    <Setter TargetName="icon" Property="Fill" Value="#EF4444"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
+
             </StackPanel>
 
-            <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-                 TOAST NOTIFICATIONS (unchanged)
-                 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+            <!-- Toast notifications -->
             <StackPanel x:Name="ToastContainer" VerticalAlignment="Top" HorizontalAlignment="Right"
                         Margin="0,24,24,0" Panel.ZIndex="3000"/>
 
         </Grid>
     </Border>
+
 </Window>

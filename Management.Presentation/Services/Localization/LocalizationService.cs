@@ -36,7 +36,7 @@ namespace Management.Presentation.Services.Localization
         {
             if (string.IsNullOrEmpty(languageCode)) throw new ArgumentNullException(nameof(languageCode));
 
-            _dispatcher.Invoke(() =>
+            _dispatcher.InvokeAsync(() =>
             {
                 var culture = new CultureInfo(languageCode);
                 CurrentCulture = culture;

@@ -16,7 +16,7 @@ namespace Management.Presentation.Services
         {
             if (System.Windows.Application.Current?.Dispatcher != null)
             {
-                System.Windows.Application.Current.Dispatcher.Invoke(action);
+                _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(action);
             }
             else
             {

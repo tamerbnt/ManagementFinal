@@ -8,9 +8,9 @@
     <UseWPF>true</UseWPF>
     <StartupObject>Management.Presentation.Program</StartupObject>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
-    <AssemblyName>Titan.Client</AssemblyName>
+    <AssemblyName>Luxurya.Client</AssemblyName>
     <ApplicationManifest>App.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets\titan.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\luxurya.ico</ApplicationIcon>
     <PublishSingleFile>false</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <Version>1.2.0</Version>
@@ -19,8 +19,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\titan.ico" />
-    <Resource Include="Assets\titan.ico" />
+    <None Remove="Assets\luxurya.ico" />
+    <Resource Include="Assets\luxurya.ico" />
+    <Resource Include="Resources\Images\login_illustration.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -58,18 +58,8 @@
                         <TextBlock Text="{DynamicResource Terminology.Settings.LanguageDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
                         <ComboBox ItemsSource="{Binding SupportedLanguages}"
                                    SelectedItem="{Binding SelectedLanguage}"
-                                   IsEditable="False"
+                                    IsEditable="False"
                                    DisplayMemberPath="NativeName" Width="300" HorizontalAlignment="Left" Style="{DynamicResource Input.ComboBox}"/>
-                    </StackPanel>
-
-                    <!-- Theme Selector -->
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Terminology.Settings.Theme}" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                        <TextBlock Text="{DynamicResource Terminology.Settings.ThemeDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
-                        <ComboBox Width="300" HorizontalAlignment="Left" Style="{DynamicResource Input.ComboBox}" IsEditable="False" SelectedIndex="0">
-                            <ComboBoxItem Content="{DynamicResource Terminology.Settings.Theme.Light}"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Settings.Theme.Dark}"/>
-                        </ComboBox>
                     </StackPanel>
                 </StackPanel>
             </DataTemplate>

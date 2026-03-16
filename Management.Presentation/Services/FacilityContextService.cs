@@ -75,9 +75,9 @@ namespace Management.Presentation.Services
             _dispatcher = dispatcher;
             _localizationService = localizationService;
             
-            // FIX: Absolute path in %LOCALAPPDATA%\Titan
+            // FIX: Absolute path in %LOCALAPPDATA%\Luxurya
             var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var titanFolder = Path.Combine(localAppData, "Titan");
+            var titanFolder = Path.Combine(localAppData, "Luxurya");
             if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
             
             _configPath = Path.Combine(titanFolder, "facility-config.json");

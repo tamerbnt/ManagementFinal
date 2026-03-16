@@ -1,0 +1,84 @@
+<UserControl x:Class="Management.Presentation.Views.Auth.LoginSkeletonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="400">
+    
+    <UserControl.Resources>
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0.4" To="0.8" Duration="0:0:0.8"
+                             AutoReverse="True"/>
+        </Storyboard>
+        
+        <Style TargetType="Rectangle">
+            <Setter Property="Fill" Value="#F3F4F6"/>
+            <Setter Property="RadiusX" Value="8"/>
+            <Setter Property="RadiusY" Value="8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard Storyboard="{StaticResource PulseAnimation}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid VerticalAlignment="Center" Margin="40,36,40,40">
+        <StackPanel>
+            <!-- Logo area placeholder -->
+            <Grid Margin="0,0,0,32">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Rectangle Width="7" Height="7" Margin="0,0,3,0"/>
+                    <Rectangle Width="7" Height="7" Margin="0,0,8,0"/>
+                    <Rectangle Width="60" Height="14"/>
+                </StackPanel>
+                <Rectangle Width="80" Height="12" HorizontalAlignment="Right"/>
+            </Grid>
+
+            <!-- Title placeholder -->
+            <Rectangle Width="140" Height="40" HorizontalAlignment="Left" Margin="0,0,0,28"/>
+
+            <!-- Input Field placeholders -->
+            <StackPanel Margin="0,0,0,20">
+                <Rectangle Width="80" Height="14" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                <Rectangle Height="48"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,0,0,20">
+                <Grid Margin="0,0,0,6">
+                    <Rectangle Width="60" Height="14" HorizontalAlignment="Left"/>
+                    <Rectangle Width="100" Height="14" HorizontalAlignment="Right"/>
+                </Grid>
+                <Rectangle Height="48"/>
+            </StackPanel>
+
+            <!-- Facility Selector placeholders -->
+            <StackPanel Margin="0,0,0,16">
+                <Rectangle Width="90" Height="14" HorizontalAlignment="Left" Margin="0,0,0,8"/>
+                <UniformGrid Rows="1" Columns="3">
+                    <Rectangle Height="64" Margin="0,0,6,0"/>
+                    <Rectangle Height="64" Margin="0,0,6,0"/>
+                    <Rectangle Height="64" Margin="0,0,0,0"/>
+                </UniformGrid>
+            </StackPanel>
+
+            <Rectangle Width="120" Height="14" HorizontalAlignment="Left" Margin="0,0,0,20"/>
+
+            <!-- Button placeholder -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Rectangle Width="162" Height="46" RadiusX="10" RadiusY="10"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="16,0,0,0">
+                    <Rectangle Width="60" Height="10" Margin="0,0,0,4" HorizontalAlignment="Right"/>
+                    <Rectangle Width="80" Height="12" HorizontalAlignment="Right"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>

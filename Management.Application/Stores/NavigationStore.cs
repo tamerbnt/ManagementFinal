@@ -76,12 +76,15 @@ namespace Management.Application.Stores
                     }
                 }
 
-                // 2. State Update
+                // 2. State Update (Atomic)
                 _currentViewModel = value;
-                _nextViewModel = null; // Clear next once current is set
+                
+                // Do not call OnCurrentViewModelChanged for NextViewModel/IsNavigating
+                // Update backing fields directly to skip redundant event invocations
+                _nextViewModel = null; 
                 _isNavigating = false;
 
-                // 3. Notification
+                // 3. Single Notification
                 OnCurrentViewModelChanged();
             }
         }

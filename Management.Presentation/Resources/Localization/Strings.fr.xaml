@@ -82,7 +82,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Financial.New">Nouveau</sys:String>
     <sys:String x:Key="Terminology.Financial.Total">Total</sys:String>
     <sys:String x:Key="Terminology.Members.Details">DÃ©tails</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.Welcome">Bienvenue chez Titan Management</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Welcome">Bienvenue chez Luxurya Management</sys:String>
     <sys:String x:Key="Terminology.Dashboard.EmptyState">Il semble que vous n'ayez pas encore de membres. CommenÃ§onsÂ !</sys:String>
     <sys:String x:Key="Terminology.Dashboard.AddMember">Ajouter un nouveau membre</sys:String>
 
@@ -684,8 +684,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Global.KeepServer">Garder le serveur</sys:String>
     <sys:String x:Key="Strings.Global.Discardlocalchangesandacc">Ignorer les modifications locales et accepter la version du serveur</sys:String>
     <sys:String x:Key="Strings.Global.Cancel">Annuler</sys:String>
-    <sys:String x:Key="Strings.Auth.TitanActivation">Activation des Titans</sys:String>
-    <sys:String x:Key="Strings.Auth.TITAN">TITAN</sys:String>
+    <sys:String x:Key="Strings.Auth.LuxuryaActivation">Activation Luxurya</sys:String>
+    <sys:String x:Key="Strings.Auth.TITAN">LUXURYA</sys:String>
     <sys:String x:Key="Strings.Auth.Poweringtheheartbeatofyou">Alimenter le rythme cardiaque de votre Ã©tablissement.</sys:String>
     <sys:String x:Key="Strings.Auth.Unlockworldclassmanagemen">BÃ©nÃ©ficiez dâ€™une gestion de classe mondiale avec une prÃ©cision de minuit.</sys:String>
     <sys:String x:Key="Strings.Auth.VerifyYourEmail">VÃ©rifiez votre e-mail</sys:String>
@@ -737,7 +737,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">L'intÃ©gration a Ã©chouÃ© : {0}</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Warning">Avertissement</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceRegistrationFailed">Compte crÃ©Ã©, mais l'enregistrement de l'appareil a Ã©chouÃ© : {0}</sys:String>
-    <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Entrez votre clÃ© de licence unique pour initialiser votre Titan Workspace avec une sÃ©curitÃ© de niveau professionnel.</sys:String>
+    <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Entrez votre clÃ© de licence unique pour initialiser votre Luxurya Workspace avec une sÃ©curitÃ© de niveau professionnel.</sys:String>
     <sys:String x:Key="Strings.Auth.LICENSEIDENTIFIER">IDENTIFIANT DE LICENCE</sys:String>
     <sys:String x:Key="Strings.Auth.Questions">Des questions ?</sys:String>
     <sys:String x:Key="Strings.Auth.Login">Connexion</sys:String>
@@ -973,7 +973,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Shell.Totalactivememberstrend">Tendance du nombre total de membres actifs</sys:String>
     <sys:String x:Key="Strings.Shell.AuthorizeAccess">Autoriser l'accÃ¨s</sys:String>
     <sys:String x:Key="Strings.Shell.Elevatedpermissionsrequir">Autorisations Ã©levÃ©es requises pour cette action</sys:String>
-    <sys:String x:Key="Strings.Shell.stafftitancom">staff@titan.com</sys:String>
+    <sys:String x:Key="Strings.Shell.stafftitancom">staff@luxurya.com</sys:String>
     <sys:String x:Key="Strings.Shell.Back">Retour</sys:String>
     <sys:String x:Key="Strings.Shell.ConfirmSwitch">Confirmer le changement</sys:String>
     <sys:String x:Key="Strings.Shell.Choosethemanagementcontex">Choisissez le contexte de gestion pour cette session</sys:String>

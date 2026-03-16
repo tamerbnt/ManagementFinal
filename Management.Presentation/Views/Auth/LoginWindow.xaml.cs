@@ -22,17 +22,14 @@ namespace Management.Presentation.Views.Auth
             }
         }
 
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Application.Current.Shutdown();
-        }
-
-        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (this.DataContext is LoginViewModel vm && sender is System.Windows.Controls.PasswordBox pb)
-            {
-                // vm.Password = pb.Password; // Password accessed via CommandParameter for security
-            }
         }
     }
 }

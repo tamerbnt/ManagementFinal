@@ -59,7 +59,6 @@
                 <ResourceDictionary Source="Resources/Typography.xaml"/>
                 <ResourceDictionary Source="Resources/Iconography.xaml"/>
                 <ResourceDictionary Source="Resources/Animations.xaml"/>
-                <ResourceDictionary Source="Resources/Shadows.xaml"/>
                 <ResourceDictionary Source="Resources/Durations.xaml"/>
 
                 <!-- 5. CONTROL STYLES (Depend on Base Styles) -->

@@ -109,7 +109,6 @@ namespace Management.Presentation.ViewModels.Shell
         public IRelayCommand OpenAccountSettingsCommand { get; set; }
         public IRelayCommand CloseSettingsCommand { get; set; }
         public IRelayCommand MarkAllAsReadCommand { get; set; }
-        public CommunityToolkit.Mvvm.Input.AsyncRelayCommand LogoutCommand { get; }
         public IRelayCommand<BreadcrumbItem> NavigateToBreadcrumbCommand { get; }
         public CommunityToolkit.Mvvm.Input.AsyncRelayCommand ManualSyncCommand { get; }
 
@@ -200,60 +199,6 @@ namespace Management.Presentation.ViewModels.Shell
                     if (_breadcrumbService is Management.Presentation.Services.Application.BreadcrumbService bs)
                     {
                         bs.Navigate(item.ViewModelType);
-                    }
-                }
-            });
-
-            LogoutCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
-            {
-                // Show confirmation dialog
-                var modalStore = _serviceProvider.GetRequiredService<ModalNavigationStore>();
-                var confirmVm = _serviceProvider.GetRequiredService<ConfirmationModalViewModel>();
-                confirmVm.Configure(
-                    title: _terminologyService.GetTerm("Terminology.TopBar.Logout.Title"),
-                    message: _terminologyService.GetTerm("Terminology.TopBar.Logout.Message"),
-                    confirmText: _terminologyService.GetTerm("Terminology.TopBar.Logout.Confirm"),
-                    cancelText: _terminologyService.GetTerm("Terminology.Global.Cancel"),
-                    isDestructive: true
-                );
-
-                var modalResult = await modalStore.OpenAsync(confirmVm);
-                
-                if (modalResult.IsSuccess)
-                {
-                    // Force a final sync push before clearing session
-                    try
-                    {
-                    _toastService.ShowWarning(_terminologyService.GetTerm("Terminology.TopBar.Status.Syncing"));
-                        await _syncService.PushChangesAsync(CancellationToken.None);
-                    }
-                    catch { /* Ignore sync errors on logout, we tried */ }
-
-                    await _authenticationService.LogoutAsync();
-                    _sessionManager.Clear();
-                    
-                    // CRITICAL: Reset all stateful Singletons (State Isolation)
-                    try 
-                    {
-                        var resettables = _serviceProvider.GetServices<Management.Domain.Interfaces.IStateResettable>();
-                        foreach (var resettable in resettables)
-                        {
-                            _logger.LogInformation("Resetting state for {ResettableType}", resettable.GetType().Name);
-                            resettable.ResetState();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Failed to reset state during logout.");
-                    }
-
-                    // Reset UI to Guest
-                    UpdateUserInfo();
-
-                    // Switch to Auth Shell
-                    if (System.Windows.Application.Current is App app)
-                    {
-                        app.Logout();
                     }
                 }
             });

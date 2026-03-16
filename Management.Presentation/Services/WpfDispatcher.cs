@@ -26,7 +26,7 @@ namespace Management.Presentation.Services
 
         public bool CheckAccess() => _dispatcher.CheckAccess();
 
-        public void Invoke(Action action) => _dispatcher.Invoke(action);
+        public void Invoke(Action action) => _ = _dispatcher.InvokeAsync(action);
 
         public Task InvokeAsync(Action action) => _dispatcher.InvokeAsync(action).Task;
 

@@ -972,7 +972,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Shell.Totalactivememberstrend">Ø§ØªØ¬Ø§Ù‡ Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ø£Ø¹Ø¶Ø§Ø¡ Ø§Ù„Ù†Ø´Ø·ÙŠÙ†</sys:String>
     <sys:String x:Key="Strings.Shell.AuthorizeAccess">ØªØ®ÙˆÙŠÙ„ Ø§Ù„ÙˆØµÙˆÙ„</sys:String>
     <sys:String x:Key="Strings.Shell.Elevatedpermissionsrequir">Ø§Ù„Ø£Ø°ÙˆÙ†Ø§Øª Ø§Ù„Ù…Ø±ØªÙØ¹Ø© Ù…Ø·Ù„ÙˆØ¨Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡</sys:String>
-    <sys:String x:Key="Strings.Shell.stafftitancom">Staff@titan.com</sys:String>
+    <sys:String x:Key="Strings.Shell.stafftitancom">staff@luxurya.com</sys:String>
     <sys:String x:Key="Strings.Shell.Back">Ø§Ù„Ø¹ÙˆØ¯Ø©</sys:String>
     <sys:String x:Key="Strings.Shell.ConfirmSwitch">ØªØ£ÙƒÙŠØ¯ Ø§Ù„ØªØ¨Ø¯ÙŠÙ„</sys:String>
     <sys:String x:Key="Strings.Shell.Choosethemanagementcontex">Ø§Ø®ØªØ± Ø³ÙŠØ§Ù‚ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ù„Ù‡Ø°Ù‡ Ø§Ù„Ø¬Ù„Ø³Ø©</sys:String>

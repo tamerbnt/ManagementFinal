@@ -17,9 +17,22 @@
             CornerRadius="{DynamicResource RadiusModal}"
             Padding="32"
             Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- 0: Header -->
+                <RowDefinition Height="Auto"/>
+                <!-- 1: Plan Selection List (takes remaining space, allowing scrolling) -->
+                <RowDefinition Height="*"/>
+                <!-- 2: Quantity Selector -->
+                <RowDefinition Height="Auto"/>
+                <!-- 3: Total Price Summary -->
+                <RowDefinition Height="Auto"/>
+                <!-- 4: Actions (Buttons) -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
             <!-- Header -->
-            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,24">
                 <Border Width="64" Height="64" CornerRadius="32" Background="{DynamicResource PrimaryBrush}" Margin="0,0,0,16">
                     <Path Data="{DynamicResource IconRunner}" 
                           Fill="White" 
@@ -33,7 +46,8 @@
             </StackPanel>
 
             <!-- Plan Selection List -->
-            <ListBox ItemsSource="{Binding Plans}" 
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding Plans}" 
                      SelectedItem="{Binding SelectedPlan}"
                      BorderThickness="0"
                      Background="Transparent"
@@ -136,7 +150,8 @@
             </ListBox>
 
             <!-- Quantity Selector -->
-            <Border Background="{DynamicResource SurfaceBgSecondary}" 
+            <Border Grid.Row="2"
+                    Background="{DynamicResource SurfaceBgSecondary}" 
                     CornerRadius="16" 
                     Padding="20"
                     Margin="0,0,0,24"
@@ -173,7 +188,8 @@
             </Border>
 
             <!-- Total Price Summary -->
-            <Border Background="{DynamicResource SurfaceBg}" 
+            <Border Grid.Row="3"
+                    Background="{DynamicResource SurfaceBg}" 
                     CornerRadius="12" 
                     Padding="16" 
                     Margin="0,16,0,0">
@@ -189,7 +205,7 @@
             </Border>
 
             <!-- Actions -->
-            <Grid>
+            <Grid Grid.Row="4" Margin="0,24,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
@@ -207,6 +223,6 @@
                         Content="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}"
                         Padding="16,8"/>
             </Grid>
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>

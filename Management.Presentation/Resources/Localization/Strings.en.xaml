@@ -84,7 +84,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Financial.New">New</sys:String>
     <sys:String x:Key="Terminology.Financial.Total">Total</sys:String>
     <sys:String x:Key="Terminology.Members.Details">Details</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.Welcome">Welcome to Titan Management</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Welcome">Welcome to Luxurya Management</sys:String>
     <sys:String x:Key="Terminology.Dashboard.EmptyState">It looks like you don't have any members yet. Let's get started!</sys:String>
     <sys:String x:Key="Terminology.Dashboard.AddMember">Add New Member</sys:String>
 
@@ -704,8 +704,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Global.KeepServer">Keep Server</sys:String>
     <sys:String x:Key="Strings.Global.Discardlocalchangesandacc">Discard local changes and accept server version</sys:String>
     <sys:String x:Key="Strings.Global.Cancel">Cancel</sys:String>
-    <sys:String x:Key="Strings.Auth.TitanActivation">Titan Activation</sys:String>
-    <sys:String x:Key="Strings.Auth.TITAN">TITAN</sys:String>
+    <sys:String x:Key="Strings.Auth.LuxuryaActivation">Luxurya Activation</sys:String>
+    <sys:String x:Key="Strings.Auth.LUXURYA">LUXURYA</sys:String>
     <sys:String x:Key="Strings.Auth.Poweringtheheartbeatofyou">Powering the heartbeat of your facility.</sys:String>
     <sys:String x:Key="Strings.Auth.Unlockworldclassmanagemen">Unlock world-class management with midnight precision.</sys:String>
     <sys:String x:Key="Strings.Auth.VerifyYourEmail">Verify Your Email</sys:String>
@@ -757,11 +757,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">Onboarding failed: {0}</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Warning">Warning</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceRegistrationFailed">Account created, but device registration failed: {0}</sys:String>
-    <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Enter your unique license key to initialize your Titan Workspace with professional-grade security.</sys:String>
+    <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Enter your unique license key to initialize your Luxurya Workspace with professional-grade security.</sys:String>
     <sys:String x:Key="Strings.Auth.LICENSEIDENTIFIER">LICENSE IDENTIFIER</sys:String>
     <sys:String x:Key="Strings.Auth.Questions">Questions?</sys:String>
     <sys:String x:Key="Strings.Auth.Login">Login</sys:String>
-    <sys:String x:Key="Strings.Auth.SecuresignintoyourTitanWo">Secure sign-in to your Titan Workspace.</sys:String>
+    <sys:String x:Key="Strings.Auth.SecuresignintoyourTitanWo">Secure sign-in to your Luxurya Workspace.</sys:String>
     <sys:String x:Key="Strings.Auth.ADMINEMAIL">ADMIN EMAIL</sys:String>
     <sys:String x:Key="Strings.Auth.PASSWORD">PASSWORD</sys:String>
     <sys:String x:Key="Strings.Auth.SELECTFACILITY">SELECT FACILITY</sys:String>
@@ -980,7 +980,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Shell.Totalactivememberstrend">Total active members trend</sys:String>
     <sys:String x:Key="Strings.Shell.AuthorizeAccess">Authorize Access</sys:String>
     <sys:String x:Key="Strings.Shell.Elevatedpermissionsrequir">Elevated permissions required for this action</sys:String>
-    <sys:String x:Key="Strings.Shell.stafftitancom">staff@titan.com</sys:String>
+    <sys:String x:Key="Strings.Shell.stafftitancom">staff@luxurya.com</sys:String>
     <sys:String x:Key="Strings.Shell.Back">Back</sys:String>
     <sys:String x:Key="Strings.Shell.ConfirmSwitch">Confirm Switch</sys:String>
     <sys:String x:Key="Strings.Shell.Choosethemanagementcontex">Choose the management context for this session</sys:String>

@@ -10,237 +10,94 @@
              UseLayoutRounding="True"
              Background="{StaticResource SurfaceBg}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                    MaxWidth="420" Margin="40,32">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- Animated Shield/Key Icon -->
-            <Grid Width="100" Height="100" Margin="0,0,0,16" HorizontalAlignment="Center">
-                <!-- Outer Rotating Ring 1 -->
-                <Ellipse Width="90" Height="90" StrokeThickness="1.5" StrokeDashArray="4 2">
-                    <Ellipse.Stroke>
-                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}" Opacity="0.3"/>
-                    </Ellipse.Stroke>
-                    <Ellipse.RenderTransform>
-                        <RotateTransform CenterX="45" CenterY="45"/>
-                    </Ellipse.RenderTransform>
-                    <Ellipse.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                     From="0" To="360" Duration="0:0:20" RepeatBehavior="Forever"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Ellipse.Triggers>
-                </Ellipse>
-
-                <!-- Outer Rotating Ring 2 (reverse) -->
-                <Ellipse Width="70" Height="70" StrokeThickness="1.5" StrokeDashArray="2 4">
-                    <Ellipse.Stroke>
-                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}" Opacity="0.45"/>
-                    </Ellipse.Stroke>
-                    <Ellipse.RenderTransform>
-                        <RotateTransform CenterX="35" CenterY="35"/>
-                    </Ellipse.RenderTransform>
-                    <Ellipse.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                     From="360" To="0" Duration="0:0:15" RepeatBehavior="Forever"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Ellipse.Triggers>
-                </Ellipse>
-
-                <!-- Inner Core -->
-                <Ellipse Width="60" Height="60" Opacity="0.12">
-                    <Ellipse.Fill>
-                        <SolidColorBrush Color="{DynamicResource FacilityAccentColor}"/>
-                    </Ellipse.Fill>
-                    <Ellipse.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                     From="0.08" To="0.2" Duration="0:0:2"
-                                                     AutoReverse="True" RepeatBehavior="Forever"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </Ellipse.Triggers>
-                </Ellipse>
-
-                <!-- Shield Icon -->
-                <Path Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M12,7A3,3 0 0,1 15,10A3,3 0 0,1 12,13A3,3 0 0,1 9,10A3,3 0 0,1 12,7M12,15C14.67,15 20,16.33 20,19V20H4V19C4,16.33 9.33,15 12,15Z" 
-                      Fill="{DynamicResource FacilityAccentBrush}"
-                      Width="28" Height="28" Stretch="Uniform"
-                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-
-            <!-- Typography -->
-            <TextBlock Text="{DynamicResource Strings.Auth.InitialActivation}"
-                       FontSize="26" FontWeight="ExtraBold"
-                       Foreground="{DynamicResource Brush.Text.Primary}"
-                       Margin="0,0,0,8" HorizontalAlignment="Center"/>
-            <TextBlock Text="{DynamicResource Strings.Auth.Enteryouruniquelicensekey}"
-                       TextWrapping="Wrap" TextAlignment="Center"
-                       FontSize="13" Foreground="{DynamicResource Brush.Text.Secondary}"
-                       MaxWidth="320" Margin="0,0,0,28" LineHeight="20"/>
-
-            <!-- License Key Input -->
-            <StackPanel Margin="0,0,0,24">
-                <TextBlock Text="{DynamicResource Strings.Auth.LICENSEIDENTIFIER}"
-                           FontSize="10" FontWeight="Bold"
-                           Foreground="{DynamicResource Brush.Text.Tertiary}"
-                           Margin="0,0,0,10"/>
-                <Border Background="{StaticResource SurfaceBg}"
-                        CornerRadius="{DynamicResource Corner.LG}"
-                        BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                        BorderThickness="1.5" Padding="4">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="48"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0"
-                              Data="M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14Z" 
-                              Fill="{DynamicResource Brush.Text.Tertiary}"
-                              Width="18" Height="18" Stretch="Uniform"/>
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
-                                 Background="Transparent" BorderThickness="0"
-                                 Foreground="{DynamicResource Brush.Text.Primary}" 
-                                 FontSize="15" Height="48" VerticalContentAlignment="Center"
-                                 Margin="0,0,12,0"
-                                 CaretBrush="{DynamicResource Brush.Accent.Primary}"
-                                 IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"/>
-                    </Grid>
-                </Border>
+        <!-- Premium Top Bar Branding -->
+        <Border Grid.Row="0" Height="80" Padding="40,20" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Grid Width="32" Height="32" Margin="0,0,16,0">
+                    <Ellipse Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.1"/>
+                    <Path Data="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" 
+                          Fill="{DynamicResource FacilityAccentBrush}" 
+                          Width="18" Height="18" Stretch="Uniform"/>
+                </Grid>
+                <StackPanel>
+                    <TextBlock Text="LUXURYA" FontSize="18" FontWeight="Black" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{DynamicResource Strings.Auth.LuxuryaActivation}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.7"/>
+                </StackPanel>
             </StackPanel>
+        </Border>
 
-            <!-- Error State -->
-            <StackPanel Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"
-                        Margin="0,0,0,24">
-                <Border Background="{StaticResource StatusErrorBackground}"
-                        BorderBrush="{DynamicResource Brush.Danger}"
-                        BorderThickness="1" CornerRadius="10" Padding="14">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Path Data="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" 
-                              Fill="{DynamicResource Brush.Danger}"
-                              Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center"/>
-                        <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}"
-                                   Foreground="{DynamicResource Brush.Danger}"
-                                   FontSize="12.5" TextWrapping="Wrap" Margin="12,0,0,0"
-                                   FontWeight="Medium"/>
-                    </Grid>
-                </Border>
-            </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="500" Margin="60,40">
+                
+                <!-- Large Premium Title -->
+                <TextBlock Text="{DynamicResource Strings.Auth.InitialActivation}" 
+                           FontSize="42" FontWeight="Black" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Margin="0,0,0,8"/>
+                
+                <TextBlock Text="{DynamicResource Strings.Auth.Enteryouruniquelicensekey}" 
+                           FontSize="16" Foreground="{DynamicResource TextSecondaryBrush}" 
+                           TextWrapping="Wrap" LineHeight="24"
+                           Margin="0,0,0,48" Opacity="0.8"/>
 
-            <!-- Activate Button -->
-            <Button Command="{Binding ActivateCommand}" Height="54" IsDefault="True">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
+                <!-- License Input Section -->
+                <StackPanel Margin="0,0,0,32">
+                    <TextBlock Text="{DynamicResource Strings.Auth.LICENSEIDENTIFIER}" 
+                               FontSize="11" FontWeight="Bold" 
+                               Foreground="{DynamicResource TextSecondaryBrush}" 
+                               Margin="0,0,0,12"/>
+                    
+                    <TextBox x:Name="LicenseKeyBox"
+                             Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
+                             Height="64" Padding="20,0" 
+                             VerticalContentAlignment="Center"
+                             FontSize="18" FontWeight="Medium"
+                             Style="{StaticResource PremiumTextBoxStyle}"
+                             Tag="{DynamicResource Strings.Auth.Placeholder.LicenseKey}"/>
+
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="#FF5252" FontSize="12" 
+                               Margin="0,8,0,0" 
+                               Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                </StackPanel>
+
+                <!-- Action Button -->
+                <Button Command="{Binding ActivateCommand}"
+                        Content="{DynamicResource Strings.Auth.Action.ActivateWorkspace}"
+                        Height="64" FontSize="18" FontWeight="Bold"
+                        Style="{StaticResource PremiumPrimaryButtonStyle}"
+                        Margin="0,16,0,24"/>
+
+                <!-- Hardware ID Helper -->
+                <Border Background="{DynamicResource SurfaceBgSubtle}" 
+                        CornerRadius="12" Padding="20" Margin="0,8,0,0">
+                    <StackPanel>
+                        <TextBlock Text="HARDWARE IDENTIFIER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8" Opacity="0.6"/>
                         <Grid>
-                            <Border x:Name="border" CornerRadius="14">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
-                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <Border.Effect>
-                                    <StaticResource ResourceKey="ShadowGlow"/>
-                                </Border.Effect>
-                                <Grid>
-                                    <!-- Shimmer Effect on hover -->
-                                    <Border x:Name="shimmer" Opacity="0" CornerRadius="14">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="Transparent" Offset="0"/>
-                                                <GradientStop Color="#33FFFFFF" Offset="0.5"/>
-                                                <GradientStop Color="Transparent" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                        <Border.RenderTransform>
-                                            <TranslateTransform X="-200"/>
-                                        </Border.RenderTransform>
-                                    </Border>
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <ContentPresenter.Content>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding ActivationStatus}"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource Brush.Neutral.White}"
-                                                           FontSize="15" VerticalAlignment="Center"/>
-                                                <Path x:Name="Arrow"
-                                                      Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
-                                                      Fill="{DynamicResource Brush.Neutral.White}"
-                                                      Width="14" Height="14" Margin="10,0,0,0"
-                                                      Stretch="Uniform" VerticalAlignment="Center"
-                                                      Visibility="{Binding IsBusy, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                            </StackPanel>
-                                        </ContentPresenter.Content>
-                                    </ContentPresenter>
-                                </Grid>
-                            </Border>
+                            <TextBlock Text="{Binding HardwareId}" FontSize="13" FontFamily="Consolas" Foreground="{DynamicResource TextPrimaryBrush}" Opacity="0.9"/>
+                            <Button HorizontalAlignment="Right" Content="COPY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Background="Transparent" BorderThickness="0" Padding="4" Cursor="Hand" Command="{Binding CopyHardwareIdCommand}"/>
                         </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
-                                    <Condition Binding="{Binding IsBusy}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <MultiDataTrigger.EnterActions>
-                                    <BeginStoryboard x:Name="ShimmerStoryboard">
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                             From="-200" To="200" Duration="0:0:0.8" RepeatBehavior="Forever"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.EnterActions>
-                                <MultiDataTrigger.ExitActions>
-                                    <StopStoryboard BeginStoryboardName="ShimmerStoryboard"/>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="shimmer" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </MultiDataTrigger.ExitActions>
-                            </MultiDataTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Brush.Border.Subtle}"/>
-                                <Setter TargetName="border" Property="Effect" Value="{x:Null}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-
-            <!-- Help Footer -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <TextBlock Text="{DynamicResource Strings.Auth.Questions}"
-                           Foreground="{DynamicResource Brush.Text.Secondary}"
-                           FontSize="12.5" Margin="0,0,6,0"/>
-                <TextBlock FontSize="12.5">
-                    <Hyperlink Foreground="{DynamicResource Brush.Accent.Primary}"
-                               FontWeight="SemiBold" TextDecorations="{x:Null}">
-                        Ask our Security Team
-                    </Hyperlink>
-                </TextBlock>
+                    </StackPanel>
+                </Border>
             </StackPanel>
+        </ScrollViewer>
 
-        </StackPanel>
-    </ScrollViewer>
+        <!-- Footer Branding -->
+        <Border Grid.Row="2" Padding="40,24" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,1,0,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Opacity="0.5">
+                    <TextBlock Text="POWERED BY" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="FROM SCRATCH" FontSize="10" FontWeight="Black" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                </StackPanel>
+                <TextBlock Text="v1.2.0-STABLE" HorizontalAlignment="Right" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.4" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

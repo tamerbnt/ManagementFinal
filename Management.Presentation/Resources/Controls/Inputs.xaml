@@ -120,11 +120,10 @@
                                       Fill="{DynamicResource TextTertiaryBrush}"
                                       Style="{StaticResource Style.Icon.Micro}"/>
                             </Button>
-                            <Popup x:Name="PART_Popup"
-
-                                   Placement="Bottom"
+                            <Popup x:Name="PART_Popup" 
+                                   Placement="Bottom" 
                                    PlacementTarget="{Binding ElementName=PART_Root}"
-                                   AllowsTransparency="False"
+                                   AllowsTransparency="True"
                                    StaysOpen="False">
                                 <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
                                     <Calendar x:Name="PART_Calendar" Margin="4"/>
@@ -221,9 +220,8 @@
                         </Grid>
 
                         <Popup x:Name="PART_Popup" 
-                               
                                Placement="Bottom" 
-                               AllowsTransparency="False"
+                               AllowsTransparency="True"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 
@@ -358,9 +356,8 @@
                         </Grid>
 
                         <Popup x:Name="PART_Popup" 
-                               
                                Placement="Bottom" 
-                               AllowsTransparency="False"
+                               AllowsTransparency="True"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 

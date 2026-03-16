@@ -1,15 +1,15 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Adaptive TitanBlur Style -->
-    <Style x:Key="Titan.Surface.Glass" TargetType="Border">
+    <!-- Adaptive LuxuryaBlur Style -->
+    <Style x:Key="Luxurya.Surface.Glass" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Brush.Surface.Glass.Standard}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
     </Style>
 
-    <Style x:Key="Titan.Glass.Tooltip" TargetType="ToolTip">
+    <Style x:Key="Luxurya.Glass.Tooltip" TargetType="ToolTip">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="0"/>
@@ -22,7 +22,7 @@
                             CornerRadius="12"
                             Padding="16">
                         <Border.Effect>
-                            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.2" Color="Black"/>
+                            <StaticResource ResourceKey="Shadow.Level2" />
                         </Border.Effect>
                         <ContentPresenter />
                     </Border>

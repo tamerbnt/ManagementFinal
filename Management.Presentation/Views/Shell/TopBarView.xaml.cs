@@ -93,5 +93,23 @@ namespace Management.Presentation.Views.Shell
                 };
             }
         }
+
+        private void OnSearchItemClicked(object sender, RoutedEventArgs e)
+        {
+            // Remove keyboard focus from the search box to trigger its collapse animation
+            Keyboard.ClearFocus();
+            DependencyObject parent = VisualTreeHelper.GetParent(this);
+            while (parent != null && !(parent is Window)) parent = VisualTreeHelper.GetParent(parent);
+            (parent as Window)?.Focus();
+        }
+
+        private void OnProfileMenuItemClicked(object sender, RoutedEventArgs e)
+        {
+            // Explicitly uncheck the profile toggle to hide the popup immediately upon selection
+            if (ProfileToggle != null)
+            {
+                ProfileToggle.IsChecked = false;
+            }
+        }
     }
 }

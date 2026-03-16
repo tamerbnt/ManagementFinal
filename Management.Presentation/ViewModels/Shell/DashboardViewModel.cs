@@ -83,7 +83,7 @@ namespace Management.Presentation.ViewModels.Shell
         private int _totalMembers;
 
         [ObservableProperty]
-        private string _welcomeMessage = "Welcome to Titan Management";
+        private string _welcomeMessage = "Welcome to Luxurya Management";
 
         [ObservableProperty]
         private string _emptyStateMessage = "It looks like you don't have any members yet. Let's get started!";
@@ -378,7 +378,7 @@ namespace Management.Presentation.ViewModels.Shell
                 // Save to Documents\Titan\Reports\
                 var reportsFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Titan", "Reports");
+                    "Luxurya", "Reports");
                 Directory.CreateDirectory(reportsFolder);
 
                 var fileName = $"DailyReport_{DateTime.Today:yyyy_MM_dd}_{DateTime.Now:HHmmss}.pdf";
@@ -700,7 +700,10 @@ namespace Management.Presentation.ViewModels.Shell
 
             InitializeStrings();
             _isDirty = true;
-            _ = LoadDeferredAsync();
+            // Removed redundant `_ = LoadDeferredAsync()` call.
+            // When FacilityChanged fires, it updates properties and calls ResetState.
+            // If the view is active, the data will be loaded naturally via the NavigationService lifecycle
+            // or by explicit user navigation, preventing a double-load race condition.
         }
 
         private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)

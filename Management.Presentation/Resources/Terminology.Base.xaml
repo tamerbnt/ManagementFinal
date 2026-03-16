@@ -147,7 +147,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Settings.Apparatus.Test">Run Health Test</sys:String>
     <sys:String x:Key="Terminology.Settings.Apparatus.Testing">Testing...</sys:String>
     <sys:String x:Key="TerminologyDeviceManagementLabel">Device Management</sys:String>
-    <sys:String x:Key="TerminologyDeviceManagementDesc">Manage the machines authorized to access this facility's Titan secure network.</sys:String>
+    <sys:String x:Key="TerminologyDeviceManagementDesc">Manage the machines authorized to access this facility's Luxurya secure network.</sys:String>
     <sys:String x:Key="TerminologyThisDeviceLabel">THIS DEVICE</sys:String>
     <sys:String x:Key="TerminologyRevokeAccessLabel">Revoke Access</sys:String>
     <sys:String x:Key="TerminologyLoadingDevicesLabel">Loading authorized devices...</sys:String>

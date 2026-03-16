@@ -9,6 +9,9 @@
         <Border Width="640" VerticalAlignment="Top" Margin="0,100,0,0"
                 Background="{DynamicResource SurfaceBg}" CornerRadius="24"
                 BorderThickness="1" BorderBrush="{DynamicResource SeparatorStroke}">
+            <Border.Effect>
+                <StaticResource ResourceKey="Shadow.Modal" />
+            </Border.Effect>
             <Grid Margin="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="64"/>

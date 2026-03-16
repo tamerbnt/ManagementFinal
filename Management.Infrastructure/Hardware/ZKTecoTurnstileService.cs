@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Management.Domain.Events;
 using Management.Domain.Services;
@@ -8,9 +9,10 @@ using Management.Application.Interfaces;
 
 namespace Management.Infrastructure.Hardware
 {
-    public class ZKTecoTurnstileService : IHardwareTurnstileService
+    public class ZKTecoTurnstileService : IHardwareTurnstileService, IDisposable
     {
-        private dynamic? _zk;
+        private readonly StaTaskRunner _sta = new();
+        private dynamic? _zk; // Created and used ONLY on STA thread
         private readonly TurnstileConfig _config;
         private readonly ILogger<ZKTecoTurnstileService> _logger;
         private readonly IHardwareService _hardwareService;
@@ -18,7 +20,25 @@ namespace Management.Infrastructure.Hardware
         private bool _isConnecting;
         private int _consecutiveFailures;
         private const int MaxFailuresBeforeAlert = 3;
-        public bool IsSdkAvailable { get; private set; }
+        
+        private bool? _sdkAvailable;
+        public bool IsSdkAvailable
+        {
+            get
+            {
+                if (_sdkAvailable.HasValue) return _sdkAvailable.Value;
+                try
+                {
+                    var type = Type.GetTypeFromProgID("zkemkeeper.ZKEM.1");
+                    _sdkAvailable = type != null;
+                }
+                catch
+                {
+                    _sdkAvailable = false;
+                }
+                return _sdkAvailable.Value;
+            }
+        }
 
         public event EventHandler<TurnstileScanEventArgs>? CardScanned;
         public event Action<bool>? ConnectionStatusChanged;
@@ -36,33 +56,21 @@ namespace Management.Infrastructure.Hardware
             _logger = logger;
             _hardwareService = hardwareService;
             
-            try
+            // Proactive SDK check
+            if (IsSdkAvailable)
             {
-                Type? type = Type.GetTypeFromProgID("zkemkeeper.ZKEM.1");
-                if (type != null)
-                {
-                    _zk = Activator.CreateInstance(type);
-                    IsSdkAvailable = true;
-                    _logger.LogInformation("ZKTeco SDK initialized successfully.");
-                }
-                else
-                {
-                    IsSdkAvailable = false;
-                    _logger.LogError("ZKTeco SDK (zkemkeeper.ZKEM.1) not found in registry. Ensure SDK is registered.");
-                    _hardwareService.NotifyStatusChanged("Turnstile", false, "SDK_MISSING");
-                }
+                _logger.LogInformation("ZKTeco SDK detected in registry.");
             }
-            catch (Exception ex)
+            else
             {
-                IsSdkAvailable = false;
-                _logger.LogError(ex, "Failed to initialize ZKTeco SDK.");
-                _hardwareService.NotifyStatusChanged("Turnstile", false, "SDK_INIT_FAILED");
+                _logger.LogError("ZKTeco SDK (zkemkeeper.ZKEM.1) not found in registry.");
+                _hardwareService.NotifyStatusChanged("Turnstile", false, "SDK_MISSING");
             }
         }
 
         public async Task<bool> ConnectAsync(string ip, int port)
         {
-            if (!IsSdkAvailable || _zk == null || _isConnecting) 
+            if (!IsSdkAvailable || _isConnecting) 
             {
                 if (!IsSdkAvailable) _logger.LogWarning("ZKTeco: Connection aborted. SDK not available.");
                 return false;
@@ -71,29 +79,49 @@ namespace Management.Infrastructure.Hardware
 
             try
             {
-                _logger.LogInformation("Connecting to ZKTeco Turnstile: {Ip}:{Port}...", ip, port);
+                _logger.LogInformation("Connecting to ZKTeco Turnstile: {Ip}:{Port} (Timeout: 5s)...", ip, port);
                 
                 bool connected = false;
                 int attempts = 0;
                 while (!connected && attempts < 3)
                 {
                     attempts++;
-                    // Wrap the dynamic COM call in Task.Run to prevent ANY blocking on the calling thread
-                    connected = await Task.Run(() => (bool)_zk.Connect_Net(ip, port)).ConfigureAwait(false);
-                    if (!connected)
+                    
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    try
+                    {
+                        connected = await _sta.RunAsync(() =>
+                        {
+                            if (_zk == null)
+                            {
+                                var type = Type.GetTypeFromProgID("zkemkeeper.ZKEM.1");
+                                if (type == null) return false;
+                                _zk = Activator.CreateInstance(type);
+                            }
+                            return (bool)_zk!.Connect_Net(ip, port);
+                        }).WaitAsync(cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _logger.LogWarning("Connection attempt {Attempt} timed out after 5s.", attempts);
+                        connected = false;
+                    }
+
+                    if (!connected && attempts < 3)
                     {
                         _logger.LogWarning("Connection attempt {Attempt} failed. Retrying...", attempts);
-                        await Task.Delay(2000).ConfigureAwait(false);
+                        await Task.Delay(1000).ConfigureAwait(false);
                     }
                 }
 
                 if (connected)
                 {
                     IsConnected = true;
-                    _zk.RegEvent(_config.MachineNumber, 65535);
-                    
-                    // Wire events for modern ZK SDK
-                    _zk.OnAttTransactionEx += new Action<string, int, int, int, int, int, int, int, int, int, int>(Zk_OnAttTransactionEx);
+                    await _sta.RunAsync(() =>
+                    {
+                        _zk!.RegEvent(_config.MachineNumber, 65535);
+                        _zk.OnAttTransactionEx += new Action<string, int, int, int, int, int, int, int, int, int, int>(Zk_OnAttTransactionEx);
+                    });
 
                     _logger.LogInformation("Connected successfully to ZKTeco machine {MachineNumber}", _config.MachineNumber);
                     _hardwareService.NotifyStatusChanged("Turnstile", true);
@@ -120,7 +148,7 @@ namespace Management.Infrastructure.Hardware
 
         public void StartMonitoring()
         {
-            _logger.LogInformation("Real-time monitoring enabled.");
+            _logger.LogInformation("Real-time monitoring enabled via STA thread.");
         }
 
         public async Task<bool> OpenGateAsync()
@@ -129,7 +157,7 @@ namespace Management.Infrastructure.Hardware
 
             try
             {
-                bool result = await Task.Run(() => (bool)_zk.ACUnlock(DevicePort, _config.GateOpenDurationMs));
+                bool result = await _sta.RunAsync(() => (bool)_zk!.ACUnlock(DevicePort, _config.GateOpenDurationMs));
                 
                 if (result)
                 {
@@ -160,9 +188,8 @@ namespace Management.Infrastructure.Hardware
 
             try
             {
-                // GetDeviceTime is a lightweight call to check if the connection is alive
-                int idw = 0, iyear = 0, imonth = 0, iday = 0, ihour = 0, iminute = 0, isecond = 0;
-                bool result = await Task.Run(() => (bool)_zk.GetDeviceTime(DevicePort, ref iyear, ref imonth, ref iday, ref ihour, ref iminute, ref isecond));
+                int iyear = 0, imonth = 0, iday = 0, ihour = 0, iminute = 0, isecond = 0;
+                bool result = await _sta.RunAsync(() => (bool)_zk!.GetDeviceTime(DevicePort, ref iyear, ref imonth, ref iday, ref ihour, ref iminute, ref isecond));
                 
                 if (!result)
                 {
@@ -195,16 +222,16 @@ namespace Management.Infrastructure.Hardware
                 _hardwareService.NotifyStatusChanged("Turnstile", false, "STABILITY_ISSUE");
             }
         }
+
         private void Zk_OnAttTransactionEx(string enrollNumber, int isInValid, int attState, int verifyMethod, int year, int month, int day, int hour, int minute, int second, int workCode)
         {
+            // Event comes from STA thread
             _logger.LogInformation("Hardware Activity: RawData={RawData}, Valid={Valid}", enrollNumber, isInValid == 0);
             
             string cardId = enrollNumber;
             string deviceName = "SATT-MAIN";
             string transactionId = $"TXN-{DateTime.UtcNow.Ticks}";
 
-            // Fix 1: Parse comma-separated data if present
-            // Format: "200001742,SATT-MAIN,CD11301121"
             if (!string.IsNullOrEmpty(enrollNumber) && enrollNumber.Contains(","))
             {
                 var parts = enrollNumber.Split(',');
@@ -218,6 +245,7 @@ namespace Management.Infrastructure.Hardware
             var timestamp = new DateTime(year, month, day, hour, minute, second);
             var args = new TurnstileScanEventArgs(cardId, deviceName, transactionId, isInValid == 0, verifyMethod, timestamp);
             
+            // Invoke event - note: handler might need to marshal to UI thread if it updates UI
             CardScanned?.Invoke(this, args);
         }
 
@@ -225,13 +253,20 @@ namespace Management.Infrastructure.Hardware
         {
             if (_zk != null && IsConnected)
             {
-                _zk.Disconnect();
+                await _sta.RunAsync(() =>
+                {
+                    try { _zk!.Disconnect(); } catch { }
+                });
                 IsConnected = false;
                 _hardwareService.NotifyStatusChanged("Turnstile", false);
                 ConnectionStatusChanged?.Invoke(false);
                 _logger.LogInformation("Disconnected from ZKTeco device.");
             }
-            await Task.CompletedTask;
+        }
+
+        public void ResetSdkCache()
+        {
+            _sdkAvailable = null;
         }
 
         public void Dispose()
@@ -240,10 +275,15 @@ namespace Management.Infrastructure.Hardware
             
             if (_zk != null)
             {
-                try { _zk.OnAttTransactionEx -= new Action<string, int, int, int, int, int, int, int, int, int, int>(Zk_OnAttTransactionEx); } catch { }
-                if (IsConnected) _zk.Disconnect();
+                _sta.RunAsync(() =>
+                {
+                    try { _zk!.OnAttTransactionEx -= new Action<string, int, int, int, int, int, int, int, int, int, int>(Zk_OnAttTransactionEx); } catch { }
+                    try { _zk!.Disconnect(); } catch { }
+                    _zk = null;
+                }).Wait(2000); // Allow graceful cleanup
             }
 
+            _sta.Dispose();
             _isDisposed = true;
         }
     }

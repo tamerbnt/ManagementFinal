@@ -70,7 +70,7 @@
                 </LinearGradientBrush>
             </Border.BorderBrush>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="80" ShadowDepth="0" Opacity="0.4"/>
+                <StaticResource ResourceKey="Shadow.Modal"/>
             </Border.Effect>
 
         <StackPanel>
@@ -174,20 +174,12 @@
                                         <Trigger Property="IsMouseOver" Value="True">
                                             <Setter TargetName="border" Property="Background" Value="#1AFFFFFF"/>
                                             <Setter TargetName="border" Property="BorderBrush" Value="#508B5CF6"/>
-                                            <Setter TargetName="border" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" Color="#8B5CF6" Opacity="0.3" ShadowDepth="0"/>
-                                                </Setter.Value>
-                                            </Setter>
+                                            <Setter TargetName="border" Property="Effect" Value="{StaticResource Shadow.Level2}"/>
                                         </Trigger>
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                             <Setter TargetName="border" Property="BorderBrush" Value="#8B5CF6"/>
                                             <Setter TargetName="border" Property="Background" Value="#1A8B5CF6"/>
-                                            <Setter TargetName="border" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" Color="#8B5CF6" Opacity="0.5" ShadowDepth="0"/>
-                                                </Setter.Value>
-                                            </Setter>
+                                            <Setter TargetName="border" Property="Effect" Value="{StaticResource Shadow.Level2}"/>
                                         </DataTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

@@ -339,8 +339,9 @@ namespace Management.Presentation.ViewModels.Shell
 
             _facilityContext.FacilityChanged += OnFacilityChanged;
             
-            // Set Initial State
-            OnCurrentViewModelChanged();
+            // Note: Removed redundant OnCurrentViewModelChanged() call here.
+            // App.xaml.cs controls initial navigation and sets CurrentViewModel,
+            // which inherently fires the event.
         }
 
         public ICommand LogoutCommand { get; private set; } = null!;
@@ -624,6 +625,15 @@ namespace Management.Presentation.ViewModels.Shell
 
         private async Task NavigateToViewModelAsync(System.Type viewModelType)
         {
+            var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
+            
+            // Guard: Prevent redundant navigation loops
+            if (navigationStore.CurrentViewModel?.GetType() == viewModelType || 
+                navigationStore.NextViewModel?.GetType() == viewModelType)
+            {
+                return;
+            }
+
             try
             {
                 await _navigationService.NavigateToAsync(viewModelType);

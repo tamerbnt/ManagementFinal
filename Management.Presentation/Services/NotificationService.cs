@@ -144,7 +144,7 @@ namespace Management.Presentation.Services
             if (string.IsNullOrWhiteSpace(message)) return;
 
             // Safe Dispatch to UI Thread
-            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
             {
                 var toast = new ToastViewModel
                 {

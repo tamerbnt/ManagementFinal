@@ -41,7 +41,7 @@
                 </LinearGradientBrush>
             </Border.BorderBrush>
             <Border.Effect>
-                <DropShadowEffect BlurRadius="80" ShadowDepth="0" Opacity="0.4"/>
+                <StaticResource ResourceKey="Shadow.Modal"/>
             </Border.Effect>
 
             <StackPanel>

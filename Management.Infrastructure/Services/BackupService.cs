@@ -25,16 +25,22 @@ namespace Management.Infrastructure.Services
             _context = context;
             
             // Database is in LocalAppData
-            var titanDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Titan");
-            _dbPath = Path.Combine(titanDataFolder, "GymManagement.db");
+            var luxuryaDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+            _dbPath = Path.Combine(luxuryaDataFolder, "GymManagement.db");
 
             // Backups are in MyDocuments for better persistence/sync
-            _backupFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Titan", "Backups");
+            _backupFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Luxurya", "Backups");
             
             if (!Directory.Exists(_backupFolder))
             {
                 Directory.CreateDirectory(_backupFolder);
             }
+
+            // Verify database existence for backup reliability
+            if (!File.Exists(_dbPath))
+                Serilog.Log.Error("[BackupService] CRITICAL: Database not found at {Path} — backups will fail", _dbPath);
+            else
+                Serilog.Log.Information("[BackupService] Database verified at {Path}", _dbPath);
         }
 
         public async Task<string> CreateBackupAsync()

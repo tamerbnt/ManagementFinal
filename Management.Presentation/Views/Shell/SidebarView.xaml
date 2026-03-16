@@ -110,37 +110,59 @@
 
                         <!-- Glowing Logo Container -->
                         <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center"
-                                Background="{DynamicResource FacilityAccentGradient}">
+                                Background="{DynamicResource Brush.Sidebar.Hover}">
                             <Border.Effect>
-                                <!-- Enhanced Identity Glow (Standardized to History Row behavior) -->
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                                <StaticResource ResourceKey="ShadowGlow"/>
                             </Border.Effect>
-                            <Path Data="M18,15C18,15 15,15 12.5,19C10,23 8,23 6,23C4,23 2,21 2,18C2,15 5,12 8,12C11,12 11,15 11,15C11,15 14,15 16,11C18,7 21,7 23,7C25,7 27,9 27,12C27,15 24,18 21,18C18,18 18,15 18,15Z" 
-                                  Fill="{DynamicResource Brush.Neutral.White}" Stretch="Uniform" Margin="12"/>
+                            <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource FacilityAccentBrush}">
+                                <Path.Data>
+                                    <GeometryGroup FillRule="EvenOdd">
+                                        <!-- Head/Star Background -->
+                                        <PathGeometry Figures="M 296.5,82.5 C 315.333,80.5111 324.833,88.8444 325,107.5C 319.855,122.323 309.688,127.49 294.5,123C 283.713,116.316 280.213,106.816 284,94.5C 286.744,88.9206 290.911,84.9206 296.5,82.5 Z"/>
+                                        <!-- Star cut-out -->
+                                        <PathGeometry Figures="M 303.5,90.5 C 306.785,95.7847 311.118,100.118 316.5,103.5C 310.493,106.174 306.159,110.507 303.5,116.5C 300.022,111.188 295.688,106.688 290.5,103C 297.314,101.351 301.648,97.1846 303.5,90.5 Z"/>
+                                        <!-- Main Body Leaf -->
+                                        <PathGeometry Figures="M 317.5,301.5 C 316.549,300.081 316.216,298.415 316.5,296.5C 316.334,289.825 316.5,283.158 317,276.5C 322.5,264.497 327.167,252.164 331,239.5C 334.576,227.385 334.243,215.385 330,203.5C 323.91,189.94 316.076,177.607 306.5,166.5C 292.925,178.648 283.091,193.315 277,210.5C 273.748,221.816 273.748,233.149 277,244.5C 284.443,274.162 294.276,302.995 306.5,331C 313.987,329.562 320.654,326.228 326.5,321C 386.832,268.318 395.166,208.318 351.5,141C 376.176,158.468 390.009,182.635 393,213.5C 395.351,250.781 384.351,283.448 360,311.5C 345.329,327.053 328.829,340.053 310.5,350.5C 313.219,363.356 314.552,376.356 314.5,389.5C 309.463,389.413 304.463,389.746 299.5,390.5C 297.477,348.539 286.31,309.205 266,272.5C 252.184,242.418 253.518,213.084 270,184.5C 281.638,167.362 293.472,150.362 305.5,133.5C 323.367,153.213 337.2,175.546 347,200.5C 354.111,228.387 349.778,254.387 334,278.5C 328.981,286.549 323.481,294.215 317.5,301.5 Z"/>
+                                        <!-- Left Wing Leaf -->
+                                        <PathGeometry Figures="M 249.5,140.5 C 250.239,140.369 250.906,140.536 251.5,141C 229.606,171.74 220.773,205.907 225,243.5C 234.521,279.212 253.188,309.212 281,333.5C 283.143,339.727 284.476,346.06 285,352.5C 246.353,327.842 221.686,293.175 211,248.5C 203.357,204.912 216.191,168.912 249.5,140.5 Z"/>
+                                    </GeometryGroup>
+                                </Path.Data>
+                            </Path>
                         </Border>
-
-                        <TextBlock Text="{DynamicResource Strings.Auth.TITAN}" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" FontSize="16"
-                                   HorizontalAlignment="Center" Margin="0,8,0,0">
-                             <TextBlock.Effect>
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="10" ShadowDepth="0" Opacity="0.5"/>
-                             </TextBlock.Effect>
-                        </TextBlock>
+ 
+                         <TextBlock Text="LUXURYA" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" FontSize="16"
+                                    HorizontalAlignment="Center" Margin="0,8,0,0">
+                              <TextBlock.Effect>
+                                 <StaticResource ResourceKey="Shadow.Level1"/>
+                              </TextBlock.Effect>
+                         </TextBlock>
                     </StackPanel>
-
-                    <!-- Collapsed State -->
-                    <Border x:Name="CollapsedLogo" 
-                            Width="44" Height="44" CornerRadius="{DynamicResource Corner.MD}"
-                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BoolToVis}}"
-                            Background="{DynamicResource FacilityAccentGradient}">
-                        <Border.Effect>
-                             <!-- Stronger Identity Glow for Collapsed State -->
-                            <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
-                        </Border.Effect>
-                        <Path Data="M18,15C18,15 15,15 12.5,19C10,23 8,23 6,23C4,23 2,21 2,18C2,15 5,12 8,12C11,12 11,15 11,15C11,15 14,15 16,11C18,7 21,7 23,7C25,7 27,9 27,12C27,15 24,18 21,18C18,18 18,15 18,15Z" 
-                              Fill="{DynamicResource Brush.Neutral.White}" Width="20" Height="20" Stretch="Uniform"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+ 
+                     <!-- Collapsed State -->
+                     <Border x:Name="CollapsedLogo" 
+                             Width="44" Height="44" CornerRadius="{DynamicResource Corner.MD}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BoolToVis}}"
+                             Background="{DynamicResource Brush.Sidebar.Hover}">
+                         <Border.Effect>
+                             <StaticResource ResourceKey="ShadowGlow"/>
+                         </Border.Effect>
+                         <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource FacilityAccentBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center">
+                             <Path.Data>
+                                 <GeometryGroup FillRule="EvenOdd">
+                                     <!-- Head/Star Background -->
+                                     <PathGeometry Figures="M 296.5,82.5 C 315.333,80.5111 324.833,88.8444 325,107.5C 319.855,122.323 309.688,127.49 294.5,123C 283.713,116.316 280.213,106.816 284,94.5C 286.744,88.9206 290.911,84.9206 296.5,82.5 Z"/>
+                                     <!-- Star cut-out -->
+                                     <PathGeometry Figures="M 303.5,90.5 C 306.785,95.7847 311.118,100.118 316.5,103.5C 310.493,106.174 306.159,110.507 303.5,116.5C 300.022,111.188 295.688,106.688 290.5,103C 297.314,101.351 301.648,97.1846 303.5,90.5 Z"/>
+                                     <!-- Main Body Leaf -->
+                                     <PathGeometry Figures="M 317.5,301.5 C 316.549,300.081 316.216,298.415 316.5,296.5C 316.334,289.825 316.5,283.158 317,276.5C 322.5,264.497 327.167,252.164 331,239.5C 334.576,227.385 334.243,215.385 330,203.5C 323.91,189.94 316.076,177.607 306.5,166.5C 292.925,178.648 283.091,193.315 277,210.5C 273.748,221.816 273.748,233.149 277,244.5C 284.443,274.162 294.276,302.995 306.5,331C 313.987,329.562 320.654,326.228 326.5,321C 386.832,268.318 395.166,208.318 351.5,141C 376.176,158.468 390.009,182.635 393,213.5C 395.351,250.781 384.351,283.448 360,311.5C 345.329,327.053 328.829,340.053 310.5,350.5C 313.219,363.356 314.552,376.356 314.5,389.5C 309.463,389.413 304.463,389.746 299.5,390.5C 297.477,348.539 286.31,309.205 266,272.5C 252.184,242.418 253.518,213.084 270,184.5C 281.638,167.362 293.472,150.362 305.5,133.5C 323.367,153.213 337.2,175.546 347,200.5C 354.111,228.387 349.778,254.387 334,278.5C 328.981,286.549 323.481,294.215 317.5,301.5 Z"/>
+                                     <!-- Left Wing Leaf -->
+                                     <PathGeometry Figures="M 249.5,140.5 C 250.239,140.369 250.906,140.536 251.5,141C 229.606,171.74 220.773,205.907 225,243.5C 234.521,279.212 253.188,309.212 281,333.5C 283.143,339.727 284.476,346.06 285,352.5C 246.353,327.842 221.686,293.175 211,248.5C 203.357,204.912 216.191,168.912 249.5,140.5 Z"/>
+                                 </GeometryGroup>
+                             </Path.Data>
+                         </Path>
+                     </Border>
                 </Grid>
             </Button>
 
@@ -257,8 +279,7 @@
                         <Border.BorderThickness>0</Border.BorderThickness>
 
                         <Border.Effect>
-                            <!-- Soft Identity Shadow (Standardized Glow) -->
-                            <DropShadowEffect Color="{DynamicResource FacilityAccentShadowColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                            <StaticResource ResourceKey="ShadowGlow"/>
                         </Border.Effect>
                         
                         <!-- No internal dot for CoachPro style, just solid gradient -->
@@ -352,54 +373,53 @@
                 </Rectangle.Fill>
             </Rectangle>
 
-            <!-- FOOTER (Clean Bottom Action) -->
-            <StackPanel Grid.Row="3" Margin="0,0,0,8">
-                <!-- Change Facility Button -->
-                <Border x:Name="FacilityItem" Background="Transparent" CornerRadius="{DynamicResource Corner.LG}" Margin="6,4,6,0" Height="64">
-                    <Button Style="{StaticResource SidebarNavigationButtonStyle}" Command="{Binding ChangeFacilityCommand}">
-                        <Grid HorizontalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="48"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Path x:Name="FacilityIcon" Grid.Column="0"
-                                  Data="{StaticResource Icon.Storefront}"
-                                  Fill="{DynamicResource Brush.Sidebar.Text.Inactive}"
-                                  Width="20" Height="20" Stretch="Uniform"
-                                  HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Path.Style>
-                                    <Style TargetType="Path">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
-                                                <Setter Property="Grid.ColumnSpan" Value="2"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Path.Style>
-                            </Path>
-
-                            <TextBlock x:Name="FacilityText" Grid.Column="1" 
-                                       Text="{DynamicResource Terminology.Sidebar.ChangeFacility}" 
-                                       VerticalAlignment="Center" Margin="4,0,16,0"
-                                       Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}"
-                                       FontSize="14" FontWeight="Medium">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Opacity" Value="1"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
-                                                <Setter Property="Opacity" Value="0"/>
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </Grid>
-                    </Button>
-                </Border>
-            </StackPanel>
+            <!-- FOOTER (Premium Branding) -->
+            <Grid Grid.Row="3" Margin="4,0,4,8">
+                <StackPanel x:Name="BrandingStack" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Powered by" 
+                               FontSize="10" 
+                               Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}" 
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontWeight="Medium"
+                               Opacity="0.5"
+                               FontFamily="Segoe UI Variable Display, Segoe UI">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                        <Setter Property="FontSize" Value="7"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="From Scratch" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource FacilityAccentBrush}" 
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               Margin="0,2,0,0"
+                               MaxWidth="200"
+                               FontFamily="Segoe UI Variable Display, Segoe UI">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                        <Setter Property="FontSize" Value="9"/>
+                                        <Setter Property="MaxWidth" Value="40"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                         <TextBlock.Effect>
+                            <StaticResource ResourceKey="Shadow.Level1"/>
+                         </TextBlock.Effect>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

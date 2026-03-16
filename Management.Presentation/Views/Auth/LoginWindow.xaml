@@ -6,225 +6,247 @@
         xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
-        Title="{DynamicResource Strings.Auth.Login}" Height="768" Width="1024"
+        Title="Titan — Sign In" Height="768" Width="1024"
         WindowStyle="None"
         AllowsTransparency="False"
-        Background="{DynamicResource Brush.Window.Background}"
+        Background="#C5DDE9"
         WindowStartupLocation="CenterScreen">
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0"
-                          GlassFrameThickness="-1"
-                          CornerRadius="24"
-                          ResizeBorderThickness="0"/>
+                            GlassFrameThickness="-1"
+                            CornerRadius="20"
+                            ResizeBorderThickness="0"/>
     </shell:WindowChrome.WindowChrome>
 
-    <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
-
-        <!-- CUSTOM PASSWORD STYLE (Based on Input.Field) -->
-        <Style x:Key="Input.Password" TargetType="PasswordBox">
-            <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="Padding" Value="0,8"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
-            <Setter Property="BorderThickness" Value="0,0,0,2"/>
-            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource Brush.Accent.Primary}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="PasswordChar" Value="Ã¢â€”Â"/>
-            
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Grid>
-                            <Border x:Name="BaseBorder"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"/>
-                            
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                          VerticalAlignment="Center"
-                                          Margin="{TemplateBinding Padding}"/>
-
-                            <Border x:Name="FocusOverlay"
-                                    Background="{DynamicResource Brush.Accent.Primary}" 
-                                    Height="2"
-                                    VerticalAlignment="Bottom"
-                                    HorizontalAlignment="Stretch"
-                                    RenderTransformOrigin="0.5, 0.5">
-                                <Border.RenderTransform>
-                                    <ScaleTransform ScaleX="0"/>
-                                </Border.RenderTransform>
-                            </Border>
-                        </Grid>
-                        
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="FocusOverlay"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1" Duration="0:0:0.3">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="FocusOverlay"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="0" Duration="0:0:0.25">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseIn"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
-
+    <!-- ROOT: enables window drag -->
     <Grid MouseLeftButtonDown="OnMouseLeftButtonDown">
-        <!-- LAYER 0: BACKGROUND -->
-        <Border x:Name="AppBackground" 
-                Background="{DynamicResource Brush.Sidebar.Background}">
+
+        <!-- ══════════════════════════════════════════════════════════
+             LAYER 1 — ILLUSTRATION BACKGROUND (covers full window)
+             login_illustration.png is a 640x640 solid-bg image.
+             We stretch it to cover the window and fade its left edge
+             via an OpacityMask so it blends into the window BG.
+             ══════════════════════════════════════════════════════════ -->
+        <Image Source="/Resources/Images/login_illustration.png"
+               Stretch="UniformToFill"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Stretch"
+               Width="650"
+               IsHitTestVisible="False">
+            <Image.OpacityMask>
+                <!-- Left edge of the image fades out; center + right stay opaque -->
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                    <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+                    <GradientStop Color="#AAFFFFFF" Offset="0.15"/>
+                    <GradientStop Color="#FFFFFFFF" Offset="0.35"/>
+                </LinearGradientBrush>
+            </Image.OpacityMask>
+        </Image>
+
+        <!-- ══════════════════════════════════════════════════════════
+             LAYER 2 — FLOATING INFO CARDS (over illustration, right-side)
+             ══════════════════════════════════════════════════════════ -->
+
+        <!-- Card: Ahmed S. / Active — upper area, left of illustration center -->
+        <Border x:Name="CardAhmed"
+                Background="White" CornerRadius="14" Padding="12,10"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,160,430,0"
+                Opacity="0" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
             <Border.Effect>
-                <BlurEffect Radius="40"/>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.10"
+                                  Direction="270" Color="#000000"/>
             </Border.Effect>
-        </Border>
-
-        <!-- LAYER 1: THE CARD -->
-        <Border x:Name="LoginCard" 
-                Width="420" VerticalAlignment="Center" HorizontalAlignment="Center"
-                Background="#FFFFFF"
-                CornerRadius="24" Padding="40">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="50" ShadowDepth="15" Opacity="0.3" Color="#000000" Direction="270"/>
-            </Border.Effect>
-
-            <StackPanel>
-                <TextBlock Text="{DynamicResource Strings.Auth.WelcomeBack}" 
-                           FontSize="24" FontWeight="Bold" 
-                           Foreground="{DynamicResource Brush.Text.Primary}" 
-                           HorizontalAlignment="Center" Margin="0,0,0,8"/>
-                
-                <TextBlock Text="{Binding FacilityName}" 
-                           FontSize="16" FontWeight="Medium"
-                           Foreground="{DynamicResource Brush.Accent.Primary}" 
-                           HorizontalAlignment="Center" Margin="0,0,0,40"/>
-
-                <!-- EMAIL -->
-                <TextBlock Text="{DynamicResource Strings.Auth.EMAILADDRESS}" FontSize="11" FontWeight="Bold" Foreground="#9CA3AF" Margin="0,0,0,4"/>
-                <TextBox Style="{DynamicResource Input.Field}" 
-                         Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
-                         Margin="0,0,0,24"/>
-
-                <!-- PASSWORD -->
-                <TextBlock Text="{DynamicResource Strings.Auth.PASSWORD}" FontSize="11" FontWeight="Bold" Foreground="#9CA3AF" Margin="0,0,0,4"/>
-                <PasswordBox Style="{StaticResource Input.Password}" 
-                             x:Name="PasswordBox"
-                             PasswordChanged="PasswordBox_PasswordChanged"
-                             Margin="0,0,0,8"/>
-
-                <!-- ERROR MESSAGE -->
-                <TextBlock Text="{Binding ErrorMessage}" 
-                           Foreground="#DC2626" 
-                           FontSize="12" 
-                           TextWrapping="Wrap"
-                           HorizontalAlignment="Center"
-                           Margin="0,0,0,24"
-                           Height="16"/>
-
-                <!-- LOGIN BUTTON -->
-                <Button Command="{Binding LoginCommand}" Height="48">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Background" Value="{DynamicResource Brush.Accent.Primary}"/>
-                            <Setter Property="Foreground" Value="White"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="12" RenderTransformOrigin="0.5,0.5">
-                                            <Border.RenderTransform>
-                                                <ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1"/>
-                                            </Border.RenderTransform>
-                                            <Grid>
-                                                <TextBlock x:Name="txt" Text="{DynamicResource Strings.Auth.SignIn}" 
-                                                         FontSize="16" FontWeight="SemiBold" 
-                                                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                                
-                                                <ProgressBar x:Name="progress" 
-                                                            IsIndeterminate="True" 
-                                                            Width="60" Height="4" 
-                                                            VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                            Background="Transparent" Foreground="White" BorderThickness="0"
-                                                            Visibility="Collapsed"/>
-                                            </Grid>
-                                        </Border>
-                                         <ControlTemplate.Triggers>
-                                             <Trigger Property="IsPressed" Value="True">
-                                                 <Trigger.EnterActions>
-                                                     <BeginStoryboard>
-                                                         <Storyboard>
-                                                             <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="0.98" Duration="0:0:0.05"/>
-                                                             <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="0.98" Duration="0:0:0.05"/>
-                                                         </Storyboard>
-                                                     </BeginStoryboard>
-                                                 </Trigger.EnterActions>
-                                                 <Trigger.ExitActions>
-                                                     <BeginStoryboard>
-                                                         <Storyboard>
-                                                             <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.1"/>
-                                                             <DoubleAnimation Storyboard.TargetName="ButtonScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.1"/>
-                                                         </Storyboard>
-                                                     </BeginStoryboard>
-                                                 </Trigger.ExitActions>
-                                             </Trigger>
-                                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
-                                                <Setter TargetName="txt" Property="Visibility" Value="Collapsed"/>
-                                                <Setter TargetName="progress" Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="False">
-                                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.3">
+                            <DoubleAnimation Storyboard.TargetName="CardAhmed"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0" To="1" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="CardAhmed"
+                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                             From="12" To="0" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Border.Triggers>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="38" Height="38" CornerRadius="8" Background="#0EA5E9" Margin="0,0,10,0">
+                    <TextBlock Text="AS" FontSize="12" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Ahmed S." FontSize="13" FontWeight="SemiBold"
+                               Foreground="#111827" Margin="0,0,0,2"/>
+                    <TextBlock Text="Active" FontSize="11" FontWeight="Medium" Foreground="#10B981"/>
+                </StackPanel>
             </StackPanel>
         </Border>
 
-        <!-- LAYER 2: CLOSE BUTTON -->
-        <Button x:Name="CloseButton" 
-                Click="CloseButton_Click" 
-                HorizontalAlignment="Right" VerticalAlignment="Top" 
-                Margin="20" Background="Transparent" BorderThickness="0" Cursor="Hand">
-            <Button.Template>
-                <ControlTemplate TargetType="Button">
-                    <Border Background="{TemplateBinding Background}" Padding="8">
-                        <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41z" 
-                              Fill="White" Width="14" Height="14" Stretch="Uniform"/>
-                    </Border>
-                </ControlTemplate>
-            </Button.Template>
-        </Button>
+        <!-- Card: Revenue Today — right-center of illustration -->
+        <Border x:Name="CardRevenue"
+                Background="White" CornerRadius="14" Padding="16,13"
+                HorizontalAlignment="Right" VerticalAlignment="Center"
+                Margin="0,20,28,0"
+                Opacity="0" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.10"
+                                  Direction="270" Color="#000000"/>
+            </Border.Effect>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.5">
+                            <DoubleAnimation Storyboard.TargetName="CardRevenue"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0" To="1" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="CardRevenue"
+                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                             From="12" To="0" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Border.Triggers>
+            <StackPanel>
+                <TextBlock Text="Revenue Today" FontSize="11" Foreground="#9CA3AF" Margin="0,0,0,4"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="4,820 DA" FontSize="22" FontWeight="Bold" Foreground="#111827"/>
+                    <Path Data="M7,14L12,9L17,14H7Z" Fill="#10B981"
+                          Width="13" Height="13" Stretch="Uniform"
+                          Margin="7,0,0,1" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Card: Karim M. / Checked In — lower-left of illustration -->
+        <Border x:Name="CardKarim"
+                Background="White" CornerRadius="14" Padding="12,10"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,440,130"
+                Opacity="0" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.10"
+                                  Direction="270" Color="#000000"/>
+            </Border.Effect>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.7">
+                            <DoubleAnimation Storyboard.TargetName="CardKarim"
+                                             Storyboard.TargetProperty="Opacity"
+                                             From="0" To="1" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetName="CardKarim"
+                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                             From="12" To="0" Duration="0:0:0.45">
+                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Border.Triggers>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="38" Height="38" CornerRadius="8" Background="#6366F1" Margin="0,0,10,0">
+                    <TextBlock Text="KM" FontSize="12" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="Karim M." FontSize="13" FontWeight="SemiBold"
+                               Foreground="#111827" Margin="0,0,0,2"/>
+                    <TextBlock Text="Checked In" FontSize="11" FontWeight="Medium" Foreground="#0EA5E9"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════
+             LAYER 3 — FLOATING WHITE FORM CARD (left side)
+             This is the main login form. It floats over the background
+             with generous margins and all-4-corners rounded.
+             ══════════════════════════════════════════════════════════ -->
+        <Border Width="470"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"
+                Background="White"
+                CornerRadius="28"
+                Margin="60,60,0,60">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="60" ShadowDepth="12" Opacity="0.12"
+                                  Direction="270" Color="#000000"/>
+            </Border.Effect>
+            <local:LoginView/>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════
+             LAYER 4 — WINDOW CHROME: MINIMIZE + CLOSE (top-right)
+             ══════════════════════════════════════════════════════════ -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,18,22,0"
+                    shell:WindowChrome.IsHitTestVisibleInChrome="True">
+
+            <!-- Minimize -->
+            <Button Click="MinimizeButton_Click"
+                    Width="30" Height="30"
+                    Background="Transparent" BorderThickness="0"
+                    Cursor="Hand" Margin="0,0,10,0" Focusable="False">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="Transparent" CornerRadius="15">
+                            <Path x:Name="icon"
+                                  Data="M19,13H5V11H19V13Z"
+                                  Fill="#374151" Stretch="Uniform"
+                                  Width="12" Height="2"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#18000000"/>
+                                <Setter TargetName="icon" Property="Fill" Value="#111827"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- Close -->
+            <Button Click="CloseButton_Click"
+                    Width="30" Height="30"
+                    Background="Transparent" BorderThickness="0"
+                    Cursor="Hand" Focusable="False">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg" Background="Transparent" CornerRadius="15">
+                            <Path x:Name="icon"
+                                  Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
+                                  Fill="#374151" Stretch="Uniform"
+                                  Width="12" Height="12"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bg" Property="Background" Value="#18EF4444"/>
+                                <Setter TargetName="icon" Property="Fill" Value="#EF4444"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+        </StackPanel>
+
     </Grid>
 </Window>

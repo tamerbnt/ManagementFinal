@@ -64,7 +64,7 @@ namespace Management.Presentation.Services
             toast.Show(type, title, message);
 
             // Add to container
-            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 _toastContainer.Children.Add(toast);
                 _activeToasts.Add(toast);
