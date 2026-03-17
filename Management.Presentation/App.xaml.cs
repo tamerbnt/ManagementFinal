@@ -878,6 +878,9 @@ namespace Management.Presentation
             services.AddTransient<Management.Presentation.ViewModels.Restaurant.InventoryViewModel>();
             services.AddTransient<Management.Presentation.ViewModels.Restaurant.OpenOrdersViewModel>();
 
+            // --- UNIT OF WORK ---
+            services.AddTransient<IUnitOfWork, Management.Infrastructure.Data.UnitOfWork>();
+
             // --- REPOSITORIES (Data Access - Transient) ---
             services.AddTransient<IStaffRepository, StaffRepository>();
             services.AddTransient<IRepository<StaffMember>>(s => s.GetRequiredService<IStaffRepository>());

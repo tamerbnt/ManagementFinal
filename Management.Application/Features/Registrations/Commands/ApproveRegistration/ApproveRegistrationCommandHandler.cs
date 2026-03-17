@@ -2,7 +2,9 @@ using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
+using Management.Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,13 +15,28 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
     {
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IMemberRepository _memberRepository;
+        private readonly ISaleRepository _saleRepository;
+        private readonly IMembershipPlanRepository _membershipPlanRepository;
+        private readonly Management.Domain.Services.ITenantService _tenantService;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ApproveRegistrationCommandHandler> _logger;
 
         public ApproveRegistrationCommandHandler(
             IRegistrationRepository registrationRepository,
-            IMemberRepository memberRepository)
+            IMemberRepository memberRepository,
+            ISaleRepository saleRepository,
+            IMembershipPlanRepository membershipPlanRepository,
+            Management.Domain.Services.ITenantService tenantService,
+            IUnitOfWork unitOfWork,
+            ILogger<ApproveRegistrationCommandHandler> logger)
         {
             _registrationRepository = registrationRepository;
             _memberRepository = memberRepository;
+            _saleRepository = saleRepository;
+            _membershipPlanRepository = membershipPlanRepository;
+            _tenantService = tenantService;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<Result<Guid>> Handle(ApproveRegistrationCommand request, CancellationToken cancellationToken)
@@ -35,25 +52,114 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                 return Result.Failure<Guid>(new Error("Registration.NotPending", "Only pending registrations can be approved"));
             }
 
-            // Approve Registration
-            registration.Approve();
-            await _registrationRepository.UpdateAsync(registration);
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
 
-            // Create Member
-            var memberResult = Member.Register(
-                registration.FullName,
-                registration.Email,
-                registration.PhoneNumber,
-                Guid.NewGuid().ToString().Substring(0, 8).ToUpper(), // Generate temp CardId
-                registration.PreferredPlanId);
+            try
+            {
+                // Approve Registration
+                registration.Approve();
+                await _registrationRepository.UpdateAsync(registration);
 
-            if (memberResult.IsFailure) return Result.Failure<Guid>(memberResult.Error);
+                // Create Member
+                var memberResult = Member.Register(
+                    registration.FullName,
+                    registration.Email,
+                    registration.PhoneNumber,
+                    Guid.NewGuid().ToString().Substring(0, 8).ToUpper(), // Generate temp CardId
+                    registration.PreferredPlanId);
 
-            var member = memberResult.Value;
-            member.FacilityId = request.FacilityId;
-            await _memberRepository.AddAsync(member);
+                if (memberResult.IsFailure) return Result.Failure<Guid>(memberResult.Error);
 
-            return Result.Success(member.Id);
+                var member = memberResult.Value;
+                member.FacilityId = request.FacilityId;
+                await _memberRepository.AddAsync(member);
+
+                // Create Sale record for registration revenue
+                Money planPrice = Money.Zero("DA");
+                string planName = "Membership Registration";
+                MembershipPlan? plan = null;
+
+                if (registration.PreferredPlanId.HasValue)
+                {
+                    plan = await _membershipPlanRepository.GetByIdAsync(registration.PreferredPlanId.Value, request.FacilityId);
+                    if (plan != null)
+                    {
+                        planPrice = plan.Price;
+                        planName = plan.Name;
+                    }
+                }
+
+                var saleResult = Sale.Create(
+                    memberId: member.Id,
+                    paymentMethod: PaymentMethod.Cash,  // default — staff can edit later
+                    transactionType: "MembershipRegistration",
+                    category: SaleCategory.Membership,
+                    capturedLabel: $"Registration — {registration.FullName}");
+
+                if (saleResult.IsSuccess)
+                {
+                    var saleEntity = saleResult.Value;
+                    saleEntity.FacilityId = request.FacilityId;
+                    saleEntity.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
+
+                    if (plan != null)
+                    {
+                        // Create a temporary Product adapter for the plan to use AddLineItem
+                        var tempProductResult = Management.Domain.Models.Product.Create(
+                            plan.Name, 
+                            plan.Description, 
+                            plan.Price, 
+                            Money.Zero("DA"), 
+                            999, 
+                            "PLAN-" + plan.Id.ToString().Substring(0, 8), 
+                            ProductCategory.Other, 
+                            "",
+                            0);
+                            
+                        if (tempProductResult.IsSuccess)
+                        {
+                            var tempProduct = tempProductResult.Value;
+                            typeof(Management.Domain.Models.Product).GetProperty("Id")?.SetValue(tempProduct, plan.Id);
+                            saleEntity.AddLineItem(tempProduct, 1);
+                        }
+                    }
+                    else
+                    {
+                        // Fallback generic item if no plan
+                        var fallbackProductResult = Management.Domain.Models.Product.Create(
+                            "Registration Fee", 
+                            "", 
+                            planPrice, 
+                            Money.Zero("DA"), 
+                            999, 
+                            "REG", 
+                            ProductCategory.Other, 
+                            "",
+                            0);
+                            
+                        if (fallbackProductResult.IsSuccess)
+                        {
+                            saleEntity.AddLineItem(fallbackProductResult.Value, 1);
+                        }
+                    }
+
+                    await _saleRepository.AddAsync(saleEntity);
+                }
+                else
+                {
+                    _logger.LogWarning("[Registration] Could not create sale for registration {Id}: {Error}",
+                        registration.Id, saleResult.Error);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+                return Result.Success(member.Id);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _logger.LogError(ex, "[Registration] Transaction failed during registration approval {Id}", registration.Id);
+                throw;
+            }
         }
     }
 }
