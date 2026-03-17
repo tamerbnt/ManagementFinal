@@ -13,6 +13,7 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Logging;
 using Management.Presentation.Extensions;
 using Management.Application.Services;
+using Management.Domain.Models;
 using Management.Presentation.Services;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -35,7 +36,12 @@ using Management.Presentation.Messages;
 
 namespace Management.Presentation.ViewModels.GymHome
 {
-    public partial class GymHomeViewModel : ViewModelBase, IFacilityHomeViewModel, IStateResettable, IRecipient<FacilityActionCompletedMessage>
+    public partial class GymHomeViewModel : ViewModelBase, IFacilityHomeViewModel, IStateResettable, 
+        IRecipient<FacilityActionCompletedMessage>,
+        IRecipient<RefreshRequiredMessage<Sale>>,
+        IRecipient<RefreshRequiredMessage<Member>>,
+        IRecipient<RefreshRequiredMessage<PayrollEntry>>,
+        IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly Management.Domain.Services.IDialogService _dialogService;
@@ -165,7 +171,7 @@ namespace Management.Presentation.ViewModels.GymHome
 
             
             // Register for Messenger updates
-            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register(this);
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.RegisterAll(this);
 
             // Initial load - Clock only, stats deferred to Loaded event
             StartClock();
@@ -601,20 +607,37 @@ namespace Management.Presentation.ViewModels.GymHome
              // Fire-and-forget to prevent blocking the publisher
              _ = ExecuteHandleAsync(message);
         }
+        
+        public void Receive(RefreshRequiredMessage<Sale> message) => HandleRefresh(message.Value);
+        public void Receive(RefreshRequiredMessage<Member> message) => HandleRefresh(message.Value);
+        public void Receive(RefreshRequiredMessage<PayrollEntry> message) => HandleRefresh(message.Value);
+        public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message) => HandleRefresh(message.Value);
+
+        private void HandleRefresh(Guid facilityId)
+        {
+            if (facilityId == _facilityContext.CurrentFacilityId)
+            {
+                _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                {
+                    if (!IsDisposed) await LoadDashboardStatsAsync();
+                });
+            }
+        }
 
         private void OnSyncCompleted(object? sender, EventArgs e)
         {
-            if (!ShouldRefreshOnSync()) return;
+            if (IsDisposed || !ShouldRefreshOnSync()) return;
             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (IsDisposed || IsLoading) return;
-                _logger?.LogInformation("[GymHome] Sync debounce passed, refreshing dashboard stats...");
+                _logger?.LogInformation("[GymHome] Sync debounce passed, refreshing stats...");
                 await LoadDashboardStatsAsync();
             });
         }
 
         private async Task ExecuteHandleAsync(FacilityActionCompletedMessage message)
         {
+            if (IsDisposed) return;
             try
             {
                 // 1. Calculate / Prepare Data (Off-UI Thread)
@@ -672,11 +695,9 @@ namespace Management.Presentation.ViewModels.GymHome
                     ActivityStream.Insert(0, logItem);
                     if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
                     
-                    if (stats != null)
-                    {
-                        UpdateOccupancy(stats.OccupancyCount, stats.OccupancyLastHour);
-                        RevenueToday = stats.DailyCashTotal;
-                    }
+                    // Note: We don't fetch stats here anymore because the 
+                    // RefreshRequiredMessage handler (which fires immediately after)
+                    // will trigger a call to LoadDashboardStatsAsync for a full refresh.
                 });
             }
             catch (Exception ex)
@@ -715,14 +736,14 @@ namespace Management.Presentation.ViewModels.GymHome
 
             // 4. Force Reload Trigger (Optional, acts as "Invalidate")
             // Next time the view is navigated to, it should reload.
-            // Since we load in constructor/InitializeAsync, we might need to expose a Reload command
-            // or rely on MainViewModel's orchestration to re-initialize if needed.
+            // Or rely on MainViewModel's orchestration to re-initialize if needed.
             // For now, clearing data prevents "Stale Data" from showing up.
         }
 
-        private void OnFacilityChanged(FacilityType type)
+        private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
         {
-            _logger?.LogInformation("[GymHome] FacilityChanged event received ({Type}).", type);
+            if (IsDisposed) return;
+            _logger?.LogInformation("[GymHome] FacilityChanged event received ({Type}). Reloading data.", type);
             var newFacilityId = _facilityContext.CurrentFacilityId;
             
             if (newFacilityId != Guid.Empty)
@@ -730,6 +751,7 @@ namespace Management.Presentation.ViewModels.GymHome
                 _logger?.LogInformation("[GymHome] FacilityId resolved ({Id}). Reloading stats.", newFacilityId);
                 System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
                 {
+                    if (IsDisposed) return;
                     await LoadDashboardStatsAsync();
                     await LoadRecentActivityAsync();
                 });

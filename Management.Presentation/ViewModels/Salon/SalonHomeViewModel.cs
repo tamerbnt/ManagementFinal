@@ -83,13 +83,14 @@ namespace Management.Presentation.ViewModels.Salon
              
              System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
              {
-                 await RefreshDataAsync();
+                if (IsDisposed) return;
+                await RefreshDataAsync();
              });
         }
 
         private void OnSyncCompleted(object? sender, EventArgs e)
         {
-            if (!ShouldRefreshOnSync()) return;
+            if (IsDisposed || !ShouldRefreshOnSync()) return;
             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (IsDisposed || IsLoading) return;
@@ -513,6 +514,7 @@ namespace Management.Presentation.ViewModels.Salon
 
          private void OnFacilityChanged(FacilityType type)
          {
+             if (IsDisposed) return;
              _logger?.LogInformation("[SalonHome] FacilityChanged event received ({Type}).", type);
              var newFacilityId = _facilityContext.CurrentFacilityId;
              
@@ -521,6 +523,7 @@ namespace Management.Presentation.ViewModels.Salon
                  _logger?.LogInformation("[SalonHome] FacilityId resolved ({Id}). Reloading data.", newFacilityId);
                  System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
                  {
+                     if (IsDisposed) return;
                      await RefreshDataAsync();
                  });
              }

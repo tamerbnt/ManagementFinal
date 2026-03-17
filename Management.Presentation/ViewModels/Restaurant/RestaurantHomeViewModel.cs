@@ -89,7 +89,7 @@ namespace Management.Presentation.ViewModels.Restaurant
 
         private void OnSyncCompleted(object? sender, EventArgs e)
         {
-            if (!ShouldRefreshOnSync()) return;
+            if (IsDisposed || !ShouldRefreshOnSync()) return;
             _dispatcher.InvokeAsync(async () =>
             {
                 if (IsDisposed || IsLoading) return;
@@ -267,6 +267,7 @@ namespace Management.Presentation.ViewModels.Restaurant
 
         private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
         {
+            if (IsDisposed) return;
             _logger?.LogInformation("[RestaurantHome] FacilityChanged event received ({Type}).", type);
             var newFacilityId = _facilityContext.CurrentFacilityId;
             
@@ -275,6 +276,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 _logger?.LogInformation("[RestaurantHome] FacilityId resolved ({Id}). Reloading data.", newFacilityId);
                 _dispatcher.InvokeAsync(async () => 
                 {
+                    if (IsDisposed) return;
                     await InitializeAsync();
                 });
             }

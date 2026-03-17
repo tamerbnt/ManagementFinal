@@ -108,10 +108,11 @@ namespace Management.Application.ViewModels.Base
 
             // Wait for lock. If already locked, we wait instead of failing silently 
             // to ensure sequential processing of user commands (e.g., fast double-clicks).
+            if (_isDisposed) return;
             await _executionLock.WaitAsync(); 
             try
             {
-                if (IsBusy) return; // Double-check after acquiring lock
+                if (_isDisposed || IsBusy) return; // Double-check after acquiring lock
                 
                 IsBusy = true;
                 HasError = false;
@@ -125,7 +126,11 @@ namespace Management.Application.ViewModels.Base
             finally
             {
                 IsBusy = false;
-                _executionLock.Release();
+                if (!_isDisposed)
+                {
+                    try { _executionLock.Release(); }
+                    catch (ObjectDisposedException) { /* Handle race condition on disposal */ }
+                }
             }
         }
 
@@ -140,6 +145,7 @@ namespace Management.Application.ViewModels.Base
             // If we can't get the lock immediately (0ms), it means another load is actively happening.
             // We just return instead of waiting. This prevents the "double load" when Navigation 
             // and FacilityChanged trigger at the exact same millisecond.
+            if (_isDisposed) return;
             if (!await _loadingLock.WaitAsync(0))
             {
                 _logger?.LogDebug("[ViewModelBase] ExecuteLoadingAsync aborted: already loading.");
@@ -160,7 +166,11 @@ namespace Management.Application.ViewModels.Base
             finally
             {
                 IsLoading = false; // Hides Skeleton, shows Content
-                _loadingLock.Release();
+                if (!_isDisposed)
+                {
+                    try { _loadingLock.Release(); }
+                    catch (ObjectDisposedException) { /* Handle race condition on disposal */ }
+                }
             }
         }
 
@@ -178,14 +188,13 @@ namespace Management.Application.ViewModels.Base
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed) return;
+            _isDisposed = true; // Mark as disposed BEFORE cleaning up resources
             
             if (disposing)
             {
                 _loadingLock.Dispose();
                 _executionLock.Dispose();
             }
-            
-            _isDisposed = true;
         }
     }
 }

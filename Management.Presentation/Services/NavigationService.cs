@@ -137,9 +137,11 @@ namespace Management.Presentation.Services
                     _logger?.LogInformation("Triggering Deferred Loading for {ViewModelType}", viewModelType.Name);
                     await deferredVm.LoadDeferredAsync();
                 }
-                else if (viewModel is IAsyncViewModel asyncVm)
+                else if (viewModel is IAsyncViewModel asyncVm && viewModel is not INavigationalLifecycle)
                 {
-                    // Fallback for legacy 1-phase async ViewModels
+                    // Fallback ONLY for legacy 1-phase async ViewModels (those NOT using the new phased lifecycle)
+                    // This prevents double-initialization for Home ViewModels that are triggered by Loaded event.
+                    _logger?.LogDebug("Triggering legacy initialization for {ViewModelType}", viewModelType.Name);
                     _ = Task.Run(async () =>
                     {
                         try { await asyncVm.InitializeAsync(); }

@@ -115,8 +115,11 @@ namespace Management.Application.Services
             // Current live occupancy
             var occupancy = await _accessRepo.GetCurrentOccupancyCountAsync(facilityId);
 
-            // Revenue from start of local day (in UTC) to now (UTC)
-            var revenue = await _saleRepo.GetTotalRevenueAsync(facilityId, todayUtcStart, nowUtc);
+            // Revenue from start of local day (in UTC) to end of local day (UTC)
+            // Align with FinancialAggregator: use end of day instead of 'now' to avoid precision/race issues
+            var localDayEnd = localTodayStart.AddDays(1);
+            var todayUtcEnd = localDayEnd.ToUniversalTime();
+            var revenue = await _saleRepo.GetTotalRevenueAsync(facilityId, todayUtcStart, todayUtcEnd);
 
             // Estimate occupancy one hour ago:
             // Query the events in the window [now-2h, now-1h] and count net check-ins
