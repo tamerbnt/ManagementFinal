@@ -684,6 +684,39 @@ namespace Management.Presentation.ViewModels.GymHome
                 _logger?.LogError(ex, "Error handling FacilityActionCompletedMessage");
             }
         }
+        public void ResetState()
+        {
+            IsActive = false;
+            _logger?.LogInformation("Resetting state for GymHomeViewModel");
+            
+            // 1. Clear Data Collections
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                ActivityStream.Clear();
+                OccupancySparklineData.Clear();
+                RevenueSparklineData.Clear();
+                _occupancyValue.Value = 0;
+                _remainingValue.Value = 100;
+            });
+
+            // 2. Reset Metrics
+            OccupancyCount = 0;
+            RevenueToday = 0;
+            ActiveMembersTotal = 0;
+            ExpiringSoonCount = 0;
+            PendingRegistrationsCount = 0;
+            OccupancyPercentage = 0;
+            
+            // 3. Reset Status Flags
+            IsScanSuccessful = false;
+            IsScanError = false;
+            EnvironmentState = "Normal";
+            ScanInput = string.Empty;
+
+            // 4. Force Reload Trigger (Optional, acts as "Invalidate")
+            // Next time the view is navigated to, it should reload.
+            // Since we load in constructor/InitializeAsync, we might need to expose a Reload command
+            // or rely on MainViewModel's orchestration to re-initialize if needed.
             // For now, clearing data prevents "Stale Data" from showing up.
         }
 

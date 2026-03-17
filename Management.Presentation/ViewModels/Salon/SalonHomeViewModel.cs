@@ -11,6 +11,7 @@ using Management.Application.Interfaces.ViewModels;
 using Management.Application.Services;
 using Management.Domain.Interfaces;
 using MediatR;
+using Management.Domain.Enums;
 using Management.Domain.Services;
 using Management.Domain.Models.Salon;
 using Management.Application.DTOs;
