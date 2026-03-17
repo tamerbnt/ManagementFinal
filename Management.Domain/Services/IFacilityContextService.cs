@@ -9,6 +9,7 @@ namespace Management.Domain.Services
         string LanguageCode { get; }
         FacilityType CurrentFacility { get; }
         Guid CurrentFacilityId { get; }
+        string PublicSlug { get; }
         event Action<FacilityType> FacilityChanged;
         Task SwitchFacility(FacilityType type);
         void SetFacility(FacilityType type);

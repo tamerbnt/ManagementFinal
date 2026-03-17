@@ -12,6 +12,8 @@ using Management.Application.Services;
 using Management.Application.Interfaces.App;
 using Management.Presentation.Services;
 using Management.Domain.Services;
+using Management.Infrastructure.Services;
+using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Presentation.Helpers;
 using Management.Application.DTOs;
 using Management.Application.Interfaces.ViewModels;
@@ -22,6 +24,7 @@ namespace Management.Presentation.ViewModels.Registrations
     {
         All,
         Pending,
+        WebsiteRequests,
         Confirmed,
         Declined
     }
@@ -76,6 +79,9 @@ namespace Management.Presentation.ViewModels.Registrations
         private int _totalCount;
         
         [ObservableProperty]
+        private int _pendingWebsiteCount;
+
+        [ObservableProperty]
         private string _searchText = string.Empty;
 
         [ObservableProperty]
@@ -85,6 +91,7 @@ namespace Management.Presentation.ViewModels.Registrations
 
         public ObservableRangeCollection<RegistrationItemViewModel> Registrations { get; } = new();
         public ObservableRangeCollection<RegistrationItemViewModel> FilteredRegistrations { get; } = new();
+        public ObservableCollection<SupabaseRegistrationRequest> WebsiteRequests { get; } = new();
 
         public IAsyncRelayCommand LoadRegistrationsCommand { get; }
         public IAsyncRelayCommand NextPageCommand { get; }
@@ -100,19 +107,28 @@ namespace Management.Presentation.ViewModels.Registrations
         public IRelayCommand<RegistrationViewMode> SwitchViewModeCommand { get; }
         public IRelayCommand ResetFiltersCommand { get; }
 
+        public IRelayCommand<SupabaseRegistrationRequest> ConfirmWebsiteRequestCommand { get; }
+        public IAsyncRelayCommand<SupabaseRegistrationRequest> RejectWebsiteRequestCommand { get; }
+
         private readonly IRegistrationService _registrationService;
         private readonly IFacilityContextService _facilityContext;
+        private readonly IWebsiteRegistrationService _websiteRegistrationService;
+        private readonly SupabaseRealtimeService _realtimeService;
 
         public RegistrationsViewModel(
             ILogger<RegistrationsViewModel> logger,
             IDiagnosticService diagnosticService,
             IToastService toastService,
             IRegistrationService registrationService,
-            IFacilityContextService facilityContext)
+            IFacilityContextService facilityContext,
+            IWebsiteRegistrationService websiteRegistrationService,
+            SupabaseRealtimeService realtimeService)
             : base(logger, diagnosticService, toastService)
         {
             _registrationService = registrationService;
             _facilityContext = facilityContext;
+            _websiteRegistrationService = websiteRegistrationService;
+            _realtimeService = realtimeService;
             
             LoadRegistrationsCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadRegistrationsAsync);
             NextPageCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => { PageNumber++; await LoadRegistrationsAsync(); });
@@ -175,6 +191,44 @@ namespace Management.Presentation.ViewModels.Registrations
             SwitchViewModeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<RegistrationViewMode>(mode => ViewMode = mode);
             ResetFiltersCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ResetFilters);
 
+            ConfirmWebsiteRequestCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<SupabaseRegistrationRequest>(request => 
+            {
+                if (request == null) return;
+                
+                // Set up the form for a NEW registration pre-filled with this data
+                var newRegistration = new RegistrationItemViewModel(this, _registrationService, _toastService)
+                {
+                    FullName = request.FullName,
+                    Email = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Source = "Website",
+                    Message = $"Website Request ID: {request.Id}\nDesired Plan: {request.DesiredPlan}"
+                };
+
+                // The UI will create the base entity and we store the metadata in InterestPayloadJson when saving
+                SelectedRegistration = newRegistration;
+                IsDetailOpen = true;
+                IsEditing = true;
+
+                // After saving (handled in SaveRegistrationCommand conventionally),
+                // the app should call _websiteRegistrationService.UpdateRequestStatusAsync(request.Id, "confirmed")
+                // For now we remove it locally so the stack clears
+                WebsiteRequests.Remove(request);
+                PendingWebsiteCount = WebsiteRequests.Count;
+                _ = _websiteRegistrationService.UpdateRequestStatusAsync(request.Id, "confirmed");
+            });
+
+            RejectWebsiteRequestCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<SupabaseRegistrationRequest>(async request => 
+            {
+                if (request == null) return;
+                
+                WebsiteRequests.Remove(request);
+                PendingWebsiteCount = WebsiteRequests.Count;
+                
+                await _websiteRegistrationService.UpdateRequestStatusAsync(request.Id, "rejected");
+                _toastService.ShowSuccess($"Rejected request from {request.FullName}");
+            });
+
             FilteredRegistrations.CollectionChanged += (s, e) =>
             {
                 if (e.NewItems != null)
@@ -201,10 +255,59 @@ namespace Management.Presentation.ViewModels.Registrations
         public async Task LoadDeferredAsync()
         {
             IsActive = true;
+            _realtimeService.OnWebsiteRegistrationRequestReceived -= OnWebsiteRequestReceived;
+            _realtimeService.OnWebsiteRegistrationRequestReceived += OnWebsiteRequestReceived;
+            
             await ExecuteLoadingAsync(async () =>
             {
                 await LoadRegistrationsAsync();
+                await LoadPendingWebsiteRequestsAsync();
             });
+        }
+
+        private async Task LoadPendingWebsiteRequestsAsync()
+        {
+            if (string.IsNullOrEmpty(_facilityContext.PublicSlug))
+                return;
+
+            try
+            {
+                var requests = await _websiteRegistrationService.FetchPendingRequestsAsync(_facilityContext.PublicSlug);
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                {
+                    WebsiteRequests.Clear();
+                    foreach (var request in requests)
+                    {
+                        WebsiteRequests.Add(request);
+                    }
+                    PendingWebsiteCount = WebsiteRequests.Count;
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load pending website requests");
+            }
+        }
+
+        private void OnWebsiteRequestReceived(SupabaseRegistrationRequest request)
+        {
+            if (request.FacilitySlug != _facilityContext.PublicSlug) return;
+            if (request.Status != "pending") return;
+
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+            {
+                // Prevent duplicates
+                if (!WebsiteRequests.Any(r => r.Id == request.Id))
+                {
+                    WebsiteRequests.Insert(0, request);
+                    PendingWebsiteCount = WebsiteRequests.Count;
+                }
+            });
+        }
+
+        public void OnNavigatedFrom()
+        {
+            _realtimeService.OnWebsiteRegistrationRequestReceived -= OnWebsiteRequestReceived;
         }
 
         partial void OnSelectedFilterChanged(RegistrationFilterStatus value) => _ = LoadRegistrationsAsync();

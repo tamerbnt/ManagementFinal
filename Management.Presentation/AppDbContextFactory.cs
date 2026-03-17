@@ -63,6 +63,7 @@ namespace Management.Presentation
             public Guid CurrentFacilityId => Guid.Empty;
             public Management.Domain.Enums.FacilityType CurrentFacility => Management.Domain.Enums.FacilityType.Gym;
             public string LanguageCode => "en";
+            public string PublicSlug => string.Empty;
             public event Action<Management.Domain.Enums.FacilityType>? FacilityChanged;
             public System.Threading.Tasks.Task SwitchFacility(Management.Domain.Enums.FacilityType type) => System.Threading.Tasks.Task.CompletedTask;
             public void SetFacility(Management.Domain.Enums.FacilityType type) { }

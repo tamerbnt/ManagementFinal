@@ -14,6 +14,7 @@ namespace Management.Presentation.Services
     {
         public FacilityType InitialFacility { get; set; } = FacilityType.Gym;
         public string LanguageCode { get; set; } = "en";
+        public string PublicSlug { get; set; } = string.Empty;
         
         // Removed [JsonConverter(typeof(JsonStringEnumConverter))] as it crashes when applied directly to a Dictionary<Enum, Guid> property
         public Dictionary<FacilityType, Guid>? FacilityIds { get; set; }
@@ -31,6 +32,7 @@ namespace Management.Presentation.Services
         public FacilityType CurrentFacility { get; private set; }
         public Guid CurrentFacilityId => _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
         public string LanguageCode { get; private set; } = "en";
+        public string PublicSlug { get; private set; } = string.Empty;
         public event Action<FacilityType>? FacilityChanged;
 
         public async void SetFacility(FacilityType type)
@@ -102,6 +104,7 @@ namespace Management.Presentation.Services
                     var config = JsonSerializer.Deserialize<FacilityConfig>(json, options);
                     CurrentFacility = config?.InitialFacility ?? FacilityType.General;
                     LanguageCode = config?.LanguageCode ?? "en";
+                    PublicSlug = config?.PublicSlug ?? string.Empty;
                     
                     if (config?.FacilityIds != null)
                     {
@@ -274,6 +277,7 @@ namespace Management.Presentation.Services
                 { 
                     InitialFacility = CurrentFacility,
                     LanguageCode = LanguageCode,
+                    PublicSlug = PublicSlug,
                     FacilityIds = _dynamicFacilityIds.ToDictionary(k => k.Key, v => v.Value)
                 };
                 var options = new JsonSerializerOptions 
