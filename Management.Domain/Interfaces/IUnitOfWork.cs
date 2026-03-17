@@ -6,6 +6,7 @@ namespace Management.Domain.Interfaces
     public interface IUnitOfWork
     {
         Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 
     public interface IUnitOfWorkTransaction : System.IDisposable, System.IAsyncDisposable

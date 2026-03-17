@@ -24,6 +24,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantService _tenantService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ProcessCheckoutCommandHandler(
             ISaleRepository saleRepository,
@@ -31,7 +32,8 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             ProductStore productStore,
             IMediator mediator,
             ICurrentUserService currentUserService,
-            ITenantService tenantService)
+            ITenantService tenantService,
+            IUnitOfWork unitOfWork)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
@@ -39,6 +41,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             _mediator = mediator;
             _currentUserService = currentUserService;
             _tenantService = tenantService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<bool>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
@@ -70,56 +73,70 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             var saleEntity = sale.Value;
             saleEntity.FacilityId = request.FacilityId;
             saleEntity.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
-            var productsToUpdate = new List<Product>();
 
-            foreach (var item in checkoutRequest.Items)
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
             {
-                var productId = item.Key;
-                var qty = item.Value;
+                var productsToUpdate = new List<Product>();
 
-                var product = await _productRepository.GetByIdAsync(item.Key, request.FacilityId);
-                if (product == null)
+                foreach (var item in checkoutRequest.Items)
                 {
-                     return Result.Failure<bool>(new Error("Checkout.ProductNotFound", $"Product {item.Key} not found."));
+                    var productId = item.Key;
+                    var qty = item.Value;
+
+                    var product = await _productRepository.GetByIdAsync(item.Key, request.FacilityId);
+                    if (product == null)
+                    {
+                         return Result.Failure<bool>(new Error("Checkout.ProductNotFound", $"Product {item.Key} not found."));
+                    }
+
+                    if (product.StockQuantity < item.Value)
+                    {
+                         return Result.Failure<bool>(new Error("Checkout.InsufficientStock", $"Insufficient stock for {product.Name}. Available: {product.StockQuantity}"));
+                    }
+
+                    product.UpdateStock(-qty, "Sale");
+                    productsToUpdate.Add(product);
+                    
+                    saleEntity.AddLineItem(product, qty);
                 }
 
-                if (product.StockQuantity < item.Value)
+                await _saleRepository.AddAsync(saleEntity);
+
+                foreach (var p in productsToUpdate)
                 {
-                     return Result.Failure<bool>(new Error("Checkout.InsufficientStock", $"Insufficient stock for {product.Name}. Available: {product.StockQuantity}"));
+                    await _productRepository.UpdateAsync(p);
+                    
+                    // Notify UI
+                    _productStore.TriggerStockUpdated(new ProductDto 
+                    { 
+                        Id = p.Id, 
+                        StockQuantity = p.StockQuantity,
+                        Name = p.Name,
+                        Price = p.Price.Amount,
+                        SKU = p.SKU
+                    });
                 }
 
-                product.UpdateStock(-qty, "Sale");
-                productsToUpdate.Add(product);
-                
-                saleEntity.AddLineItem(product, qty);
+                // FIX: Explicitly call SaveChangesAsync on the shared UnitOfWork context
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                // Notify activity stream
+                var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
+                await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
+                    request.FacilityId,
+                    "Sale",
+                    firstItemName,
+                    $"Processed checkout for {productsToUpdate.Count} items"), cancellationToken);
+
+                return Result.Success(true);
             }
-
-            await _saleRepository.AddAsync(saleEntity);
-
-            foreach (var p in productsToUpdate)
+            catch (Exception ex)
             {
-                await _productRepository.UpdateAsync(p);
-                
-                // Notify UI
-                _productStore.TriggerStockUpdated(new ProductDto 
-                { 
-                    Id = p.Id, 
-                    StockQuantity = p.StockQuantity,
-                    Name = p.Name,
-                    Price = p.Price.Amount,
-                    SKU = p.SKU
-                });
+                await transaction.RollbackAsync(cancellationToken);
+                return Result.Failure<bool>(new Error("Checkout.DatabaseError", $"Failed to save sale: {ex.Message}"));
             }
-
-            // Notify activity stream
-            var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
-            await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
-                request.FacilityId,
-                "Sale",
-                firstItemName,
-                $"Processed checkout for {productsToUpdate.Count} items"), cancellationToken);
-
-            return Result.Success(true);
         }
     }
 }

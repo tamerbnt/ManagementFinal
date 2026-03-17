@@ -393,6 +393,17 @@ namespace Management.Infrastructure.Data
                 entity.OwnsOne(s => s.TotalAmount);
                 entity.Property(e => e.Category).HasColumnName("category");
                 entity.Property(e => e.CapturedLabel).HasColumnName("captured_label");
+                
+                // FIX: Map private _items collection
+                entity.HasMany(s => s.Items)
+                    .WithOne()
+                    .HasForeignKey(si => si.SaleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Navigation(s => s.Items)
+                    .HasField("_items")
+                    .UsePropertyAccessMode(PropertyAccessMode.Field);
+
                 entity.HasIndex(s => new { s.FacilityId, s.CreatedAt }).HasDatabaseName("idx_sale_performance_composite");
             });
 

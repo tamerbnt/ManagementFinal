@@ -21,6 +21,11 @@ namespace Management.Infrastructure.Data
             var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             return new UnitOfWorkTransaction(transaction);
         }
+
+        public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            return await _context.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public class UnitOfWorkTransaction : IUnitOfWorkTransaction

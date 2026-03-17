@@ -1,0 +1,3 @@
+[FATAL CRASH] UnobservedTaskException: A Task's exception(s) were not observed either by Waiting on the Task or accessing its Exception property. As a result, the unobserved exception was rethrown by the finalizer thread. (XAxes and YAxes must contain at least one element.)
+Type: System.AggregateException
+Stack Trace: 
