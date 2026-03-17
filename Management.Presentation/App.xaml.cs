@@ -958,6 +958,7 @@ namespace Management.Presentation
             services.AddTransient<IMemberService, MemberService>();
             services.AddTransient<IStaffService, StaffService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
+            services.AddTransient<IWebsiteRegistrationService, WebsiteRegistrationService>();
             services.AddTransient<IAccessEventService, AccessEventService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<ISaleService, SaleService>();

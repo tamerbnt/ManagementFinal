@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Management.Domain.Services;
+using Management.Infrastructure.Integrations.Supabase.Models;
 
 namespace Management.Infrastructure.Services
 {
@@ -18,6 +19,8 @@ namespace Management.Infrastructure.Services
         private readonly ILogger<SupabaseRealtimeService> _logger;
         private RealtimeChannel? _channel;
         private readonly SemaphoreSlim _subscriptionSemaphore = new(1, 1);
+        
+        public event Action<SupabaseRegistrationRequest>? OnWebsiteRegistrationRequestReceived;
 
         public SupabaseRealtimeService(
             Supabase.Client supabase, 
@@ -110,9 +113,12 @@ namespace Management.Infrastructure.Services
                 {
                     Filter = $"facility_id=eq.{facilityId}"
                 };
+                var registrationRequestsOptions = new PostgresChangesOptions("public", "registration_requests");
 
                 _channel.Register(memberOptions);
                 _channel.Register(registrationOptions);
+                _channel.Register(registrationRequestsOptions);
+
 
                 _channel.AddPostgresChangeHandler(PostgresChangesOptions.ListenType.All, (sender, change) =>
                 {
@@ -168,6 +174,21 @@ namespace Management.Infrastructure.Services
                         }
 
                         _dispatcher.DispatchAsync(table, eventType, data);
+
+                        // Special handling for website registration requests (Realtime feed)
+                        if (table == "registration_requests" && (eventType == "INSERT" || eventType == "insert"))
+                        {
+                            try
+                            {
+                                var request = JsonSerializer.Deserialize<SupabaseRegistrationRequest>(data);
+                                if (request != null)
+                                    OnWebsiteRegistrationRequestReceived?.Invoke(request);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "[Realtime] Failed to deserialize website registration request");
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {
