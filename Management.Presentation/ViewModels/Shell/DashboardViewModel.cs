@@ -413,6 +413,14 @@ namespace Management.Presentation.ViewModels.Shell
         public async Task LoadDeferredAsync()
         {
             IsActive = true;
+
+            // FIX Step 3.1: Guard against loading before FacilityId is resolved
+            if (_facilityContext.CurrentFacilityId == Guid.Empty)
+            {
+                _logger?.LogWarning("[Dashboard] LoadDeferredAsync aborted: FacilityId is Guid.Empty (Not yet resolved).");
+                return;
+            }
+
             if (!_isDirty && !_isInitializing) return;
 
             if (_isInitializing)
@@ -709,9 +717,10 @@ namespace Management.Presentation.ViewModels.Shell
         private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
         {
              // Run on UI thread to ensure properties update correctly
-             System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
              {
-                 _logger?.LogInformation("[Dashboard] FacilityChanged to {Type}. Resetting state.", type);
+                 var newFacilityId = _facilityContext.CurrentFacilityId;
+                 _logger?.LogInformation("[Dashboard] FacilityChanged to {Type} (ID: {Id}). Resetting state.", type, newFacilityId);
                  
                  // Update mode flags based on new context
                  IsBusinessMode = type == Management.Domain.Enums.FacilityType.Gym;
@@ -722,6 +731,13 @@ namespace Management.Presentation.ViewModels.Shell
                  RegisterMessages();
                  
                  ResetState();
+
+                 // FIX Step 3.2: If we now have a valid ID, trigger data loading
+                 if (newFacilityId != Guid.Empty)
+                 {
+                     _logger?.LogInformation("[Dashboard] FacilityId resolved to {Id}. Triggering data load.", newFacilityId);
+                     await LoadDeferredAsync();
+                 }
              });
         }
     }

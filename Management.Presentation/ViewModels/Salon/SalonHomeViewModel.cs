@@ -158,6 +158,7 @@ namespace Management.Presentation.ViewModels.Salon
             _syncService = syncService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
+            _facilityContext.FacilityChanged += OnFacilityChanged;
 
             _localizationService.LanguageChanged += (s, e) => 
             {
@@ -273,6 +274,11 @@ namespace Management.Presentation.ViewModels.Salon
                 var utcEnd = today.AddDays(1).AddTicks(-1).ToUniversalTime();
 
                 var facilityId = _facilityContext.CurrentFacilityId;
+                if (facilityId == Guid.Empty)
+                {
+                    _logger?.LogWarning("[SalonHome] RefreshDataAsync aborted: FacilityId is Guid.Empty.");
+                    return;
+                }
 
                 _logger.LogInformation($"[SalonHome] Refreshing data for Facility: {facilityId} on {today.ToShortDateString()}");
 
@@ -467,6 +473,10 @@ namespace Management.Presentation.ViewModels.Salon
                 // Unregister Messenger
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.UnregisterAll(this);
 
+                if (_facilityContext != null)
+                {
+                    _facilityContext.FacilityChanged -= OnFacilityChanged;
+                }
                 if (_syncService != null)
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;
@@ -498,6 +508,21 @@ namespace Management.Presentation.ViewModels.Salon
                  TotalRevenueToday = "0 DA";
                  ChairUtilization = 0;
              });
-        }
+         }
+
+         private void OnFacilityChanged(FacilityType type)
+         {
+             _logger?.LogInformation("[SalonHome] FacilityChanged event received ({Type}).", type);
+             var newFacilityId = _facilityContext.CurrentFacilityId;
+             
+             if (newFacilityId != Guid.Empty)
+             {
+                 _logger?.LogInformation("[SalonHome] FacilityId resolved ({Id}). Reloading data.", newFacilityId);
+                 System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                 {
+                     await RefreshDataAsync();
+                 });
+             }
+         }
     }
 }

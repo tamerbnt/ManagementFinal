@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -82,6 +82,7 @@ namespace Management.Presentation.ViewModels.Restaurant
             _syncService = syncService ?? throw new ArgumentNullException(nameof(syncService));
 
             _syncService.SyncCompleted += OnSyncCompleted;
+            _facilityContext.FacilityChanged += OnFacilityChanged;
 
             ScanCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
         }
@@ -106,6 +107,13 @@ namespace Management.Presentation.ViewModels.Restaurant
 
         public async Task InitializeAsync()
         {
+            // FIX Step 3.1: Guard against loading before FacilityId is resolved
+            if (CurrentFacilityId == Guid.Empty)
+            {
+                _logger?.LogWarning("[RestaurantHome] InitializeAsync aborted: FacilityId is Guid.Empty.");
+                return;
+            }
+
             // SAFETY: No hardcoded Task.Delay here. Initialization triggered by Loaded event.
             await Task.WhenAll(
                 LoadMetricsAsync(),
@@ -245,12 +253,31 @@ namespace Management.Presentation.ViewModels.Restaurant
         {
             if (disposing)
             {
+                if (_facilityContext != null)
+                {
+                    _facilityContext.FacilityChanged -= OnFacilityChanged;
+                }
                 if (_syncService != null)
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;
                 }
             }
             base.Dispose(disposing);
+        }
+
+        private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
+        {
+            _logger?.LogInformation("[RestaurantHome] FacilityChanged event received ({Type}).", type);
+            var newFacilityId = _facilityContext.CurrentFacilityId;
+            
+            if (newFacilityId != Guid.Empty)
+            {
+                _logger?.LogInformation("[RestaurantHome] FacilityId resolved ({Id}). Reloading data.", newFacilityId);
+                _dispatcher.InvokeAsync(async () => 
+                {
+                    await InitializeAsync();
+                });
+            }
         }
     }
 }
