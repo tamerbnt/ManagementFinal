@@ -475,6 +475,39 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         public DateTime UpdatedAt { get; set; }
     }
 
+    [Table("registration_requests")]
+    public class SupabaseRegistrationRequest : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public string Id { get; set; } = string.Empty;
+
+        [Column("facility_slug")]
+        public string FacilitySlug { get; set; } = string.Empty;
+
+        [Column("gender")]
+        public string Gender { get; set; } = string.Empty;
+
+        [Column("full_name")]
+        [Newtonsoft.Json.JsonProperty("full_name")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Column("email")]
+        [Newtonsoft.Json.JsonProperty("email")]
+        public string Email { get; set; } = string.Empty;
+
+        [Column("phone_number")]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [Column("desired_plan")]
+        public string DesiredPlan { get; set; } = string.Empty;
+
+        [Column("status")]
+        public string Status { get; set; } = "pending";
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+    }
+
     [Table("gym_settings")]
     public class SupabaseGymSettings : SupabaseBaseModel
     {

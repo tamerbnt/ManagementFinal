@@ -40,4 +40,16 @@ namespace Management.Domain.Models
         public bool HighChairRequired { get; init; }
         public string Occasion { get; init; } = string.Empty; // e.g. "Birthday"
     }
+
+    /// <summary>
+    /// Metadata for registrations originating from the public website.
+    /// </summary>
+    public record WebsiteRegistrationMetadata : IRegistrationMetadata
+    {
+        public string SegmentType => "Website";
+        public string DesiredPlanText { get; init; } = string.Empty;
+        public string FacilitySlug { get; init; } = string.Empty;
+        public string Gender { get; init; } = string.Empty;
+        public string WebsiteRequestId { get; init; } = string.Empty; // Supabase registration_requests.id
+    }
 }
