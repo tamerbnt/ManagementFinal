@@ -1022,7 +1022,10 @@ namespace Management.Presentation
             services.AddSingleton<Management.Application.Interfaces.App.ISyncService, SyncService>();
             services.AddSingleton<ISyncEventDispatcher, SyncEventDispatcher>();
             services.AddHostedService<SyncWorker>();
-            services.AddHostedService<SupabaseRealtimeService>();
+            
+            services.AddSingleton<SupabaseRealtimeService>();
+            services.AddHostedService(provider => provider.GetRequiredService<SupabaseRealtimeService>());
+            
             services.AddHostedService<AccessMonitoringWorker>();
 
             // History Providers
