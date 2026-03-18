@@ -48,26 +48,35 @@ namespace Management.Infrastructure.Data
             return await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
         }
 
-        public virtual async Task<T> AddAsync(T entity)
+        public virtual async Task<T> AddAsync(T entity, bool saveChanges = true)
         {
             await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
+            if (saveChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
             return entity;
         }
 
-        public virtual async Task UpdateAsync(T entity)
+        public virtual async Task UpdateAsync(T entity, bool saveChanges = true)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
+            _context.Entry(entity).State = EntityState.Modified;
+            if (saveChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public virtual async Task DeleteAsync(Guid id)
+        public virtual async Task DeleteAsync(Guid id, bool saveChanges = true)
         {
-            var entity = await GetByIdAsync(id);
+            var entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
-                entity.Delete();
-                await _context.SaveChangesAsync();
+                _dbSet.Remove(entity);
+                if (saveChanges)
+                {
+                    await _context.SaveChangesAsync();
+                }
             }
         }
 

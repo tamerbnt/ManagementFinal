@@ -13,9 +13,11 @@ using Management.Domain.Interfaces;
 using MediatR;
 using Management.Domain.Enums;
 using Management.Domain.Services;
+using Management.Domain.Models;
 using Management.Domain.Models.Salon;
 using Management.Application.DTOs;
 using Management.Application.Notifications;
+using Management.Presentation.Helpers;
 using Management.Presentation.Services.Localization;
 using Management.Presentation.Services.Salon;
 using Management.Presentation.Services.State;
@@ -31,7 +33,15 @@ using Management.Presentation.Messages;
 
 namespace Management.Presentation.ViewModels.Salon
 {
-    public partial class SalonHomeViewModel : ViewModelBase, IFacilityHomeViewModel, IStateResettable, IRecipient<FacilityActionCompletedMessage>
+    public partial class SalonHomeViewModel : ViewModelBase,
+        IFacilityHomeViewModel,
+        IStateResettable,
+        IRecipient<FacilityActionCompletedMessage>,
+        IRecipient<RefreshRequiredMessage<Sale>>,
+        IRecipient<RefreshRequiredMessage<Member>>,
+        IRecipient<RefreshRequiredMessage<Registration>>,
+        IRecipient<RefreshRequiredMessage<PayrollEntry>>,
+        IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>
     {
         private readonly SessionManager _sessionManager;
         private readonly ILocalizationService _localizationService;
@@ -44,12 +54,13 @@ namespace Management.Presentation.ViewModels.Salon
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly ITerminologyService _terminologyService;
         private DispatcherTimer? _clockTimer;
+        private CancellationTokenSource? _refreshCts;
 
         [ObservableProperty]
         private ObservableCollection<Appointment> _todayAgenda = new();
 
         [ObservableProperty]
-        private ObservableCollection<IActivityItem> _activityStream = new();
+        private ObservableRangeCollection<IActivityItem> _activityStream = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasNoUpcoming))]
@@ -79,13 +90,61 @@ namespace Management.Presentation.ViewModels.Salon
 
         public void Receive(FacilityActionCompletedMessage message)
         {
-             if (message.Value != _facilityContext.CurrentFacilityId) return;
-             
-             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
-             {
-                if (IsDisposed) return;
-                await RefreshDataAsync();
-             });
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<Sale> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<Member> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<Registration> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<PayrollEntry> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        private void HandleRefreshAsync()
+        {
+            _refreshCts?.Cancel();
+            _refreshCts = new CancellationTokenSource();
+            var token = _refreshCts.Token;
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested) return;
+
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (IsDisposed || token.IsCancellationRequested) return;
+                        await RefreshDataAsync();
+                    });
+                }
+                catch (OperationCanceledException) { }
+            }, token);
         }
 
         private void OnSyncCompleted(object? sender, EventArgs e)
@@ -168,7 +227,7 @@ namespace Management.Presentation.ViewModels.Salon
             };
 
             // Register for Messenger updates
-            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register(this);
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.RegisterAll(this);
 
             _salonService.AppointmentStatusChanged += OnAppointmentStatusChanged;
 
@@ -349,7 +408,7 @@ namespace Management.Presentation.ViewModels.Salon
                 // Current code was: stream.OrderBy(x => x.SortDate).
                 // I will change to OrderByDescending.
                 
-                ActivityStream = new ObservableCollection<IActivityItem>(orderedStream);
+                ActivityStream = new ObservableRangeCollection<IActivityItem>(orderedStream);
 
                 // Update Agenda for backward compatibility if needed, or just clear it / keep it for Carousel calculation
                 // Carousel needs UPCOMING. So OrderBy StartTime is correct for Agenda.
@@ -494,6 +553,9 @@ namespace Management.Presentation.ViewModels.Salon
                     _carouselTimer.Stop();
                     _carouselTimer = null;
                 }
+
+                _refreshCts?.Cancel();
+                _refreshCts?.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -86,6 +86,17 @@ namespace Management.Application.Services
 
             await _saleRepo.AddAsync(sale);
 
+            // 2. Log Access Event for occupancy tracking
+            await _mediator.Send(new LogAccessEventCommand(
+                FacilityId: facilityId,
+                TurnstileId: Guid.Empty, // UI walk-in
+                CardId: "WALK-IN",
+                TransactionId: $"WI-{sale.Id}",
+                Granted: true,
+                Status: "Granted",
+                Reason: "Walk-In Entry"
+            ));
+
             var result = new WalkInResult
             {
                 Success = true,

@@ -174,6 +174,35 @@ namespace Management.Application.ViewModels.Base
             }
         }
 
+        /// <summary>
+        /// Use for background refreshes. Does NOT show UI loaders or toasts.
+        /// Enforces single-execution concurrency via a dedicated semaphore if provided.
+        /// </summary>
+        protected async Task ExecuteBackgroundAsync(Func<Task> action, SemaphoreSlim? throttle = null)
+        {
+            if (throttle != null)
+            {
+                if (!await throttle.WaitAsync(0)) 
+                {
+                    _logger?.LogDebug("[ViewModelBase] ExecuteBackgroundAsync aborted: throttled.");
+                    return;
+                }
+            }
+            
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Background operation failed in {ViewModel}", GetType().Name);
+            }
+            finally
+            {
+                throttle?.Release();
+            }
+        }
+
         public virtual Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;

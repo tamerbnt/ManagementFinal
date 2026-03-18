@@ -805,7 +805,7 @@ namespace Management.Presentation
 
                 // Interceptors are now handled via constructor injection and OnConfiguring to avoid resolution loops
 
-            }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
 
             // --- INFRASTRUCTURE: EXTERNAL ---
             // Supabase Client (Singleton)
@@ -878,53 +878,53 @@ namespace Management.Presentation
             services.AddTransient<Management.Presentation.ViewModels.Restaurant.OpenOrdersViewModel>();
 
             // --- UNIT OF WORK ---
-            services.AddTransient<IUnitOfWork, Management.Infrastructure.Data.UnitOfWork>();
+            services.AddScoped<IUnitOfWork, Management.Infrastructure.Data.UnitOfWork>();
 
-            // --- REPOSITORIES (Data Access - Transient) ---
-            services.AddTransient<IStaffRepository, StaffRepository>();
-            services.AddTransient<IRepository<StaffMember>>(s => s.GetRequiredService<IStaffRepository>());
+            // --- REPOSITORIES (Data Access - Scoped) ---
+            services.AddScoped<IStaffRepository, StaffRepository>();
+            services.AddScoped<IRepository<StaffMember>>(s => s.GetRequiredService<IStaffRepository>());
             
-            services.AddTransient<IMenuRepository, MenuRepository>();
-            services.AddTransient<IRepository<RestaurantMenuItem>>(s => s.GetRequiredService<IMenuRepository>());
-            services.AddTransient<IOrderRepository, OrderRepository>();
-            services.AddTransient<IRestaurantOrderRepository, OrderRepository>();
-            services.AddTransient<IRepository<RestaurantOrder>>(s => s.GetRequiredService<IOrderRepository>());
+            services.AddScoped<IMenuRepository, MenuRepository>();
+            services.AddScoped<IRepository<RestaurantMenuItem>>(s => s.GetRequiredService<IMenuRepository>());
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IRestaurantOrderRepository, OrderRepository>();
+            services.AddScoped<IRepository<RestaurantOrder>>(s => s.GetRequiredService<IOrderRepository>());
 
-            services.AddTransient<IMemberRepository, MemberRepository>();
-            services.AddTransient<IRepository<Member>>(s => s.GetRequiredService<IMemberRepository>());
+            services.AddScoped<IMemberRepository, MemberRepository>();
+            services.AddScoped<IRepository<Member>>(s => s.GetRequiredService<IMemberRepository>());
 
-            services.AddTransient<IAppointmentRepository, AppointmentRepository>();
-            services.AddTransient<IRepository<Management.Domain.Models.Salon.Appointment>>(s => s.GetRequiredService<IAppointmentRepository>());
+            services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            services.AddScoped<IRepository<Management.Domain.Models.Salon.Appointment>>(s => s.GetRequiredService<IAppointmentRepository>());
             
-            services.AddTransient<IRegistrationRepository, RegistrationRepository>();
-            services.AddTransient<IAccessEventRepository, AccessEventRepository>();
+            services.AddScoped<IRegistrationRepository, RegistrationRepository>();
+            services.AddScoped<IAccessEventRepository, AccessEventRepository>();
             
-            services.AddTransient<ISaleRepository, SaleRepository>();
-            services.AddTransient<IRepository<Sale>>(s => s.GetRequiredService<ISaleRepository>());
+            services.AddScoped<ISaleRepository, SaleRepository>();
+            services.AddScoped<IRepository<Sale>>(s => s.GetRequiredService<ISaleRepository>());
             
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddTransient<IRepository<Product>>(s => s.GetRequiredService<IProductRepository>());
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IRepository<Product>>(s => s.GetRequiredService<IProductRepository>());
             
-            services.AddTransient<ITurnstileRepository, TurnstileRepository>();
+            services.AddScoped<ITurnstileRepository, TurnstileRepository>();
             
-            services.AddTransient<IReservationRepository, ReservationRepository>();
-            services.AddTransient<IRepository<Reservation>>(s => s.GetRequiredService<IReservationRepository>());
+            services.AddScoped<IReservationRepository, ReservationRepository>();
+            services.AddScoped<IRepository<Reservation>>(s => s.GetRequiredService<IReservationRepository>());
             
-            services.AddTransient<IPayrollRepository, PayrollRepository>();
-            services.AddTransient<MembershipPlanRepository>();
-            services.AddTransient<IMembershipPlanRepository>(s => 
+            services.AddScoped<IPayrollRepository, PayrollRepository>();
+            services.AddScoped<MembershipPlanRepository>();
+            services.AddScoped<IMembershipPlanRepository>(s => 
                 new CachedMembershipPlanRepository(s.GetRequiredService<MembershipPlanRepository>(), s.GetRequiredService<IMemoryCache>()));
-            services.AddTransient<IRepository<MembershipPlan>>(s => s.GetRequiredService<IMembershipPlanRepository>());
-            services.AddTransient<IIntegrationRepository, IntegrationRepository>();
-            services.AddTransient<IGymSettingsRepository, GymSettingsRepository>();
-            services.AddTransient<ITransactionRepository, TransactionRepository>();
-            services.AddTransient<IFacilityScheduleRepository, FacilityScheduleRepository>();
-            services.AddTransient<IRepository<FacilitySchedule>>(s => s.GetRequiredService<IFacilityScheduleRepository>());
-            services.AddTransient<ITableRepository, TableRepository>();
-            services.AddTransient<IRepository<Management.Domain.Models.Restaurant.TableModel>>(s => s.GetRequiredService<ITableRepository>());
-            services.AddTransient<IFacilityZoneRepository, FacilityZoneRepository>();
-            services.AddTransient<ISalonServiceRepository, SalonServiceRepository>();
-            services.AddTransient<IRepository<Management.Domain.Models.Salon.SalonService>>(s => s.GetRequiredService<ISalonServiceRepository>());
+            services.AddScoped<IRepository<MembershipPlan>>(s => s.GetRequiredService<IMembershipPlanRepository>());
+            services.AddScoped<IIntegrationRepository, IntegrationRepository>();
+            services.AddScoped<IGymSettingsRepository, GymSettingsRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<IFacilityScheduleRepository, FacilityScheduleRepository>();
+            services.AddScoped<IRepository<FacilitySchedule>>(s => s.GetRequiredService<IFacilityScheduleRepository>());
+            services.AddScoped<ITableRepository, TableRepository>();
+            services.AddScoped<IRepository<Management.Domain.Models.Restaurant.TableModel>>(s => s.GetRequiredService<ITableRepository>());
+            services.AddScoped<IFacilityZoneRepository, FacilityZoneRepository>();
+            services.AddScoped<ISalonServiceRepository, SalonServiceRepository>();
+            services.AddScoped<IRepository<Management.Domain.Models.Salon.SalonService>>(s => s.GetRequiredService<ISalonServiceRepository>());
 
             // --- STORES (State Management - SINGLETONS) ---
             services.AddSingleton<NavigationStore>();
@@ -1107,7 +1107,8 @@ namespace Management.Presentation
             services.AddSingleton<SalonHomeViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SalonHomeViewModel>());
 
-            services.AddTransient<RestaurantHomeViewModel>();
+            services.AddSingleton<RestaurantHomeViewModel>();
+            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<RestaurantHomeViewModel>());
             services.AddTransient<FloorPlanViewModel>();
             services.AddTransient<TableDetailViewModel>();
 

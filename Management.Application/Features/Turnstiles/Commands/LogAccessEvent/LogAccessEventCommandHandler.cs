@@ -12,10 +12,12 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
     public class LogAccessEventCommandHandler : IRequestHandler<LogAccessEventCommand, Result<Guid>>
     {
         private readonly IAccessEventRepository _accessRepo;
+        private readonly IPublisher _publisher;
 
-        public LogAccessEventCommandHandler(IAccessEventRepository accessRepo)
+        public LogAccessEventCommandHandler(IAccessEventRepository accessRepo, IPublisher publisher)
         {
             _accessRepo = accessRepo;
+            _publisher = publisher;
         }
 
         public async Task<Result<Guid>> Handle(LogAccessEventCommand request, CancellationToken cancellationToken)
@@ -36,6 +38,14 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
             accessEvent.FacilityId = request.FacilityId;
 
             await _accessRepo.AddAsync(accessEvent);
+
+            // PUBLISH NOTIFICATION: This is critical for the "People Inside" card to update instantly.
+            // ActionType "Access" is handled by the Bridge to trigger a UI refresh.
+            await _publisher.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                request.FacilityId,
+                "Access",
+                "Member Check-In",
+                request.Reason), cancellationToken);
 
             return Result.Success(accessEvent.Id);
         }

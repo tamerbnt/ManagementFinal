@@ -10,6 +10,7 @@ using Management.Application.Interfaces.App;
 using Management.Application.Services;
 using Management.Domain.Interfaces;
 using Management.Domain.Models.Restaurant;
+using Management.Presentation.Helpers;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using System.Collections.Generic;
@@ -22,12 +23,25 @@ using Management.Presentation.Stores;
 using Management.Application.Interfaces.ViewModels;
 using Management.Presentation.Services.Localization;
 using Management.Presentation.ViewModels.Base;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
+using Management.Domain.Models;
 
 namespace Management.Presentation.ViewModels.Restaurant
 {
-    public partial class RestaurantHomeViewModel : FacilityAwareViewModelBase, IFacilityHomeViewModel, IAsyncViewModel, IStateResettable
+    public partial class RestaurantHomeViewModel : FacilityAwareViewModelBase,
+        IFacilityHomeViewModel,
+        IAsyncViewModel,
+        IStateResettable,
+        IRecipient<RefreshRequiredMessage<Sale>>,
+        IRecipient<RefreshRequiredMessage<Member>>,
+        IRecipient<RefreshRequiredMessage<Registration>>,
+        IRecipient<RefreshRequiredMessage<PayrollEntry>>,
+        IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>,
+        IRecipient<FacilityActionCompletedMessage>,
+        IRecipient<TableStatusChangedMessage>
     {
-        public ObservableCollection<IActivityItem> ActivityStream { get; } = new();
+        public ObservableRangeCollection<IActivityItem> ActivityStream { get; } = new();
 
         private readonly ITableService _tableService;
         private readonly IOrderService _orderService;
@@ -38,6 +52,7 @@ namespace Management.Presentation.ViewModels.Restaurant
         private readonly IDispatcher _dispatcher;
         private readonly IDiagnosticService _diagnosticService;
         private readonly ISyncService _syncService;
+        private CancellationTokenSource? _refreshDebounceCts;
 
         [ObservableProperty] private int _activeTablesCount;
         [ObservableProperty] private decimal _revenueToday;
@@ -85,6 +100,8 @@ namespace Management.Presentation.ViewModels.Restaurant
             _facilityContext.FacilityChanged += OnFacilityChanged;
 
             ScanCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
+
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
         private void OnSyncCompleted(object? sender, EventArgs e)
@@ -162,45 +179,46 @@ namespace Management.Presentation.ViewModels.Restaurant
                 // 2. Fetch Last 48 Hours to ensure coverage
                 var recentEvents = await provider.GetHistoryAsync(CurrentFacilityId, DateTime.UtcNow.AddDays(-3), DateTime.UtcNow);
 
+                var logItems = recentEvents.Take(50).Select(e => 
+                {
+                    var icon = e.Type switch
+                    {
+                        HistoryEventType.Access => e.IsSuccessful ? "✅" : "❌",
+                        HistoryEventType.Payment => "🛒",
+                        HistoryEventType.Order => "🛒",
+                        _ => "✨"
+                    };
+
+                    var initials = e.Type switch
+                    {
+                        HistoryEventType.Access => new string((e.Title ?? "??").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper(),
+                        HistoryEventType.Payment => "$$",
+                        HistoryEventType.Order => "$$",
+                        _ => "??"
+                    };
+
+                    var resolvedTitle = !string.IsNullOrEmpty(e.TitleLocalizationKey)
+                        ? string.Format(_terminologyService.GetTerm(e.TitleLocalizationKey), e.TitleLocalizationArgs ?? Array.Empty<object>())
+                        : e.Title;
+
+                    var resolvedDetails = !string.IsNullOrEmpty(e.DetailsLocalizationKey)
+                         ? string.Format(_terminologyService.GetTerm(e.DetailsLocalizationKey), e.DetailsLocalizationArgs ?? Array.Empty<object>())
+                         : e.Details;
+
+                    var subtitle = e.Amount.HasValue && e.Amount > 0 
+                        ? $"{e.Amount:N0} DA - {resolvedDetails}"
+                        : resolvedDetails;
+
+                    return new ActivityLogItem(resolvedTitle, subtitle, icon, initials)
+                    {
+                        Timestamp = e.Timestamp.ToLocalTime().ToString("HH:mm"),
+                        SortDate = e.Timestamp
+                    };
+                }).ToList();
+
                 await _dispatcher.InvokeAsync(() =>
                 {
-                    ActivityStream.Clear();
-                    foreach (var e in recentEvents.Take(50))
-                    {
-                        var initials = e.Type switch
-                        {
-                            HistoryEventType.Order => e.Metadata == "Takeout" ? "TK" : "TB",
-                            HistoryEventType.Payroll => "PY",
-                            HistoryEventType.Inventory => "IV",
-                            _ => "???"
-                        };
-
-                        var icon = e.Type switch
-                        {
-                            HistoryEventType.Order => e.Metadata == "Takeout" ? "Icon.Storefront" : "IconRestaurant",
-                            HistoryEventType.Payroll => "IconFinance",
-                            HistoryEventType.Inventory => "IconBox",
-                            _ => "Icon.HelpCircle"
-                        };
-
-                        var resolvedTitle = !string.IsNullOrEmpty(e.TitleLocalizationKey)
-                            ? string.Format(GetTerm(e.TitleLocalizationKey), e.TitleLocalizationArgs ?? Array.Empty<object>())
-                            : e.Title;
-
-                        var resolvedDetails = !string.IsNullOrEmpty(e.DetailsLocalizationKey)
-                            ? string.Format(GetTerm(e.DetailsLocalizationKey), e.DetailsLocalizationArgs ?? Array.Empty<object>())
-                            : e.Details;
-
-                        var subtitle = e.Amount.HasValue && e.Amount > 0 
-                            ? $"{e.Amount:N0} DA - {resolvedDetails}"
-                            : resolvedDetails;
-
-                        ActivityStream.Add(new ActivityLogItem(resolvedTitle, subtitle, icon, initials)
-                        {
-                            Timestamp = e.Timestamp.ToLocalTime().ToString("HH:mm"),
-                            SortDate = e.Timestamp
-                        });
-                    }
+                    ActivityStream.ReplaceRange(logItems);
                 });
             }
             catch (Exception ex)
@@ -249,10 +267,81 @@ namespace Management.Presentation.ViewModels.Restaurant
             ScanInput = string.Empty;
         }
 
+        // ── Messenger Receive handlers ──────────────────────────────────────
+        public void Receive(RefreshRequiredMessage<Sale> message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<Member> message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<Registration> message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<PayrollEntry> message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(FacilityActionCompletedMessage message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        public void Receive(TableStatusChangedMessage message)
+        {
+            if (message.Value != CurrentFacilityId) return;
+            HandleRefreshAsync();
+        }
+
+        private void HandleRefreshAsync()
+        {
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    await _dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed) await InitializeAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+                catch (Exception ex)
+                {
+                    _logger?.LogError(ex, "[RestaurantHome] Error during background refresh");
+                }
+            }, token);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
+                _refreshDebounceCts?.Cancel();
+                _refreshDebounceCts?.Dispose();
+                WeakReferenceMessenger.Default.UnregisterAll(this);
                 if (_facilityContext != null)
                 {
                     _facilityContext.FacilityChanged -= OnFacilityChanged;

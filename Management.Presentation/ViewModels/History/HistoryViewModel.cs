@@ -45,6 +45,7 @@ namespace Management.Presentation.ViewModels.History
         private readonly ISyncService _syncService;
         private readonly IOrderService _orderService;
         private readonly IReportingService _reportingService;
+        private System.Threading.CancellationTokenSource? _refreshDebounceCts;
 
         [ObservableProperty]
         private HistoryEventItemViewModel? _selectedEvent;
@@ -387,6 +388,8 @@ namespace Management.Presentation.ViewModels.History
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;
                 }
+                _refreshDebounceCts?.Cancel();
+                _refreshDebounceCts?.Dispose();
                 WeakReferenceMessenger.Default.Unregister<RefreshRequiredMessage<Sale>>(this);
                 WeakReferenceMessenger.Default.Unregister<RefreshRequiredMessage<PayrollEntry>>(this);
             }
@@ -395,24 +398,50 @@ namespace Management.Presentation.ViewModels.History
 
         public void Receive(RefreshRequiredMessage<Sale> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _ = Task.Run(async () =>
             {
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed && !IsLoading) await LoadHistoryAsync();
-                });
-            }
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed && !IsLoading) await LoadHistoryAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
 
         public void Receive(RefreshRequiredMessage<PayrollEntry> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _ = Task.Run(async () =>
             {
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed && !IsLoading) await LoadHistoryAsync();
-                });
-            }
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed && !IsLoading) await LoadHistoryAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Management.Presentation.Extensions;
 using Management.Presentation.Helpers;
 using System.Collections.ObjectModel;
@@ -174,17 +174,21 @@ namespace Management.Presentation.ViewModels.Shop
 
         private void OnProductStockUpdated(ProductDto updatedProduct)
         {
-            var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
-            if (product != null)
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                product.StockQuantity = updatedProduct.StockQuantity;
-                // Since this uses Record/ObservableRangeCollection with NotifyCollectionChanged, 
-                // but the individual record properties might not notify unless they are mutable and have NotifyPropertyChanged.
-                // ProductDto properties ARE mutable but do NOT have NotifyPropertyChanged.
-                // So we might need to Replace the item in the collection or use an ObservableObject wrapper.
-                // For now, let's just Refresh the filtered list to reflect changes.
-                FilterProducts(SearchQuery);
-            }
+                if (IsDisposed) return;
+
+                var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
+                if (product != null)
+                {
+                    product.StockQuantity = updatedProduct.StockQuantity;
+                    // Since this uses Record/ObservableRangeCollection with NotifyCollectionChanged, 
+                    // but the individual record properties might not notify unless they are mutable and have NotifyPropertyChanged.
+                    // ProductDto properties ARE mutable but do NOT have NotifyPropertyChanged.
+                    // So we must Refresh the filtered list on the UI thread to reflect changes.
+                    FilterProducts(SearchQuery);
+                }
+            });
         }
 
         protected override void Dispose(bool disposing)

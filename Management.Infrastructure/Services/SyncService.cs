@@ -143,6 +143,9 @@ namespace Management.Infrastructure.Services
                 using var scope = _scopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+                // Set current facility context for JIT repair
+                _currentFacilityId = facilityId;
+
                 // Phase 2: Use the Outbox Pattern
                 await ProcessOutboxAsync(context, ct, facilityId);
                 
@@ -186,19 +189,22 @@ namespace Management.Infrastructure.Services
 
             if (!pending.Any()) return;
 
-            _logger.LogInformation($"Processing {pending.Count} outbox messages in a single batch scope...");
+            _logger.LogInformation("Processing {Count} outbox messages sequentially...", pending.Count);
 
-            using var scope = _scopeFactory.CreateScope();
-            var scopedContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-            // Phase 3: Parallel Dispatch for better throughput
-            var tasks = pending.Select(async messageEntity =>
+            // Phase 3: Sequential processing to ensure DbContext thread-safety (CRITICAL for SQLite)
+            foreach (var messageEntity in pending)
             {
-                var message = await scopedContext.OutboxMessages
+                if (ct.IsCancellationRequested) break;
+
+                // Each message gets its own scope/context for maximum isolation and safety
+                using var messageScope = _scopeFactory.CreateScope();
+                var messageContext = messageScope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var message = await messageContext.OutboxMessages
                     .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(m => m.Id == messageEntity.Id, ct);
 
-                if (message == null || message.IsProcessed) return;
+                if (message == null || message.IsProcessed) continue;
 
                 try
                 {
@@ -214,31 +220,13 @@ namespace Management.Infrastructure.Services
                     {
                         message.ErrorCount++;
                     }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    _logger.LogWarning("Concurrency conflict for outbox message {MessageId}. Skipping.", message.Id);
-                    scopedContext.Entry(message).State = EntityState.Detached;
+
+                    await messageContext.SaveChangesAsync(ct);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, $"Failed to process outbox message {message.Id} for {message.EntityType}");
-                    message.ErrorCount++;
-                    message.LastError = ex.Message;
                 }
-            });
-
-            await Task.WhenAll(tasks);
-
-            // Phase 3: Batch Save
-            try 
-            {
-                await scopedContext.SaveChangesAsync(ct);
-                _logger.LogInformation("Successfully persisted batch of outbox updates.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to save outbox batch updates. Data may sync again on next cycle.");
             }
         }
 

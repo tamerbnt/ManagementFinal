@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Management.Application.Interfaces.ViewModels;
 using Management.Presentation.ViewModels.Shared;
+using Management.Presentation.Helpers;
 
 namespace Management.Presentation.ViewModels.Base
 {
@@ -12,7 +13,7 @@ namespace Management.Presentation.ViewModels.Base
     /// </summary>
     public interface IFacilityHomeViewModel : IAsyncViewModel
     {
-        ObservableCollection<IActivityItem> ActivityStream { get; }
+        ObservableRangeCollection<IActivityItem> ActivityStream { get; }
         
         string ScanInput { get; set; }
         IAsyncRelayCommand ScanCommand { get; }

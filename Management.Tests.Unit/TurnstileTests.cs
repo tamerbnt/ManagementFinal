@@ -281,7 +281,7 @@ namespace Management.Tests.Unit.Turnstile
             // Assert
             result.Status.Should().Be(AccessResult.Granted);
             // Verify UpdateAsync was called (session was deducted)
-            memberRepo.Verify(r => r.UpdateAsync(It.IsAny<Member>()), Times.Once);
+            memberRepo.Verify(r => r.UpdateAsync(It.IsAny<Member>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Fact]

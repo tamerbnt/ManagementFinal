@@ -28,6 +28,8 @@ namespace Management.Presentation.Handlers
             
             if (notification.ActionType == "Registration" || notification.ActionType == "MemberUpdate")
             {
+                // Note: We avoid sending this for "Access" here because Access 
+                // already sends FacilityActionCompletedMessage which triggers the same logic.
                 WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Management.Domain.Models.Member>(notification.FacilityId));
             }
 

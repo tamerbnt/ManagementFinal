@@ -34,13 +34,16 @@ namespace Management.Presentation.ViewModels.Shell
     public partial class DashboardViewModel : FacilityAwareViewModelBase, IAsyncViewModel, 
         IRecipient<RefreshRequiredMessage<Sale>>, 
         IRecipient<RefreshRequiredMessage<Member>>,
+        IRecipient<RefreshRequiredMessage<Registration>>,
         IRecipient<RefreshRequiredMessage<PayrollEntry>>,
         IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>,
+        IRecipient<FacilityActionCompletedMessage>,
         IRecipient<TableStatusChangedMessage>
     {
         private readonly IDashboardService _dashboardService;
         private readonly ISyncService _syncService;
         private readonly IServiceScopeFactory _scopeFactory;
+        private System.Threading.CancellationTokenSource? _refreshDebounceCts;
         private CancellationTokenSource? _initCts;
         
         [ObservableProperty]
@@ -49,6 +52,7 @@ namespace Management.Presentation.ViewModels.Shell
         private bool _isInitializing;
         private bool _needsRefreshDuringInit;
         private bool _isDirty = true; // Initial load is always dirty
+        private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
 
         [ObservableProperty]
         private string _title = string.Empty;
@@ -191,12 +195,16 @@ namespace Management.Presentation.ViewModels.Shell
             IServiceScopeFactory scopeFactory) 
             : base(terminologyService, facilityContextService, logger, diagnosticService, toastService, localizationService)
         {
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
             _dashboardService = dashboardService;
             _modalNavigationService = modalNavigationService;
             _serviceProvider = serviceProvider;
             _reportingService = reportingService;
             _syncService = syncService;
             _scopeFactory = scopeFactory;
+            
+            // Register for Messenger updates
+            WeakReferenceMessenger.Default.RegisterAll(this);
 
             _syncService.SyncCompleted += OnSyncCompleted;
             _facilityContext.FacilityChanged += OnFacilityChanged;
@@ -222,8 +230,10 @@ namespace Management.Presentation.ViewModels.Shell
             // Register for refresh messages
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<Sale>>(this);
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<Member>>(this);
+            WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<Registration>>(this);
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<PayrollEntry>>(this);
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<InventoryPurchaseDto>>(this);
+            WeakReferenceMessenger.Default.Register<FacilityActionCompletedMessage>(this);
 
             // Restaurant: refresh revenue & table counts instantly when any table changes state
             if (IsRestaurantMode)
@@ -314,22 +324,26 @@ namespace Management.Presentation.ViewModels.Shell
         private async Task RefreshRevenueBreakdown()
         {
             GetDateRange(SelectedPlanFilter, out var start, out var end);
+            var facilityId = _facilityContext.CurrentFacilityId;
 
             List<PlanRevenueDto> data;
-            if (IsRestaurantMode && RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Menu"))
+            
+            using (var scope = _scopeFactory.CreateScope())
             {
-                var facilityId = _facilityContext.CurrentFacilityId;
-                data = await _dashboardService.GetRevenueByMenuItemAsync(facilityId, start, end);
-            }
-            else if (RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownProduct") ?? "Product"))
-            {
-                var facilityId = _facilityContext.CurrentFacilityId;
-                data = await _dashboardService.GetRevenueByProductAsync(facilityId, start, end);
-            }
-            else
-            {
-                var facilityId = _facilityContext.CurrentFacilityId;
-                data = await _dashboardService.GetRevenueByPlanAsync(facilityId, start, end);
+                var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                
+                if (IsRestaurantMode && RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Menu"))
+                {
+                    data = await scopedDashboardService.GetRevenueByMenuItemAsync(facilityId, start, end);
+                }
+                else if (RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownProduct") ?? "Product"))
+                {
+                    data = await scopedDashboardService.GetRevenueByProductAsync(facilityId, start, end);
+                }
+                else
+                {
+                    data = await scopedDashboardService.GetRevenueByPlanAsync(facilityId, start, end);
+                }
             }
 
             PlanRevenue.Clear();
@@ -340,7 +354,13 @@ namespace Management.Presentation.ViewModels.Shell
         {
             GetDateRange(SelectedStaffFilter, out var start, out var end);
             var facilityId = _facilityContext.CurrentFacilityId;
-            var data = await _dashboardService.GetStaffPerformanceAsync(facilityId, start, end);
+            
+            List<StaffPerformanceDto> data;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                data = await scopedDashboardService.GetStaffPerformanceAsync(facilityId, start, end);
+            }
 
             StaffPerformance.Clear();
             foreach (var item in data) StaffPerformance.Add(item);
@@ -472,14 +492,12 @@ namespace Management.Presentation.ViewModels.Shell
                         ActiveClientsThisMonth = summary.ActiveClientsThisMonth;
 
                         PopularItems.ReplaceRange(summary.PopularItems);
-                        RecentActivity.ReplaceRange(summary.Activities.Select(activity => 
+                        // Non-destructive update: Add missing items instead of wiping everything
+                        var existingIds = new HashSet<DateTime>(RecentActivity.Select(a => a.Timestamp));
+                        var newItems = summary.Activities.Select(activity => 
                         {
                             DateTime timestamp;
-                            if (!DateTime.TryParse(activity.Timestamp, out timestamp))
-                            {
-                                // Fallback to current time if parsing fails (shouldn't happen with ISO8601 but safe to have)
-                                timestamp = DateTime.Now;
-                            }
+                            if (!DateTime.TryParse(activity.Timestamp, out timestamp)) timestamp = DateTime.Now;
 
                             return new AccessEventDto 
                             { 
@@ -489,7 +507,16 @@ namespace Management.Presentation.ViewModels.Shell
                                 IsAccessGranted = activity.Type == "Member",
                                 FailureReason = activity.Subtitle.StartsWith("Denied") ? activity.Subtitle : null
                             };
-                        }));
+                        }).Where(a => !existingIds.Contains(a.Timestamp)).ToList();
+
+                        if (newItems.Any())
+                        {
+                            foreach (var item in newItems.OrderBy(a => a.Timestamp))
+                            {
+                                RecentActivity.Insert(0, item);
+                            }
+                            while (RecentActivity.Count > 50) RecentActivity.RemoveAt(RecentActivity.Count - 1);
+                        }
 
                         RecentTransactions.ReplaceRange(summary.RecentTransactions);
                         StaffPerformance.ReplaceRange(summary.TopPerformingStaff);
@@ -597,58 +624,164 @@ namespace Management.Presentation.ViewModels.Shell
 
         public void Receive(RefreshRequiredMessage<Sale> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+
+            // Coalesce rapid-fire messages into a single refresh
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _isDirty = true;
+            _logger?.LogInformation("[Dashboard] Marked dirty, debouncing refresh...");
+
+            _ = Task.Run(async () =>
             {
-                _isDirty = true;
-                _logger?.LogInformation("[Dashboard] Marked dirty due to Sale change.");
-                // Reload immediately so dashboard reflects new transactions
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed) await LoadDeferredAsync();
-                });
-            }
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed) await LoadDeferredAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
 
-        public void Receive(RefreshRequiredMessage<Member> message)
+       public void Receive(RefreshRequiredMessage<Member> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _isDirty = true;
+            _logger?.LogInformation("[Dashboard] Marked dirty (Member), debouncing refresh...");
+
+            _ = Task.Run(async () =>
             {
-                _isDirty = true;
-                _logger?.LogInformation("[Dashboard] Marked dirty due to Member change.");
-                // Reload immediately so dashboard member counts update
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed) await LoadDeferredAsync();
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed) await LoadDeferredAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
+        }
+
+        public void Receive(RefreshRequiredMessage<Registration> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+
+            _isDirty = true;
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                if (!IsDisposed) await LoadDeferredAsync();
+            });
+        }
+
+        public async void Receive(FacilityActionCompletedMessage message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+
+            // 1. Optimistic update for the activity list
+            var activity = new AccessEventDto
+            {
+                MemberName = message.DisplayName,
+                AccessStatus = message.Message,
+                Timestamp = DateTime.Now,
+                IsAccessGranted = message.ActionType == "Access" || message.ActionType == "Registration" || message.ActionType == "Walk-In",
+                FailureReason = (message.ActionType == "Access" && message.Message.Contains("Denied") ? message.Message : null) ?? string.Empty
+            };
+
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (RecentActivity.Count >= 50) RecentActivity.RemoveAt(RecentActivity.Count - 1);
+                RecentActivity.Insert(0, activity);
+            });
+
+            // 2. Immediate Stat Refresh (Off-UI Thread, Throttled)
+            await ExecuteBackgroundAsync(async () =>
+            {
+                DashboardSummaryDto summary;
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                    summary = await scopedDashboardService.GetSummaryAsync();
+                }
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    if (IsDisposed) return;
+                    ActivePeopleCount = summary.ActiveMembers;
+                    TotalActiveMembers = summary.ActiveMembers;
+                    TotalMembers = summary.TotalMembers;
+                    ExpiringSoonCount = summary.ExpiringSoonCount;
+                    PendingRegistrationsCount = summary.PendingRegistrationsCount;
                 });
-            }
+            }, _refreshSemaphore);
         }
 
         public void Receive(RefreshRequiredMessage<PayrollEntry> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _isDirty = true;
+            _logger?.LogInformation("[Dashboard] Marked dirty (Payroll), debouncing refresh...");
+
+            _ = Task.Run(async () =>
             {
-                _isDirty = true;
-                _logger?.LogInformation("[Dashboard] Marked dirty due to Payroll change.");
-                // Reload immediately so dashboard expenses update
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed) await LoadDeferredAsync();
-                });
-            }
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed) await LoadDeferredAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
 
         public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            _isDirty = true;
+            _logger?.LogInformation("[Dashboard] Marked dirty (Inventory), debouncing refresh...");
+
+            _ = Task.Run(async () =>
             {
-                _isDirty = true;
-                _logger?.LogInformation("[Dashboard] Marked dirty due to Inventory Purchase change.");
-                // Reload immediately so dashboard expenses update
-                System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed) await LoadDeferredAsync();
-                });
-            }
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        if (!IsDisposed) await LoadDeferredAsync();
+                    });
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
 
         /// <summary>
@@ -684,6 +817,9 @@ namespace Management.Presentation.ViewModels.Shell
         {
             if (disposing)
             {
+                _refreshDebounceCts?.Cancel();
+                _refreshDebounceCts?.Dispose();
+                WeakReferenceMessenger.Default.UnregisterAll(this);
                 if (_syncService != null)
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;

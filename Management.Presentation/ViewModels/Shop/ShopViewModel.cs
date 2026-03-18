@@ -22,6 +22,8 @@ using Management.Domain.Services;
 using Microsoft.Extensions.Logging;
 using Management.Presentation.Helpers;
 using Management.Presentation.ViewModels.Base;
+using Microsoft.Extensions.DependencyInjection;
+using Management.Presentation.Messages;
 
 namespace Management.Presentation.ViewModels.Shop
 {
@@ -33,7 +35,8 @@ namespace Management.Presentation.ViewModels.Shop
         CommunityToolkit.Mvvm.Messaging.IRecipient<Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>>,
         Management.Presentation.ViewModels.Base.IParameterReceiver
     {
-        private readonly IProductService _productService;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IModalNavigationService _modalNavigationService;
         private readonly ISaleService _saleService;
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly ProductStore _productStore;
@@ -135,7 +138,7 @@ namespace Management.Presentation.ViewModels.Shop
 
 
         public ShopViewModel(
-            IProductService productService, 
+            IServiceScopeFactory scopeFactory,
             ISaleService saleService,
             ILogger<ShopViewModel> logger,
             IDiagnosticService diagnosticService,
@@ -145,14 +148,16 @@ namespace Management.Presentation.ViewModels.Shop
             Management.Domain.Services.IFacilityContextService facilityContext,
             ISyncService syncService,
             ITerminologyService terminologyService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IModalNavigationService modalNavigationService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
-            _productService = productService;
+            _scopeFactory = scopeFactory;
             _saleService = saleService;
             _dialogService = dialogService;
             _productStore = productStore;
             _syncService = syncService;
+            _modalNavigationService = modalNavigationService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
             Title = GetTerm("Strings.Shop.Shop") ?? "Shop";
@@ -163,13 +168,13 @@ namespace Management.Presentation.ViewModels.Shop
             
             LoadProductsCommand = new AsyncRelayCommand(async () => {
                 CurrentPage = 1;
-                await LoadProductsAsync(false);
+                await ExecuteLoadingAsync(() => LoadProductsAsync(false));
             });
 
             LoadMoreCommand = new AsyncRelayCommand(async () => {
-                if (!HasMoreItems || IsLoading) return;
+                if (!HasMoreItems) return;
                 CurrentPage++;
-                await LoadProductsAsync(true);
+                await ExecuteLoadingAsync(() => LoadProductsAsync(true));
             });
 
             AddToCartCommand = new AsyncRelayCommand<ProductDto>(AddToCartAsync);
@@ -191,24 +196,33 @@ namespace Management.Presentation.ViewModels.Shop
 
             OpenAddProductCommand = new AsyncRelayCommand(async () => {
                 _toastService.ShowInfo(GetTerm("Strings.Shop.OpeningAddProductmodal") ?? "Opening product editor...");
-                var result = await _dialogService.ShowCustomDialogAsync<AddProductViewModel>();
-                
-                if (result is ProductDto newProduct)
+                try
                 {
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                    // CORRECT FIX: Use ShowCustomDialogAsync since AddProductView is a UserControl
+                    var result = await _dialogService.ShowCustomDialogAsync<AddProductViewModel>(null);
+                    
+                    if (result is ProductDto newProduct)
                     {
-                        var vm = new ProductItemViewModel(newProduct, this);
-                        Products.Insert(0, vm);
-                        QuickAddProducts.ReplaceRange(Products.Take(3));
-                        
-                        // Update stats
-                        if (newProduct.StockQuantity <= newProduct.ReorderLevel)
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                         {
-                            LowStockCount++;
-                            HasLowStock = true;
-                        }
-                    });
-                    _toastService.ShowSuccess(string.Format(GetTerm("Strings.Shop.AddedToTheList") ?? "Added '{0}' to the list.", newProduct.Name));
+                            var vm = new ProductItemViewModel(newProduct, this);
+                            Products.Insert(0, vm);
+                            UpdateQuickAddProducts();
+                            
+                            // Update stats
+                            if (newProduct.StockQuantity <= newProduct.ReorderLevel)
+                            {
+                                LowStockCount++;
+                                HasLowStock = true;
+                            }
+                        });
+                        _toastService.ShowSuccess(string.Format(GetTerm("Strings.Shop.AddedToTheList") ?? "Added '{0}' to the list.", newProduct.Name));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error opening add product modal.");
+                    _toastService.ShowError(GetTerm("Strings.Shop.FailedToOpenAddProductModal") ?? "Failed to open add product modal.");
                 }
             });
 
@@ -311,12 +325,17 @@ namespace Management.Presentation.ViewModels.Shop
             });
         }
 
-        public void Receive(Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product> message)
+        public void Receive(RefreshRequiredMessage<Product> message)
         {
-            if (message.Value == _facilityContext.CurrentFacilityId)
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            _isDirty = true;
+            _logger?.LogInformation("[Shop] Marked dirty due to Product change.");
+            
+            // Added proactive reload if view is active to ensure immediate visibility
+            if (IsActive)
             {
-                _isDirty = true;
-                _logger.LogInformation("[Shop] Marked dirty due to Product change.");
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => await LoadDeferredAsync());
             }
         }
 
@@ -417,6 +436,19 @@ namespace Management.Presentation.ViewModels.Shop
             OnPropertyChanged(nameof(TotalAmount));
         }
 
+        private void UpdateQuickAddProducts()
+        {
+            QuickAddProducts.ReplaceRange(Products.Take(3));
+        }
+
+        private ProductCategory? GetSelectedCategory()
+        {
+            if (FilterSupplements) return ProductCategory.Supplements;
+            if (FilterApparel) return ProductCategory.Apparel;
+            if (FilterEquipment) return ProductCategory.Equipment;
+            return null; // If _filterAll is true or no specific filter is selected
+        }
+
         private async Task LoadProductsAsync()
         {
             await LoadProductsAsync(false);
@@ -424,51 +456,56 @@ namespace Management.Presentation.ViewModels.Shop
 
         private async Task LoadProductsAsync(bool isLoadMore)
         {
-            if (IsLoading) return;
-            IsLoading = true;
-
             try
             {
                 var facilityId = _facilityContext.CurrentFacilityId;
-                var result = await _productService.SearchProductsPagedAsync(facilityId, SearchText, CurrentPage, PageSize);
-
-                if (result.IsSuccess)
+                
+                using (var scope = _scopeFactory.CreateScope())
                 {
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                    
+                    // CORRECT FIX: Pass the selected category to the search query
+                    var selectedCategory = GetSelectedCategory();
+                    var result = await productService.SearchProductsPagedAsync(facilityId, SearchText, CurrentPage, PageSize, selectedCategory);
+
+                    if (result.IsSuccess)
                     {
-                        var selectedId = SelectedProduct?.Id;
-                        var viewModels = result.Value.Items.Select(dto => new ProductItemViewModel(dto, this)).ToList();
-                        
-                        if (isLoadMore)
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                         {
-                            Products.AddRange(viewModels);
-                        }
-                        else
-                        {
-                            Products.ReplaceRange(viewModels);
-                        }
-
-                        TotalCount = result.Value.TotalCount;
-                        HasMoreItems = Products.Count < TotalCount;
-
-                        if (selectedId != null)
-                        {
-                            var newSelected = Products.FirstOrDefault(p => p.Id == selectedId);
-                            if (newSelected != null)
+                            var selectedId = SelectedProduct?.Id;
+                            var viewModels = result.Value.Items.Select(dto => new ProductItemViewModel(dto, this)).ToList();
+                            
+                            if (isLoadMore)
                             {
-                                SelectedProduct = newSelected;
+                                Products.AddRange(viewModels);
                             }
-                        }
+                            else
+                            {
+                                Products.ReplaceRange(viewModels);
+                            }
 
-                        QuickAddProducts.ReplaceRange(Products.Take(3));
+                            TotalCount = result.Value.TotalCount;
+                            HasMoreItems = Products.Count < TotalCount;
 
-                        LowStockCount = Products.Count(p => p.StockQuantity <= p.ReorderLevel);
-                        HasLowStock = LowStockCount > 0;
-                    });
-                }
-                else
-                {
-                    _toastService.ShowError((GetTerm("Strings.Shop.Failedtoloadproducts") ?? "Failed to load products: ") + " " + result.Error.Message);
+                            if (selectedId != null)
+                            {
+                                var newSelected = Products.FirstOrDefault(p => p.Id == selectedId);
+                                if (newSelected != null)
+                                {
+                                    SelectedProduct = newSelected;
+                                }
+                            }
+
+                            UpdateQuickAddProducts();
+
+                            LowStockCount = Products.Count(p => p.StockQuantity <= p.ReorderLevel);
+                            HasLowStock = LowStockCount > 0;
+                        });
+                    }
+                    else
+                    {
+                        _toastService.ShowError((GetTerm("Strings.Shop.Failedtoloadproducts") ?? "Failed to load products: ") + " " + result.Error.Message);
+                    }
                 }
             }
             catch (Exception ex)
@@ -478,7 +515,7 @@ namespace Management.Presentation.ViewModels.Shop
             }
             finally
             {
-                IsLoading = false;
+                // IsLoading is managed by ExecuteLoadingAsync caller
             }
         }
 

@@ -101,13 +101,20 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     saleEntity.AddLineItem(product, qty);
                 }
 
-                await _saleRepository.AddAsync(saleEntity);
+                await _saleRepository.AddAsync(saleEntity, saveChanges: false);
 
                 foreach (var p in productsToUpdate)
                 {
-                    await _productRepository.UpdateAsync(p);
-                    
-                    // Notify UI
+                    await _productRepository.UpdateAsync(p, saveChanges: false);
+                }
+
+                // FIX: Explicitly call SaveChangesAsync on the shared UnitOfWork context
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                // Notify UI after successful commit to prevent UI refresh storm during open transaction
+                foreach (var p in productsToUpdate)
+                {
                     _productStore.TriggerStockUpdated(new ProductDto 
                     { 
                         Id = p.Id, 
@@ -117,10 +124,6 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                         SKU = p.SKU
                     });
                 }
-
-                // FIX: Explicitly call SaveChangesAsync on the shared UnitOfWork context
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
 
                 // Notify activity stream
                 var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
@@ -134,7 +137,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync(cancellationToken);
+                if (transaction != null) await transaction.RollbackAsync(cancellationToken);
                 return Result.Failure<bool>(new Error("Checkout.DatabaseError", $"Failed to save sale: {ex.Message}"));
             }
         }

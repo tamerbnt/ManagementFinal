@@ -27,22 +27,22 @@ namespace Management.Infrastructure.Repositories
 
         public Task<IEnumerable<MembershipPlan>> GetAllAsync() => _innerRepository.GetAllAsync();
 
-        public async Task<MembershipPlan> AddAsync(MembershipPlan entity) 
+        public async Task<MembershipPlan> AddAsync(MembershipPlan entity, bool saveChanges = true) 
         {
-            var result = await _innerRepository.AddAsync(entity);
+            var result = await _innerRepository.AddAsync(entity, saveChanges);
             InvalidateCache(entity.FacilityId);
             return result;
         }
 
-        public async Task UpdateAsync(MembershipPlan entity)
+        public async Task UpdateAsync(MembershipPlan entity, bool saveChanges = true)
         {
-            await _innerRepository.UpdateAsync(entity);
+            await _innerRepository.UpdateAsync(entity, saveChanges);
             InvalidateCache(entity.FacilityId);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id, bool saveChanges = true)
         {
-            await _innerRepository.DeleteAsync(id);
+            await _innerRepository.DeleteAsync(id, saveChanges);
             // We don't have the facilityId here easily unless we load the entity first,
             // so we'll clear all as a fallback if specific invalidation is preferred elsewhere.
             InvalidateCache(null); 

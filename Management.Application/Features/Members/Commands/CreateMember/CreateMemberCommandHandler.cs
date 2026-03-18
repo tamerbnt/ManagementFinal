@@ -23,6 +23,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
         private readonly ISalonServiceRepository _salonRepository;
         private readonly IGymOperationService _gymService;
         private readonly IFacilityContextService _facilityContext;
+        private readonly IMediator _mediator;
 
         public CreateMemberCommandHandler(
             IMemberRepository memberRepository, 
@@ -31,7 +32,8 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             IMembershipPlanRepository planRepository,
             ISalonServiceRepository salonRepository,
             IGymOperationService gymService,
-            IFacilityContextService facilityContext)
+            IFacilityContextService facilityContext,
+            IMediator mediator)
         {
             _memberRepository = memberRepository;
             _tenantService = tenantService;
@@ -40,6 +42,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             _salonRepository = salonRepository;
             _gymService = gymService;
             _facilityContext = facilityContext;
+            _mediator = mediator;
         }
 
         public async Task<Result<Guid>> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
@@ -135,6 +138,14 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             }
             
             await _memberRepository.AddAsync(member);
+
+            // PUBLISH NOTIFICATION: This is critical for the "Active Members" and "Pending Registrations" cards.
+            // Even if no sale occurs, the UI needs to know a registration was completed.
+            await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                member.FacilityId,
+                "Registration",
+                member.FullName,
+                "New Member Registered"), cancellationToken);
 
             // AUTO-REVENUE: If a plan was selected, record the sale immediately.
             if (planName != null && planPrice > 0)

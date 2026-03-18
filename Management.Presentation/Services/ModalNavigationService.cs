@@ -26,6 +26,7 @@ using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using Orientation = System.Windows.Controls.Orientation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Management.Presentation.Services
 {
@@ -38,6 +39,7 @@ namespace Management.Presentation.Services
     {
         public Window Window { get; set; } = null!;
         public object ViewModel { get; set; } = null!;
+        public IServiceScope? Scope { get; set; }
         public ModalSize Size { get; set; }
         public TaskCompletionSource<object?>? ResultCompletionSource { get; set; }
         public bool IsClosing { get; set; }
@@ -77,7 +79,7 @@ namespace Management.Presentation.Services
 
         #region Private Fields
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IViewMappingService _viewMappingService;
         private readonly ILogger<ModalNavigationService>? _logger;
         private readonly IDispatcher _dispatcher;
@@ -139,12 +141,12 @@ namespace Management.Presentation.Services
         #region Constructor
 
         public ModalNavigationService(
-            IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             IViewMappingService viewMappingService,
             IDispatcher dispatcher,
             ILogger<ModalNavigationService>? logger = null)
         {
-            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
             _viewMappingService = viewMappingService ?? throw new ArgumentNullException(nameof(viewMappingService));
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _logger = logger;
@@ -405,10 +407,14 @@ namespace Management.Presentation.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Create ViewModel
-            var viewModel = _serviceProvider.GetService(typeof(TViewModel)) as TViewModel;
+            // Create a new scope for the modal
+            var scope = _scopeFactory.CreateScope();
+            
+            // Create ViewModel from the SCOPED provider
+            var viewModel = scope.ServiceProvider.GetService(typeof(TViewModel)) as TViewModel;
             if (viewModel == null)
             {
+                scope.Dispose(); // Clean up if failed
                 throw new InvalidOperationException($"ViewModel {typeof(TViewModel).Name} not registered in DI container");
             }
 
@@ -445,6 +451,7 @@ namespace Management.Presentation.Services
             {
                 Window = window,
                 ViewModel = viewModel,
+                Scope = scope,
                 Size = size,
                 OpenedAt = DateTime.UtcNow
             };
@@ -747,8 +754,18 @@ namespace Management.Presentation.Services
                 SafeDispose(disposable, state.ViewModel.GetType().Name);
             }
 
-            // Reset z-index
-            // Reset z-index removed
+            // Dispose the scope (this disposes all scoped services created within the modal)
+            if (state.Scope != null)
+            {
+                try
+                {
+                    state.Scope.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to dispose modal scope for {ViewModel}", state.ViewModel.GetType().Name);
+                }
+            }
         }
 
         private async Task ShowMaxDepthErrorAsync()

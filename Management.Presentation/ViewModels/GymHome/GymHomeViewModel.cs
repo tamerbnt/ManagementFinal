@@ -18,6 +18,7 @@ using Management.Presentation.Services;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
+using Management.Presentation.Helpers;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using Management.Presentation.ViewModels.PointOfSale;
@@ -40,6 +41,7 @@ namespace Management.Presentation.ViewModels.GymHome
         IRecipient<FacilityActionCompletedMessage>,
         IRecipient<RefreshRequiredMessage<Sale>>,
         IRecipient<RefreshRequiredMessage<Member>>,
+        IRecipient<RefreshRequiredMessage<Registration>>,
         IRecipient<RefreshRequiredMessage<PayrollEntry>>,
         IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>
     {
@@ -55,7 +57,7 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly LiveChartsCore.Defaults.ObservableValue _remainingValue = new(100);
 
         [ObservableProperty]
-        private ObservableCollection<IActivityItem> _activityStream = new();
+        private ObservableRangeCollection<IActivityItem> _activityStream = new();
 
         [ObservableProperty]
         private string _scanInput = string.Empty;
@@ -136,6 +138,13 @@ namespace Management.Presentation.ViewModels.GymHome
         // (e.g. Sale + FacilityAction arriving within the same checkout commit)
         // into a single DB round-trip 300ms later.
         private CancellationTokenSource? _refreshDebounceCts;
+
+        private bool _isInitializing;
+        private bool _initialized;
+        private bool _isDirty;
+        private bool _needsRefreshDuringInit;
+        private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
+
         public GymHomeViewModel(
             IServiceScopeFactory scopeFactory, 
             Management.Domain.Services.IDialogService dialogService,
@@ -167,7 +176,7 @@ namespace Management.Presentation.ViewModels.GymHome
             };
             
             // Lightweight initialization ONLY
-            ActivityStream = new ObservableCollection<IActivityItem>();
+            ActivityStream = new ObservableRangeCollection<IActivityItem>();
             OccupancySeries = Array.Empty<ISeries>();
             OccupancyTrendSeries = Array.Empty<ISeries>();
             XAxes = Array.Empty<Axis>();
@@ -265,13 +274,10 @@ namespace Management.Presentation.ViewModels.GymHome
                    _logger?.LogWarning("[GymHome] LoadDashboardStatsAsync aborted: FacilityId is Guid.Empty.");
                    return;
                }
-               var statsTask = operationService.GetDailyStatsAsync(facilityId);
-               var summaryTask = dashboardService.GetSummaryAsync(facilityId);
-               
-               await Task.WhenAll(statsTask, summaryTask);
-               
-               var stats = await statsTask;
-               var summary = await summaryTask;
+
+               // FIX: Execute sequentially to prevent EF Core DbContext concurrency exceptions
+               var stats = await operationService.GetDailyStatsAsync(facilityId);
+               var summary = await dashboardService.GetSummaryAsync(facilityId);
 
                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                {
@@ -301,60 +307,123 @@ namespace Management.Presentation.ViewModels.GymHome
             await InitializeAsync();
         }
 
-        public async Task InitializeAsync()
+        /// <summary>
+        /// Standard interface initialization (foreground/non-silent).
+        /// </summary>
+        public Task InitializeAsync() => InitializeAsync(silent: false);
+
+        /// <summary>
+        /// Main initialization entry point with option for silent background refresh.
+        /// </summary>
+        public async Task InitializeAsync(bool silent)
         {
-            IsActive = true;
-            await ExecuteLoadingAsync(async () =>
+            if (_initialized && !_isDirty && !silent) return;
+            
+            if (_isInitializing) 
             {
-                // SAFETY: No hardcoded Task.Delay here. Initialization triggered by Loaded event.
-                // 1. Prepare Data & Visuals on Background Thread
-                var now = DateTime.Now;
-                var timeStr = now.ToString("HH:mm:ss");
-                var dateStr = now.ToString("dddd, MMMM dd, yyyy");
+                _needsRefreshDuringInit = true;
+                return;
+            }
 
-                var occupancySeries = new ISeries[]
+            _isInitializing = true;
+            try 
+            {
+                do
                 {
-                    new PieSeries<ObservableValue>
-                    {
-                        Values = new ObservableValue[] { _occupancyValue },
-                        InnerRadius = 60,
-                        MaxRadialColumnWidth = 20,
-                        Stroke = null,
-                        Fill = new SolidColorPaint(SKColors.DeepSkyBlue)
-                    },
-                    new PieSeries<ObservableValue>
-                    {
-                        Values = new ObservableValue[] { _remainingValue },
-                        InnerRadius = 60,
-                        MaxRadialColumnWidth = 20,
-                        Stroke = null,
-                        Fill = new SolidColorPaint(new SKColor(200, 200, 200, 30))
-                    }
-                };
+                    _needsRefreshDuringInit = false;
 
-                var trendSeries = new ISeries[]
-                {
-                    new LineSeries<double>
+                    if (silent)
                     {
-                        Values = new ObservableCollection<double>(), // Will be populated below
-                        Fill = new LinearGradientPaint(new SKColor[] { new SKColor(16, 185, 129, 30), SKColors.Transparent }, new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
-                        GeometrySize = 0,
-                        Stroke = new SolidColorPaint(SKColors.SpringGreen) { StrokeThickness = 3 },
-                        LineSmoothness = 0 
+                        await ExecuteBackgroundAsync(async () => await PerformInitializationInternalAsync(), _refreshSemaphore);
                     }
-                };
+                    else
+                    {
+                        IsActive = true;
+                        // ExecuteLoadingAsync already handles IsLoading flag synchronously
+                        await ExecuteLoadingAsync(async () =>
+                        {
+                            // Full foreground loads also wait for any background refresh to finish
+                            await _refreshSemaphore.WaitAsync();
+                            try 
+                            {
+                                await PerformInitializationInternalAsync();
+                            }
+                            finally 
+                            { 
+                                _refreshSemaphore.Release(); 
+                            }
+                        });
+                    }
+                    
+                    _initialized = true;
+                    _isDirty = false;
 
-                // Populate sparkline with real hourly check-in data
-                Axis[] xAxes = { new Axis { LabelsPaint = new SolidColorPaint(SKColors.LightGray), TextSize = 10 } };
-                using (var sparkScope = _scopeFactory.CreateScope())
+                    // If a refresh was queued while we were fetching data, force the next loop to be silent.
+                    // We don't want skeleton UI to flicker.
+                    if (_needsRefreshDuringInit) silent = true;
+
+                } while (_needsRefreshDuringInit);
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        private async Task PerformInitializationInternalAsync()
+        {
+            // 1. Prepare Data & Visuals on Background Thread
+            var now = DateTime.Now;
+            var timeStr = now.ToString("HH:mm:ss");
+            var dateStr = now.ToString("dddd, MMMM dd, yyyy");
+
+            var occupancySeries = new ISeries[]
+            {
+                new PieSeries<ObservableValue>
                 {
-                    var dashboardService = sparkScope.ServiceProvider.GetRequiredService<IDashboardService>();
-                    var facilityId = _facilityContext.CurrentFacilityId;
-                    if (facilityId == Guid.Empty)
-                    {
-                        _logger?.LogWarning("[GymHome] InitializeAsync trend fetch aborted: FacilityId is Guid.Empty.");
-                        return;
-                    }
+                    Values = new ObservableValue[] { _occupancyValue },
+                    InnerRadius = 60,
+                    MaxRadialColumnWidth = 20,
+                    Stroke = null,
+                    Fill = new SolidColorPaint(SKColors.DeepSkyBlue)
+                },
+                new PieSeries<ObservableValue>
+                {
+                    Values = new ObservableValue[] { _remainingValue },
+                    InnerRadius = 60,
+                    MaxRadialColumnWidth = 20,
+                    Stroke = null,
+                    Fill = new SolidColorPaint(new SKColor(200, 200, 200, 30))
+                }
+            };
+
+            var trendSeries = new ISeries[]
+            {
+                new LineSeries<double>
+                {
+                    Values = new ObservableCollection<double>(), // Will be populated below
+                    Fill = new LinearGradientPaint(new SKColor[] { new SKColor(16, 185, 129, 30), SKColors.Transparent }, new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
+                    GeometrySize = 0,
+                    Stroke = new SolidColorPaint(SKColors.SpringGreen) { StrokeThickness = 3 },
+                    LineSmoothness = 0 
+                }
+            };
+
+            // Populate sparkline with real hourly check-in data
+            Axis[] xAxes = { new Axis { LabelsPaint = new SolidColorPaint(SKColors.LightGray), TextSize = 10 } };
+            using (var sparkScope = _scopeFactory.CreateScope())
+            {
+                var dashboardService = sparkScope.ServiceProvider.GetRequiredService<IDashboardService>();
+                var facilityId = _facilityContext.CurrentFacilityId;
+                if (facilityId == Guid.Empty)
+                {
+                    _logger?.LogWarning("[GymHome] InitializeAsync trend fetch aborted: FacilityId is Guid.Empty.");
+                    // This return needs to be handled carefully when extracting.
+                    // For now, it means the rest of the method might proceed with default values for charts.
+                    // If this is a critical failure, consider throwing or setting a flag.
+                }
+                else
+                {
                     var hourlyTrend = await dashboardService.GetGymOccupancyTrendAsync(facilityId);
                     if (hourlyTrend != null && hourlyTrend.Count > 0)
                     {
@@ -382,48 +451,51 @@ namespace Management.Presentation.ViewModels.GymHome
                         };
                     }
                 }
+            }
 
-                var yAxes = new Axis[]
+            var yAxes = new Axis[]
+            {
+                new Axis
                 {
-                    new Axis
-                    {
-                        MinLimit = 0,
-                        MaxLimit = 100,
-                        LabelsPaint = new SolidColorPaint(SKColors.LightGray),
-                        TextSize = 12
-                    }
-                };
-                
-                // Use the helper method for data loading to avoid duplication
-                // But InitializeAsync also sets up charts, so we keep chart logic here
-                await LoadDashboardStatsAsync();
-                await LoadRecentActivityAsync();
+                    MinLimit = 0,
+                    MaxLimit = 100,
+                    LabelsPaint = new SolidColorPaint(SKColors.LightGray),
+                    TextSize = 12
+                }
+            };
+            
+            // Use the helper method for data loading to avoid duplication
+            // But InitializeAsync also sets up charts, so we keep chart logic here
+            await LoadDashboardStatsAsync();
+            await LoadRecentActivityAsync();
 
-                // 2. Batch UI Updates in a SINGLE Dispatcher Call
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+            // 2. Batch UI Updates
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+            {
+                // Clock: Only set if NOT running to prevent "snap-back" during refreshes
+                if (_clockTimer == null || string.IsNullOrEmpty(CurrentTime))
                 {
-                    // Clock
                     CurrentTime = timeStr;
                     CurrentDate = dateStr;
-                    StartClock();
+                }
+                
+                StartClock();
 
-                    // Charts
-                    OccupancySeries = occupancySeries;
-                    OccupancyTrendSeries = trendSeries; 
-                    XAxes = xAxes;
-                    YAxes = yAxes;
+                // Charts
+                OccupancySeries = occupancySeries;
+                OccupancyTrendSeries = trendSeries; 
+                XAxes = xAxes;
+                YAxes = yAxes;
 
-                    OnPropertyChanged(nameof(OccupancySeries));
-                    OnPropertyChanged(nameof(OccupancyTrendSeries));
-                    OnPropertyChanged(nameof(XAxes));
-                    OnPropertyChanged(nameof(YAxes));
+                OnPropertyChanged(nameof(OccupancySeries));
+                OnPropertyChanged(nameof(OccupancyTrendSeries));
+                OnPropertyChanged(nameof(XAxes));
+                OnPropertyChanged(nameof(YAxes));
 
-                     // Micro-metrics Sparkline data (Mocked) -> Cleared
-                     OccupancySparklineData.Clear();
-                     RevenueSparklineData.Clear();
-                 });
-             });
-         }
+                OccupancySparklineData.Clear();
+                RevenueSparklineData.Clear();
+            });
+        }
 
         private async Task LoadRecentActivityAsync()
         {
@@ -439,44 +511,60 @@ namespace Management.Presentation.ViewModels.GymHome
                 // "Recent Activity" feed anyway.
                 var recentEvents = await provider.GetHistoryAsync(_facilityContext.CurrentFacilityId, DateTime.UtcNow.AddHours(-24), DateTime.UtcNow);
 
+                var dashboardTasks = recentEvents.Take(50).Select(e => 
+                {
+                    var icon = e.Type switch
+                    {
+                        HistoryEventType.Access => e.IsSuccessful ? "✅" : "❌",
+                        HistoryEventType.Payment => "🛒",
+                        HistoryEventType.Order => "🛒",
+                        _ => "✨"
+                    };
+
+                    var initials = e.Type switch
+                    {
+                        HistoryEventType.Access => new string((e.Title ?? "??").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper(),
+                        HistoryEventType.Payment => "$$",
+                        HistoryEventType.Order => "$$",
+                        _ => "??"
+                    };
+
+                    var resolvedTitle = !string.IsNullOrEmpty(e.TitleLocalizationKey)
+                        ? string.Format(System.Windows.Application.Current.TryFindResource(e.TitleLocalizationKey) as string ?? GetResource(e.TitleLocalizationKey, e.TitleLocalizationKey), e.TitleLocalizationArgs ?? Array.Empty<object>())
+                        : e.Title;
+
+                    var resolvedDetails = !string.IsNullOrEmpty(e.DetailsLocalizationKey)
+                        ? string.Format(System.Windows.Application.Current.TryFindResource(e.DetailsLocalizationKey) as string ?? GetResource(e.DetailsLocalizationKey, e.DetailsLocalizationKey), e.DetailsLocalizationArgs ?? Array.Empty<object>())
+                        : e.Details;
+
+                    var subtitle = e.Amount.HasValue && e.Amount > 0 
+                        ? $"{e.Amount:N0} DA - {resolvedDetails}"
+                        : resolvedDetails;
+
+                    return new ActivityLogItem(resolvedTitle, subtitle, icon, initials)
+                    {
+                        Timestamp = e.Timestamp.ToLocalTime().ToString("HH:mm"),
+                        SortDate = e.Timestamp
+                    };
+                }).ToList();
+
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    ActivityStream.Clear();
-                    foreach (var e in recentEvents.Take(50))
+                    // Non-destructive update: Add missing items instead of wiping everything
+                    var existingKeys = new HashSet<string>(ActivityStream.OfType<ActivityLogItem>().Select(a => $"{a.SortDate:O}_{a.Title}"));
+                    var newItems = dashboardTasks.Where(a => !existingKeys.Contains($"{a.SortDate:O}_{a.Title}")).ToList();
+
+                    if (newItems.Any())
                     {
-                        var icon = e.Type switch
+                        // ObservableRangeCollection might not have InsertRange at index 0 in some versions
+                        // Prepend items manually
+                        foreach (var item in newItems.OrderBy(a => a.SortDate))
                         {
-                            HistoryEventType.Access => e.IsSuccessful ? "✅" : "❌",
-                            HistoryEventType.Payment => "🛒",
-                            HistoryEventType.Order => "🛒",
-                            _ => "✨"
-                        };
-
-                        var initials = e.Type switch
-                        {
-                            HistoryEventType.Access => new string((e.Title ?? "??").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper(),
-                            HistoryEventType.Payment => "$$",
-                            HistoryEventType.Order => "$$",
-                            _ => "??"
-                        };
-
-                        var resolvedTitle = !string.IsNullOrEmpty(e.TitleLocalizationKey)
-                            ? string.Format(System.Windows.Application.Current.TryFindResource(e.TitleLocalizationKey) as string ?? GetResource(e.TitleLocalizationKey, e.TitleLocalizationKey), e.TitleLocalizationArgs ?? Array.Empty<object>())
-                            : e.Title;
-
-                        var resolvedDetails = !string.IsNullOrEmpty(e.DetailsLocalizationKey)
-                            ? string.Format(System.Windows.Application.Current.TryFindResource(e.DetailsLocalizationKey) as string ?? GetResource(e.DetailsLocalizationKey, e.DetailsLocalizationKey), e.DetailsLocalizationArgs ?? Array.Empty<object>())
-                            : e.Details;
-
-                        var subtitle = e.Amount.HasValue && e.Amount > 0 
-                            ? $"{e.Amount:N0} DA - {resolvedDetails}"
-                            : resolvedDetails;
-
-                        ActivityStream.Add(new ActivityLogItem(resolvedTitle, subtitle, icon, initials)
-                        {
-                            Timestamp = e.Timestamp.ToLocalTime().ToString("HH:mm"),
-                            SortDate = e.Timestamp
-                        });
+                            ActivityStream.Insert(0, item);
+                        }
+                        
+                        // Limit to 50
+                        while (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
                     }
                 });
             }
@@ -617,7 +705,9 @@ namespace Management.Presentation.ViewModels.GymHome
         {
              if (message.Value != _facilityContext.CurrentFacilityId) return;
              
-             // Fire-and-forget to prevent blocking the publisher
+             // OPTIMIZATION: Combine optimistic log entry with data refresh.
+             // We do the UI log insertion immediately, but it now acts as a suppression
+             // for the background refresh to avoid redundant work.
              _ = ExecuteHandleAsync(message);
         }
         
@@ -625,10 +715,15 @@ namespace Management.Presentation.ViewModels.GymHome
         public void Receive(RefreshRequiredMessage<Member> message) => HandleRefresh(message.Value);
         public void Receive(RefreshRequiredMessage<PayrollEntry> message) => HandleRefresh(message.Value);
         public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message) => HandleRefresh(message.Value);
+        public void Receive(RefreshRequiredMessage<Registration> message) => HandleRefresh(message.Value);
 
         private void HandleRefresh(Guid facilityId)
         {
             if (facilityId != _facilityContext.CurrentFacilityId) return;
+
+            // Ensure a navigation-back after this refresh will re-fetch instead of returning
+            // early from the _initialized && !_isDirty guard.
+            _isDirty = true;
 
             // Cancel any in-flight debounce and start a fresh 300ms window.
             // This coalesces rapid-fire messages (e.g. a checkout publishes
@@ -646,16 +741,17 @@ namespace Management.Presentation.ViewModels.GymHome
             {
                 try
                 {
-                    await Task.Delay(300, token); // debounce window
+                    // Debounce + small resiliency buffer to ensure SQLite file context sync
+                    await Task.Delay(400, token); 
                     if (token.IsCancellationRequested || IsDisposed) return;
-                    await LoadDashboardStatsAsync();
-                    if (token.IsCancellationRequested || IsDisposed) return;
-                    await LoadRecentActivityAsync();
+                    
+                    // Use silent refresh to avoid flickering the UI with skeleton loaders
+                    await InitializeAsync(silent: true);
                 }
                 catch (TaskCanceledException) { /* debounced away — normal */ }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning(ex, "[GymHome] HandleRefresh background task failed");
+                    _logger?.LogError(ex, "Error during background refresh");
                 }
             }, token);
         }
@@ -663,11 +759,13 @@ namespace Management.Presentation.ViewModels.GymHome
         private void OnSyncCompleted(object? sender, EventArgs e)
         {
             if (IsDisposed || !ShouldRefreshOnSync()) return;
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+            
+            // Trigger a silent refresh in the background
+            _ = Task.Run(async () => 
             {
-                if (IsDisposed || IsLoading) return;
-                _logger?.LogInformation("[GymHome] Sync debounce passed, refreshing stats...");
-                await LoadDashboardStatsAsync();
+                if (IsDisposed) return;
+                _logger?.LogInformation("[GymHome] Sync completed, triggering refresh.");
+                await InitializeAsync(silent: true);
             });
         }
 
@@ -679,10 +777,11 @@ namespace Management.Presentation.ViewModels.GymHome
                 // 1. Calculate / Prepare Data (Off-UI Thread)
                 string icon = message.ActionType switch
                 {
-                    "Walk-In" or "WalkIn" => "ðŸš¶",
-                    "Sale" or "QuickSale" => "ðŸ›’",
-                    "Registration" => "ðŸ‘¤",
-                    _ => "âœ¨"
+                    "Walk-In" or "WalkIn" => "🚶",
+                    "Sale" or "QuickSale" => "🛒",
+                    "Registration" => "👤",
+                    "Access" => message.Message.Contains("Denied") ? "❌" : "✅",
+                    _ => "✨"
                 };
 
                 string initials = message.ActionType switch
@@ -690,6 +789,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     "Walk-In" or "WalkIn" => "WG",
                     "Sale" or "QuickSale" => "$$",
                     "Registration" => "++",
+                    "Access" => "IN",
                     _ => "??"
                 };
 
@@ -698,10 +798,11 @@ namespace Management.Presentation.ViewModels.GymHome
                     "Walk-In" or "WalkIn" => "Terminology.Home.Status.WalkIn",
                     "Sale" or "QuickSale" => "Terminology.Home.Status.Sale",
                     "Registration" => "Terminology.Home.Status.Registration",
+                    "Access" => "Terminology.Home.Status.Access",
                     _ => "Terminology.Global.Success"
                 };
 
-                string status = System.Windows.Application.Current.TryFindResource(statusKey) as string ?? message.ActionType;
+                string status = System.Windows.Application.Current.TryFindResource(statusKey) as string ?? (message.ActionType == "Access" ? message.Message : message.ActionType);
 
                 var logItem = new ActivityLogItem(
                     message.DisplayName,
@@ -710,30 +811,42 @@ namespace Management.Presentation.ViewModels.GymHome
                     initials,
                     statusKey);
 
-                // 2. Fetch Latest Stats (Async, Non-Blocking)
+                // 2. Fetch Latest Stats (Async, Non-Blocking, Throttled)
                 DailyStatsDto? stats = null;
-                try
+                DashboardSummaryDto? summary = null;
+                await ExecuteBackgroundAsync(async () =>
                 {
-                    using (var scope = _scopeFactory.CreateScope()) // Create scope
+                    using (var scope = _scopeFactory.CreateScope())
                     {
-                        var operationService = scope.ServiceProvider.GetRequiredService<IGymOperationService>(); // Resolve service
-                        stats = await operationService.GetDailyStatsAsync(_facilityContext.CurrentFacilityId);
+                        var operationService = scope.ServiceProvider.GetRequiredService<IGymOperationService>();
+                        var dashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                        var facilityId = _facilityContext.CurrentFacilityId;
+                        
+                        stats = await operationService.GetDailyStatsAsync(facilityId);
+                        summary = await dashboardService.GetSummaryAsync(facilityId);
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogWarning(ex, "Failed to refresh stats in Handle");
-                }
+                }, _refreshSemaphore);
 
                 // 3. Update UI on Dispatcher
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
+                    // OPTIMISTIC UPDATE: Add the log item immediately
                     ActivityStream.Insert(0, logItem);
                     if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
                     
-                    // Note: We don't fetch stats here anymore because the 
-                    // RefreshRequiredMessage handler (which fires immediately after)
-                    // will trigger a call to LoadDashboardStatsAsync for a full refresh.
+                    // CRITICAL FIX: Update ALL relevant cards immediately
+                    if (stats != null)
+                    {
+                        UpdateOccupancy(stats.OccupancyCount, stats.OccupancyLastHour);
+                        RevenueToday = stats.DailyCashTotal;
+                    }
+
+                    if (summary != null)
+                    {
+                        ActiveMembersTotal = summary.ActiveMembers;
+                        ExpiringSoonCount = summary.ExpiringSoonCount;
+                        PendingRegistrationsCount = summary.PendingRegistrationsCount;
+                    }
                 });
             }
             catch (Exception ex)
@@ -793,8 +906,9 @@ namespace Management.Presentation.ViewModels.GymHome
                 System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                 {
                     if (IsDisposed) return;
-                    await LoadDashboardStatsAsync();
-                    await LoadRecentActivityAsync();
+                    // Reset initialized flag to force a full fresh load
+                    _initialized = false;
+                    await InitializeAsync(silent: false);
                 });
             }
         }

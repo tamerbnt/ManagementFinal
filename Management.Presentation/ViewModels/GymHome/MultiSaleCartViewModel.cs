@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -308,13 +308,18 @@ namespace Management.Presentation.ViewModels.GymHome
 
         private void OnProductStockUpdated(ProductDto updatedProduct)
         {
-            // Sync local product list
-            var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
-            if (product != null)
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                product.StockQuantity = updatedProduct.StockQuantity;
-                FilterProducts(SearchQuery);
-            }
+                if (IsDisposed) return;
+                
+                // Sync local product list
+                var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
+                if (product != null)
+                {
+                    product.StockQuantity = updatedProduct.StockQuantity;
+                    FilterProducts(SearchQuery);
+                }
+            });
         }
 
         protected override void Dispose(bool disposing)

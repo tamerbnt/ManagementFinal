@@ -9,8 +9,8 @@ namespace Management.Domain.Interfaces
     {
         Task<T?> GetByIdAsync(Guid id, Guid? facilityId = null);
         Task<IEnumerable<T>> GetAllAsync();
-        Task<T> AddAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(Guid id);
+        Task<T> AddAsync(T entity, bool saveChanges = true);
+        Task UpdateAsync(T entity, bool saveChanges = true);
+        Task DeleteAsync(Guid id, bool saveChanges = true);
     }
 }

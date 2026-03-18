@@ -42,6 +42,7 @@ namespace Management.Application.Features.Products.Queries.GetProducts
                 request.SearchTerm, 
                 request.Page, 
                 request.PageSize, 
+                category: request.Category,
                 facilityId: request.FacilityId);
 
             var dtos = items.Select(MapToDto).ToList();

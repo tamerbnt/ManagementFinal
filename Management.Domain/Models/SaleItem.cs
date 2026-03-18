@@ -34,7 +34,9 @@ namespace Management.Domain.Models
             if (quantity <= 0)
                 return Result.Failure<SaleItem>(new Error("SaleItem.InvalidQuantity", "Quantity must be greater than zero"));
 
-            return Result.Success(new SaleItem(Guid.NewGuid(), saleId, productId, productName, unitPrice, quantity));
+            // Ensure a fresh Money instance to avoid EF Core tracking conflicts
+            var priceSnapshot = new Money(unitPrice.Amount, unitPrice.Currency);
+            return Result.Success(new SaleItem(Guid.NewGuid(), saleId, productId, productName, priceSnapshot, quantity));
         }
     }
 }
