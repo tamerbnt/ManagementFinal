@@ -614,9 +614,8 @@ namespace Management.Presentation
                         oldWindow.Close();
                     }
 
-                    // Trigger initial navigation safely
-                    var mainVm = ServiceProvider.GetRequiredService<MainViewModel>();
-                    mainVm.InitializeInitialView();
+                    // Navigation is handled by MainViewModel.ResetState() → InitializeInitialView()
+                    // which is called by the IStateResettable loop above. No explicit call needed here.
                 }
                 catch (Exception ex)
                 {

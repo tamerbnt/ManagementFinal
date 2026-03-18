@@ -58,6 +58,13 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly ICommandPaletteService _paletteService;
         private readonly INotificationService _notificationService;
         private readonly Dictionary<Type, object> _viewCache = new();
+        // Suppresses OnFacilityChanged navigation during the initial startup handoff.
+        // Set to false by InitializeInitialView() once the first navigation is queued.
+        private bool _isInitializing = true;
+        // Atomic navigation lock: 0 = free, 1 = navigation in progress.
+        // Prevents the race condition where multiple concurrent fire-and-forget navigations
+        // all pass the type check before any of them has set NextViewModel.
+        private int _navigationInProgress = 0;
 
         public ObservableCollection<ToastMessage> ActiveToasts => ((ToastService?)_toastService)?.ActiveToasts ?? new();
 
@@ -355,6 +362,10 @@ namespace Management.Presentation.ViewModels.Shell
 
         private void OnFacilityChanged(FacilityType type)
         {
+            // During the initial startup handoff the IStateResettable loop + InitializeInitialView
+            // handles the first navigation. Suppress this event until that is done.
+            if (_isInitializing) return;
+
             // Clear view cache on switch to ensure facility-specific styles/resources are fresh
             _viewCache.Clear();
             RefreshMenu();
@@ -391,6 +402,8 @@ namespace Management.Presentation.ViewModels.Shell
             {
                 SelectedMenuItem = MenuItems[0]; // Home
             }
+            // Unlock: startup handoff is complete. FacilityChanged can now trigger navigation.
+            _isInitializing = false;
         }
 
         [RelayCommand]
@@ -625,24 +638,39 @@ namespace Management.Presentation.ViewModels.Shell
 
         private async Task NavigateToViewModelAsync(System.Type viewModelType)
         {
-            var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
-            
-            // Guard: Prevent redundant navigation loops
-            if (navigationStore.CurrentViewModel?.GetType() == viewModelType || 
-                navigationStore.NextViewModel?.GetType() == viewModelType)
+            // TEMP DIAGNOSTIC — remove after verifying single navigation on startup
+            Serilog.Log.Debug("[Navigation] NavigateToViewModelAsync called for {Type}", viewModelType.Name);
+
+            // Thread-safe atomic lock: if another navigation is already in progress, skip.
+            // This is the primary guard against the triple-navigation race condition.
+            if (System.Threading.Interlocked.CompareExchange(ref _navigationInProgress, 1, 0) != 0)
             {
+                Serilog.Log.Debug("[Navigation] Skipped concurrent navigation to {Type} — lock held.", viewModelType.Name);
                 return;
             }
 
             try
             {
+                var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
+
+                // Secondary guard: avoid redundant navigation to the same VM type
+                if (navigationStore.CurrentViewModel?.GetType() == viewModelType ||
+                    navigationStore.NextViewModel?.GetType() == viewModelType)
+                {
+                    return;
+                }
+
                 await _navigationService.NavigateToAsync(viewModelType);
             }
             catch (System.Exception ex)
             {
                 _toastService.ShowError($"Navigation failed: {ex.Message}");
-                // Log via serilog if possible, otherwise Console
                 System.Console.WriteLine($"[CRITICAL] Navigation to {viewModelType.Name} failed: {ex}");
+            }
+            finally
+            {
+                // Always release the lock so future navigations can proceed
+                System.Threading.Interlocked.Exchange(ref _navigationInProgress, 0);
             }
         }
 
