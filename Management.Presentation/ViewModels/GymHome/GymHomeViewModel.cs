@@ -132,6 +132,10 @@ namespace Management.Presentation.ViewModels.GymHome
         public IEnumerable<Axis> YAxes { get; set; }
 
         private DispatcherTimer? _clockTimer;
+        // Debounce token for HandleRefresh — coalesces rapid-fire RefreshRequiredMessages
+        // (e.g. Sale + FacilityAction arriving within the same checkout commit)
+        // into a single DB round-trip 300ms later.
+        private CancellationTokenSource? _refreshDebounceCts;
         public GymHomeViewModel(
             IServiceScopeFactory scopeFactory, 
             Management.Domain.Services.IDialogService dialogService,
@@ -182,6 +186,11 @@ namespace Management.Presentation.ViewModels.GymHome
         {
             if (disposing)
             {
+                // Cancel any pending debounced refresh
+                _refreshDebounceCts?.Cancel();
+                _refreshDebounceCts?.Dispose();
+                _refreshDebounceCts = null;
+
                 // Unregister Messenger
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.UnregisterAll(this);
 
@@ -424,7 +433,11 @@ namespace Management.Presentation.ViewModels.GymHome
                 var provider = _historyProviders.FirstOrDefault(p => p.SegmentName == segmentName);
                 if (provider == null) return;
 
-                var recentEvents = await provider.GetHistoryAsync(_facilityContext.CurrentFacilityId, DateTime.UtcNow.AddDays(-3), DateTime.UtcNow);
+                // Fix 3: Use a 24h window for triggered refreshes to keep the query fast.
+                // The initial full load (InitializeAsync) uses the same method, so 24h
+                // is a reasonable window — events older than a day rarely appear in the
+                // "Recent Activity" feed anyway.
+                var recentEvents = await provider.GetHistoryAsync(_facilityContext.CurrentFacilityId, DateTime.UtcNow.AddHours(-24), DateTime.UtcNow);
 
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -615,18 +628,36 @@ namespace Management.Presentation.ViewModels.GymHome
 
         private void HandleRefresh(Guid facilityId)
         {
-            if (facilityId == _facilityContext.CurrentFacilityId)
+            if (facilityId != _facilityContext.CurrentFacilityId) return;
+
+            // Cancel any in-flight debounce and start a fresh 300ms window.
+            // This coalesces rapid-fire messages (e.g. a checkout publishes
+            // FacilityActionCompletedMessage + RefreshRequiredMessage<Sale> within
+            // the same millisecond) into a single DB round-trip.
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            // Fix 2: Use Task.Run — NOT Dispatcher.InvokeAsync — so the DB queries
+            // run entirely off the UI thread. LoadDashboardStatsAsync and
+            // LoadRecentActivityAsync already marshal their final property updates
+            // back to the Dispatcher internally via their own InvokeAsync calls.
+            _ = Task.Run(async () =>
             {
-                _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                try
                 {
-                    if (!IsDisposed)
-                    {
-                        // Fix 1: Refresh both stats AND the activity feed so all home cards update instantly.
-                        await LoadDashboardStatsAsync();
-                        await LoadRecentActivityAsync();
-                    }
-                });
-            }
+                    await Task.Delay(300, token); // debounce window
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    await LoadDashboardStatsAsync();
+                    if (token.IsCancellationRequested || IsDisposed) return;
+                    await LoadRecentActivityAsync();
+                }
+                catch (TaskCanceledException) { /* debounced away — normal */ }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "[GymHome] HandleRefresh background task failed");
+                }
+            }, token);
         }
 
         private void OnSyncCompleted(object? sender, EventArgs e)
