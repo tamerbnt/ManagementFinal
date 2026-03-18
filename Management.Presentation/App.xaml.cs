@@ -289,6 +289,9 @@ namespace Management.Presentation
                 navStore.RegisterPersistentType(typeof(HistoryViewModel));
                 navStore.RegisterPersistentType(typeof(FinanceAndStaffViewModel));
                 navStore.RegisterPersistentType(typeof(RegistrationsViewModel));
+                navStore.RegisterPersistentType(typeof(GymHomeViewModel));
+                navStore.RegisterPersistentType(typeof(SalonHomeViewModel));
+                navStore.RegisterPersistentType(typeof(RestaurantHomeViewModel));
 
                 // 4. Start the Host (Off-load to background thread to ensure STA initialization doesn't touch UI thread)
                 _ = Task.Run(async () => 
