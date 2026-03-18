@@ -13,11 +13,19 @@ namespace Management.Application.Stores
     /// </summary>
     public class NotificationStore : IStateResettable
     {
+        // Lock to protect _notifications from concurrent access by the UI thread
+        // (ResetState, UnreadCount) and background Task.Run threads (ToastService.AddToast).
+        private readonly object _lock = new();
+
         public void ResetState()
         {
-            _notifications.Clear();
+            lock (_lock)
+            {
+                _notifications.Clear();
+            }
             UnreadCountChanged?.Invoke();
         }
+
         // Event raised when the UnreadCount changes (e.g. new alert or mark as read)
         public event Action? UnreadCountChanged;
 
@@ -26,9 +34,28 @@ namespace Management.Application.Stores
 
         private readonly List<NotificationItem> _notifications = new List<NotificationItem>();
 
-        public int UnreadCount => _notifications.Count(n => !n.IsRead);
+        // Null guard keeps us safe even if a corrupt entry slips through during a race.
+        public int UnreadCount
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _notifications.Count(n => n != null && !n.IsRead);
+                }
+            }
+        }
 
-        public IEnumerable<NotificationItem> Notifications => _notifications;
+        public IEnumerable<NotificationItem> Notifications
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _notifications.ToList(); // snapshot to avoid out-of-sync enumeration
+                }
+            }
+        }
 
         /// <summary>
         /// Adds a new notification to the store and increments the badge count.
@@ -45,12 +72,15 @@ namespace Management.Application.Stores
                 IsRead = false
             };
 
-            _notifications.Insert(0, item); // Add to top
-
-            // Limit history to last 50 items to prevent memory bloat
-            if (_notifications.Count > 50)
+            lock (_lock)
             {
-                _notifications.RemoveAt(_notifications.Count - 1);
+                _notifications.Insert(0, item); // Add to top
+
+                // Limit history to last 50 items to prevent memory bloat
+                if (_notifications.Count > 50)
+                {
+                    _notifications.RemoveAt(_notifications.Count - 1);
+                }
             }
 
             NotificationAdded?.Invoke(item);
@@ -62,9 +92,12 @@ namespace Management.Application.Stores
         /// </summary>
         public void MarkAllAsRead()
         {
-            foreach (var item in _notifications)
+            lock (_lock)
             {
-                item.IsRead = true;
+                foreach (var item in _notifications)
+                {
+                    if (item != null) item.IsRead = true;
+                }
             }
             UnreadCountChanged?.Invoke();
         }
@@ -74,7 +107,11 @@ namespace Management.Application.Stores
         /// </summary>
         public void MarkAsRead(Guid id)
         {
-            var item = _notifications.FirstOrDefault(n => n.Id == id);
+            NotificationItem? item;
+            lock (_lock)
+            {
+                item = _notifications.FirstOrDefault(n => n != null && n.Id == id);
+            }
             if (item != null && !item.IsRead)
             {
                 item.IsRead = true;
