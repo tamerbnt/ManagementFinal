@@ -126,6 +126,8 @@ namespace Management.Presentation.ViewModels.Salon
 
         private void HandleRefreshAsync()
         {
+            if (IsDisposed) return;
+
             _refreshCts?.Cancel();
             _refreshCts = new CancellationTokenSource();
             var token = _refreshCts.Token;
@@ -556,6 +558,7 @@ namespace Management.Presentation.ViewModels.Salon
 
                 _refreshCts?.Cancel();
                 _refreshCts?.Dispose();
+                _refreshCts = null;
             }
             base.Dispose(disposing);
         }

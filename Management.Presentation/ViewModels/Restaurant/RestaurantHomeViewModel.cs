@@ -312,6 +312,8 @@ namespace Management.Presentation.ViewModels.Restaurant
 
         private void HandleRefreshAsync()
         {
+            if (IsDisposed) return;
+
             _refreshDebounceCts?.Cancel();
             _refreshDebounceCts = new CancellationTokenSource();
             var token = _refreshDebounceCts.Token;
@@ -341,6 +343,7 @@ namespace Management.Presentation.ViewModels.Restaurant
             {
                 _refreshDebounceCts?.Cancel();
                 _refreshDebounceCts?.Dispose();
+                _refreshDebounceCts = null;
                 WeakReferenceMessenger.Default.UnregisterAll(this);
                 if (_facilityContext != null)
                 {
