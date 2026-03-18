@@ -617,9 +617,14 @@ namespace Management.Presentation.ViewModels.GymHome
         {
             if (facilityId == _facilityContext.CurrentFacilityId)
             {
-                _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                 {
-                    if (!IsDisposed) await LoadDashboardStatsAsync();
+                    if (!IsDisposed)
+                    {
+                        // Fix 1: Refresh both stats AND the activity feed so all home cards update instantly.
+                        await LoadDashboardStatsAsync();
+                        await LoadRecentActivityAsync();
+                    }
                 });
             }
         }
@@ -707,7 +712,9 @@ namespace Management.Presentation.ViewModels.GymHome
         }
         public void ResetState()
         {
-            IsActive = false;
+            // Fix 3: Do NOT set IsActive=false here. IsActive reflects whether this screen is
+            // currently visible. ResetState only clears transient data; the Singleton ViewModel
+            // is immediately re-displayed after login, so IsActive should remain true.
             _logger?.LogInformation("Resetting state for GymHomeViewModel");
             
             // 1. Clear Data Collections
@@ -748,8 +755,11 @@ namespace Management.Presentation.ViewModels.GymHome
             
             if (newFacilityId != Guid.Empty)
             {
+                // Fix 2: Mark active here so ShouldRefreshOnSync() is unblocked for sync-triggered
+                // refreshes that arrive while the home screen is live.
+                IsActive = true;
                 _logger?.LogInformation("[GymHome] FacilityId resolved ({Id}). Reloading stats.", newFacilityId);
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                 {
                     if (IsDisposed) return;
                     await LoadDashboardStatsAsync();
