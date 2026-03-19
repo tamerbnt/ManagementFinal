@@ -21,6 +21,8 @@
   <ItemGroup>
     <None Remove="Assets\luxurya.ico" />
     <Resource Include="Assets\luxurya.ico" />
+    <Resource Include="Assets\from_scratch_logo.png" />
+    <Resource Include="Assets\luxurya_header_logo.png" />
     <Resource Include="Resources\Images\login_illustration.png" />
   </ItemGroup>
 

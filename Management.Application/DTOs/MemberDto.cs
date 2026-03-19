@@ -25,8 +25,20 @@ namespace Management.Application.DTOs
         [ObservableProperty]
         private string _profileImageUrl = string.Empty;
 
-        [ObservableProperty]
         private MemberStatus _status;
+        public MemberStatus Status
+        {
+            get
+            {
+                if (_status == MemberStatus.Active && ExpirationDate != default && ExpirationDate <= DateTime.UtcNow)
+                {
+                    return MemberStatus.Expired;
+                }
+                return _status;
+            }
+            set => SetProperty(ref _status, value);
+        }
+
 
         [ObservableProperty]
         private DateTime _startDate;
@@ -72,5 +84,16 @@ namespace Management.Application.DTOs
 
         [ObservableProperty]
         private System.Collections.Generic.List<AccessEventDto> _accessEvents = new();
+
+        public int DaysRemaining
+        {
+            get
+            {
+                if (ExpirationDate == default) return 0;
+                var remaining = (ExpirationDate - DateTime.UtcNow).TotalDays;
+                return remaining > 0 ? (int)Math.Ceiling(remaining) : 0;
+            }
+        }
     }
 }
+

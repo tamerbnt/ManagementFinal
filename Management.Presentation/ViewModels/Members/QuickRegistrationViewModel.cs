@@ -28,6 +28,10 @@ namespace Management.Presentation.ViewModels.Members
         private readonly Management.Presentation.Services.Salon.ISalonService _salonService;
         private readonly ITerminologyService _terminologyService;
 
+        private Guid? _originalPlanId;
+        private DateTime _originalExpirationDate;
+
+
         [ObservableProperty]
         private string _fullName = string.Empty;
 
@@ -134,9 +138,12 @@ namespace Management.Presentation.ViewModels.Members
                     
                     if (result.Value.MembershipPlanId.HasValue)
                     {
+                        _originalPlanId = result.Value.MembershipPlanId.Value;
+                        _originalExpirationDate = result.Value.ExpirationDate;
                         SelectedPlan = Plans.FirstOrDefault(p => p.Id == result.Value.MembershipPlanId.Value);
                     }
                 }
+
             }, "Failed to load member details.");
         }
 
@@ -214,8 +221,11 @@ namespace Management.Presentation.ViewModels.Members
                     MembershipPlanName = SelectedPlan?.Id == Guid.Empty ? (SelectedSalonService?.Id != Guid.Empty ? "Service Only" : "Walk-In") : SelectedPlan?.Name,
                     Status = MemberStatus.Active,
                     StartDate = DateTime.UtcNow,
-                    ExpirationDate = DateTime.UtcNow.AddDays(SelectedPlan?.DurationDays ?? 30) // Use plan duration or default 30 days
+                    ExpirationDate = (IsRenewMode && SelectedPlan?.Id == _originalPlanId && _originalExpirationDate > DateTime.UtcNow) 
+                                     ? _originalExpirationDate 
+                                     : DateTime.UtcNow.AddDays(SelectedPlan?.DurationDays ?? 30)
                 };
+
 
                 // If a salon service is selected but no plan, we might want to still create a "Walk-In" member
                 // The price recorded should be the sum.

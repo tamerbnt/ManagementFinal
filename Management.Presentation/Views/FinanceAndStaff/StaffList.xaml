@@ -255,10 +255,10 @@
                             <!-- Actions -->
                             <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="24,0,16,0">
                                 <Button Style="{StaticResource IconButtonStyle}" 
-                                        Command="{Binding DataContext.OpenStaffDetailCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                        Command="{Binding DataContext.DeleteStaffCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                         CommandParameter="{Binding}"
                                         Margin="0,0,8,0">
-                                    <Path x:Name="ViewIcon" Data="{StaticResource IconEye}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}"/>
+                                    <Path x:Name="DeleteIcon" Data="{StaticResource IconDelete}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource StatusErrorBrush}"/>
                                 </Button>
                                 <Button Style="{StaticResource IconButtonStyle}" 
                                         Command="{Binding DataContext.EditStaffCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
@@ -313,7 +313,7 @@
                             <Setter TargetName="StatusBorder" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
                             <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
                             <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
-                            <Setter TargetName="ViewIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
+                            <Setter TargetName="DeleteIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
                             <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>

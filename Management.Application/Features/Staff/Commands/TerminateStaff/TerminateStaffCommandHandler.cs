@@ -23,7 +23,7 @@ namespace Management.Application.Features.Staff.Commands.TerminateStaff
                 return Result.Failure(new Error("Staff.NotFound", "Staff member not found."));
             }
 
-            staff.Terminate();
+            staff.Delete();
             await _staffRepository.UpdateAsync(staff);
 
             return Result.Success();

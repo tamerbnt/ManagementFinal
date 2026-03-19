@@ -407,16 +407,14 @@ namespace Management.Presentation.ViewModels.Members
                     });
                 }
             });
-            EditMemberCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<MemberDto>(member => 
+            EditMemberCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
             {
                 if (member != null)
                 {
-                    SelectedMember = member;
-                    IsDetailPanelOpen = true;
-                    IsEditing = true;
-                    _toastService.ShowInfo($"Editing {member.FullName}");
+                    await _dialogService.ShowCustomDialogAsync<QuickRegistrationViewModel>(member.Id);
                 }
             });
+
             SaveMemberCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 if (SelectedMember != null)

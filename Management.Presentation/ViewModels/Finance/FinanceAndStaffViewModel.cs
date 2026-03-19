@@ -124,6 +124,7 @@ namespace Management.Presentation.ViewModels.Finance
         public CommunityToolkit.Mvvm.Input.IRelayCommand<StaffMemberViewModel> OpenStaffDetailCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand<StaffMemberViewModel> EditStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand SaveStaffCommand { get; }
+        public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<StaffMemberViewModel> DeleteStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand CancelEditCommand { get; }
 
         private readonly Management.Domain.Services.IDialogService _dialogService;
@@ -251,6 +252,42 @@ namespace Management.Presentation.ViewModels.Finance
                     else
                     {
                         _toastService?.ShowError(string.Format(_localizationService?.GetString("Strings.Finance.Toast.UpdateStaffError") ?? "Failed to update staff: {0}", result.Error.Message));
+                    }
+                }
+            });
+
+            DeleteStaffCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<StaffMemberViewModel>(async staff => 
+            {
+                if (staff == null) return;
+
+                var confirmed = await _dialogService.ShowConfirmationAsync(
+                    string.Format(_localizationService?.GetString("Terminology.Staff.Delete.ConfirmTitle") ?? "Delete {0}", staff.FullName),
+                    string.Format(_localizationService?.GetString("Terminology.Staff.Delete.ConfirmMessage") ?? "Are you sure you want to delete this staff member? This will also remove them from the cloud."),
+                    _localizationService?.GetString("Terminology.Staff.Delete.ConfirmAction") ?? "Delete",
+                    _localizationService?.GetString("Terminology.Staff.Delete.CancelAction") ?? "Cancel"
+                );
+
+                if (confirmed)
+                {
+                    var result = await _staffService.RemoveStaffAsync(Guid.Parse(staff.Id));
+                    if (result.IsSuccess)
+                    {
+                        _toastService?.ShowSuccess(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteSuccess") ?? "Deleted {0}", staff.FullName));
+                        
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                        {
+                            if (SelectedStaff == staff)
+                            {
+                                IsDetailOpen = false;
+                                SelectedStaff = null;
+                            }
+                            StaffMembers.Remove(staff);
+                            ApplyFilters();
+                        });
+                    }
+                    else
+                    {
+                        _toastService?.ShowError(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteError") ?? "Failed to delete staff: {0}", result.Error.Message));
                     }
                 }
             });

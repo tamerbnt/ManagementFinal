@@ -20,7 +20,7 @@
             <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
@@ -35,7 +35,7 @@
                                 <!-- Search Icon -->
                                 <Path x:Name="SearchIcon"
                                       Data="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" 
-                                      Fill="{DynamicResource TextSecondaryBrush}" 
+                                      Fill="{DynamicResource FacilityAccentBrush}" 
                                       Width="16" Height="16" 
                                       HorizontalAlignment="Left" 
                                       Margin="14,0,0,0" 
@@ -103,7 +103,7 @@
                             </DataTrigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter TargetName="Border" Property="BorderThickness" Value="1.5"/>
+                                <Setter TargetName="Border" Property="BorderThickness" Value="2"/>
                                 <Setter TargetName="ShortcutBox" Property="Visibility" Value="Collapsed"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
@@ -724,7 +724,7 @@
                     shell:WindowChrome.IsHitTestVisibleInChrome="True">
 
             <!-- Bolder Divider Line -->
-            <Rectangle Width="1.5" Height="24" Fill="{DynamicResource BorderBrush}" Margin="8,0,16,0"/>
+            <Rectangle Width="2.5" Height="24" Fill="{DynamicResource BorderBrush}" Margin="8,0,16,0"/>
             
             <!-- Minimize -->
             <Button Click="OnMinimize" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Minimize}">

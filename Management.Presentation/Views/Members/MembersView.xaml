@@ -6,6 +6,7 @@
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.Members"
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Members"
+             xmlns:enums="clr-namespace:Management.Domain.Enums;assembly=Management.Domain"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -373,9 +374,31 @@
                             <TextBlock Grid.Column="2" x:Name="PlanText" Text="{Binding MembershipPlanName}" VerticalAlignment="Center" FontWeight="Medium" Foreground="{DynamicResource BrandPrimaryBrush}" Margin="24,0"/>
 
                             <!-- Status -->
-                            <Border Grid.Column="3" x:Name="StatusBorder" Padding="8,4" CornerRadius="12" Background="{DynamicResource Brush.Success.Dim}" VerticalAlignment="Center" Margin="0,0,24,0">
-                                <TextBlock Text="{Binding Status, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" x:Name="StatusText" Foreground="{DynamicResource Brush.Success}" FontSize="11" FontWeight="Bold"/>
+                            <Border Grid.Column="3" x:Name="StatusBorder" Padding="8,4" CornerRadius="12" VerticalAlignment="Center" Margin="0,0,24,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding Status, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" x:Name="StatusText" FontSize="11" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </Border>
+
 
                             <!-- Balance -->
                             <TextBlock Grid.Column="4" x:Name="BalanceText" Text="{Binding Balance, StringFormat={}{0:N2} DA}" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}" Width="80" TextAlignment="Right"/>

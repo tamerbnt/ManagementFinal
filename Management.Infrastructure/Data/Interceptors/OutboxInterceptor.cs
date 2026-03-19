@@ -111,6 +111,18 @@ namespace Management.Infrastructure.Data.Interceptors
                         var messageTenantId = GetPropertyGuid(entry.Entity, "TenantId");
                         var messageFacilityId = GetPropertyGuid(entry.Entity, "FacilityId");
 
+                        // DETECT SOFT-DELETE TO HARD-CLOUD-SYNC TRANSITION
+                        string action = entry.State.ToString();
+                        if (entry.State == EntityState.Modified)
+                        {
+                            var isDeletedProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "IsDeleted");
+                            if (isDeletedProp != null && (bool?)isDeletedProp.CurrentValue == true && isDeletedProp.IsModified)
+                            {
+                                action = "Deleted";
+                                _logger.LogInformation("[OUTBOX] Soft-delete detected for {Type} ({Id}). Overriding Action to 'Deleted' for Cloud Sync.", entityType, entityId);
+                            }
+                        }
+
                         var message = new OutboxMessage
                         {
                             Id = AppDbContext.GenerateTimeOrderedGuid(),
@@ -118,8 +130,8 @@ namespace Management.Infrastructure.Data.Interceptors
                             FacilityId = messageFacilityId,
                             EntityType = entityType,
                             EntityId = entityId,
-                            Action = entry.State.ToString(),
-                            ContentJson = entry.State == EntityState.Deleted 
+                            Action = action,
+                            ContentJson = action == "Deleted" 
                                 ? "{}" 
                                 : JsonSerializer.Serialize(snapshot, new JsonSerializerOptions 
                                   { 

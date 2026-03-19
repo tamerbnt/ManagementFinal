@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Management.Presentation.Views.Members"
+             xmlns:enums="clr-namespace:Management.Domain.Enums;assembly=Management.Domain"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
              Background="{DynamicResource SurfaceBg}">
@@ -59,8 +60,38 @@
                         </StackPanel>
                         <StackPanel Margin="0,0,0,16">
                             <TextBlock Text="{DynamicResource Terminology.Members.Detail.ExpirationDate}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding ExpirationDate, StringFormat={}{0:M/d/yyyy}}" Style="{StaticResource Body}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding ExpirationDate, StringFormat={}{0:M/d/yyyy}}" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+                                <Border CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                    <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontSize="11" FontWeight="Bold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding DaysRemaining, StringFormat='{}{0} Days Left'}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                        <Setter Property="Text" Value="Expired"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                            </StackPanel>
                         </StackPanel>
+
 
                         <TextBlock Text="{DynamicResource Terminology.Members.Detail.ContactInfo}" Style="{StaticResource Title3}" Margin="0,8,0,12"/>
                         <StackPanel Margin="0,0,0,16">
@@ -90,55 +121,8 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <TabItem Header="{DynamicResource Terminology.Members.Detail.Activity}">
-                <Grid Margin="0,16,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBlock Grid.Row="0" Text="{DynamicResource Terminology.Members.Detail.History.Entries}" Style="{StaticResource Title3}" Margin="0,0,0,12"/>
-                    
-                    <ListBox Grid.Row="1" ItemsSource="{Binding AccessEvents}" 
-                             Background="Transparent" BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="12" Padding="12" Margin="0,0,0,8" BorderThickness="1" BorderBrush="{DynamicResource Brush.Border.Subtle}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        
-                                        <Border Width="8" Height="8" CornerRadius="4" VerticalAlignment="Center" Margin="0,0,12,0">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource StatusErrorBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsAccessGranted}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource StatusSuccessBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Timestamp, StringFormat={}{0:MMM dd, yyyy HH:mm}}" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding FailureReason}" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                        </StackPanel>
-                                        
-                                        <TextBlock Grid.Column="2" Text="{DynamicResource Terminology.Members.Detail.History.Entrance}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" VerticalAlignment="Top"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Grid>
-            </TabItem>
         </TabControl>
+
         
         <Button Width="32" Height="32" 
                 Style="{StaticResource IconButtonStyle}" 

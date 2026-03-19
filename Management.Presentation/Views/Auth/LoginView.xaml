@@ -30,30 +30,31 @@
         <!-- ════════════════════════════════════════════════════════════
              MAIN FORM — Hidden during initialization
              ════════════════════════════════════════════════════════════ -->
-        <StackPanel VerticalAlignment="Center"
-                    Margin="40,36,40,40"
+        <StackPanel VerticalAlignment="Top"
+                    Margin="40,32,40,40"
                     Visibility="{Binding IsInitializingApp, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
 
             <!-- ─────────────────────────────────────────────────
                  ROW 1 — TITAN BRAND + "No account?" block
                  ───────────────────────────────────────────────── -->
-            <Grid Margin="0,0,0,32">
-                <!-- Left: •• TITAN brand mark -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Two brand dots -->
-                    <Ellipse Width="7" Height="7" Fill="#0EA5E9" Margin="0,0,3,0"
-                             VerticalAlignment="Center"/>
-                    <Ellipse Width="7" Height="7" Fill="#0EA5E9" Margin="0,0,8,0"
-                             VerticalAlignment="Center"/>
-                    <TextBlock Text="Luxurya"
-                               FontSize="18" FontWeight="ExtraBold"
-                               Foreground="#111827"
-                               VerticalAlignment="Center"
-                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                </StackPanel>
+            <Grid Margin="0,8,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Hero Brand Logo - 64px height for maximum luxury impact -->
+                <Image Grid.Column="0" 
+                       Source="/Assets/luxurya_header_logo.png"
+                       Height="64"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Stretch="Uniform"
+                       ToolTip="Luxurya Management System"/>
 
                 <!-- Right: No account? / Contact admin -->
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock Text="No account?"
                                FontSize="11" Foreground="#9CA3AF"
                                HorizontalAlignment="Right"
@@ -76,7 +77,7 @@
             <TextBlock Text="Sign in"
                        FontSize="40" FontWeight="ExtraBold"
                        Foreground="#0F172A"
-                       Margin="0,0,0,28"
+                       Margin="0,0,0,12"
                        FontFamily="Segoe UI Variable Display, Segoe UI"/>
 
             <!-- ─────────────────────────────────────────────────
@@ -102,10 +103,10 @@
             <!-- ─────────────────────────────────────────────────
                  ROW 4 — EMAIL ADDRESS FIELD
                  ───────────────────────────────────────────────── -->
-            <StackPanel Margin="0,0,0,20">
+            <StackPanel Margin="0,0,0,16">
                 <TextBlock Text="Email Address"
                            FontSize="12" FontWeight="Medium"
-                           Foreground="#374151" Margin="0,0,0,6"
+                           Foreground="#374151" Margin="0,0,0,4"
                            FontFamily="Segoe UI Variable Display, Segoe UI"/>
 
                 <Border CornerRadius="10"
@@ -145,9 +146,9 @@
             <!-- ─────────────────────────────────────────────────
                  ROW 5 — PASSWORD FIELD
                  ───────────────────────────────────────────────── -->
-            <StackPanel Margin="0,0,0,20">
+            <StackPanel Margin="0,0,0,16">
                 <!-- Label row: "Password" left + "Forgot password?" right -->
-                <Grid Margin="0,0,0,6">
+                <Grid Margin="0,0,0,4">
                     <TextBlock Text="Password"
                                FontSize="12" FontWeight="Medium"
                                Foreground="#374151"
@@ -499,27 +500,49 @@
                 <StackPanel Grid.Column="1"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Right"
-                            Margin="16,0,0,0">
+                            Margin="0,0,0,0">
                     <TextBlock Text="Powered by"
-                               FontSize="10" Foreground="#9CA3AF" FontWeight="Normal"
-                               HorizontalAlignment="Right"
+                               FontSize="10" Foreground="#6B7280" FontWeight="Bold"
+                               HorizontalAlignment="Center"
                                FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                    <TextBlock Text="From Scratch"
-                               FontSize="11" FontWeight="Bold" Foreground="#374151"
-                               HorizontalAlignment="Right"
-                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                    
+                    <!-- Premium Brand Signature: Centralized and moved to the left -->
+                    <Border Width="110" Height="80" 
+                            Background="#111827"
+                            HorizontalAlignment="Center"
+                            Margin="0,4,0,0"
+                            ToolTip="Powered by From Scratch">
+                        <Border.OpacityMask>
+                            <ImageBrush ImageSource="/Assets/from_scratch_logo.png" 
+                                        Stretch="Uniform" 
+                                        RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border.OpacityMask>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Opacity" Value="0.9"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="1.0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
                 </StackPanel>
             </Grid>
-
         </StackPanel>
 
-        <!-- ════════════════════════════════════════════════════════════
-             SKELETON LOADER — Visible during initialization
-             ════════════════════════════════════════════════════════════ -->
-        <auth:LoginSkeletonView x:Name="SkeletonContainer"
-                                  VerticalAlignment="Center"
-                                  Margin="40,36,40,40"
-                                  Visibility="{Binding IsInitializingApp, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+
+                <!-- ════════════════════════════════════════════════════════════
+                     SKELETON LOADER — Visible during initialization
+                     ════════════════════════════════════════════════════════════ -->
+                <auth:LoginSkeletonView x:Name="SkeletonContainer"
+                                          VerticalAlignment="Top"
+                                          Margin="40,20,40,40"
+                                          Visibility="{Binding IsInitializingApp, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <!-- Grid is closed at 546 -->
     </Grid>
 
 </UserControl>
