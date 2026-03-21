@@ -175,9 +175,7 @@
             <DataTemplate DataType="{x:Type viewmodels:MemberDetailViewModel}">
                 <members:MemberDetailView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:RegistrationDetailViewModel}">
-                <reg:RegistrationDetailView/>
-            </DataTemplate>
+
             <DataTemplate DataType="{x:Type membersvm:QuickRegistrationViewModel}">
                 <members:QuickRegistrationView/>
             </DataTemplate>
@@ -229,9 +227,7 @@
                 <auth:LoginView/>
             </DataTemplate>
 
-            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
-                <reg:ConfirmDeclineModal/>
-            </DataTemplate>
+
             <DataTemplate DataType="{x:Type sharedvm:NotificationDetailViewModel}">
                 <shared:NotificationDetailView/>
             </DataTemplate>

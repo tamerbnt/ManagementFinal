@@ -712,12 +712,12 @@ namespace Management.Infrastructure.Services
                 var lease = new Management.Domain.Models.LicenseLease
                 {
                     HardwareId = hardwareId,
-                    ExpiryDate = DateTime.UtcNow.AddHours(24),
+                    ExpiryDate = DateTime.UtcNow.AddDays(30),
                     Signature = "SIGNED-" + hardwareId
                 };
 
                 await _configService.SaveConfigAsync(lease, "license.lease");
-                Serilog.Log.Information("[OnboardingService] License lease saved locally (24h validity).");
+                Serilog.Log.Information("[OnboardingService] License lease saved locally (30d validity).");
             }
             catch (Exception ex)
             {

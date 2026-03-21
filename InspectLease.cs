@@ -19,7 +19,8 @@ namespace DecryptLease
 
         static void Main(string[] args)
         {
-            string path = @"C:\ProgramData\ManagementApp\license.lease";
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string path = Path.Combine(appData, "Luxurya", "license.lease");
             if (!File.Exists(path)) { Console.WriteLine("File not found"); return; }
 
             try

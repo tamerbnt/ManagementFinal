@@ -38,9 +38,7 @@
             <DataTemplate DataType="{x:Type viewmodels:EmailConfirmationViewModel}">
                 <auth:EmailConfirmationView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:ConfirmationViewModel}">
-                <reg:ConfirmDeclineModal/>
-            </DataTemplate>
+
 
             <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
                 <Setter Property="Background" Value="#F0FFFFFF"/>

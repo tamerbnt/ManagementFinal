@@ -45,21 +45,12 @@ namespace Management.Presentation.Services
                     ShowConfirmationAsync(title, message, confirmText, cancelText, isDestructive));
             }
 
-            // Create VM. The callback will trigger CloseAsync on the store.
-            var vm = new ConfirmationViewModel(
-                title,
-                message,
-                confirmText,
-                cancelText,
-                isDestructive,
-                isAlert: false,
-                resultCallback: async (result) =>
-                {
-                    // FIX: Call the async Close method on the store
-                    await _modalNavigationStore.CloseAsync(result ? ModalResult.Success() : ModalResult.Cancel());
-                });
+            // Resolve the shared modal VM
+            var vm = _serviceProvider.GetRequiredService<Management.Presentation.ViewModels.Shared.ConfirmationModalViewModel>();
+            vm.Configure(title, message, confirmText, cancelText, isDestructive);
+            vm.IsAlert = false;
 
-            // FIX: Use the async Open method on the store
+            // Use the async Open method on the store
             var modalResult = await _modalNavigationStore.OpenAsync(vm);
             return modalResult.IsSuccess;
         }
@@ -74,22 +65,14 @@ namespace Management.Presentation.Services
                 return;
             }
 
-            var vm = new ConfirmationViewModel(
-                title,
-                message,
-                buttonText,
-                string.Empty, // No cancel button for alerts
-                false,
-                isAlert: true,
-                resultCallback: async (result) => // Callback is still needed to close the modal
-                {
-                    await _modalNavigationStore.CloseAsync(ModalResult.Success());
-                },
-                isSuccess: isSuccess);
+            // Resolve the shared modal VM
+            var vm = _serviceProvider.GetRequiredService<Management.Presentation.ViewModels.Shared.ConfirmationModalViewModel>();
+            vm.Configure(title, message, buttonText, string.Empty, false);
+            vm.IsAlert = true;
+            vm.IsSuccess = isSuccess;
 
-            // FIX: Use the async Open method on the store
+            // Use the async Open method on the store
             await _modalNavigationStore.OpenAsync(vm);
-            // We don't await the result here because ShowAlertAsync is Task (void), not Task<bool>
         }
 
         public async Task<object?> ShowCustomDialogAsync<TViewModel>(object? parameter = null)

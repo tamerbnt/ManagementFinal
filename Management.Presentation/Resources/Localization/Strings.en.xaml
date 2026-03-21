@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -336,7 +337,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <!-- Formats -->
     <sys:String x:Key="Terminology.Format.Time">{}{0:h:mm tt}</sys:String>
-    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  Ã¢â‚¬Â¢  h:mm tt}</sys:String>
+    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  â€¢  h:mm tt}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Medium">{}{0:dddd, MMMM d}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Short">{}{0:MMM dd}</sys:String>
     <sys:String x:Key="Terminology.Format.Currency">{}{0:N2} DA</sys:String>
@@ -683,7 +684,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Restaurant.Order.SelectBillToPay">Select an active order to process payment</sys:String>
     <!-- Floor Plan keys -->
     <sys:String x:Key="Terminology.FloorPlan.Legend.Title">TABLE STATUS</sys:String>
-    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map â€” click a table to manage</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map — click a table to manage</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Total">Total</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Available">Available</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Occupied">Occupied</sys:String>
@@ -971,7 +972,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Settings\Pages.AccessibleFacilities">Accessible Facilities</sys:String>
     <sys:String x:Key="Strings.Settings\Pages.Thisplaniscurrentlyactive">This plan is currently active and available for purchase</sys:String>
     <sys:String x:Key="Strings.Shared.WorkinginLocalMode">Working in Local Mode</sys:String>
-    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">Ã¢â‚¬Â¢ Changes will sync when online</sys:String>
+    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">â€¢ Changes will sync when online</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyPlan">Revenue by Plan</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyProduct">Revenue by Product</sys:String>
     <sys:String x:Key="Strings.Shell.DA">DA</sys:String>

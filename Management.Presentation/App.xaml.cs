@@ -1163,7 +1163,6 @@ namespace Management.Presentation
             services.AddSingleton<BookingViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<BookingViewModel>());
             services.AddTransient<MemberDetailViewModel>();
-            services.AddTransient<RegistrationDetailViewModel>();
             services.AddTransient<ProductDetailViewModel>();
             services.AddTransient<CheckoutViewModel>();
             services.AddTransient<AddProductViewModel>();

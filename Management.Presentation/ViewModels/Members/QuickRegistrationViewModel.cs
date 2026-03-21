@@ -16,6 +16,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Management.Presentation.ViewModels.Members
 {
+    public record QuickRegistrationPrefillData(
+        string FullName,
+        string Email,
+        string PhoneNumber,
+        Gender Gender
+    );
+
     public partial class QuickRegistrationViewModel : ViewModelBase
     {
         private readonly IMemberService _memberService;
@@ -120,6 +127,13 @@ namespace Management.Presentation.ViewModels.Members
                 IsRenewMode = true;
                 MemberIdToUpdate = memberId;
                 await LoadMemberDetailsAsync(memberId);
+            }
+            else if (parameter is QuickRegistrationPrefillData prefillData)
+            {
+                FullName = prefillData.FullName;
+                Email = prefillData.Email;
+                PhoneNumber = prefillData.PhoneNumber;
+                Gender = prefillData.Gender;
             }
         }
 

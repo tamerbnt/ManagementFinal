@@ -14,7 +14,7 @@ namespace Management.Infrastructure.Services
         public ConfigurationService(ISecurityService securityService)
         {
             _securityService = securityService;
-            _basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ManagementApp");
+            _basePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
         }
 
         public async Task SaveConfigAsync<T>(T config, string filename)

@@ -15,8 +15,8 @@ namespace Management.Infrastructure.Integrations.Supabase
 
         public CustomFileSessionHandler()
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var folder = Path.Combine(appData, "ManagementApp");
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var folder = Path.Combine(appData, "Luxurya");
             if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
             _filePath = Path.Combine(folder, "session.bin");
         }

@@ -357,6 +357,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconMembers}" 
                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Settings.AccountNew}" 
@@ -372,6 +373,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconTag}" 
                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Settings.MembershipPlans}" 
@@ -387,6 +389,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconRunner}" 
                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Settings.WalkInPlans}" 
@@ -402,6 +405,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconSalon}" 
                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Salon.Services.Title}" 
@@ -416,6 +420,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource IconMoon}" 
                                           Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Settings.Appearance}" 
@@ -428,7 +433,7 @@
                             <Button Command="{Binding SelectTabCommand}" CommandParameter="Apparatus">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource Icon.Sliders}" 
-                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Settings.Apparatus}" 
@@ -441,7 +446,7 @@
                             <Button Command="{Binding SelectTabCommand}" CommandParameter="Backups">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="{StaticResource Icon.Copy}" 
-                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
                                     <TextBlock Text="Backups" 
