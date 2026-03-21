@@ -62,7 +62,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(s => s.FacilityId == context.FacilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= utcStartThreshold)
-                .GroupBy(s => s.Timestamp.Date)
+                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
                 .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
                 .ToListAsync();
             
@@ -75,7 +75,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .AsNoTracking()
                     .Where(o => o.FacilityId == context.FacilityId && o.CompletedAt >= utcStartThreshold &&
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
-                    .GroupBy(o => o.CompletedAt!.Value.Date)
+                    .GroupBy(o => o.CompletedAt!.Value.ToLocalTime().Date)
                     .Select(g => new { Date = g.Key, Total = g.Sum(o => (double)(o.Subtotal + o.Tax)) })
                     .ToListAsync();
                 restaurantMap = restaurantData.ToDictionary(x => x.Date, x => x.Total);
