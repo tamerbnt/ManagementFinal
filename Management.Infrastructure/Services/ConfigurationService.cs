@@ -65,22 +65,15 @@ namespace Management.Infrastructure.Services
 
                 return JsonSerializer.Deserialize<T>(json);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Corrupt Load Handling:
-                // Automatically delete the corrupted file and return null (forcing fresh state)
-                try
+                Serilog.Log.Error(ex, "[Config] Failed to decrypt {File} — preserving as .corrupt for recovery", fullPath);
+                if (File.Exists(fullPath))
                 {
-                    if (File.Exists(fullPath))
-                    {
-                        File.Delete(fullPath);
-                    }
+                    var corruptPath = fullPath + ".corrupt." + DateTime.UtcNow.Ticks;
+                    try { File.Move(fullPath, corruptPath); }
+                    catch { /* if rename fails just leave the file */ }
                 }
-                catch
-                {
-                    // Ignore delete errors
-                }
-
                 return default;
             }
         }

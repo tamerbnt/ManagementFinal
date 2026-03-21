@@ -73,9 +73,15 @@ namespace Management.Presentation.Services.Infrastructure
                 string json = System.Text.Encoding.UTF8.GetString(decryptedData);
                 return JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new Dictionary<string, string>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                DeleteFile();
+                Serilog.Log.Error(ex, "[SecureStorage] Failed to decrypt {File} — preserving as .corrupt for recovery", _filePath);
+                if (File.Exists(_filePath))
+                {
+                    var corruptPath = _filePath + ".corrupt." + DateTime.UtcNow.Ticks;
+                    try { File.Move(_filePath, corruptPath); }
+                    catch { /* if rename fails just leave the file */ }
+                }
                 return new Dictionary<string, string>();
             }
         }

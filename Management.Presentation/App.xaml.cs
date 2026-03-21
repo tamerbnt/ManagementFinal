@@ -1259,39 +1259,11 @@ namespace Management.Presentation
 
                         await dbContext.Database.MigrateAsync(ct);
                         Serilog.Log.Information("Database migration successful.");
-
-                        // EXTRA FAILSAFE: If migrations were empty/skipped (e.g. 0-byte files), 
-                        // manually ensure the critical staff_members table exists.
-                        if (dbContext.Database.IsSqlite())
-                        {
-                            using (var command = dbContext.Database.GetDbConnection().CreateCommand())
-                            {
-                                command.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='staff_members';";
-                                await dbContext.Database.OpenConnectionAsync(ct);
-                                var result = await command.ExecuteScalarAsync(ct);
-                                int count = result != null ? Convert.ToInt32(result) : 0;
-                                
-                                if (count == 0)
-                                {
-                                    Serilog.Log.Warning("Critical table 'staff_members' missing after migration. Forcing EnsureCreatedAsync...");
-                                    await dbContext.Database.EnsureCreatedAsync(ct);
-                                }
-                            }
-                        }
                     }
                     catch (Exception ex)
                     {
                         Serilog.Log.Error(ex, "Error during MigrateAsync. Database may be in a legacy state.");
-                        // Fallback only if migration table is missing/corrupt
-                        if (ex.Message.Contains("history") || ex.Message.Contains("exists"))
-                        {
-                            Serilog.Log.Warning("Attempting EnsureCreated as failsafe...");
-                            await dbContext.Database.EnsureCreatedAsync(ct);
-                        }
-                        else 
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                     
                     // Phase 4: Execute WAL and runtime data-healing only
