@@ -1,6 +1,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Management.Domain.Enums;
 using Management.Application.Services;
 using Management.Domain.Interfaces;
@@ -19,6 +20,7 @@ namespace Management.Infrastructure.Services
         private readonly IFacilityContextService _facilityService;
         private readonly IAccessControlCache _cache;
         private readonly AppDbContext _context;
+        private readonly ILogger<AccessControlService> _logger;
 
         public AccessControlService(
             IMemberRepository memberRepository,
@@ -27,7 +29,8 @@ namespace Management.Infrastructure.Services
             IRepository<FacilitySchedule> scheduleRepository,
             IFacilityContextService facilityService,
             IAccessControlCache cache,
-            AppDbContext context)
+            AppDbContext context,
+            ILogger<AccessControlService> logger)
         {
             _memberRepository = memberRepository;
             _staffRepository = staffRepository;
@@ -36,10 +39,39 @@ namespace Management.Infrastructure.Services
             _facilityService = facilityService;
             _cache = cache;
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<ScanResult> ProcessScanAsync(string barcode)
+        public async Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId = null)
         {
+            // 0. Persistent De-duplication (Hardware & Network retries)
+            if (!string.IsNullOrEmpty(transactionId))
+            {
+                var fiveMinutesAgo = DateTime.UtcNow.AddMinutes(-5);
+                var isDuplicate = await _context.AccessEvents
+                    .AnyAsync(e => e.TransactionId == transactionId && e.Timestamp >= fiveMinutesAgo);
+
+                if (isDuplicate)
+                {
+                    _logger.LogInformation("Rejected duplicate scan: TransactionId {Id} already processed in the last 5 minutes.", transactionId);
+                    // Return OK but skip processing (session deduction happened on first scan)
+                    return ScanResult.Granted("Access Restored (Duplicate)", null);
+                }
+            }
+            else 
+            {
+                // Fallback de-duplication for UI-triggered scans without TransactionId (prevent double-clicks)
+                var tenSecondsAgo = DateTime.UtcNow.AddSeconds(-5);
+                var recentScan = await _context.AccessEvents
+                    .AnyAsync(e => e.CardId == barcode && e.IsAccessGranted && e.Timestamp >= tenSecondsAgo);
+                
+                if (recentScan)
+                {
+                    _logger.LogInformation("Rejected duplicate scan: CardId {Id} processed too recently (manual scan).", barcode);
+                    return ScanResult.Granted("Access Restored (Rapid Scan)", null);
+                }
+            }
+
             // 0. Staff Override (Staff ignore all behavioral rules)
             var staff = await _staffRepository.GetByCardIdAsync(barcode);
             if (staff != null)

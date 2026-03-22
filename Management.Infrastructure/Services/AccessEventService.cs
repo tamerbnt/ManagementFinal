@@ -63,7 +63,7 @@ namespace Management.Infrastructure.Services
         public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, string? transactionId = null)
         {
             // 1. Run the access validation
-            var validationResult = await _accessControl.ProcessScanAsync(cardId);
+            var validationResult = await _accessControl.ProcessScanAsync(cardId, transactionId);
             
             bool granted = validationResult.Status == AccessResult.Granted || validationResult.Status == AccessResult.Warning;
             string status = validationResult.Status.ToString();
