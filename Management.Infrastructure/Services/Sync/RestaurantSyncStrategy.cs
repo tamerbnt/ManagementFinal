@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Supabase.Postgrest.Models;
 using Management.Domain.Models;
 using Management.Domain.Models.Restaurant;
+using MediatR;
+using Management.Application.Notifications;
 
 namespace Management.Infrastructure.Services.Sync
 {
@@ -22,17 +24,20 @@ namespace Management.Infrastructure.Services.Sync
         private readonly Supabase.Client _supabase;
         private readonly ITenantService _tenantService;
         private readonly ILogger<RestaurantSyncStrategy> _logger;
+        private readonly IMediator _mediator;
 
         public FacilityType FacilityType => FacilityType.Restaurant;
 
         public RestaurantSyncStrategy(
             Supabase.Client supabase,
             ITenantService tenantService,
-            ILogger<RestaurantSyncStrategy> logger)
+            ILogger<RestaurantSyncStrategy> logger,
+            IMediator mediator)
         {
             _supabase = supabase;
             _tenantService = tenantService;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task PullSpecificDataAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
@@ -91,10 +96,23 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
-                        // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        var localUpdateAt = existing.UpdatedAt ?? existing.CreatedAt;
+                        if (remote.UpdatedAt < localUpdateAt)
                         {
-                            _logger.LogDebug("[Sync] Skipping menu item update for {Id}: Local is newer or same.", remote.Id);
+                            _logger.LogInformation("[Sync Conflict] Menu item {Id}: Local ({Local}) is newer than Server ({Server}). Triggering UI resolution.", remote.Id, localUpdateAt, remote.UpdatedAt);
+                            
+                            await _mediator.Publish(new SyncConflictNotification(
+                                existing.Id, 
+                                "RestaurantMenuItem", 
+                                localUpdateAt, 
+                                remote.UpdatedAt, 
+                                existing.FacilityId), ct);
+                            
+                            continue;
+                        }
+
+                        if (remote.UpdatedAt == localUpdateAt)
+                        {
                             continue;
                         }
 
@@ -148,10 +166,23 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
-                        // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        var localUpdateAt = existing.UpdatedAt ?? existing.CreatedAt;
+                        if (remote.UpdatedAt < localUpdateAt)
                         {
-                            _logger.LogDebug("[Sync] Skipping restaurant order update for {Id}: Local is newer or same.", remote.Id);
+                            _logger.LogInformation("[Sync Conflict] Restaurant order {Id}: Local ({Local}) is newer than Server ({Server}). Triggering UI resolution.", remote.Id, localUpdateAt, remote.UpdatedAt);
+                            
+                            await _mediator.Publish(new SyncConflictNotification(
+                                existing.Id, 
+                                "RestaurantOrder", 
+                                localUpdateAt, 
+                                remote.UpdatedAt, 
+                                existing.FacilityId), ct);
+                            
+                            continue;
+                        }
+
+                        if (remote.UpdatedAt == localUpdateAt)
+                        {
                             continue;
                         }
 

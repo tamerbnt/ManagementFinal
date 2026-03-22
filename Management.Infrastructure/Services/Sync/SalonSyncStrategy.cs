@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 using Supabase.Postgrest.Models;
 using Management.Domain.Models;
 using Management.Domain.Models.Salon;
+using MediatR;
+using Management.Application.Notifications;
 
 namespace Management.Infrastructure.Services.Sync
 {
@@ -23,6 +25,7 @@ namespace Management.Infrastructure.Services.Sync
         private readonly ITenantService _tenantService;
         private readonly IFacilityContextService _facilityContext;
         private readonly ILogger<SalonSyncStrategy> _logger;
+        private readonly IMediator _mediator;
 
         public FacilityType FacilityType => FacilityType.Salon;
 
@@ -30,12 +33,14 @@ namespace Management.Infrastructure.Services.Sync
             Supabase.Client supabase,
             ITenantService tenantService,
             IFacilityContextService facilityContext,
-            ILogger<SalonSyncStrategy> logger)
+            ILogger<SalonSyncStrategy> logger,
+            IMediator mediator)
         {
             _supabase = supabase;
             _tenantService = tenantService;
             _facilityContext = facilityContext;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task PullSpecificDataAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
@@ -99,10 +104,23 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
-                        // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        var localUpdateAt = existing.UpdatedAt ?? existing.CreatedAt;
+                        if (remote.UpdatedAt < localUpdateAt)
                         {
-                            _logger.LogDebug("[Sync] Skipping appointment update for {Id}: Local is newer or same.", remote.Id);
+                            _logger.LogInformation("[Sync Conflict] Appointment {Id}: Local ({Local}) is newer than Server ({Server}). Triggering UI resolution.", remote.Id, localUpdateAt, remote.UpdatedAt);
+                            
+                            await _mediator.Publish(new SyncConflictNotification(
+                                existing.Id, 
+                                "Appointment", 
+                                localUpdateAt, 
+                                remote.UpdatedAt, 
+                                existing.FacilityId), ct);
+                            
+                            continue;
+                        }
+
+                        if (remote.UpdatedAt == localUpdateAt)
+                        {
                             continue;
                         }
 

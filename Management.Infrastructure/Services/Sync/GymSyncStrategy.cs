@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Supabase.Postgrest.Models;
 using Management.Domain.Models;
+using MediatR;
+using Management.Application.Notifications;
 
 namespace Management.Infrastructure.Services.Sync
 {
@@ -21,17 +23,20 @@ namespace Management.Infrastructure.Services.Sync
         private readonly Supabase.Client _supabase;
         private readonly ITenantService _tenantService;
         private readonly ILogger<GymSyncStrategy> _logger;
+        private readonly IMediator _mediator;
 
         public FacilityType FacilityType => FacilityType.Gym;
 
         public GymSyncStrategy(
             Supabase.Client supabase,
             ITenantService tenantService,
-            ILogger<GymSyncStrategy> logger)
+            ILogger<GymSyncStrategy> logger,
+            IMediator mediator)
         {
             _supabase = supabase;
             _tenantService = tenantService;
             _logger = logger;
+            _mediator = mediator;
         }
 
         public async Task PullSpecificDataAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
@@ -77,9 +82,22 @@ namespace Management.Infrastructure.Services.Sync
                     if (existing != null)
                     {
                         // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= existing.UpdatedAt)
+                        if (remote.UpdatedAt < existing.UpdatedAt)
                         {
-                            _logger.LogDebug("[Sync] Skipping gym settings update for {Id}: Local is newer or same.", remote.Id);
+                            _logger.LogInformation("[Sync Conflict] Gym settings {Id}: Local ({Local}) is newer than Server ({Server}). Triggering UI resolution.", remote.Id, existing.UpdatedAt, remote.UpdatedAt);
+                            
+                            await _mediator.Publish(new SyncConflictNotification(
+                                existing.Id, 
+                                "GymSettings", 
+                                existing.UpdatedAt, 
+                                remote.UpdatedAt, 
+                                existing.FacilityId), ct);
+                            
+                            continue;
+                        }
+
+                        if (remote.UpdatedAt == existing.UpdatedAt)
+                        {
                             continue;
                         }
 
@@ -118,10 +136,22 @@ namespace Management.Infrastructure.Services.Sync
                     var existing = await context.FacilitySchedules.FindAsync(new object[] { remote.Id }, ct);
                     if (existing != null)
                     {
-                        // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= existing.UpdatedAt)
+                        if (remote.UpdatedAt < existing.UpdatedAt)
                         {
-                            _logger.LogDebug("[Sync] Skipping schedule update for {Id}: Local is newer or same.", remote.Id);
+                            _logger.LogInformation("[Sync Conflict] Schedule {Id}: Local ({Local}) is newer than Server ({Server}). Triggering UI resolution.", remote.Id, existing.UpdatedAt, remote.UpdatedAt);
+                            
+                            await _mediator.Publish(new SyncConflictNotification(
+                                existing.Id, 
+                                "FacilitySchedule", 
+                                existing.UpdatedAt, 
+                                remote.UpdatedAt, 
+                                existing.FacilityId), ct);
+                            
+                            continue;
+                        }
+
+                        if (remote.UpdatedAt == existing.UpdatedAt)
+                        {
                             continue;
                         }
 
