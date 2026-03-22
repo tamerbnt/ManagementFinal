@@ -13,34 +13,45 @@ namespace Management.Presentation.Views.Auth
             InitializeComponent();
         }
 
+        private void SignInButton_Click(object sender, RoutedEventArgs e)
+        {
+            // CRITICAL: Sync visible TextBox back to PasswordBox before Command execution
+            // if the eye toggle (visible password) is currently active.
+            if (PasswordTextBox.Visibility == Visibility.Visible)
+            {
+                PasswordInput.Password = PasswordTextBox.Text;
+            }
+        }
+
+
         private void TogglePasswordVisibility_Click(object sender, RoutedEventArgs e)
         {
             _isPasswordVisible = !_isPasswordVisible;
 
             if (_isPasswordVisible)
             {
-                // Sync text to the TextBox and show it
+                // Switching to visible — sync from PasswordBox
                 PasswordTextBox.Text = PasswordInput.Password;
                 PasswordInput.Visibility = Visibility.Collapsed;
                 PasswordTextBox.Visibility = Visibility.Visible;
-                PasswordTextBox.CaretIndex = PasswordTextBox.Text.Length;
                 PasswordTextBox.Focus();
+                PasswordTextBox.CaretIndex = PasswordTextBox.Text.Length;
 
                 // Swap icons
-                EyeOpenIcon.Visibility = Visibility.Collapsed;
-                EyeClosedIcon.Visibility = Visibility.Visible;
+                if (EyeOpenIcon != null) EyeOpenIcon.Visibility = Visibility.Collapsed;
+                if (EyeClosedIcon != null) EyeClosedIcon.Visibility = Visibility.Visible;
             }
             else
             {
-                // Sync back to PasswordBox and show it
+                // Switching back to hidden — sync value first
                 PasswordInput.Password = PasswordTextBox.Text;
                 PasswordTextBox.Visibility = Visibility.Collapsed;
                 PasswordInput.Visibility = Visibility.Visible;
                 PasswordInput.Focus();
 
                 // Swap icons
-                EyeOpenIcon.Visibility = Visibility.Visible;
-                EyeClosedIcon.Visibility = Visibility.Collapsed;
+                if (EyeOpenIcon != null) EyeOpenIcon.Visibility = Visibility.Visible;
+                if (EyeClosedIcon != null) EyeClosedIcon.Visibility = Visibility.Collapsed;
             }
         }
 

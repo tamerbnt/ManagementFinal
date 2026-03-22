@@ -401,7 +401,8 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Sign In Button (partial width) -->
-                <Button Grid.Column="0"
+                <Button x:Name="SignInButton"
+                        Click="SignInButton_Click"
                         Command="{Binding LoginCommand}"
                         CommandParameter="{Binding ElementName=PasswordInput}"
                         Width="162" Height="46"
