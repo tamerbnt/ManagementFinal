@@ -17,6 +17,7 @@ namespace Management.Domain.Models
         public DateTime? ProcessedAt { get; set; }
         public int ErrorCount { get; set; }
         public bool IsConflict { get; set; }
+        public bool IsDeadLetter { get; set; }
         public string? LastError { get; set; }
         public string? ServerPayload { get; set; } // Snapshot of server state for conflict resolution
     }

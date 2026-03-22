@@ -173,7 +173,7 @@ namespace Management.Infrastructure.Services
             // If null, we fall back to current context (legacy) or all (global admin).
             var query = context.OutboxMessages
                 .IgnoreQueryFilters()
-                .Where(m => !m.IsProcessed && m.ErrorCount < 5);
+                .Where(m => !m.IsProcessed && !m.IsDeadLetter && m.ErrorCount < 5);
 
             if (facilityId.HasValue && facilityId != Guid.Empty)
             {
@@ -219,6 +219,11 @@ namespace Management.Infrastructure.Services
                     else
                     {
                         message.ErrorCount++;
+                        if (message.ErrorCount >= 5)
+                        {
+                            message.IsDeadLetter = true;
+                            _logger.LogWarning("Outbox message {MessageId} reached max retries and is now a DEAD LETTER", message.Id);
+                        }
                     }
 
                     await messageContext.SaveChangesAsync(ct);
@@ -412,6 +417,34 @@ namespace Management.Infrastructure.Services
             }
             
             return result.ResponseMessage.IsSuccessStatusCode;
+        }
+
+        public async Task CleanupOutboxAsync(CancellationToken ct)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                // Delete processed or dead letter messages older than 7 days
+                var threshold = DateTime.UtcNow.AddDays(-7);
+                
+                var oldMessages = await context.OutboxMessages
+                    .IgnoreQueryFilters()
+                    .Where(m => (m.IsProcessed || m.IsDeadLetter) && m.CreatedAt < threshold)
+                    .ToListAsync(ct);
+
+                if (oldMessages.Any())
+                {
+                    _logger.LogInformation("Cleaning up {Count} old outbox messages...", oldMessages.Count);
+                    context.OutboxMessages.RemoveRange(oldMessages);
+                    await context.SaveChangesAsync(ct);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to cleanup outbox messages");
+            }
         }
 
         private T? GetVal<T>(Dictionary<string, JsonElement> dict, string key)

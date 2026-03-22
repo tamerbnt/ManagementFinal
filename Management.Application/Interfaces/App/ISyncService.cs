@@ -29,6 +29,11 @@ namespace Management.Application.Interfaces.App
         Task ResetSyncContextAsync();
 
         /// <summary>
+        /// Cleanup old processed outbox messages and mark permanently failed ones as dead-lettered.
+        /// </summary>
+        Task CleanupOutboxAsync(CancellationToken ct);
+
+        /// <summary>
         /// Blocks until the outbox is empty or the timeout expires.
         /// Used for "Sync Draining" during facility switches or app exit.
         /// </summary>

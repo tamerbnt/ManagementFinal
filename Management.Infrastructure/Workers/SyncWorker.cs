@@ -145,10 +145,13 @@ namespace Management.Infrastructure.Workers
                     
                     if (shouldSyncSecondary)
                     {
-                        _logger.LogInformation("[Sync] Periodic secondary facility sync triggered.");
+                        _logger.LogInformation("[Sync] Periodic secondary facility sync and outbox cleanup triggered.");
                         var secondaryIds = allFacilityIds.Where(id => id != currentFacilityId);
                         facilityIdsToSync.AddRange(secondaryIds);
                         _lastSecondarySync = DateTime.UtcNow;
+
+                        // Trigger outbox cleanup
+                        await sync.CleanupOutboxAsync(stoppingToken);
                     }
 
                     if (!facilityIdsToSync.Any())
