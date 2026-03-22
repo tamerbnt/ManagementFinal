@@ -813,7 +813,7 @@ namespace Management.Presentation
 
                 // Interceptors are now handled via constructor injection and OnConfiguring to avoid resolution loops
 
-            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
 
             // --- INFRASTRUCTURE: EXTERNAL ---
             // Supabase Client (Singleton)
