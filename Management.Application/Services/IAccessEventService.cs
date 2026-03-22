@@ -3,6 +3,7 @@ using Management.Application.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Management.Application.DTOs;
+using Management.Domain.Enums;
 using Management.Domain.Primitives;
 
 namespace Management.Application.Services
@@ -37,6 +38,7 @@ namespace Management.Application.Services
         /// <param name="cardId">The card or member identifier.</param>
         /// <param name="facilityId">The facility context.</param>
         /// <param name="transactionId">Optional hardware-generated transaction ID.</param>
-        Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, string? transactionId = null);
+        /// <param name="direction">Scan direction from hardware.</param>
+        Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null);
     }
 }

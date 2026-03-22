@@ -57,6 +57,7 @@ namespace Management.Application.Services
                 TransactionId: $"UI-{DateTime.UtcNow.Ticks}",
                 Granted: granted,
                 Status: result.Status.ToString(),
+                Direction: ScanDirection.Enter,
                 Reason: result.Message
             ));
 
@@ -94,6 +95,7 @@ namespace Management.Application.Services
                 TransactionId: $"WI-{sale.Id}",
                 Granted: true,
                 Status: "Granted",
+                Direction: ScanDirection.Enter,
                 Reason: "Walk-In Entry"
             ));
 

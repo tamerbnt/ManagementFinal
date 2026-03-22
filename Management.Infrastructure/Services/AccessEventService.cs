@@ -60,7 +60,7 @@ namespace Management.Infrastructure.Services
         /// <summary>
         /// Processes a scan event from the hardware. Validates the member and logs the result.
         /// </summary>
-        public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, string? transactionId = null)
+        public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null)
         {
             // 1. Run the access validation
             var validationResult = await _accessControl.ProcessScanAsync(cardId, transactionId);
@@ -77,6 +77,7 @@ namespace Management.Infrastructure.Services
                 TransactionId: transactionId ?? string.Empty,
                 Granted: granted,
                 Status: status,
+                Direction: direction,
                 Reason: reason
             );
 

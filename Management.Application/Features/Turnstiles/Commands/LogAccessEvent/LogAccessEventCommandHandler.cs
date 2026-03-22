@@ -33,6 +33,7 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
                 request.TransactionId,
                 request.Granted,
                 status,
+                request.Direction,
                 request.Reason);
 
             accessEvent.FacilityId = request.FacilityId;

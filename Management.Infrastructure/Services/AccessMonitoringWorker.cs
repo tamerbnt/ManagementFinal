@@ -121,7 +121,7 @@ namespace Management.Infrastructure.Services
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                 // 1. Core Logic (Validation & Event Logging)
-                var accessResult = await accessEventService.ProcessAccessRequestAsync(e.CardId, _config.FacilityId, e.TransactionId);
+                var accessResult = await accessEventService.ProcessAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
 
                 // 2. Resolve Member Details for the UI Popup
                 MemberDto? member = null;

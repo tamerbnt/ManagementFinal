@@ -14,9 +14,10 @@ namespace Management.Domain.Models
         public string TransactionId { get; private set; } // Hardware-generated ID from scan (e.g., "CD11301121")
         public bool IsAccessGranted { get; private set; }
         public AccessStatus AccessStatus { get; private set; } // Granted, Denied, Locked
+        public ScanDirection Direction { get; private set; }
         public string FailureReason { get; private set; } // e.g. "Expired Membership"
 
-        private AccessEvent(Guid id, Guid turnstileId, string cardId, string transactionId, bool isAccessGranted, AccessStatus accessStatus, string failureReason) : base(id)
+        private AccessEvent(Guid id, Guid turnstileId, string cardId, string transactionId, bool isAccessGranted, AccessStatus accessStatus, ScanDirection direction, string failureReason) : base(id)
         {
             Timestamp = DateTime.UtcNow;
             TurnstileId = turnstileId;
@@ -24,14 +25,15 @@ namespace Management.Domain.Models
             TransactionId = transactionId;
             IsAccessGranted = isAccessGranted;
             AccessStatus = accessStatus;
+            Direction = direction;
             FailureReason = failureReason;
         }
 
         private AccessEvent() { CardId = string.Empty; TransactionId = string.Empty; FailureReason = string.Empty; }
 
-        public static AccessEvent Create(Guid turnstileId, string cardId, string transactionId, bool granted, AccessStatus status, string reason = "")
+        public static AccessEvent Create(Guid turnstileId, string cardId, string transactionId, bool granted, AccessStatus status, ScanDirection direction, string reason = "")
         {
-            return new AccessEvent(Guid.NewGuid(), turnstileId, cardId, transactionId, granted, status, reason);
+            return new AccessEvent(Guid.NewGuid(), turnstileId, cardId, transactionId, granted, status, direction, reason);
         }
     }
 }

@@ -99,7 +99,7 @@ namespace Management.Tests.Turnstile
                 .Returns((Management.Application.Features.Turnstiles.Commands.LogAccessEvent.LogAccessEventCommand cmd, CancellationToken _) =>
                 {
                     var evt = AccessEvent.Create(cmd.TurnstileId, cmd.CardId, cmd.TransactionId, cmd.Granted,
-                        cmd.Granted ? AccessStatus.Granted : AccessStatus.Denied, cmd.Reason ?? "");
+                        cmd.Granted ? AccessStatus.Granted : AccessStatus.Denied, cmd.Direction, cmd.Reason ?? "");
                     evt.FacilityId = FacilityId;
                     AccessEventLog.Add(evt);
                     return Task.FromResult<Result<Guid>>(Result.Success(evt.Id));

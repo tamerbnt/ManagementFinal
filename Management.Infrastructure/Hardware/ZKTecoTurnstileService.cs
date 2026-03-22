@@ -231,7 +231,7 @@ namespace Management.Infrastructure.Hardware
         private void Zk_OnAttTransactionEx(string enrollNumber, int isInValid, int attState, int verifyMethod, int year, int month, int day, int hour, int minute, int second, int workCode)
         {
             // Event comes from STA thread
-            _logger.LogInformation("Hardware Activity: RawData={RawData}, Valid={Valid}", enrollNumber, isInValid == 0);
+            _logger.LogInformation("Hardware Activity: RawData={RawData}, Valid={Valid}, State={State}", enrollNumber, isInValid == 0, attState);
             
             string cardId = enrollNumber;
             string deviceName = "SATT-MAIN";
@@ -248,7 +248,15 @@ namespace Management.Infrastructure.Hardware
             }
 
             var timestamp = new DateTime(year, month, day, hour, minute, second);
-            var args = new TurnstileScanEventArgs(cardId, deviceName, transactionId, isInValid == 0, verifyMethod, timestamp);
+            
+            // iAttState (attState): 0 = Check-In (entering), 1 = Check-Out (leaving)
+            var direction = attState == 0
+                ? Management.Domain.Enums.ScanDirection.Enter
+                : attState == 1
+                    ? Management.Domain.Enums.ScanDirection.Exit
+                    : Management.Domain.Enums.ScanDirection.Unknown;
+
+            var args = new TurnstileScanEventArgs(cardId, deviceName, transactionId, isInValid == 0, verifyMethod, timestamp, direction);
             
             // Invoke event - note: handler might need to marshal to UI thread if it updates UI
             CardScanned?.Invoke(this, args);

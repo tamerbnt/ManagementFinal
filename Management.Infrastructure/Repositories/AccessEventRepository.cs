@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Management.Domain.Enums;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Infrastructure.Data;
@@ -32,15 +33,29 @@ namespace Management.Infrastructure.Repositories
 
         public async Task<int> GetCurrentOccupancyCountAsync(Guid facilityId)
         {
-            // Calculate start of today in LOCAL time, then convert to UTC for DB query
-            var localTodayStart = DateTime.Today; // 00:00:00 Local
-            var todayUtcStart = localTodayStart.ToUniversalTime();
+            var todayUtc = DateTime.UtcNow.Date;
+            var tomorrowUtc = todayUtc.AddDays(1);
 
-            return await _dbSet.IgnoreQueryFilters().CountAsync(e =>
-                e.FacilityId == facilityId &&
-                !e.IsDeleted &&
-                e.Timestamp >= todayUtcStart &&
-                e.IsAccessGranted);
+            var entries = await _dbSet.IgnoreQueryFilters()
+                .Where(e => e.FacilityId == facilityId
+                    && !e.IsDeleted
+                    && e.IsAccessGranted
+                    && e.Direction == ScanDirection.Enter
+                    && e.Timestamp >= todayUtc
+                    && e.Timestamp < tomorrowUtc)
+                .CountAsync();
+
+            var exits = await _dbSet.IgnoreQueryFilters()
+                .Where(e => e.FacilityId == facilityId
+                    && !e.IsDeleted
+                    && e.Direction == ScanDirection.Exit
+                    && e.Timestamp >= todayUtc
+                    && e.Timestamp < tomorrowUtc)
+                .CountAsync();
+
+            // Never return negative — handles case where exit scans
+            // exist without matching entry (e.g. after app restart)
+            return Math.Max(0, entries - exits);
         }
 
         public async Task<int> GetVisitCountAsync(Guid memberId)
