@@ -23,6 +23,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
         private readonly ISalonServiceRepository _salonRepository;
         private readonly IGymOperationService _gymService;
         private readonly IFacilityContextService _facilityContext;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
         public CreateMemberCommandHandler(
@@ -33,6 +34,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             ISalonServiceRepository salonRepository,
             IGymOperationService gymService,
             IFacilityContextService facilityContext,
+            IUnitOfWork unitOfWork,
             IMediator mediator)
         {
             _memberRepository = memberRepository;
@@ -42,6 +44,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             _salonRepository = salonRepository;
             _gymService = gymService;
             _facilityContext = facilityContext;
+            _unitOfWork = unitOfWork;
             _mediator = mediator;
         }
 
@@ -137,33 +140,50 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                 }
             }
             
-            await _memberRepository.AddAsync(member);
-
-            // PUBLISH NOTIFICATION: This is critical for the "Active Members" and "Pending Registrations" cards.
-            // Even if no sale occurs, the UI needs to know a registration was completed.
-            await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                member.FacilityId,
-                "Registration",
-                member.FullName,
-                "New Member Registered"), cancellationToken);
-
-            // AUTO-REVENUE: If a plan was selected, record the sale immediately.
-            if (planName != null && planPrice > 0)
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
             {
-                // Create Sale
-                // Note: We use the plan name for both TransactionType and CapturedLabel for clarity
-                await _gymService.SellItemAsync(
-                    member.Id.ToString(),
-                    planPrice,
-                    planName,                              // Product Name
-                    _facilityContext.CurrentFacilityId,    // Facility Id (scoped)
-                    planName,                             // Transaction Type
-                    _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
-                    planName                              // Captured Label
-                );
-            }
+                await _memberRepository.AddAsync(member, saveChanges: false);
 
-            return Result.Success(member.Id);
+                // PUBLISH NOTIFICATION: This is critical for the "Active Members" and "Pending Registrations" cards.
+                // Even if no sale occurs, the UI needs to know a registration was completed.
+                await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                    member.FacilityId,
+                    "Registration",
+                    member.FullName,
+                    "New Member Registered"), cancellationToken);
+
+                // AUTO-REVENUE: If a plan was selected, record the sale immediately.
+                if (planName != null && planPrice > 0)
+                {
+                    // Create Sale
+                    // Note: We use the plan name for both TransactionType and CapturedLabel for clarity
+                    var saleSuccess = await _gymService.SellItemAsync(
+                        member.Id.ToString(),
+                        planPrice,
+                        planName,                              // Product Name
+                        member.FacilityId,                     // Facility Id (scoped)
+                        planName,                             // Transaction Type
+                        _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
+                        planName                              // Captured Label
+                    );
+
+                    if (!saleSuccess)
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return Result.Failure<Guid>(new Error("Member.SaleFailed", "Failed to record membership sale."));
+                    }
+                }
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+                return Result.Success(member.Id);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                return Result.Failure<Guid>(new Error("Member.DatabaseError", $"Failed to save member: {ex.Message}"));
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             {
                 // Approve Registration
                 registration.Approve();
-                await _registrationRepository.UpdateAsync(registration);
+                await _registrationRepository.UpdateAsync(registration, saveChanges: false);
 
                 // Create Member
                 var memberResult = Member.Register(
@@ -72,7 +72,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
 
                 var member = memberResult.Value;
                 member.FacilityId = request.FacilityId;
-                await _memberRepository.AddAsync(member);
+                await _memberRepository.AddAsync(member, saveChanges: false);
 
                 // Create Sale record for registration revenue
                 Money planPrice = Money.Zero("DA");
@@ -143,14 +143,19 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                         }
                     }
 
-                    await _saleRepository.AddAsync(saleEntity);
+                    // FIX: Use saveChanges: false to ensure all changes stay within the transaction
+                    await _saleRepository.AddAsync(saleEntity, saveChanges: false);
                 }
                 else
                 {
-                    _logger.LogWarning("[Registration] Could not create sale for registration {Id}: {Error}",
+                    _logger.LogError("[Registration] Could not create sale for registration {Id}: {Error}. Rolling back.",
                         registration.Id, saleResult.Error);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return Result.Failure<Guid>(saleResult.Error);
                 }
 
+                // Explicitly save all changes and commit
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return Result.Success(member.Id);
             }
