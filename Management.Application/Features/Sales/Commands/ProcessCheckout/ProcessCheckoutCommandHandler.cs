@@ -90,12 +90,12 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                          return Result.Failure<bool>(new Error("Checkout.ProductNotFound", $"Product {item.Key} not found."));
                     }
 
-                    if (product.StockQuantity < item.Value)
+                    var decrementResult = product.DecrementStock(qty);
+                    if (decrementResult.IsFailure)
                     {
-                         return Result.Failure<bool>(new Error("Checkout.InsufficientStock", $"Insufficient stock for {product.Name}. Available: {product.StockQuantity}"));
+                        return Result.Failure<bool>(decrementResult.Error);
                     }
-
-                    product.UpdateStock(-qty, "Sale");
+                    
                     productsToUpdate.Add(product);
                     
                     saleEntity.AddLineItem(product, qty);

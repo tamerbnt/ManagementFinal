@@ -114,9 +114,25 @@ namespace Management.Domain.Models
 
         public void UpdateStock(int quantityChange, string reason)
         {
+            if (StockQuantity + quantityChange < 0)
+                throw new InvalidOperationException("Stock quantity cannot be negative.");
+
             StockQuantity += quantityChange;
             // potential audit log or domain event here: DomainEvents.Raise(new ProductStockAdjusted(Id, quantityChange, reason));
             UpdateTimestamp();
+        }
+
+        public Result DecrementStock(int quantity)
+        {
+            if (quantity < 0) 
+                return Result.Failure(new Error("Product.InvalidQuantity", "Decrement quantity cannot be negative."));
+            
+            if (StockQuantity < quantity)
+                return Result.Failure(new Error("Product.InsufficientStock", $"Insufficient stock for {Name}."));
+
+            StockQuantity -= quantity;
+            UpdateTimestamp();
+            return Result.Success();
         }
 
         public void Deactivate()

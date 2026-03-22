@@ -339,6 +339,8 @@ namespace Management.Infrastructure.Data
                     b.Property(p => p.Amount).HasColumnName("cost_amount");
                     b.Property(p => p.Currency).HasColumnName("cost_currency");
                 });
+
+                entity.ToTable(t => t.HasCheckConstraint("CK_Product_StockNonNegative", "stock_quantity >= 0"));
             });
 
             // Restaurant Order configuration
