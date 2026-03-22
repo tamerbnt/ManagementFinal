@@ -5,99 +5,237 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
              mc:Ignorable="d" 
-             d:DesignHeight="720" d:DesignWidth="560"
+             d:DesignHeight="768" d:DesignWidth="460"
              SnapsToDevicePixels="True"
              UseLayoutRounding="True"
-             Background="{StaticResource SurfaceBg}">
+             Background="Transparent">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <StackPanel VerticalAlignment="Top" Margin="40,32,40,40">
 
-        <!-- Premium Top Bar Branding -->
-        <Border Grid.Row="0" Height="80" Padding="40,20" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Grid Width="32" Height="32" Margin="0,0,16,0">
-                    <Ellipse Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.1"/>
-                    <Path Data="M12,2L4.5,20.29L5.21,21L12,18L18.79,21L19.5,20.29L12,2Z" 
-                          Fill="{DynamicResource FacilityAccentBrush}" 
-                          Width="18" Height="18" Stretch="Uniform"/>
+            <!-- ROW 1 — TITAN BRAND -->
+            <Grid Margin="0,8,0,8">
+                <Image Source="/Assets/luxurya_header_logo.png"
+                       Height="64"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Stretch="Uniform"
+                       ToolTip="Luxurya Management System"/>
+            </Grid>
+
+            <!-- ROW 2 — "Initial Activation" H1 TITLE -->
+            <TextBlock Text="{DynamicResource Strings.Auth.InitialActivation}"
+                       FontSize="40" FontWeight="ExtraBold"
+                       Foreground="#0F172A"
+                       Margin="0,0,0,12"
+                       FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+            <!-- ROW 3 — SUBTITLE -->
+            <TextBlock Text="{DynamicResource Strings.Auth.Enteryouruniquelicensekey}"
+                       FontSize="13" Foreground="#6B7280"
+                       TextWrapping="Wrap" LineHeight="20"
+                       Margin="0,0,0,32"
+                       FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+            <!-- ROW 4 — LICENSE KEY FIELD -->
+            <StackPanel Margin="0,0,0,16">
+                <!-- Label Row -->
+                <Grid Margin="0,0,0,4">
+                    <TextBlock Text="{DynamicResource Strings.Auth.LICENSEIDENTIFIER}"
+                               FontSize="12" FontWeight="Medium"
+                               Foreground="#374151"
+                               VerticalAlignment="Center"
+                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
                 </Grid>
-                <StackPanel>
-                    <TextBlock Text="LUXURYA" FontSize="18" FontWeight="Black" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock Text="{DynamicResource Strings.Auth.LuxuryaActivation}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.7"/>
-                </StackPanel>
-            </StackPanel>
-        </Border>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="500" Margin="60,40">
-                
-                <!-- Large Premium Title -->
-                <TextBlock Text="{DynamicResource Strings.Auth.InitialActivation}" 
-                           FontSize="42" FontWeight="Black" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           Margin="0,0,0,8"/>
-                
-                <TextBlock Text="{DynamicResource Strings.Auth.Enteryouruniquelicensekey}" 
-                           FontSize="16" Foreground="{DynamicResource TextSecondaryBrush}" 
-                           TextWrapping="Wrap" LineHeight="24"
-                           Margin="0,0,0,48" Opacity="0.8"/>
+                <Border CornerRadius="10"
+                        Background="White"
+                        BorderBrush="#E5E7EB"
+                        BorderThickness="1.5"
+                        Height="48">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="44"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <!-- License Input Section -->
-                <StackPanel Margin="0,0,0,32">
-                    <TextBlock Text="{DynamicResource Strings.Auth.LICENSEIDENTIFIER}" 
-                               FontSize="11" FontWeight="Bold" 
-                               Foreground="{DynamicResource TextSecondaryBrush}" 
-                               Margin="0,0,0,12"/>
-                    
-                    <TextBox x:Name="LicenseKeyBox"
-                             Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
-                             Height="64" Padding="20,0" 
-                             VerticalContentAlignment="Center"
-                             FontSize="18" FontWeight="Medium"
-                             Style="{StaticResource PremiumTextBoxStyle}"
-                             Tag="{DynamicResource Strings.Auth.Placeholder.LicenseKey}"/>
+                        <!-- Key Icon -->
+                        <Path Grid.Column="0"
+                              Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z"
+                              Fill="#D1D5DB"
+                              Width="16" Height="16" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
-                    <TextBlock Text="{Binding ErrorMessage}" 
-                               Foreground="#FF5252" FontSize="12" 
-                               Margin="0,8,0,0" 
-                               Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                </StackPanel>
-
-                <!-- Action Button -->
-                <Button Command="{Binding ActivateCommand}"
-                        Content="{DynamicResource Strings.Auth.Action.ActivateWorkspace}"
-                        Height="64" FontSize="18" FontWeight="Bold"
-                        Style="{StaticResource PremiumPrimaryButtonStyle}"
-                        Margin="0,16,0,24"/>
-
-                <!-- Hardware ID Helper -->
-                <Border Background="{DynamicResource SurfaceBgSubtle}" 
-                        CornerRadius="12" Padding="20" Margin="0,8,0,0">
-                    <StackPanel>
-                        <TextBlock Text="HARDWARE IDENTIFIER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8" Opacity="0.6"/>
-                        <Grid>
-                            <TextBlock Text="{Binding HardwareId}" FontSize="13" FontFamily="Consolas" Foreground="{DynamicResource TextPrimaryBrush}" Opacity="0.9"/>
-                            <Button HorizontalAlignment="Right" Content="COPY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Background="Transparent" BorderThickness="0" Padding="4" Cursor="Hand" Command="{Binding CopyHardwareIdCommand}"/>
-                        </Grid>
-                    </StackPanel>
+                        <!-- Text Input -->
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="#111827"
+                                 FontSize="14"
+                                 VerticalContentAlignment="Center"
+                                 Margin="0,0,12,0"
+                                 CaretBrush="#0EA5E9"
+                                 FontFamily="Segoe UI Variable Display, Segoe UI"
+                                 Tag="{DynamicResource Strings.Auth.Placeholder.LicenseKey}"/>
+                    </Grid>
                 </Border>
             </StackPanel>
-        </ScrollViewer>
 
-        <!-- Footer Branding -->
-        <Border Grid.Row="2" Padding="40,24" Background="{StaticResource SurfaceBg}" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="0,1,0,0">
+
+
+            <!-- ROW 6 — ERROR STATE -->
+            <Border Background="{StaticResource StatusErrorBackground}"
+                    BorderBrush="{DynamicResource Brush.Danger}"
+                    BorderThickness="1" CornerRadius="10" Padding="12,10"
+                    Margin="0,0,0,12"
+                    Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Path Data="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                          Fill="{DynamicResource Brush.Danger}"
+                          Width="14" Height="14" Stretch="Uniform"
+                          VerticalAlignment="Top" Margin="0,2,0,0"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ErrorMessage}"
+                               Foreground="{DynamicResource Brush.Danger}"
+                               FontSize="12" TextWrapping="Wrap" Margin="8,0,0,0"
+                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                </Grid>
+            </Border>
+
+            <!-- ROW 7 — ACTIVATE BUTTON + "POWERED BY" ROW -->
             <Grid>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Opacity="0.5">
-                    <TextBlock Text="POWERED BY" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,6,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                    <TextBlock Text="FROM SCRATCH" FontSize="10" FontWeight="Black" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Command="{Binding ActivateCommand}"
+                        Width="162" Height="46"
+                        IsDefault="True">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                                    Background="#E5E7EB"
+                                    CornerRadius="10"
+                                    RenderTransformOrigin="0.5,0.5">
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="BtnScale" ScaleX="1" ScaleY="1"/>
+                                </Border.RenderTransform>
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                    <TextBlock x:Name="btnText"
+                                               Text="{DynamicResource Strings.Auth.Action.ActivateWorkspace}"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               Foreground="#9CA3AF"
+                                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                                    <Path x:Name="btnChevron"
+                                          Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                          Fill="#9CA3AF"
+                                          Width="10" Height="10" Stretch="Uniform"
+                                          Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    <ProgressBar x:Name="busyBar"
+                                                 IsIndeterminate="True"
+                                                 Width="50" Height="3"
+                                                 Background="Transparent"
+                                                 Foreground="White"
+                                                 BorderThickness="0"
+                                                 Visibility="Collapsed"
+                                                 Margin="8,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="True">
+                                    <Setter TargetName="border" Property="Background"
+                                            Value="{DynamicResource FacilityAccentBrush}"/>
+                                    <Setter TargetName="btnText" Property="Foreground" Value="White"/>
+                                    <Setter TargetName="btnChevron" Property="Fill" Value="White"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                                    <Setter TargetName="btnText" Property="Foreground" Value="#9CA3AF"/>
+                                    <Setter TargetName="btnChevron" Property="Fill" Value="#9CA3AF"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Trigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="BtnScale"
+                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                 To="0.97" Duration="0:0:0.05"/>
+                                                <DoubleAnimation Storyboard.TargetName="BtnScale"
+                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                 To="0.97" Duration="0:0:0.05"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.EnterActions>
+                                    <Trigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="BtnScale"
+                                                                 Storyboard.TargetProperty="ScaleX"
+                                                                 To="1.0" Duration="0:0:0.1"/>
+                                                <DoubleAnimation Storyboard.TargetName="BtnScale"
+                                                                 Storyboard.TargetProperty="ScaleY"
+                                                                 To="1.0" Duration="0:0:0.1"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </Trigger.ExitActions>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                    <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="btnChevron" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="busyBar" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- "Powered by From Scratch" -->
+                <StackPanel Grid.Column="1"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,0,0">
+                    <TextBlock Text="Powered by"
+                               FontSize="10" Foreground="#6B7280" FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                    
+                    <Border Width="110" Height="80" 
+                            Background="#111827"
+                            HorizontalAlignment="Center"
+                            Margin="0,4,0,0"
+                            ToolTip="Powered by From Scratch">
+                        <Border.OpacityMask>
+                            <ImageBrush ImageSource="/Assets/from_scratch_logo.png" 
+                                        Stretch="Uniform" 
+                                        RenderOptions.BitmapScalingMode="HighQuality"/>
+                        </Border.OpacityMask>
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Opacity" Value="0.9"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Opacity" Value="1.0"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
                 </StackPanel>
-                <TextBlock Text="v1.2.0-STABLE" HorizontalAlignment="Right" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Opacity="0.4" VerticalAlignment="Center"/>
             </Grid>
-        </Border>
+
+        </StackPanel>
     </Grid>
 </UserControl>

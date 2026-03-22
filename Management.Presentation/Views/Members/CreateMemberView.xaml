@@ -144,6 +144,7 @@
                 <Button Content="{DynamicResource Terminology.Members.Add.Action.Save}"
                         Command="{Binding SaveCommand}"
                         Style="{StaticResource PrimaryButton}"
+                        IsDefault="True"
                         MinWidth="{StaticResource SizeButtonMinWidth}"/>
             </StackPanel>
         </Border>

@@ -38,6 +38,19 @@ namespace Management.Presentation.ViewModels
             }
         }
 
+        private string _adminFullName = string.Empty;
+        public string AdminFullName
+        {
+            get => _adminFullName;
+            set 
+            {
+                if (SetProperty(ref _adminFullName, value))
+                {
+                    ((AsyncRelayCommand)CompleteOnboardingCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
         private string _adminEmail = string.Empty;
         public string AdminEmail
         {
@@ -102,6 +115,7 @@ namespace Management.Presentation.ViewModels
 
             CompleteOnboardingCommand = new AsyncRelayCommand(ExecuteCompleteOnboardingAsync, 
                 () => !string.IsNullOrWhiteSpace(BusinessName) && 
+                      !string.IsNullOrWhiteSpace(AdminFullName) &&
                       !string.IsNullOrWhiteSpace(AdminEmail) && 
                       !string.IsNullOrWhiteSpace(Password) && 
                       !IsBusy);
@@ -124,7 +138,7 @@ namespace Management.Presentation.ViewModels
                     AdminPassword = Password,
                     LicenseKey = licenseKey,
                     BusinessName = BusinessName,
-                    AdminFullName = BusinessName // Fallback if name is combined or separate
+                    AdminFullName = AdminFullName
                 };
                 var result = await _onboardingService.CompleteOnboardingAsync(state);
                 

@@ -233,6 +233,7 @@
                     <Button Grid.Column="1" 
                             Command="{Binding ProcessSaleCommand}" 
                             Style="{StaticResource PrimaryButton}" 
+                            IsDefault="True"
                             MinWidth="220"
                             Width="Auto">
                         <Button.Content>

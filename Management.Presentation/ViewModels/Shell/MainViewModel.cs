@@ -37,6 +37,9 @@ using Management.Presentation.ViewModels.Sync;
 using Management.Presentation.Models;
 using RelayCommand = CommunityToolkit.Mvvm.Input.RelayCommand;
 using AsyncRelayCommand = CommunityToolkit.Mvvm.Input.AsyncRelayCommand;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
+using System.Collections.Generic;
 
 namespace Management.Presentation.ViewModels.Shell
 {
@@ -313,6 +316,19 @@ namespace Management.Presentation.ViewModels.Shell
             ToggleDiagnosticCommand = new RelayCommand(() => IsDiagnosticVisible = !IsDiagnosticVisible);
             UndoCommand = new AsyncRelayCommand(async () => await _undoService.UndoAsync(), () => _undoService.CanUndo);
             ToggleDensityCommand = new RelayCommand(() => GlobalRowHeight = GlobalRowHeight == 72 ? 48 : 72);
+            // Keyboard Shortcut Commands
+            FocusSearchCommand = new RelayCommand(() =>
+            {
+                if (IsOperational)
+                    WeakReferenceMessenger.Default.Send(new FocusSearchMessage());
+            });
+            NavigateToIndexCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<int>(index =>
+            {
+                if (!IsOperational) return;
+                if (index >= 0 && index < MenuItems.Count)
+                    SelectedMenuItem = MenuItems[index];
+            });
+
             // Wire generated commands to TopBar
             _topBar.OpenAccountSettingsCommand = OpenAccountSettingsCommand;
             _topBar.OpenSettingsCommand = OpenSettingsCommand;
@@ -356,6 +372,10 @@ namespace Management.Presentation.ViewModels.Shell
         public ICommand ToggleDiagnosticCommand { get; private set; } = null!;
         public ICommand UndoCommand { get; private set; } = null!;
         public ICommand ToggleDensityCommand { get; private set; } = null!;
+        public ICommand FocusSearchCommand { get; private set; } = null!;
+        public ICommand NavigateToIndexCommand { get; private set; } = null!;
+
+        public ModalNavigationStore ModalStore => _modalNavigationStore;
         public bool IsUndoVisible => _undoService.IsBannerVisible;
         public bool IsSyncing => _syncStore.IsSyncing;
 

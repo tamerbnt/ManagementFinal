@@ -19,8 +19,8 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _currentView, value);
         }
         
-        private ViewModelBase? _currentModal;
-        public ViewModelBase? CurrentModal
+        private object? _currentModal;
+        public object? CurrentModal
         {
             get => _currentModal;
             set => SetProperty(ref _currentModal, value);
@@ -42,7 +42,7 @@ namespace Management.Presentation.ViewModels
             _currentView = _navigationStore.CurrentViewModel as ViewModelBase;
             _navigationStore.CurrentViewModelChanged += OnCurrentViewModelChanged;
 
-            CurrentModal = _modalNavigationStore.CurrentModalViewModel as ViewModelBase;
+            CurrentModal = _modalNavigationStore.CurrentModalViewModel;
             IsModalOpen = _modalNavigationStore.IsOpen;
         }
 
@@ -56,7 +56,7 @@ namespace Management.Presentation.ViewModels
             if (e.PropertyName == nameof(ModalNavigationStore.CurrentModalViewModel) ||
                 e.PropertyName == nameof(ModalNavigationStore.IsOpen))
             {
-                CurrentModal = _modalNavigationStore.CurrentModalViewModel as ViewModelBase;
+                CurrentModal = _modalNavigationStore.CurrentModalViewModel;
                 IsModalOpen = _modalNavigationStore.IsOpen;
             }
         }

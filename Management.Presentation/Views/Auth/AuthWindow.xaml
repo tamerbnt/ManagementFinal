@@ -6,6 +6,8 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
         xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
+        xmlns:sharedVm="clr-namespace:Management.Presentation.ViewModels.Shared"
+        xmlns:sharedView="clr-namespace:Management.Presentation.Views.Shared"
         xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Auth.LuxuryaActivation}"
@@ -37,6 +39,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type viewmodels:EmailConfirmationViewModel}">
                 <auth:EmailConfirmationView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type sharedVm:ConfirmationModalViewModel}">
+                <sharedView:ConfirmationModal/>
             </DataTemplate>
 
 
@@ -210,7 +215,8 @@
             <!-- ══════════════════════════════════════════════════════
                  LAYER 3 — FLOATING WHITE FORM CARD (LEFT)
                  ══════════════════════════════════════════════════════ -->
-            <Border Width="450"
+            <Border x:Name="CardBorder"
+                    Width="450"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Stretch"
                     Background="{StaticResource SurfaceBg}"

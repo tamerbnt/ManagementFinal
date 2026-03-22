@@ -18,7 +18,32 @@
         Background="{DynamicResource Brush.Window.Background}">
 
     <Window.InputBindings>
-        <KeyBinding Key="K" Modifiers="Ctrl" Command="{Binding ToggleCommandPaletteCommand}"/>
+        <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 navigate to sidebar items by position -->
+        <KeyBinding Key="D1" Modifiers="Ctrl"
+                    Command="{Binding NavigateToIndexCommand}"
+                    CommandParameter="0"/>
+        <KeyBinding Key="D2" Modifiers="Ctrl"
+                    Command="{Binding NavigateToIndexCommand}"
+                    CommandParameter="1"/>
+        <KeyBinding Key="D3" Modifiers="Ctrl"
+                    Command="{Binding NavigateToIndexCommand}"
+                    CommandParameter="2"/>
+        <KeyBinding Key="D4" Modifiers="Ctrl"
+                    Command="{Binding NavigateToIndexCommand}"
+                    CommandParameter="3"/>
+        <KeyBinding Key="D5" Modifiers="Ctrl"
+                    Command="{Binding NavigateToIndexCommand}"
+                    CommandParameter="4"/>
+
+        <!-- Search focus: Ctrl+F or Ctrl+K -->
+        <KeyBinding Key="F" Modifiers="Ctrl"
+                    Command="{Binding FocusSearchCommand}"/>
+        <KeyBinding Key="K" Modifiers="Ctrl"
+                    Command="{Binding FocusSearchCommand}"/>
+
+        <!-- Command palette: Ctrl+P -->
+        <KeyBinding Key="P" Modifiers="Ctrl"
+                    Command="{Binding ToggleCommandPaletteCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>

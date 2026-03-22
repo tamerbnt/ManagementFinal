@@ -220,6 +220,7 @@
                 <Button Grid.Column="2" 
                         Command="{Binding ConfirmWalkInCommand}" 
                         Style="{DynamicResource PrimaryButton}" 
+                        IsDefault="True"
                         Content="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}"
                         Padding="16,8"/>
             </Grid>

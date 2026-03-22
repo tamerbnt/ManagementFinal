@@ -215,6 +215,7 @@
 
                 <Button Grid.Column="1" 
                         Command="{Binding RegisterCommand}"
+                        IsDefault="True"
                         Height="48">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource Button.Primary}">

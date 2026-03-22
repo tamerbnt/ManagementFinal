@@ -1,11 +1,14 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using Management.Presentation.ViewModels.Shell;
 using Management.Presentation.Helpers;
 using Management.Presentation.Resources.Controls;
+using Management.Presentation.Stores;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Management.Presentation.Views.Shell
 {
@@ -23,6 +26,26 @@ namespace Management.Presentation.Views.Shell
         public MainWindow(MainViewModel viewModel) : this()
         {
             DataContext = viewModel;
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            base.OnPreviewKeyDown(e);
+
+            if (e.Key == Key.Escape)
+            {
+                // If a modal is open, close the topmost modal first
+                if (DataContext is MainViewModel vm)
+                {
+                    var modalStore = vm.ModalStore;
+                    if (modalStore != null && modalStore.IsOpen)
+                    {
+                        modalStore.Close();
+                        e.Handled = true;
+                        return;
+                    }
+                }
+            }
         }
 
         protected override void OnPreviewMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
@@ -62,3 +85,4 @@ namespace Management.Presentation.Views.Shell
         }
     }
 }
+
