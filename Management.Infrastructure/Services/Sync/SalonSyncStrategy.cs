@@ -99,6 +99,13 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        {
+                            _logger.LogDebug("[Sync] Skipping appointment update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         existing.ClientId = remote.ClientId;
                         existing.ClientName = remote.ClientName ?? string.Empty;
                         existing.StaffId = remote.StaffId;

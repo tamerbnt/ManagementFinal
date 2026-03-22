@@ -91,6 +91,13 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        {
+                            _logger.LogDebug("[Sync] Skipping menu item update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         existing.Name = remote.Name ?? string.Empty;
                         existing.Category = remote.Category ?? string.Empty;
                         existing.Price = remote.Price;
@@ -141,6 +148,13 @@ namespace Management.Infrastructure.Services.Sync
                     }
                     else
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        {
+                            _logger.LogDebug("[Sync] Skipping restaurant order update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         existing.TableNumber = remote.TableNumber ?? string.Empty;
                         existing.Subtotal = remote.TotalAmount;
                         existing.Status = (OrderStatus)remote.Status;

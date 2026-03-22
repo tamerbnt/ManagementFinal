@@ -76,6 +76,13 @@ namespace Management.Infrastructure.Services.Sync
                     var existing = await context.GymSettings.FindAsync(new object[] { remote.Id }, ct);
                     if (existing != null)
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= existing.UpdatedAt)
+                        {
+                            _logger.LogDebug("[Sync] Skipping gym settings update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         existing.GymName = remote.GymName;
                         existing.Address = remote.Address;
                         existing.PhoneNumber = remote.Phone ?? "";
@@ -111,6 +118,13 @@ namespace Management.Infrastructure.Services.Sync
                     var existing = await context.FacilitySchedules.FindAsync(new object[] { remote.Id }, ct);
                     if (existing != null)
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= existing.UpdatedAt)
+                        {
+                            _logger.LogDebug("[Sync] Skipping schedule update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         existing.DayOfWeek = remote.DayOfWeek;
                         existing.StartTime = TimeSpan.Parse(remote.StartTime);
                         existing.EndTime = TimeSpan.Parse(remote.EndTime);

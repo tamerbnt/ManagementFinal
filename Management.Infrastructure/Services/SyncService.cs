@@ -549,6 +549,13 @@ namespace Management.Infrastructure.Services
                 {
                     if (existingMap.TryGetValue(remote.Id, out var existing))
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        {
+                            _logger.LogDebug("[Sync] Skipping staff update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         var emailResult = Email.Create(remote.Email);
                         var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@titan.com").Value;
                         var phoneResult = PhoneNumber.Create(remote.PhoneNumber);
@@ -751,6 +758,13 @@ namespace Management.Infrastructure.Services
                 {
                     if (existingMap.TryGetValue(remote.Id, out var existing))
                     {
+                        // FIX: Only update if remote is actually newer than local
+                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
+                        {
+                            _logger.LogDebug("[Sync] Skipping registration update for {Id}: Local is newer or same.", remote.Id);
+                            continue;
+                        }
+
                         // Simplified update for lead capture data
                         var updated = MapToDomain(remote);
                         context.Entry(existing).CurrentValues.SetValues(updated);
