@@ -21,7 +21,7 @@ namespace Management.Presentation.Handlers
             ));
 
             // Also send RefreshRequiredMessages for relevant actions to trigger UI updates in lists/history
-            if (notification.ActionType == "QuickSale" || notification.ActionType == "Walk-In" || notification.ActionType.Contains("Service"))
+            if (notification.ActionType == "Sale" || notification.ActionType == "QuickSale" || notification.ActionType == "Walk-In" || notification.ActionType.Contains("Service"))
             {
                 WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Management.Domain.Models.Sale>(notification.FacilityId));
             }

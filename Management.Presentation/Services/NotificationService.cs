@@ -17,7 +17,7 @@ using Management.Presentation.Models;
 
 namespace Management.Presentation.Services
 {
-    public class NotificationService : INotificationService, IDisposable
+    public class NotificationService : INotificationService, Management.Application.Interfaces.App.IToastService, IDisposable
     {
         private readonly NotificationStore _notificationStore; // Retained for future badge sync
         private readonly DispatcherTimer _autoDismissTimer;
@@ -25,8 +25,8 @@ namespace Management.Presentation.Services
         // Toast Configuration (Design System Section 34)
         private readonly ObservableCollection<ToastViewModel> _activeToasts = new();
         public ObservableCollection<ToastViewModel> ActiveToasts => _activeToasts;
-        private const int MaxVisibleToasts = 3;
-        private const int ToastAutoDismissSeconds = 5;
+        private const int MaxVisibleToasts = 1;
+        private const int ToastAutoDismissSeconds = 3;
         private const int AnimationDurationMs = 300; // Matches DurationMedium
 
         private bool _soundEnabled = true;
@@ -117,12 +117,21 @@ namespace Management.Presentation.Services
 
         // --- Interface Implementation ---
 
+        private void Show(ToastType type, string message, string? title = null) 
+            => ShowToast(type, string.IsNullOrEmpty(title) ? message : $"{title}: {message}");
 
-        public void ShowSuccess(string message) => ShowToast(ToastType.Success, message);
-        public void ShowError(string message) => ShowToast(ToastType.Error, message);
-        public void ShowError(string title, string message) => ShowToast(ToastType.Error, $"{title}: {message}");
-        public void ShowInfo(string message) => ShowToast(ToastType.Info, message);
-        public void ShowWarning(string message) => ShowToast(ToastType.Warning, message);
+        // Satisfy IToastService (message first, optional title)
+        public void ShowSuccess(string message, string? title = null) => Show(ToastType.Success, message, title);
+        public void ShowError(string message, string? title = null) => Show(ToastType.Error, message, title);
+        public void ShowWarning(string message, string? title = null) => Show(ToastType.Warning, message, title);
+        public void ShowInfo(string message, string? title = null) => Show(ToastType.Info, message, title);
+
+        // Explicitly satisfy INotificationService to resolve signature/param-name ambiguity
+        void INotificationService.ShowSuccess(string message) => Show(ToastType.Success, message);
+        void INotificationService.ShowError(string message) => Show(ToastType.Error, message);
+        void INotificationService.ShowError(string title, string message) => Show(ToastType.Error, message, title);
+        void INotificationService.ShowWarning(string message) => Show(ToastType.Warning, message);
+        void INotificationService.ShowInfo(string message) => Show(ToastType.Info, message);
 
         public void ShowNotification(string message, NotificationType type)
         {

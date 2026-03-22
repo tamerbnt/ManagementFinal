@@ -5,6 +5,7 @@ namespace Management.Domain.Services
 {
     public interface IAccessControlService
     {
-        Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId = null);
+        Task<ScanResult> ProcessScanAsync(string barcode);
+        Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId);
     }
 }

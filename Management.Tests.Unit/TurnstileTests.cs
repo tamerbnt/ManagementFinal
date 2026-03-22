@@ -8,7 +8,10 @@ using Management.Domain.Primitives;
 using Management.Domain.Services;
 using Management.Domain.ValueObjects;
 using Management.Infrastructure.Services;
+using Management.Application.Interfaces;
+using Management.Infrastructure.Data;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using System;
 using System.Threading;
@@ -109,13 +112,22 @@ namespace Management.Tests.Unit.Turnstile
             facilityCtx.SetupGet(f => f.CurrentFacilityId).Returns(_facilityId);
             facilityCtx.SetupGet(f => f.CurrentFacility).Returns(FacilityType.General);
 
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var mockLogger = new NullLogger<AccessControlService>();
+            var context = new AppDbContext(options, new Mock<ICurrentUserService>().Object, new Mock<ITenantService>().Object, facilityCtx.Object, new NullLogger<AppDbContext>());
+
             return new AccessControlService(
                 memberRepo.Object,
                 staffRepo.Object,
                 planRepo.Object,
                 scheduleRepo.Object,
                 facilityCtx.Object,
-                cache.Object);
+                cache.Object,
+                context,
+                mockLogger);
         }
 
         [Fact]

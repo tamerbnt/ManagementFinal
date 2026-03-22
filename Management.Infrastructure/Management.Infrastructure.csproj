@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -27,8 +27,19 @@
     <PackageReference Include="System.Management" Version="8.0.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
-    <PackageReference Include="ZKTecoStandAlonePullSDKx64" Version="6.3.1.37" />
+    <PackageReference Include="ZKTecoStandAlonePullSDKx64" Version="6.3.1.37">
+      <GeneratePathProperty>true</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
+  
+  <Target Name="CopyZKTecoNativeDlls" AfterTargets="Build">
+    <ItemGroup>
+      <ZKDlls Include="$(PkgZKTecoStandAlonePullSDKx64)\lib\**\*.dll"/>
+    </ItemGroup>
+    <Copy SourceFiles="@(ZKDlls)"
+          DestinationFolder="$(OutputPath)"
+          SkipUnchangedFiles="true"/>
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\Management.Application\Management.Application.csproj" />

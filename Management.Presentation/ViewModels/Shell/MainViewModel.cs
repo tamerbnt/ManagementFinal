@@ -66,7 +66,7 @@ namespace Management.Presentation.ViewModels.Shell
         // all pass the type check before any of them has set NextViewModel.
         private int _navigationInProgress = 0;
 
-        public ObservableCollection<ToastMessage> ActiveToasts => ((ToastService?)_toastService)?.ActiveToasts ?? new();
+        public ObservableCollection<ToastViewModel> ActiveToasts => _notificationService.ActiveToasts;
 
         [ObservableProperty]
         private TopBarViewModel _topBar;

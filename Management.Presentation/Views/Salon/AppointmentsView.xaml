@@ -59,69 +59,125 @@
             <Setter Property="Foreground" Value="{Binding ServiceTextBrush}"/>
         </Style>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Margin="48,24,48,12">
+        <StackPanel Orientation="Horizontal">
+            <Path Data="{StaticResource IconCalendar}" 
+                  Style="{StaticResource Style.Icon.Large}" 
+                  Stroke="{DynamicResource TextPrimaryBrush}"
+                  Margin="0,0,12,0"
+                  VerticalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Terminology.Sidebar.Schedule}" Style="{StaticResource SectionHeader}" VerticalAlignment="Center"/>
             
-            <Grid Margin="48,24,48,12">
-            <StackPanel Orientation="Horizontal">
-                <Path Data="{StaticResource IconCalendar}" 
-                      Style="{StaticResource Style.Icon.Large}" 
-                      Stroke="{DynamicResource TextPrimaryBrush}"
-                      Margin="0,0,12,0"
-                      VerticalAlignment="Center"/>
-                <TextBlock Text="{DynamicResource Terminology.Sidebar.Schedule}" Style="{StaticResource SectionHeader}" VerticalAlignment="Center"/>
-                
-                <!-- Date Navigation -->
-                <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
-                    <Button Style="{StaticResource GhostButton}" Command="{Binding PrevDayCommand}" Padding="8">
-                        <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
-                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
-                              Width="18" Height="18" Stretch="Uniform"/>
-                    </Button>
-                    <TextBlock Text="{Binding SelectedDateDisplay}" 
-                               Style="{StaticResource SectionHeader}" VerticalAlignment="Center" Margin="12,0" MinWidth="180" TextAlignment="Center"/>
-                    <Button Style="{StaticResource GhostButton}" Command="{Binding NextDayCommand}" Padding="8">
-                        <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
-                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
-                              Width="18" Height="18" Stretch="Uniform"/>
-                    </Button>
-                    <Button Content="{Binding TodayLabel}" Style="{StaticResource SecondaryButton}" Command="{Binding TodayCommand}" Margin="12,0,0,0"/>
+            <!-- Date Navigation -->
+            <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
+                <Button Style="{StaticResource GhostButton}" Command="{Binding PrevDayCommand}" Padding="8">
+                    <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
+                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
+                          Width="18" Height="18" Stretch="Uniform"/>
+                </Button>
+                <TextBlock Text="{Binding SelectedDateDisplay}" 
+                           Style="{StaticResource SectionHeader}" VerticalAlignment="Center" Margin="12,0" MinWidth="180" TextAlignment="Center"/>
+                <Button Style="{StaticResource GhostButton}" Command="{Binding NextDayCommand}" Padding="8">
+                    <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
+                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
+                          Width="18" Height="18" Stretch="Uniform"/>
+                </Button>
+                <Button Content="{Binding TodayLabel}" Style="{StaticResource SecondaryButton}" Command="{Binding TodayCommand}" Margin="12,0,0,0"/>
+            </StackPanel>
+        </StackPanel>
+        
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Margin="0,0,16,0" Padding="12,6">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Appointments.Count}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding BookingsTodayLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
                 </StackPanel>
-            </StackPanel>
-            
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Margin="0,0,16,0" Padding="12,6">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Appointments.Count}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding BookingsTodayLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
-                    </StackPanel>
-                </Border>
+            </Border>
 
 
-            </StackPanel>
-        </Grid>
+        </StackPanel>
+    </Grid>
 
-        <!-- Staff Columns Layout (New 2x2 System) -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="60"/> <!-- Column 0: Time Axis -->
-                <ColumnDefinition Width="*"/>  <!-- Column 1: Data Area -->
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="50"/> <!-- Row 0: Headers -->
-                <RowDefinition Height="*"/>  <!-- Row 1: Body -->
-            </Grid.RowDefinitions>
+    <!-- Staff Columns Layout (New 2x2 System) -->
+    <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60"/> <!-- Column 0: Time Axis -->
+            <ColumnDefinition Width="*"/>  <!-- Column 1: Data Area -->
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/> <!-- Row 0: Headers -->
+            <RowDefinition Height="*"/>  <!-- Row 1: Body -->
+        </Grid.RowDefinitions>
 
-            <!-- 1. Top-Left: Static Spacer -->
-            <Border Grid.Row="0" Grid.Column="0" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,1" Background="{DynamicResource WindowBg}"/>
+        <!-- 1. Top-Left: Static Spacer -->
+        <Border Grid.Row="0" Grid.Column="0" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,1" Background="{DynamicResource WindowBg}"/>
 
-            <!-- 2. Top-Right: Horizontal Staff Headers -->
-            <ScrollViewer x:Name="HeaderScrollViewer" Grid.Row="0" Grid.Column="1" 
-                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+        <!-- 2. Top-Right: Horizontal Staff Headers -->
+        <ScrollViewer x:Name="HeaderScrollViewer" Grid.Row="0" Grid.Column="1" 
+                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding Stylists}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Width="{StaticResource StylistColumnWidth}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,1" Padding="8" Background="{DynamicResource WindowBg}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Role}" FontSize="10" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- 3. Bottom-Left: Vertical Time Axis -->
+        <ScrollViewer x:Name="TimeAxisScrollViewer" Grid.Row="1" Grid.Column="0" 
+                      VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding TimeSlots}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}" 
+                                BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,0">
+                            <TextBlock Text="{Binding label}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"  
+                                       HorizontalAlignment="Right" Margin="0,0,8,0" VerticalAlignment="Top" Padding="0,4,0,0"
+                                       Visibility="{Binding IsHourMark, Converter={StaticResource BoolToVis}}"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- 4. Bottom-Right: Main Appointment Grid (The "Hub") -->
+        <ScrollViewer x:Name="BodyScrollViewer" Grid.Row="1" Grid.Column="1" 
+                      HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      ScrollChanged="BodyScrollViewer_ScrollChanged">
+            <Grid x:Name="BodyContentGrid" HorizontalAlignment="Left">
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Background Horizontal Lines -->
+                <ItemsControl ItemsSource="{Binding TimeSlots}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}" 
+                                    BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,0,1" Opacity="0.5"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Background Vertical Lines (Stylist Separators) -->
                 <ItemsControl ItemsSource="{Binding Stylists}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -130,164 +186,106 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Width="{StaticResource StylistColumnWidth}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,1" Padding="8" Background="{DynamicResource WindowBg}">
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Role}" FontSize="10" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
+                            <Border Width="{StaticResource StylistColumnWidth}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,0" Opacity="0.3"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </ScrollViewer>
-
-            <!-- 3. Bottom-Left: Vertical Time Axis -->
-            <ScrollViewer x:Name="TimeAxisScrollViewer" Grid.Row="1" Grid.Column="0" 
-                          VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                
+                <!-- Add Slots Layer (Background layer for booking new slots) -->
                 <ItemsControl ItemsSource="{Binding TimeSlots}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}" 
-                                    BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,0">
-                                <TextBlock Text="{Binding label}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"  
-                                           HorizontalAlignment="Right" Margin="0,0,8,0" VerticalAlignment="Top" Padding="0,4,0,0"
-                                           Visibility="{Binding IsHourMark, Converter={StaticResource BoolToVis}}"/>
-                            </Border>
+                            <Grid x:Name="TimeSlotGrid" Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}"
+                                  Tag="{Binding}">
+                                <ItemsControl ItemsSource="{Binding DataContext.Stylists, ElementName=AppointmentsRoot}"
+                                              HorizontalAlignment="Left"
+                                              Tag="{Binding}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Background="Transparent" BorderThickness="0" Width="{StaticResource StylistColumnWidth}"
+                                                    Command="{Binding DataContext.BookCommand, ElementName=AppointmentsRoot}">
+                                                <Button.CommandParameter>
+                                                    <MultiBinding Converter="{StaticResource AppointmentArgsConverter}">
+                                                        <Binding ElementName="TimeSlotGrid" Path="Tag.Time"/>
+                                                        <Binding Path="Id"/>
+                                                    </MultiBinding>
+                                                </Button.CommandParameter>
+                                                <Border Background="Transparent" x:Name="HoverOverlay" Opacity="0">
+                                                    <Path Data="M12 5v14M5 12h14" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Center" Height="16" Width="16" Stretch="Uniform"/>
+                                                </Border>
+                                            </Button>
+                                            <DataTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="HoverOverlay" Property="Opacity" Value="1"/>
+                                                </Trigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </ScrollViewer>
 
-            <!-- 4. Bottom-Right: Main Appointment Grid (The "Hub") -->
-            <ScrollViewer x:Name="BodyScrollViewer" Grid.Row="1" Grid.Column="1" 
-                          HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                          ScrollChanged="BodyScrollViewer_ScrollChanged">
-                <Grid x:Name="BodyContentGrid" HorizontalAlignment="Left">
-                    
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
-                    <!-- Background Horizontal Lines -->
-                    <ItemsControl ItemsSource="{Binding TimeSlots}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}" 
-                                        BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,0,1" Opacity="0.5"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                <!-- Appointment Cards Layer (Foreground layer for interactions) -->
+                <!-- Background="{x:Null}" allows hits to pass through empty regions of the Canvas -->
+                <ItemsControl ItemsSource="{Binding Appointments}" Background="{x:Null}" IsHitTestVisible="True">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Top" Value="{Binding TopOffset}"/>
+                            <Setter Property="Canvas.Left" Value="{Binding ColumnLeftPosition}"/>
+                            <Setter Property="Width" Value="240"/>
+                            <Setter Property="Height" Value="{Binding Height}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.ViewDetailCommand, ElementName=AppointmentsRoot}"
+                                    CommandParameter="{Binding}"
+                                    Background="Transparent" BorderThickness="0" Padding="0"
+                                    HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <ContentPresenter/>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <Border Height="{Binding Height}" Style="{StaticResource AppointmentCardStyle}">
+                                    <Grid>
+                                        <Border Style="{StaticResource StatusStripStyle}"/>
+                                        <StackPanel Margin="12,8,8,8">
+                                            <TextBlock Text="{Binding ClientName}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
+                                            <TextBlock Text="{Binding ServiceName}" Style="{StaticResource ServiceNameStyle}"/>
+                                            <TextBlock Text="{Binding StartTime, StringFormat='{}{0:t}'}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="10" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
 
-                    <!-- Background Vertical Lines (Stylist Separators) -->
-                    <ItemsControl ItemsSource="{Binding Stylists}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Width="{StaticResource StylistColumnWidth}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="0,0,1,0" Opacity="0.3"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    
-                    <!-- Add Slots Layer (Background layer for booking new slots) -->
-                    <ItemsControl ItemsSource="{Binding TimeSlots}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid x:Name="TimeSlotGrid" Height="{Binding DataContext.IsCompactMode, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource DensityToHeightConverter}}"
-                                      Tag="{Binding}">
-                                    <ItemsControl ItemsSource="{Binding DataContext.Stylists, ElementName=AppointmentsRoot}"
-                                                  HorizontalAlignment="Left"
-                                                  Tag="{Binding}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <StackPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Background="Transparent" BorderThickness="0" Width="{StaticResource StylistColumnWidth}"
-                                                        Command="{Binding DataContext.BookCommand, ElementName=AppointmentsRoot}">
-                                                    <Button.CommandParameter>
-                                                        <MultiBinding Converter="{StaticResource AppointmentArgsConverter}">
-                                                            <Binding ElementName="TimeSlotGrid" Path="Tag.Time"/>
-                                                            <Binding Path="Id"/>
-                                                        </MultiBinding>
-                                                    </Button.CommandParameter>
-                                                    <Border Background="Transparent" x:Name="HoverOverlay" Opacity="0">
-                                                        <Path Data="M12 5v14M5 12h14" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Center" Height="16" Width="16" Stretch="Uniform"/>
-                                                    </Border>
-                                                </Button>
-                                                <DataTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="HoverOverlay" Property="Opacity" Value="1"/>
-                                                    </Trigger>
-                                                </DataTemplate.Triggers>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <!-- Appointment Cards Layer (Foreground layer for interactions) -->
-                    <!-- Background="{x:Null}" allows hits to pass through empty regions of the Canvas -->
-                    <ItemsControl ItemsSource="{Binding Appointments}" Background="{x:Null}" IsHitTestVisible="True">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Top" Value="{Binding TopOffset}"/>
-                                <Setter Property="Canvas.Left" Value="{Binding ColumnLeftPosition}"/>
-                                <Setter Property="Width" Value="240"/>
-                                <Setter Property="Height" Value="{Binding Height}"/>
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Command="{Binding DataContext.ViewDetailCommand, ElementName=AppointmentsRoot}"
-                                        CommandParameter="{Binding}"
-                                        Background="Transparent" BorderThickness="0" Padding="0"
-                                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <ContentPresenter/>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                    <Border Height="{Binding Height}" Style="{StaticResource AppointmentCardStyle}">
-                                        <Grid>
-                                            <Border Style="{StaticResource StatusStripStyle}"/>
-                                            <StackPanel Margin="12,8,8,8">
-                                                <TextBlock Text="{Binding ClientName}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
-                                                <TextBlock Text="{Binding ServiceName}" Style="{StaticResource ServiceNameStyle}"/>
-                                                <TextBlock Text="{Binding StartTime, StringFormat='{}{0:t}'}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="10" Margin="0,2,0,0"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </ScrollViewer>
-        </Grid>
-
-        <!-- Loading Overlay -->
-        <Grid Grid.Row="1" Background="{DynamicResource WindowBg}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-            <ItemsControl ItemsSource="{StaticResource ShimmerItems}" Margin="60,20,20,0">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Style="{StaticResource ShimmerCard}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Grid>
-        </Grid>
-    </ScrollViewer>
+    <!-- Loading Overlay -->
+    <Grid Grid.Row="1" Background="{DynamicResource WindowBg}" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
+        <ItemsControl ItemsSource="{StaticResource ShimmerItems}" Margin="60,20,20,0">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Style="{StaticResource ShimmerCard}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+    </Grid>
 </UserControl>

@@ -171,80 +171,165 @@
                             VerticalAlignment="Center"/>
         </Grid>
 
-        <!-- Toast Notifications Overlay (Bottom-Right) -->
-        <ItemsControl ItemsSource="{Binding ActiveToasts}"
-                      VerticalAlignment="Bottom" 
-                      HorizontalAlignment="Right"
-                      Margin="0,0,24,24"
-                      Panel.ZIndex="2000">
+        <!-- Toast Notification Overlay (Top-Center) -->
+        <ItemsControl x:Name="ActiveToasts" 
+                      ItemsSource="{Binding ActiveToasts}"
+                      VerticalAlignment="Top" 
+                      HorizontalAlignment="Center"
+                      Margin="0,128,0,0"
+                      Panel.ZIndex="9999">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel VerticalAlignment="Bottom"/>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border Margin="0,12,0,0" 
-                            MinWidth="300" 
-                            Padding="20" 
-                            CornerRadius="12"
-                            Background="{DynamicResource Brush.Surface.Glass}"
-                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                            BorderThickness="1">
+                    <Border x:Name="ToastCard" 
+                            Width="380" 
+                            CornerRadius="16" 
+                            Background="{DynamicResource Brush.Surface.Primary}"
+                            Padding="16"
+                            Margin="0,0,0,12">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Style.Triggers>
                                     <EventTrigger RoutedEvent="Loaded">
                                         <BeginStoryboard>
                                             <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="20" To="0" Duration="0:0:0.3">
+                                                <!-- Entrance Animation: Drop down from -60px and fade in -->
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                                                 From="-60" To="0" Duration="0:0:0.350">
                                                     <DoubleAnimation.EasingFunction>
-                                                        <CircleEase EasingMode="EaseOut"/>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.250">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
                                                     </DoubleAnimation.EasingFunction>
                                                 </DoubleAnimation>
                                             </Storyboard>
                                         </BeginStoryboard>
                                     </EventTrigger>
+                                    <DataTrigger Binding="{Binding IsExiting}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <!-- Exit Animation: Slide up to -60px and fade out -->
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                                                     From="0" To="-60" Duration="0:0:0.300">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseIn"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.250">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseIn"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <Border.RenderTransform>
-                            <TranslateTransform Y="20"/>
+                            <TranslateTransform Y="-60"/>
                         </Border.RenderTransform>
                         <Border.Effect>
-                            <StaticResource ResourceKey="Shadow.Level2" />
+                            <DropShadowEffect BlurRadius="28" Opacity="0.10" Color="Black" Direction="270" ShadowDepth="4"/>
                         </Border.Effect>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
-                            <!-- Icon / Indicator -->
-                            <Ellipse Width="8" Height="8" Margin="0,4,16,0" VerticalAlignment="Top">
-                                <Ellipse.Style>
-                                    <Style TargetType="Ellipse">
-                                        <Setter Property="Fill" Value="{DynamicResource Brush.Accent.Primary}"/>
+
+                            <!-- Column 1: Icon Badge -->
+                            <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" VerticalAlignment="Center" Margin="0,0,14,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding Type}" Value="Success">
-                                                <Setter Property="Fill" Value="#10B981"/>
+                                                <Setter Property="Background" Value="#E8F5E9"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="Error">
-                                                <Setter Property="Fill" Value="#EF4444"/>
+                                                <Setter Property="Background" Value="#FEECEC"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding Type}" Value="Warning">
-                                                <Setter Property="Fill" Value="#F59E0B"/>
+                                                <Setter Property="Background" Value="#FFF8E1"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Type}" Value="Info">
+                                                <Setter Property="Background" Value="#E3F2FD"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </Ellipse.Style>
-                            </Ellipse>
+                                </Border.Style>
+                                <Path Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Path.Style>
+                                        <Style TargetType="Path">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                    <Setter Property="Data" Value="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                                    <Setter Property="Fill" Value="#2E7D32"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                    <Setter Property="Data" Value="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                                    <Setter Property="Fill" Value="#C62828"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                    <Setter Property="Data" Value="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                                                    <Setter Property="Fill" Value="#E65100"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Info">
+                                                    <Setter Property="Data" Value="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                                    <Setter Property="Fill" Value="#1565C0"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Path.Style>
+                                </Path>
+                            </Border>
 
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Title}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                <TextBlock Text="{Binding Message}" Margin="0,4,0,0" Opacity="0.7" TextWrapping="Wrap" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                            </StackPanel>
+                            <!-- Column 2: Message -->
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding Message}" 
+                                       FontSize="13" 
+                                       FontWeight="Medium" 
+                                       Foreground="{DynamicResource Brush.Text.Primary}" 
+                                       VerticalAlignment="Center" 
+                                       TextWrapping="Wrap">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+                                        <Setter Property="LineHeight" Value="20"/>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <!-- Column 3: Dismiss Button -->
+                            <Button Grid.Column="2" 
+                                    Command="{Binding DismissCommand}" 
+                                    Width="24" Height="24" 
+                                    Background="Transparent" 
+                                    BorderThickness="0" 
+                                    VerticalAlignment="Center" 
+                                    Margin="10,0,0,0">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid Background="Transparent">
+                                            <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                                                  Fill="{DynamicResource Brush.Text.Primary}" 
+                                                  Stretch="Uniform" 
+                                                  Width="10" Height="10" 
+                                                  Opacity="0.35"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
                     </Border>
                 </DataTemplate>

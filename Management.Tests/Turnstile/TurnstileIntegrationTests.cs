@@ -8,10 +8,13 @@ using Management.Domain.Primitives;
 using Management.Domain.Services;
 using Management.Infrastructure.Configuration;
 using Management.Infrastructure.Hardware;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.EntityFrameworkCore;
+using Management.Application.Interfaces;
+using Management.Infrastructure.Data;
 using Management.Infrastructure.Services;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -65,13 +68,26 @@ namespace Management.Tests.Turnstile
 
             var cache = new AccessControlCache();
 
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+            
+            var context = new AppDbContext(
+                options, 
+                new Mock<ICurrentUserService>().Object, 
+                new Mock<ITenantService>().Object, 
+                facilityCtx.Object, 
+                new NullLogger<AppDbContext>());
+
             var accessControl = new AccessControlService(
                 MemberRepo.Object,
                 StaffRepo.Object,
                 PlanRepo.Object,
                 ScheduleRepo.Object,
                 facilityCtx.Object,
-                cache);
+                cache,
+                context,
+                new NullLogger<AccessControlService>());
 
             // Mock ISender for AccessEventService — captures log commands
             var mockSender = new Mock<ISender>();

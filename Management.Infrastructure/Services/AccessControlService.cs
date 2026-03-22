@@ -42,7 +42,12 @@ namespace Management.Infrastructure.Services
             _logger = logger;
         }
 
-        public async Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId = null)
+        public Task<ScanResult> ProcessScanAsync(string barcode)
+        {
+            return ProcessScanAsync(barcode, null);
+        }
+
+        public async Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId)
         {
             // 0. Persistent De-duplication (Hardware & Network retries)
             if (!string.IsNullOrEmpty(transactionId))

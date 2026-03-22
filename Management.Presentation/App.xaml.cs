@@ -152,10 +152,13 @@ namespace Management.Presentation
         {
             try
             {
-                var currentExe = Process.GetCurrentProcess().MainModule?.FileName;
-                if (currentExe == null) return false;
+                var regsvr32Path = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.System),
+                    "regsvr32.exe"); // System = C:\Windows\System32 = 64-bit on 64-bit Windows
 
-                var zkDllPath = Path.Combine(Path.GetDirectoryName(currentExe)!, "zkemkeeper.dll");
+                var zkDllPath = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "zkemkeeper.dll");
 
                 if (!File.Exists(zkDllPath))
                 {
@@ -163,26 +166,40 @@ namespace Management.Presentation
                     return false;
                 }
 
-                Serilog.Log.Information("[Hardware] Attempting ZKTeco SDK registration (Silent={Silent})...", silent);
+                // Check if already registered first to avoid unnecessary elevation prompts
+                if (Type.GetTypeFromProgID("zkemkeeper.ZKEM.1") != null)
+                {
+                    Serilog.Log.Information("[Hardware] ZKTeco SDK already registered.");
+                    return true;
+                }
+
+                Serilog.Log.Information("[Hardware] Attempting ZKTeco SDK registration (Silent={Silent}, Tool={Tool})...", silent, regsvr32Path);
 
                 var result = Process.Start(new ProcessStartInfo
                 {
-                    FileName = "regsvr32.exe",
+                    FileName = regsvr32Path,
                     Arguments = $"{(silent ? "/s" : "")} \"{zkDllPath}\"",
                     UseShellExecute = true,
-                    Verb = "runas",
+                    Verb = "runas", // Requires admin elevation
                     WindowStyle = ProcessWindowStyle.Hidden
                 });
                 
                 if (result != null)
                 {
                     bool exited = result.WaitForExit(10000);
-                    if (exited && result.ExitCode == 0)
+                    if (exited)
                     {
-                        Serilog.Log.Information("[Hardware] ZKTeco SDK registered successfully via regsvr32");
-                        return true;
+                        // Verify registration succeeded
+                        var type = Type.GetTypeFromProgID("zkemkeeper.ZKEM.1");
+                        if (type != null)
+                        {
+                            Serilog.Log.Information("[Hardware] ZKTeco SDK registered successfully via regsvr32");
+                            return true;
+                        }
                     }
                 }
+                
+                Serilog.Log.Error("[Hardware] ZKTeco SDK registration verification failed.");
                 return false;
             }
             catch (Exception ex)
@@ -813,7 +830,7 @@ namespace Management.Presentation
 
                 // Interceptors are now handled via constructor injection and OnConfiguring to avoid resolution loops
 
-            }, ServiceLifetime.Transient, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Scoped, ServiceLifetime.Singleton);
 
             // --- INFRASTRUCTURE: EXTERNAL ---
             // Supabase Client (Singleton)
@@ -1049,7 +1066,8 @@ namespace Management.Presentation
             // Session and User Management
             services.AddSingleton<SessionManager>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SessionManager>());
-            services.AddSingleton<Management.Application.Interfaces.App.IToastService, ToastService>();
+            services.AddSingleton<INotificationService, NotificationService>();
+            services.AddSingleton<Management.Application.Interfaces.App.IToastService>(s => s.GetRequiredService<INotificationService>() as NotificationService ?? throw new InvalidOperationException("NotificationService not registered"));
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
             
             services.AddTransient<ISearchService, SearchService>();
@@ -1068,7 +1086,7 @@ namespace Management.Presentation
 
             services.AddSingleton<IDialogService, Management.Presentation.Services.DialogService>();
             services.AddSingleton<IToastNotificationService, ToastNotificationService>();
-            services.AddSingleton<INotificationService, NotificationService>();
+            // services.AddSingleton<INotificationService, NotificationService>(); // Moved up for unification
             services.AddSingleton<IOnboardingStateStore, OnboardingStateStore>();
             services.AddSingleton<IStateResettable>(s => (OnboardingStateStore)s.GetRequiredService<IOnboardingStateStore>());
             services.AddSingleton<IViewMappingService, ViewMappingService>();
