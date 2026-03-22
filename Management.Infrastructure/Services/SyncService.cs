@@ -376,10 +376,11 @@ namespace Management.Infrastructure.Services
 
             var supabaseModel = mapper(snapshot);
 
-            // JIT REPAIR: Ensure FacilityId is populated from the most reliable source.
-            // Prioritize the captured FacilityId from the Outbox message.
+            // JIT REPAIR: Ensure FacilityId and TenantId are populated from the most reliable sources.
             var targetFacilityId = message.FacilityId != Guid.Empty ? message.FacilityId : (_currentFacilityId ?? Guid.Empty);
+            var targetTenantId = _tenantService.GetTenantId() ?? message.TenantId;
 
+            // Patch FacilityId
             if (targetFacilityId != Guid.Empty)
             {
                 var facilityIdProp = typeof(TSupabaseModel).GetProperty("FacilityId");
@@ -388,12 +389,37 @@ namespace Management.Infrastructure.Services
                     var currentVal = (Guid)facilityIdProp.GetValue(supabaseModel);
                     if (currentVal == Guid.Empty)
                     {
-                         _logger.LogWarning("[Sync Repair] Patching empty FacilityId for {Type} {Id} with {NewId} (Source: {Source})", 
-                             message.EntityType, message.EntityId, targetFacilityId, 
-                             message.FacilityId != Guid.Empty ? "Outbox" : "Context");
+                         _logger.LogWarning("[Sync Repair] Patching empty FacilityId for {Type} {Id} with {NewId}", 
+                             message.EntityType, message.EntityId, targetFacilityId);
                          facilityIdProp.SetValue(supabaseModel, targetFacilityId);
                     }
                 }
+            }
+
+            // Patch TenantId
+            if (targetTenantId != Guid.Empty)
+            {
+                var tenantIdProp = typeof(TSupabaseModel).GetProperty("TenantId");
+                if (tenantIdProp != null && tenantIdProp.PropertyType == typeof(Guid))
+                {
+                    var currentVal = (Guid)tenantIdProp.GetValue(supabaseModel);
+                    if (currentVal == Guid.Empty)
+                    {
+                         _logger.LogWarning("[Sync Repair] Patching empty TenantId for {Type} {Id} with {NewId}", 
+                             message.EntityType, message.EntityId, targetTenantId);
+                         tenantIdProp.SetValue(supabaseModel, targetTenantId);
+                    }
+                }
+            }
+
+            // CRITICAL GUARD: Never sync to Supabase without a TenantId. 
+            // This prevents "orphaned" data that could be visible to other tenants or cause RLS failures.
+            var finalTenantId = (Guid?)typeof(TSupabaseModel).GetProperty("TenantId")?.GetValue(supabaseModel);
+            if (finalTenantId == null || finalTenantId == Guid.Empty)
+            {
+                _logger.LogError("[Sync Critical] Aborting sync for {Type} {Id}: No TenantId found after JIT repair.", 
+                    message.EntityType, message.EntityId);
+                return false;
             }
 
             _logger.LogInformation($"[Sync] Attempting Upsert for {message.EntityType} {message.EntityId} to Supabase...");
