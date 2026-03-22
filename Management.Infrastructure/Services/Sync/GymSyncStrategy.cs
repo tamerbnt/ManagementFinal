@@ -89,7 +89,7 @@ namespace Management.Infrastructure.Services.Sync
                             await _mediator.Publish(new SyncConflictNotification(
                                 existing.Id, 
                                 "GymSettings", 
-                                existing.UpdatedAt, 
+                                existing.UpdatedAt ?? existing.CreatedAt, 
                                 remote.UpdatedAt, 
                                 existing.FacilityId), ct);
                             
@@ -143,7 +143,7 @@ namespace Management.Infrastructure.Services.Sync
                             await _mediator.Publish(new SyncConflictNotification(
                                 existing.Id, 
                                 "FacilitySchedule", 
-                                existing.UpdatedAt, 
+                                existing.UpdatedAt ?? existing.CreatedAt, 
                                 remote.UpdatedAt, 
                                 existing.FacilityId), ct);
                             

@@ -21,6 +21,7 @@ using Microsoft.Data.Sqlite;
 
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
+using System.Net.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Management.Application.Notifications;
@@ -327,6 +328,10 @@ namespace Management.Presentation
                 ct.ThrowIfCancellationRequested();
 
                 Serilog.Log.Information("Starting initialization sequence...");
+                
+                // FIX 12: Check Clock Drift before anything else
+                UpdateStartupStatus("Checking system clock...");
+                await CheckClockDriftAsync();
 
                 // 1. Initialize Contexts (Must happen before Sync)
                 Serilog.Log.Information("Initializing Facility Context and Resilience...");
@@ -1389,6 +1394,48 @@ namespace Management.Presentation
                 // Defensive: If error reporting itself fails, log to Serilog
                 Serilog.Log.Error(innerEx, "[{Context}] Failed to report error to diagnostics", context);
                 Serilog.Log.Error(innerEx, "[{Context}] Original error", context);
+            }
+        }
+
+        private async Task CheckClockDriftAsync()
+        {
+            try
+            {
+                var storage = ServiceProvider.GetRequiredService<Management.Application.Services.ISecureStorageService>();
+                var url = storage.Get("SupabaseUrl") ?? Configuration["Supabase:Url"];
+                
+                if (string.IsNullOrEmpty(url)) return;
+
+                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                
+                // Use HEAD to get just the headers (minimal bandwidth)
+                using var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, url));
+                
+                if (response.Headers.Date.HasValue)
+                {
+                    var serverTime = response.Headers.Date.Value.UtcDateTime;
+                    var localTime = DateTime.UtcNow;
+                    var drift = (serverTime - localTime).Duration();
+
+                    Serilog.Log.Information("[App] Clock Drift Check: Server={Server}, Local={Local}, Drift={Drift}", serverTime, localTime, drift);
+
+                    if (drift > TimeSpan.FromMinutes(5))
+                    {
+                        var error = $"CRITICAL: System clock drift detected ({drift.TotalMinutes:F1} minutes). " +
+                                    "Please synchronize your PC clock with Internet time to prevent data corruption and sync failures.";
+                        Serilog.Log.Fatal(error);
+                        throw new Exception(error);
+                    }
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Serilog.Log.Warning(ex, "[App] Clock drift check skipped: could not reach Supabase.");
+            }
+            catch (Exception ex) when (!(ex is OperationCanceledException))
+            {
+                if (ex.Message.Contains("CRITICAL: System clock drift detected")) throw;
+                Serilog.Log.Warning(ex, "[App] Clock drift check failed due to unexpected error.");
             }
         }
 
