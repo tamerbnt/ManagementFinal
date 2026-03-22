@@ -1,10 +1,12 @@
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Management.Domain.Enums;
 using Management.Application.Services;
 using Management.Domain.Interfaces;
 using Management.Domain.Models;
 using Management.Domain.Services;
+using Management.Infrastructure.Data;
 
 namespace Management.Infrastructure.Services
 {
@@ -16,6 +18,7 @@ namespace Management.Infrastructure.Services
         private readonly IRepository<FacilitySchedule> _scheduleRepository;
         private readonly IFacilityContextService _facilityService;
         private readonly IAccessControlCache _cache;
+        private readonly AppDbContext _context;
 
         public AccessControlService(
             IMemberRepository memberRepository,
@@ -23,7 +26,8 @@ namespace Management.Infrastructure.Services
             IRepository<MembershipPlan> planRepository,
             IRepository<FacilitySchedule> scheduleRepository,
             IFacilityContextService facilityService,
-            IAccessControlCache cache)
+            IAccessControlCache cache,
+            AppDbContext context)
         {
             _memberRepository = memberRepository;
             _staffRepository = staffRepository;
@@ -31,6 +35,7 @@ namespace Management.Infrastructure.Services
             _scheduleRepository = scheduleRepository;
             _facilityService = facilityService;
             _cache = cache;
+            _context = context;
         }
 
         public async Task<ScanResult> ProcessScanAsync(string barcode)
@@ -126,13 +131,22 @@ namespace Management.Infrastructure.Services
             // 5. Session Deduction
             if (plan != null && plan.IsSessionPack)
             {
-                if (member.RemainingSessions <= 0)
+                // ATOMIC — no race condition possible
+                var rowsAffected = await _context.Database.ExecuteSqlRawAsync(
+                    @"UPDATE members 
+                      SET remaining_sessions = remaining_sessions - 1, 
+                          updated_at = datetime('now'), 
+                          row_version = row_version + 1 
+                      WHERE id = {0} 
+                        AND remaining_sessions > 0 
+                        AND facility_id = {1}",
+                    member.Id, currentFacilityId);
+
+                if (rowsAffected == 0)
                 {
+                    // Sessions ran out between our check and the update
                     return ScanResult.Denied("No Sessions Left", member);
                 }
-
-                member.SetRemainingSessions(member.RemainingSessions - 1);
-                await _memberRepository.UpdateAsync(member);
             }
 
             // 6. Grant with Warning
