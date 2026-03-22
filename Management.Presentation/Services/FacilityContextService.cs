@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Management.Presentation.Services
         private readonly string _configPath;
         
         // Default seed IDs removed (Relying on discovery)
-        private readonly Dictionary<FacilityType, Guid> _dynamicFacilityIds = new();
+        private readonly ConcurrentDictionary<FacilityType, Guid> _dynamicFacilityIds = new();
 
         public FacilityType CurrentFacility { get; private set; }
         public Guid CurrentFacilityId => _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
@@ -58,7 +59,7 @@ namespace Management.Presentation.Services
 
             foreach (var mapping in facilityMappings)
             {
-                _dynamicFacilityIds[mapping.Key] = mapping.Value;
+                _dynamicFacilityIds.AddOrUpdate(mapping.Key, mapping.Value, (k, v) => mapping.Value);
                 Serilog.Log.Information($"[FacilityContext] Updated {mapping.Key} to {mapping.Value}");
             }
             SaveConfig();
@@ -66,7 +67,7 @@ namespace Management.Presentation.Services
 
         public void UpdateFacilityId(FacilityType type, Guid actualId)
         {
-            _dynamicFacilityIds[type] = actualId;
+            _dynamicFacilityIds.AddOrUpdate(type, actualId, (k, v) => actualId);
             Serilog.Log.Warning("[DIAG][FacilityContext] UpdateFacilityId({Type}, {Id}) called. Map now has {Count} entries.", type, actualId, _dynamicFacilityIds.Count);
             Serilog.Log.Information($"[FacilityContext] [RUNTIME DISCOVERY] Resolved Facility ID for {type}: {actualId}. This should be persisted to facility-config.json.");
             SaveConfig();
@@ -110,7 +111,7 @@ namespace Management.Presentation.Services
                     {
                         foreach (var mapping in config.FacilityIds)
                         {
-                            _dynamicFacilityIds[mapping.Key] = mapping.Value;
+                            _dynamicFacilityIds.TryAdd(mapping.Key, mapping.Value);
                         }
                         Serilog.Log.Information("[FacilityContext] Loaded persisted facility-ID mappings. Pending CommitFacility.");
                     }
