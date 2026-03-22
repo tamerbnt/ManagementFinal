@@ -369,7 +369,7 @@ namespace Management.Presentation
                         var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
                         if (navStore.CurrentViewModel is LoginViewModel loginVm)
                         {
-                            loginVm.IsInitializingApp = true;
+                            loginVm.SetInitializingState(true);
                             loginVm.AppInitializationStatus = "Starting application services...";
                         }
                     }
@@ -529,7 +529,7 @@ namespace Management.Presentation
                                 // Natural state: clear initialization flags on Current ViewModel if it's Login
                                 if (navStore.CurrentViewModel is LoginViewModel loginVm)
                                 {
-                                    loginVm.IsInitializingApp = false;
+                                    loginVm.SetInitializingState(false);
                                     loginVm.AppInitializationStatus = string.Empty;
                                 }
                                 Serilog.Log.Information("Background startup: Initialization complete.");

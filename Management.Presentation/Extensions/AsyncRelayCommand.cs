@@ -55,7 +55,10 @@ namespace Management.Presentation.Extensions
         {
             CommandManager.InvalidateRequerySuggested();
         }
+
+        public void NotifyCanExecuteChanged() => RaiseCanExecuteChanged();
     }
+
 
     /// <summary>
     /// Generic Version for Async Commands with Parameters (e.g. Delete(Id)).
@@ -106,5 +109,7 @@ namespace Management.Presentation.Extensions
         {
             CommandManager.InvalidateRequerySuggested();
         }
+
+        public void NotifyCanExecuteChanged() => RaiseCanExecuteChanged();
     }
 }

@@ -38,7 +38,10 @@ namespace Management.Presentation.Extensions
         {
             CommandManager.InvalidateRequerySuggested();
         }
+
+        public void NotifyCanExecuteChanged() => RaiseCanExecuteChanged();
     }
+
 
     /// <summary>
     /// Generic version for passing parameters (e.g., NavigateToDetail(Guid id)).
@@ -74,5 +77,7 @@ namespace Management.Presentation.Extensions
         {
             CommandManager.InvalidateRequerySuggested();
         }
+
+        public void NotifyCanExecuteChanged() => RaiseCanExecuteChanged();
     }
 }

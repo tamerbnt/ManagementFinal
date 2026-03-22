@@ -62,9 +62,20 @@ namespace Management.Presentation.ViewModels
             set
             {
                 SetProperty(ref _isInitializingApp, value);
-                (LoginCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
+                LoginCommand.NotifyCanExecuteChanged();
             }
         }
+        
+        /// <summary>
+        /// Explicitly sets the initialization state and notifies the login command.
+        /// This is used by App.xaml.cs to block/unblock the UI during startup.
+        /// </summary>
+        public void SetInitializingState(bool value)
+        {
+            IsInitializingApp = value;
+            LoginCommand.NotifyCanExecuteChanged();
+        }
+
 
         private string _appInitializationStatus = string.Empty;
         public string AppInitializationStatus
@@ -100,7 +111,7 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _selectedFacility, value);
         }
 
-        public ICommand LoginCommand { get; }
+        public AsyncRelayCommand<object> LoginCommand { get; }
         public ICommand ForgotPasswordCommand { get; }
         public ICommand SelectFacilityCommand { get; }
 
@@ -131,7 +142,7 @@ namespace Management.Presentation.ViewModels
             _syncService = syncService;
             _dbContext = dbContext;
 
-            _isInitializingApp = true; // Block UI immediately until App.xaml.cs clears it
+            _isInitializingApp = false; // Default to ready
 
             LoginCommand = new AsyncRelayCommand<object>(ExecuteLogin, CanExecuteLogin);
             ForgotPasswordCommand = new RelayCommand(ExecuteForgotPassword);
@@ -283,7 +294,7 @@ namespace Management.Presentation.ViewModels
             finally
             {
                 IsBusy = false;
-                (LoginCommand as RelayCommand<object>)?.RaiseCanExecuteChanged();
+                LoginCommand.NotifyCanExecuteChanged();
             }
         }
 
