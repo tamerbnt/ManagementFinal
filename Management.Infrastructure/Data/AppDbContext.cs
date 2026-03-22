@@ -449,6 +449,13 @@ namespace Management.Infrastructure.Data
                     p.Property(m => m.Amount).HasColumnName("paid_amount");
                     p.Property(m => m.Currency).HasColumnName("paid_amount_currency");
                 });
+
+                entity.HasOne<StaffMember>()
+                    .WithMany()
+                    .HasForeignKey(e => e.StaffId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => e.StaffId).HasDatabaseName("idx_payroll_staff_id");
             });
 
             modelBuilder.Entity<OutboxMessage>(entity =>

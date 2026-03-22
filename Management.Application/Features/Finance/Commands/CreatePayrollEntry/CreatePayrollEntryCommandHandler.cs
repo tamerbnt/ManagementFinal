@@ -13,15 +13,25 @@ namespace Management.Application.Features.Finance.Commands.CreatePayrollEntry
     public class CreatePayrollEntryCommandHandler : IRequestHandler<CreatePayrollEntryCommand, Result<Guid>>
     {
         private readonly IPayrollRepository _payrollRepository;
+        private readonly IStaffRepository _staffRepository;
 
-        public CreatePayrollEntryCommandHandler(IPayrollRepository payrollRepository)
+        public CreatePayrollEntryCommandHandler(IPayrollRepository payrollRepository, IStaffRepository staffRepository)
         {
             _payrollRepository = payrollRepository;
+            _staffRepository = staffRepository;
         }
 
         public async Task<Result<Guid>> Handle(CreatePayrollEntryCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Entry;
+            
+            // Validate Staff Existence
+            var staff = await _staffRepository.GetByIdAsync(dto.StaffId);
+            if (staff == null)
+            {
+                return Result.Failure<Guid>(new Error("Payroll.StaffNotFound", $"Staff member with ID {dto.StaffId} not found."));
+            }
+
             var amount = new Money(dto.Amount, "DA");
 
             var result = PayrollEntry.Create(
