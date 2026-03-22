@@ -9,6 +9,12 @@ namespace Management.Infrastructure.Configuration
         public int ReconnectIntervalMs { get; set; } = 10000;
         public int GateOpenDurationMs { get; set; } = 3000;
         public int MachineNumber { get; set; } = 1;
+        /// <summary>
+        /// Communication password set on the physical device.
+        /// Default is 0 (no password). Must match device setting.
+        /// Found in device menu: System → Comm → Comm Key
+        /// </summary>
+        public int CommKey { get; set; } = 0;
         public bool UseMock { get; set; } = false;
         public System.Guid FacilityId { get; set; } = System.Guid.Empty;
     }

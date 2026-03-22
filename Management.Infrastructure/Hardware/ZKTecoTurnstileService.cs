@@ -98,6 +98,11 @@ namespace Management.Infrastructure.Hardware
                                 if (type == null) return false;
                                 _zk = Activator.CreateInstance(type);
                             }
+                            
+                            // Must be called before Connect_Net
+                            // Default is 0 — no password. Reads from config if available.
+                            _zk.SetCommPassword(_config.CommKey);
+                            
                             return (bool)_zk!.Connect_Net(ip, port);
                         }).WaitAsync(cts.Token);
                     }
