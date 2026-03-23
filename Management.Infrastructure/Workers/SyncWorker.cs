@@ -176,9 +176,10 @@ namespace Management.Infrastructure.Workers
                         var facilityContext = facilityScope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                         // Phase 1: Push Changes (Scoped by Facility)
+                        var safeThreshold = DateTime.UtcNow.AddSeconds(-7);
                         var pendingCount = await facilityContext.OutboxMessages
                             .IgnoreQueryFilters()
-                            .Where(m => !m.IsProcessed && m.ErrorCount < 5 && m.FacilityId == facilityId)
+                            .Where(m => !m.IsProcessed && m.ErrorCount < 5 && m.FacilityId == facilityId && m.CreatedAt <= safeThreshold)
                             .CountAsync(stoppingToken);
 
                         if (pendingCount > 0)
