@@ -96,38 +96,55 @@ namespace Management.Presentation.Views.Shell
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[EXIT] OnClosing fired. _isExiting={_isExiting}");
             if (_isExiting)
             {
+                System.Diagnostics.Debug.WriteLine("[EXIT] _isExiting=true — allowing close");
                 base.OnClosing(e);
                 return;
             }
 
             // Prevent immediate closing
             e.Cancel = true;
-
-            // Trigger the async check without blocking the UI thread
+            System.Diagnostics.Debug.WriteLine("[EXIT] e.Cancel=true — starting HandleClosingAsync");
             _ = HandleClosingAsync();
         }
 
         private async Task HandleClosingAsync()
         {
-            if (DataContext is MainViewModel vm)
+            System.Diagnostics.Debug.WriteLine("[EXIT] HandleClosingAsync started");
+            try
             {
-                // Show the modal and wait for result
-                var result = await vm.RequestExitAsync();
-                
-                if (result != ExitModalResult.Cancel)
+                if (DataContext is MainViewModel vm)
                 {
-                    // Allow shutdown
+                    System.Diagnostics.Debug.WriteLine("[EXIT] About to open exit modal");
+                    // Show the modal and wait for result
+                    var result = await vm.RequestExitAsync();
+                    System.Diagnostics.Debug.WriteLine($"[EXIT] Modal returned result: {result}");
+                    
+                    if (result != ExitModalResult.Cancel)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[EXIT] User chose {result} — calling Shutdown");
+                        // Allow shutdown
+                        _isExiting = true;
+                        System.Windows.Application.Current.Shutdown();
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[EXIT] User chose Cancel — staying in app");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[EXIT] DataContext is NOT MainViewModel — fallback shutdown");
+                    // Fallback: if data context is not set, just shutdown
                     _isExiting = true;
                     System.Windows.Application.Current.Shutdown();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                // Fallback: if data context is not set, just shutdown
-                _isExiting = true;
-                System.Windows.Application.Current.Shutdown();
+                System.Diagnostics.Debug.WriteLine($"[EXIT] EXCEPTION in HandleClosingAsync: {ex}");
             }
         }
 

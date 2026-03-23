@@ -195,31 +195,59 @@ namespace Management.Presentation.Services
             object? parameter = null,
             CancellationToken cancellationToken = default) where TViewModel : class
         {
+            System.Diagnostics.Debug.WriteLine($"[MODAL] OpenModalWithResultAsync entered for {typeof(TViewModel).Name}");
             ThrowIfDisposed();
             if (StackDepth >= MaxStackDepth)
             {
+                System.Diagnostics.Debug.WriteLine("[MODAL] Max stack depth exceeded");
                 await ShowMaxDepthErrorAsync();
                 return default;
             }
 
-            var tcs = new TaskCompletionSource<object?>();
+            var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            System.Diagnostics.Debug.WriteLine("[MODAL] Waiting for _modalLock...");
             await _modalLock.WaitAsync(cancellationToken);
+            System.Diagnostics.Debug.WriteLine("[MODAL] _modalLock ACQUIRED");
 
             try
             {
                 var state = await CreateModalStateAsync<TViewModel>(size, parameter, cancellationToken);
-                if (state is null) return default;
+                if (state is null) 
+                {
+                    System.Diagnostics.Debug.WriteLine("[MODAL] CreateModalStateAsync returned null");
+                    return default;
+                }
 
                 state.ResultCompletionSource = tcs;
+
+                // Notify opening
+                OnModalOpening(new ModalNavigationEventArgs(
+                    typeof(TViewModel), state.Size, StackDepth + 1, false));
+
                 await ShowModalWindowAsync(state, cancellationToken);
+                System.Diagnostics.Debug.WriteLine("[MODAL] Modal window shown");
+
+                // REGISTER ON STACK — This was missing!
+                _modalStack.Push(state);
+                UpdateCurrentViewModel(state.ViewModel);
+                
+                OnPropertyChanged(nameof(StackDepth));
+                OnPropertyChanged(nameof(IsModalOpen));
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+
+                // Notify opened
+                OnModalOpened(new ModalNavigationEventArgs(
+                    typeof(TViewModel), state.Size, StackDepth, true));
             }
             finally
             {
                 _modalLock.Release();
+                System.Diagnostics.Debug.WriteLine("[MODAL] _modalLock RELEASED — about to await TCS");
             }
 
             // Await result OUTSIDE the lock — CloseCurrentModalAsync can now acquire it freely
             var result = await tcs.Task.WaitAsync(cancellationToken);
+            System.Diagnostics.Debug.WriteLine($"[MODAL] TCS completed with result: {result ?? "null"}");
             return result is TResult typedResult ? typedResult : default;
         }
 
@@ -227,44 +255,44 @@ namespace Management.Presentation.Services
         {
             ThrowIfDisposed();
 
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService: CloseCurrentModalAsync(force={force}) called. StackDepth={StackDepth}");
+            System.Diagnostics.Debug.WriteLine($"[MODAL] CloseCurrentModalAsync(force={force}) entered. StackDepth={StackDepth}");
 
             if (StackDepth == 0) 
             {
-                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: StackDepth is 0, nothing to close");
+                System.Diagnostics.Debug.WriteLine("[MODAL] StackDepth is 0, nothing to close");
                 return true;
             }
 
             // FAILSOUND: Guard against duplicate close calls during rapid animation
             if (_modalStack.Any() && _modalStack.Peek().IsClosing && !force) 
             {
-                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Top modal is already closing, ignoring");
+                System.Diagnostics.Debug.WriteLine("[MODAL] Top modal is already closing, ignoring duplicate call");
                 return false;
             }
 
-            System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Waiting for _modalLock...");
+            System.Diagnostics.Debug.WriteLine("[MODAL] Waiting for _modalLock in CloseCurrentModal...");
             await _modalLock.WaitAsync();
             try
             {
-                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Acquired _modalLock");
+                System.Diagnostics.Debug.WriteLine("[MODAL] _modalLock ACQUIRED in CloseCurrentModal");
                 if (StackDepth == 0) 
                 {
-                    System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: StackDepth became 0 while waiting for lock");
-                    return true; // Re-check after lock
+                    System.Diagnostics.Debug.WriteLine("[MODAL] StackDepth became 0 while waiting for lock");
+                    return true;
                 }
                 var result = await ExecuteCloseCurrentModalAsync(force);
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService: ExecuteCloseCurrentModalAsync returned {result}");
+                System.Diagnostics.Debug.WriteLine($"[MODAL] ExecuteCloseCurrentModalAsync returned {result}");
                 return result;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] ModalNavigationService ERROR in CloseCurrentModalAsync: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[MODAL] ERROR in CloseCurrentModalAsync: {ex}");
                 return false;
             }
             finally
             {
                 _modalLock.Release();
-                System.Diagnostics.Debug.WriteLine("[DEBUG] ModalNavigationService: Released _modalLock");
+                System.Diagnostics.Debug.WriteLine("[MODAL] _modalLock RELEASED in CloseCurrentModal");
             }
         }
 
@@ -671,6 +699,7 @@ namespace Management.Presentation.Services
 
         private void OnModalWindowClosed(object? sender, EventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine("[MODAL] Window.Closed event fired");
             var window = sender as Window;
             if (window == null) return;
 
@@ -680,6 +709,7 @@ namespace Management.Presentation.Services
             
             if (state != null)
             {
+                System.Diagnostics.Debug.WriteLine($"[MODAL] Capturing result for {state.ViewModel.GetType().Name} from Window.Closed");
                 CaptureModalResult(state);
 
                 // Clean up event handlers
@@ -689,6 +719,10 @@ namespace Management.Presentation.Services
                 // Clear tag reference
                 window.Tag = null;
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("[MODAL] No state found for closed window");
+            }
         }
 
         /// <summary>
@@ -696,8 +730,11 @@ namespace Management.Presentation.Services
         /// </summary>
         private void CaptureModalResult(ModalState state)
         {
-            if (state.ResultCompletionSource == null || state.ResultCompletionSource.Task.IsCompleted)
+            if (state.ResultCompletionSource == null) return;
+            
+            if (state.ResultCompletionSource.Task.IsCompleted)
             {
+                System.Diagnostics.Debug.WriteLine("[MODAL] TCS already completed, skipping CaptureModalResult");
                 return;
             }
 
@@ -725,11 +762,12 @@ namespace Management.Presentation.Services
                     }
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[MODAL] Completing TCS with result: {result ?? "null"}");
                 state.ResultCompletionSource.TrySetResult(result);
             }
             catch (Exception ex)
             {
-                _logger?.LogWarning(ex, "Failed to capture modal result for {ViewModel}", state.ViewModel.GetType().Name);
+                System.Diagnostics.Debug.WriteLine($"[MODAL] EXCEPTION in CaptureModalResult: {ex}");
                 state.ResultCompletionSource.TrySetResult(null);
             }
         }

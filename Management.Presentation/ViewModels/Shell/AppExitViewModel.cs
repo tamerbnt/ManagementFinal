@@ -50,28 +50,40 @@ namespace Management.Presentation.ViewModels.Shell
         [RelayCommand]
         private async Task StayAsync()
         {
+            System.Diagnostics.Debug.WriteLine("[EXIT-VM] StayAsync called");
             Result = ExitModalResult.Cancel;
+            System.Diagnostics.Debug.WriteLine($"[EXIT-VM] Result set to {Result}");
             await _modalNavigationService.CloseCurrentModalAsync();
+            System.Diagnostics.Debug.WriteLine("[EXIT-VM] CloseCurrentModalAsync completed");
         }
 
         [RelayCommand]
         private async Task ExitAsync()
         {
+            System.Diagnostics.Debug.WriteLine("[EXIT-VM] ExitAsync called");
             Result = ExitModalResult.Close;
+            System.Diagnostics.Debug.WriteLine($"[EXIT-VM] Result set to {Result}");
             await _modalNavigationService.CloseCurrentModalAsync();
+            System.Diagnostics.Debug.WriteLine("[EXIT-VM] CloseCurrentModalAsync completed");
         }
 
         [RelayCommand]
         private async Task CloseAndReportAsync()
         {
+            System.Diagnostics.Debug.WriteLine("[EXIT-VM] CloseAndReportAsync called");
             try
             {
                 IsGeneratingReport = true;
                 _toastService?.ShowInfo("Generating final report...", "Close Day");
 
                 var facilityId = _facilityContext.CurrentFacilityId;
+                System.Diagnostics.Debug.WriteLine($"[EXIT-VM] Generating report for facility: {facilityId}");
+                
                 var snapshot = await _reportingService.GetDailySnapshotAsync(facilityId, DateTime.Today);
+                System.Diagnostics.Debug.WriteLine("[EXIT-VM] Snapshot retrieved");
+                
                 var pdfBytes = await _reportingService.GenerateDailyPdfReportAsync(snapshot);
+                System.Diagnostics.Debug.WriteLine($"[EXIT-VM] PDF generated: {pdfBytes?.Length ?? 0} bytes");
 
                 var reportsFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -82,9 +94,8 @@ namespace Management.Presentation.ViewModels.Shell
                 var filePath = Path.Combine(reportsFolder, fileName);
 
                 await File.WriteAllBytesAsync(filePath, pdfBytes);
+                System.Diagnostics.Debug.WriteLine($"[EXIT-VM] Report saved to: {filePath}");
 
-                // Optional: Open it? The user said "responsible for the feature close day report".
-                // In Dashboard, it opens. Let's open it here too, before exiting.
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = filePath,
@@ -94,14 +105,16 @@ namespace Management.Presentation.ViewModels.Shell
                 _toastService?.ShowSuccess($"Close Day report saved to Documents\\Luxurya\\Reports.", "Report Generated");
                 
                 Result = ExitModalResult.CloseAndReport;
+                System.Diagnostics.Debug.WriteLine($"[EXIT-VM] Result set to {Result}");
                 await _modalNavigationService.CloseCurrentModalAsync();
+                System.Diagnostics.Debug.WriteLine("[EXIT-VM] CloseCurrentModalAsync completed");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[EXIT-VM] EXCEPTION in CloseAndReportAsync: {ex}");
                 _logger?.LogError(ex, "Failed to generate close day report during exit.");
                 _toastService?.ShowError("Failed to generate report: " + ex.Message, "Error");
                 
-                // If it fails, we still might want to allow the user to exit, but let's let them decide via the UI again
                 IsGeneratingReport = false;
             }
         }
