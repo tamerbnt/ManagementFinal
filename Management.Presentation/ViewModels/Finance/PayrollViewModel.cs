@@ -187,12 +187,12 @@ namespace Management.Presentation.ViewModels.Finance
                 
                 if (entryResult.IsSuccess)
                 {
-                    _toastService.ShowSuccess(successMsg, "Undo", async () =>
+                    _toastService.ShowSuccess(successMsg, async () =>
                     {
                         var entry = entryResult.Value;
                         await _payrollRepository.DeleteAsync(entry.Id);
                         WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
-                    });
+                    }, "Undo");
                 }
                 else
                 {

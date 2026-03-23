@@ -56,7 +56,7 @@ namespace Management.Presentation.Handlers
                 {
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
-                        _toastService.ShowSuccess(notification.Message, "Undo", async () =>
+                        _toastService.ShowSuccess(notification.Message, async () =>
                         {
                             try 
                             {
@@ -75,7 +75,7 @@ namespace Management.Presentation.Handlers
                             {
                                 _toastService.ShowError($"Undo failed: {ex.Message}");
                             }
-                        });
+                        }, "Undo");
                     });
                 }
                 else

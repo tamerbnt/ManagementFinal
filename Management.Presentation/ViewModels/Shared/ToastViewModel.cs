@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Management.Presentation.Models;
@@ -14,21 +16,10 @@ namespace Management.Presentation.ViewModels.Shared
         public DateTime CreatedAt { get; set; }
         public ICommand DismissCommand { get; set; } = null!;
 
-        private bool _hasUndo;
-        public bool HasUndo
-        {
-            get => _hasUndo;
-            set => SetProperty(ref _hasUndo, value);
-        }
-
-        private string? _undoLabel;
-        public string? UndoLabel
-        {
-            get => _undoLabel;
-            set => SetProperty(ref _undoLabel, value);
-        }
-
+        public bool HasUndo => UndoCommand != null;
         public ICommand? UndoCommand { get; set; }
+        public string UndoLabel { get; set; } = "Undo";
+
 
         private bool _isPaused;
         public bool IsPaused

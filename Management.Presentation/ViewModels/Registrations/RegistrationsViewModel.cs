@@ -83,7 +83,7 @@ namespace Management.Presentation.ViewModels.Registrations
                     WebsiteRequests.Remove(reqCopy);
                     PendingWebsiteCount = WebsiteRequests.Count;
                     
-                    _toastService.ShowSuccess("Registration confirmed and member created.", "Undo", async () =>
+                    _toastService.ShowSuccess("Registration confirmed and member created.", async () =>
                     {
                         if (modalResult.Data is Guid createdMemberId)
                         {
@@ -100,7 +100,7 @@ namespace Management.Presentation.ViewModels.Registrations
                                 PendingWebsiteCount = WebsiteRequests.Count;
                             }
                         });
-                    });
+                    }, "Undo");
                     
                     _ = _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "confirmed");
                 }

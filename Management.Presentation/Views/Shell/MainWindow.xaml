@@ -284,9 +284,10 @@
                         </Border.Effect>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>   <!-- icon badge -->
+                                <ColumnDefinition Width="*"/>      <!-- message -->
+                                <ColumnDefinition Width="Auto"/>   <!-- undo button — NEW -->
+                                <ColumnDefinition Width="Auto"/>   <!-- X button -->
                             </Grid.ColumnDefinitions>
 
                             <!-- Column 1: Icon Badge -->
@@ -351,48 +352,48 @@
                                 </TextBlock.Style>
                             </TextBlock>
 
-                            <!-- Column 3: Actions (Undo + Dismiss) -->
-                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                                <!-- Undo Button -->
-                                <Button Content="{Binding UndoLabel}"
-                                        Command="{Binding UndoCommand}"
-                                        Background="Transparent"
-                                        Foreground="{DynamicResource Brush.Primary}"
-                                        FontWeight="SemiBold"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        Margin="0,0,12,0">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasUndo}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                            <!-- Undo button — Grid.Column="2" -->
+                            <Button Grid.Column="2"
+                                    Command="{Binding UndoCommand}"
+                                    Visibility="{Binding HasUndo,
+                                        Converter={StaticResource BoolToVisibilityConverter},
+                                        FallbackValue=Collapsed}"
+                                    Margin="8,0,4,0"
+                                    VerticalAlignment="Center"
+                                    Cursor="Hand"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <Border CornerRadius="6"
+                                        Padding="10,4"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}">
+                                    <TextBlock Text="{Binding UndoLabel}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                </Border>
+                            </Button>
 
-                                <!-- Dismiss Button -->
-                                <Button Command="{Binding DismissCommand}" 
-                                        Width="24" Height="24" 
-                                        Background="Transparent" 
-                                        BorderThickness="0" 
-                                        VerticalAlignment="Center">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Grid Background="Transparent">
-                                                <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
-                                                      Fill="{DynamicResource Brush.Text.Primary}" 
-                                                      Stretch="Uniform" 
-                                                      Width="10" Height="10" 
-                                                      Opacity="0.35"/>
-                                            </Grid>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </StackPanel>
+                            <!-- X dismiss button — Grid.Column="3" -->
+                            <Button Grid.Column="3"
+                                    Command="{Binding DismissCommand}" 
+                                    Width="24" Height="24" 
+                                    Background="Transparent" 
+                                    BorderThickness="0" 
+                                    VerticalAlignment="Center"
+                                    Margin="4,0,0,0">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Grid Background="Transparent">
+                                            <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                                                  Fill="{DynamicResource Brush.Text.Primary}" 
+                                                  Stretch="Uniform" 
+                                                  Width="10" Height="10" 
+                                                  Opacity="0.35"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </Grid>
                     </Border>
                 </DataTemplate>

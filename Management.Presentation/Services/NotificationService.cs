@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -14,12 +16,14 @@ using Management.Presentation.Services;
 using Management.Presentation.ViewModels;
 using Management.Presentation.ViewModels.Shared;
 using Management.Presentation.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Presentation.Services
 {
     public class NotificationService : INotificationService, Management.Application.Interfaces.App.IToastService, IDisposable
     {
         private readonly NotificationStore _notificationStore; // Retained for future badge sync
+        private readonly ILogger<NotificationService> _logger;
         private readonly DispatcherTimer _autoDismissTimer;
 
         // Toast Configuration (Design System Section 34)
@@ -33,9 +37,10 @@ namespace Management.Presentation.Services
 
 
 
-        public NotificationService(NotificationStore notificationStore)
+        public NotificationService(NotificationStore notificationStore, ILogger<NotificationService> logger)
         {
             _notificationStore = notificationStore;
+            _logger = logger;
 
             // Timer checks every 500ms to clean up expired toasts
             _autoDismissTimer = new DispatcherTimer
@@ -44,76 +49,8 @@ namespace Management.Presentation.Services
             };
             _autoDismissTimer.Tick += OnAutoDismissTick;
             _autoDismissTimer.Start();
-
-            UndoCommand = new AsyncRelayCommand(ExecuteUndo);
-            DismissCommand = new RelayCommand(ExecuteDismiss);
         }
 
-        // --- Phase 2 Overlay Implementation ---
-
-        private string? _currentMessage;
-        public string? CurrentMessage
-        {
-            get => _currentMessage;
-            private set { _currentMessage = value; OnPropertyChanged(); }
-        }
-
-        private bool _hasUndo;
-        public bool HasUndo
-        {
-            get => _hasUndo;
-            private set { _hasUndo = value; OnPropertyChanged(); }
-        }
-
-        public ICommand UndoCommand { get; }
-        public ICommand DismissCommand { get; }
-
-        private Func<Task>? _pendingUndoAction;
-        private Func<Task>? _pendingFinalAction;
-        private DispatcherTimer? _undoTimer;
-
-        public void ShowUndoNotification(string message, Func<Task> undoAction, Func<Task> finalAction)
-        {
-            CurrentMessage = message;
-            HasUndo = undoAction != null;
-            _pendingUndoAction = undoAction;
-            _pendingFinalAction = finalAction;
-
-            if (_undoTimer != null) _undoTimer.Stop();
-            _undoTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
-            _undoTimer.Tick += async (s, e) =>
-            {
-                _undoTimer.Stop();
-                if (_pendingFinalAction != null) await _pendingFinalAction();
-                ExecuteDismiss();
-            };
-            _undoTimer.Start();
-            
-            // Trigger View Animation (Slide Down)
-            // Implementation detail: MainWindow.xaml notification overlay will bind to this.
-        }
-
-        private async Task ExecuteUndo()
-        {
-            _undoTimer?.Stop();
-            if (_pendingUndoAction != null) await _pendingUndoAction();
-            ExecuteDismiss();
-        }
-
-        private void ExecuteDismiss()
-        {
-            _undoTimer?.Stop();
-            CurrentMessage = null;
-            HasUndo = false;
-            _pendingUndoAction = null;
-            _pendingFinalAction = null;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         // --- Interface Implementation ---
 
@@ -121,14 +58,19 @@ namespace Management.Presentation.Services
             => ShowToast(type, string.IsNullOrEmpty(title) ? message : $"{title}: {message}");
 
         // Satisfy IToastService (message first, optional title)
-        public void ShowSuccess(string message, string? title = null) => Show(ToastType.Success, message, title);
+        public void ShowSuccess(string message, string? title = null)
+        {
+            Debug.WriteLine($"[TOAST] ShowSuccess called. Message='{message}', HasUndoAction=False");
+            Show(ToastType.Success, message, title);
+        }
+
         public void ShowError(string message, string? title = null) => Show(ToastType.Error, message, title);
         public void ShowWarning(string message, string? title = null) => Show(ToastType.Warning, message, title);
         public void ShowInfo(string message, string? title = null) => Show(ToastType.Info, message, title);
 
         // Explicitly satisfy INotificationService to resolve signature/param-name ambiguity
         void INotificationService.ShowSuccess(string message) => Show(ToastType.Success, message);
-        void INotificationService.ShowSuccess(string message, string undoLabel, Func<Task> undoAction) => ShowSuccess(message, undoLabel, undoAction);
+        void INotificationService.ShowSuccess(string message, Func<Task> undoAction, string undoLabel) => ShowSuccess(message, undoAction, undoLabel);
         void INotificationService.ShowError(string message) => Show(ToastType.Error, message);
         void INotificationService.ShowError(string title, string message) => Show(ToastType.Error, message, title);
         void INotificationService.ShowWarning(string message) => Show(ToastType.Warning, message);
@@ -184,8 +126,9 @@ namespace Management.Presentation.Services
             });
         }
 
-        public void ShowSuccess(string message, string undoLabel, Func<Task> undoAction)
+        public void ShowSuccess(string message, Func<Task> undoAction, string undoLabel = "Undo")
         {
+            ArgumentNullException.ThrowIfNull(undoAction);
             if (string.IsNullOrWhiteSpace(message)) return;
 
             System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
@@ -198,14 +141,23 @@ namespace Management.Presentation.Services
                     CreatedAt = DateTime.Now,
                     IsPaused = false,
                     IsExiting = false,
-                    HasUndo = true,
                     UndoLabel = undoLabel
                 };
                 
-                toast.DismissCommand = new AsyncRelayCommand(() => DismissToastAsync(toast.Id));
+                toast.DismissCommand = new AsyncRelayCommand(async () => 
+                {
+                    toast.IsExiting = true;
+                    await DismissToastAsync(toast.Id);
+                });
+
                 toast.UndoCommand = new AsyncRelayCommand(async () =>
                 {
-                    await undoAction();
+                    toast.IsExiting = true;
+                    try { await undoAction(); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "[Undo] Undo action failed for message: {Message}", message);
+                    }
                     await DismissToastAsync(toast.Id);
                 });
 
@@ -293,7 +245,6 @@ namespace Management.Presentation.Services
         public void Dispose()
         {
             _autoDismissTimer?.Stop();
-            _undoTimer?.Stop();
         }
     }
 }

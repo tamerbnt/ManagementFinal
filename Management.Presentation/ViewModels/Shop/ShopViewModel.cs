@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -277,9 +279,9 @@ namespace Management.Presentation.ViewModels.Shop
                     await repo.DeleteAsync(id);
                 }
 
+                Debug.WriteLine($"[SHOP] Delete called. Count={toRemove.Count}, CallsUndoOverload=True");
                 _toastService.ShowSuccess(
                     string.Format(GetTerm("Strings.Shop.DeletedProducts") ?? "Deleted {0} products.", toRemove.Count),
-                    GetTerm("Strings.Shop.Undo") ?? "Undo",
                     async () => 
                     {
                         using var undoScope = _scopeFactory.CreateScope();
@@ -293,7 +295,8 @@ namespace Management.Presentation.ViewModels.Shop
                         {
                             await LoadProductsAsync();
                         });
-                    });
+                    },
+                    GetTerm("Strings.Shop.Undo") ?? "Undo");
             });
 
             ClearSelectionCommand = new RelayCommand(() => 

@@ -23,7 +23,7 @@ namespace Management.Presentation.Services.Application
         public void ShowSuccess(string message, string? title = null) => 
             AddToast(message, title ?? "Success", ToastType.Success);
 
-        public void ShowSuccess(string message, string undoLabel, Func<Task> undoAction)
+        public void ShowSuccess(string message, Func<Task> undoAction, string undoLabel = "Undo")
         {
             var toast = new ToastMessage
             {

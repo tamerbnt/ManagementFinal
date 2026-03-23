@@ -526,11 +526,11 @@ namespace Management.Presentation.ViewModels.Salon
                 
                 _toastService.ShowSuccess(
                     string.Format(_terminologyService.GetTerm("Terminology.Salon.Home.CheckIn.Success"), appt.ClientName),
-                    "Undo",
                     async () => 
                     {
                         await _salonService.UpdateAppointmentStatusAsync(appt.Id, originalStatus);
-                    }
+                    },
+                    "Undo"
                 );
             }
             

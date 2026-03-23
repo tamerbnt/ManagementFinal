@@ -296,13 +296,12 @@ namespace Management.Presentation.Views.Salon
             var oldStart = appt.StartTime;
             await _salonService.RescheduleAppointmentAsync(args.Id, args.NewStart);
             
-            _notificationService.ShowUndoNotification(
+            _notificationService.ShowSuccess(
                 string.Format(_terminologyService.GetTerm("Terminology.Salon.Appointments.MoveSuccess"), args.NewStart.ToString("t", _localizationService.CurrentCulture)),
                 async () => { 
                     await _salonService.RescheduleAppointmentAsync(args.Id, oldStart);
                     await LoadAppointments();
-                },
-                () => Task.CompletedTask);
+                });
             
             await LoadAppointments();
         }
