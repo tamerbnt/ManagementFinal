@@ -96,5 +96,15 @@ namespace Management.Infrastructure.Repositories
 
             return (items, totalCount);
         }
+
+        public async Task RestoreAsync(Guid id)
+        {
+            var registration = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(r => r.Id == id);
+            if (registration != null)
+            {
+                registration.Restore();
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

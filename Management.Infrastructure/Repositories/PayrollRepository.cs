@@ -44,5 +44,15 @@ namespace Management.Infrastructure.Repositories
                 .OrderByDescending(p => p.UpdatedAt ?? p.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task RestoreAsync(Guid id)
+        {
+            var entry = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
+            if (entry != null)
+            {
+                entry.Restore();
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

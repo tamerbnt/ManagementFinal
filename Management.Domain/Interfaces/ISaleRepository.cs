@@ -18,5 +18,6 @@ namespace Management.Domain.Interfaces
         Task<IEnumerable<Sale>> GetFailedTransactionsAsync(Guid facilityId);
         
         Task<IEnumerable<Sale>> GetSalesByMemberAsync(Guid memberId, Guid facilityId);
+        Task RestoreAsync(Guid id);
     }
 }

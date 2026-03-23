@@ -201,5 +201,15 @@ namespace Management.Infrastructure.Repositories
             }
             return await base.GetByIdAsync(id);
         }
+
+        public async Task RestoreAsync(Guid id)
+        {
+            var member = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id);
+            if (member != null)
+            {
+                member.Restore();
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
