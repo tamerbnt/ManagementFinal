@@ -23,18 +23,22 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
         private readonly IGymOperationService _gymService;
         private readonly IFacilityContextService _facilityContext;
 
+        private readonly IMediator _mediator;
+
         public UpdateMemberCommandHandler(
             IMemberRepository memberRepository,
             IMembershipPlanRepository planRepository,
             ISalonServiceRepository salonRepository,
             IGymOperationService gymService,
-            IFacilityContextService facilityContext)
+            IFacilityContextService facilityContext,
+            IMediator mediator)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
             _salonRepository = salonRepository;
             _gymService = gymService;
             _facilityContext = facilityContext;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(UpdateMemberCommand request, CancellationToken cancellationToken)
@@ -141,6 +145,14 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
                     );
                 }
             }
+
+            // PUBLISH NOTIFICATION
+            await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                member.FacilityId,
+                "MemberUpdate",
+                member.FullName,
+                $"Updated profile for {member.FullName}",
+                member.Id.ToString()), cancellationToken);
 
             return Result.Success();
         }

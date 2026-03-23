@@ -16,5 +16,7 @@ namespace Management.Domain.Interfaces
         // --- NEW REQUIREMENT ---
         // Required for Finance Dashboard "Failed Payments" list
         Task<IEnumerable<Sale>> GetFailedTransactionsAsync(Guid facilityId);
+        
+        Task<IEnumerable<Sale>> GetSalesByMemberAsync(Guid memberId, Guid facilityId);
     }
 }

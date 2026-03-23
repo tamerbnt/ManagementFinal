@@ -151,7 +151,8 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                     member.FacilityId,
                     "Registration",
                     member.FullName,
-                    "New Member Registered"), cancellationToken);
+                    "New Member Registered",
+                    member.Id.ToString()), cancellationToken);
 
                 // AUTO-REVENUE: If a plan was selected, record the sale immediately.
                 if (planName != null && planPrice > 0)

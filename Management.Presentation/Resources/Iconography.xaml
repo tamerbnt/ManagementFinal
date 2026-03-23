@@ -137,6 +137,7 @@
     <StreamGeometry x:Key="Icon.Sliders">M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 12h6</StreamGeometry>
     <StreamGeometry x:Key="IconPlus">M12 5v14M5 12h14</StreamGeometry>
     <StreamGeometry x:Key="IconMinus">M5 12h14</StreamGeometry>
+    <StreamGeometry x:Key="Icon.Keyboard">M2 9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9zM6 10h2v2H6v-2zM10 10h4v2h-4v-2zM16 10h2v2h-2v-2zM6 13h12v2H6v-2z</StreamGeometry>
 
     <!-- Misc Icons -->
     <StreamGeometry x:Key="IconChevronDown">M6 9l6 6 6-6</StreamGeometry>

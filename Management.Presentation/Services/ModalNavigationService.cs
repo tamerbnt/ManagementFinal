@@ -191,9 +191,9 @@ namespace Management.Presentation.Services
         }
 
         public async Task<TResult?> OpenModalWithResultAsync<TViewModel, TResult>(
-    ModalSize? size = null,
-    object? parameter = null,
-    CancellationToken cancellationToken = default) where TViewModel : class
+            ModalSize? size = null,
+            object? parameter = null,
+            CancellationToken cancellationToken = default) where TViewModel : class
         {
             ThrowIfDisposed();
             if (StackDepth >= MaxStackDepth)
@@ -208,20 +208,19 @@ namespace Management.Presentation.Services
             try
             {
                 var state = await CreateModalStateAsync<TViewModel>(size, parameter, cancellationToken);
-
-                // Use 'is null' pattern matching
                 if (state is null) return default;
 
                 state.ResultCompletionSource = tcs;
                 await ShowModalWindowAsync(state, cancellationToken);
-
-                var result = await tcs.Task.WaitAsync(cancellationToken);
-                return result is TResult typedResult ? typedResult : default;
             }
             finally
             {
                 _modalLock.Release();
             }
+
+            // Await result OUTSIDE the lock — CloseCurrentModalAsync can now acquire it freely
+            var result = await tcs.Task.WaitAsync(cancellationToken);
+            return result is TResult typedResult ? typedResult : default;
         }
 
         public async Task<bool> CloseCurrentModalAsync(bool force = false)
@@ -447,7 +446,7 @@ namespace Management.Presentation.Services
             window.Closed += OnModalWindowClosed;
             window.PreviewKeyDown += OnModalWindowPreviewKeyDown;
 
-            return new ModalState
+            var state = new ModalState
             {
                 Window = window,
                 ViewModel = viewModel,
@@ -455,6 +454,12 @@ namespace Management.Presentation.Services
                 Size = size,
                 OpenedAt = DateTime.UtcNow
             };
+
+            // ATTACH STATE TO WINDOW: Ensures OnModalWindowClosed can find the state 
+            // even if the stack has already been popped during programmatic closure.
+            window.Tag = state;
+
+            return state;
         }
 
         private async Task ShowModalWindowAsync(ModalState state, CancellationToken cancellationToken)
@@ -511,6 +516,10 @@ namespace Management.Presentation.Services
                 // Notify closing
                 OnModalClosing(new ModalNavigationEventArgs(
                     state.ViewModel.GetType(), state.Size, StackDepth, false));
+
+                // CAPTURE RESULT EARLY: Ensures result is set before the TCS task is potentially
+                // awaited by the caller after window closure.
+                CaptureModalResult(state);
 
                 // Close the window
                 await CloseModalWindowAsync(state);
@@ -665,31 +674,64 @@ namespace Management.Presentation.Services
             var window = sender as Window;
             if (window == null) return;
 
-            _dispatcher.InvokeAsync(async () =>
+            // Immediate execution to minimize race conditions with the Stack.Pop()
+            // We first try to get the state from the Window Tag where we attached it.
+            var state = window.Tag as ModalState ?? _modalStack.FirstOrDefault(s => s.Window == window);
+            
+            if (state != null)
             {
-                // Find and clean up the modal state
-                var state = _modalStack.FirstOrDefault(s => s.Window == window);
-                if (state != null)
+                CaptureModalResult(state);
+
+                // Clean up event handlers
+                window.Closed -= OnModalWindowClosed;
+                window.PreviewKeyDown -= OnModalWindowPreviewKeyDown;
+                
+                // Clear tag reference
+                window.Tag = null;
+            }
+        }
+
+        /// <summary>
+        /// Safely extracts the result from the ViewModel and completes the ResultCompletionSource.
+        /// </summary>
+        private void CaptureModalResult(ModalState state)
+        {
+            if (state.ResultCompletionSource == null || state.ResultCompletionSource.Task.IsCompleted)
+            {
+                return;
+            }
+
+            try
+            {
+                object? result = null;
+                if (state.ViewModel is IModalResult<object> objResult)
                 {
-                    // Complete any pending result
-                    if (state.ResultCompletionSource != null && !state.ResultCompletionSource.Task.IsCompleted)
-                    {
-                        var result = state.ViewModel is IModalResult<object> modalResult ?
-                                   modalResult.Result : null;
-                        state.ResultCompletionSource.TrySetResult(result);
-                    }
+                    result = objResult.Result;
+                }
+                else
+                {
+                    // Support for generic IModalResult<T> where T is a value type (Variance issue)
+                    // We look for any interface that is IModalResult<>
+                    var resultInterface = state.ViewModel.GetType().GetInterfaces()
+                        .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IModalResult<>));
 
-                    // Clean up event handlers
-                    window.Closed -= OnModalWindowClosed;
-                    window.PreviewKeyDown -= OnModalWindowPreviewKeyDown;
-
-                    // Force close if window is still open somehow
-                    if (window.IsLoaded)
+                    if (resultInterface != null)
                     {
-                        window.Close();
+                        var prop = resultInterface.GetProperty("Result");
+                        if (prop != null)
+                        {
+                            result = prop.GetValue(state.ViewModel);
+                        }
                     }
                 }
-            });
+
+                state.ResultCompletionSource.TrySetResult(result);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Failed to capture modal result for {ViewModel}", state.ViewModel.GetType().Name);
+                state.ResultCompletionSource.TrySetResult(null);
+            }
         }
 
         private void OnModalWindowPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)

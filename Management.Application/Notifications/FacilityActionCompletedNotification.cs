@@ -12,5 +12,6 @@ namespace Management.Application.Notifications
         Guid FacilityId,
         string ActionType, 
         string DisplayName, 
-        string Message) : INotification;
+        string Message,
+        string? EntityId = null) : INotification;
 }

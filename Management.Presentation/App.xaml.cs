@@ -463,6 +463,7 @@ namespace Management.Presentation
                 mappingService.Register<AppointmentDetailViewModel, AppointmentDetailModal>();
                 mappingService.Register<PayrollViewModel, PayrollView>();
                 mappingService.Register<PayrollHistoryViewModel, PayrollHistoryView>();
+                mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
                 // SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
@@ -1205,6 +1206,7 @@ namespace Management.Presentation
             services.AddTransient<AppointmentDetailViewModel>();
             services.AddTransient<PayrollViewModel>();
             services.AddTransient<PayrollHistoryViewModel>();
+            services.AddTransient<AppExitViewModel>();
 
             // --- VIEWS ---
             services.AddTransient<AuthWindow>();
@@ -1566,23 +1568,22 @@ namespace Management.Presentation
                     try
                     {
                         // Wait up to 5 seconds for graceful shutdown
-                        // REFACTORED: Fire and forget to avoid UI thread blocking during shutdown
-                        _ = _host.StopAsync(TimeSpan.FromSeconds(5));
+                        // REFACTORED: Properly await stop before disposal
+                        await _host.StopAsync(TimeSpan.FromSeconds(5));
                     }
                     catch (Exception ex)
                     {
                         Serilog.Log.Error(ex, "Error during Host shutdown");
                     }
-                }
+                    finally
+                    {
+                        // Phase 1: Mark ServiceProvider as about to be disposed
+                        _isServiceProviderDisposed = true;
 
-                // Phase 1: Mark ServiceProvider as about to be disposed
-                _isServiceProviderDisposed = true;
-                
-                // Phase 4: Dispose Host (also disposes ServiceProvider)
-                if (_host != null)
-                {
-                    Serilog.Log.Information("Disposing Host...");
-                    _host.Dispose();
+                        // Phase 4: Dispose Host (also disposes ServiceProvider)
+                        Serilog.Log.Information("Disposing Host...");
+                        _host.Dispose();
+                    }
                 }
 
                 Serilog.Log.Information("Application shutdown complete.");

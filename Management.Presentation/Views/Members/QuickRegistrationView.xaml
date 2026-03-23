@@ -6,7 +6,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="500">
+             d:DesignHeight="600" d:DesignWidth="500"
+             FocusManager.FocusedElement="{Binding ElementName=FullNameBox}">
 
 
 
@@ -81,7 +82,8 @@
                                   Margin="0,0,6,0"/>
                             <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" Style="{StaticResource FormLabel}"/>
                         </StackPanel>
-                        <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
+                        <TextBox x:Name="FullNameBox"
+                                 Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{StaticResource Input.Apple}"
                                  Tag="{DynamicResource Strings.Members.egJohnDoe}"/>
                     </StackPanel>

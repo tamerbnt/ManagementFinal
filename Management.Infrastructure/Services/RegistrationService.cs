@@ -38,6 +38,11 @@ namespace Management.Infrastructure.Services
             return await _sender.Send(new ApproveRegistrationCommand(id, facilityId));
         }
 
+        public async Task<Result> UndoApproveRegistrationAsync(Guid registrationId, Guid facilityId)
+        {
+            return await _sender.Send(new Management.Application.Features.Registrations.Commands.UndoApproveRegistration.UndoApproveRegistrationCommand(registrationId, facilityId));
+        }
+
         public async Task<Result> DeclineRegistrationAsync(Guid id, Guid facilityId)
         {
             return await _sender.Send(new DeclineRegistrationCommand(id, facilityId));

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Management.Application.Interfaces.App;
@@ -184,7 +184,20 @@ namespace Management.Presentation.ViewModels.Finance
                 }
 
                 var successMsg = string.Format(GetTerm("Terminology.Payroll.Success") ?? "Successfully processed payroll of {0} DA for {1}", AmountToPay.ToString("N2"), SelectedStaff.Name);
-                _toastService.ShowSuccess(successMsg);
+                
+                if (entryResult.IsSuccess)
+                {
+                    _toastService.ShowSuccess(successMsg, "Undo", async () =>
+                    {
+                        var entry = entryResult.Value;
+                        await _payrollRepository.DeleteAsync(entry.Id);
+                        WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
+                    });
+                }
+                else
+                {
+                    _toastService.ShowSuccess(successMsg);
+                }
 
                 // Send refresh message to update Dashboard Expenses card
                 WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));

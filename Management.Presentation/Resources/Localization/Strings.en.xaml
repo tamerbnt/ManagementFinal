@@ -144,6 +144,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">Confirm Logout</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">Are you sure you want to log out?</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">Logout</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">Quit Luxurya?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Message">Would you like to generate a final 'Close Day' report before exiting?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Cancel">Stay in App</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Close">Exit Workspace</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.CloseAndReport">Close Day &amp; Exit</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Restored">Connection to cloud services restored.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Lost">Connection to cloud services lost. Syncing is paused.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Guest">Guest</sys:String>

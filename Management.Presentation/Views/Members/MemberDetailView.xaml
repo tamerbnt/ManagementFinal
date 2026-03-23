@@ -13,7 +13,7 @@
              SnapsToDevicePixels="True"
              Background="{DynamicResource WindowBg}"
              KeyboardNavigation.TabNavigation="Cycle"
-             FocusManager.FocusedElement="{Binding ElementName=FirstFocusableElement}">
+             FocusManager.FocusedElement="{Binding ElementName=RenewButton}">
 
     <UserControl.Resources>
         <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>
@@ -171,8 +171,7 @@
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <!-- Close/Back -->
-                <Button x:Name="FirstFocusableElement"
-                        Content="{DynamicResource TerminologyCloseLabel}" 
+                <Button Content="{DynamicResource TerminologyCloseLabel}" 
                         Command="{Binding CloseCommand}"
                         Style="{StaticResource SecondaryButton}"
                         Margin="{StaticResource MarginSmallRight}"/>
@@ -180,9 +179,11 @@
 
 
                 <!-- Renew -->
-                <Button Content="{DynamicResource TerminologyRenewMembershipLabel}" 
+                <Button x:Name="RenewButton"
+                        Content="{DynamicResource TerminologyRenewMembershipLabel}" 
                         Command="{Binding RenewCommand}"
                         Style="{StaticResource PrimaryButton}"
+                        IsDefault="True"
                         Margin="{StaticResource MarginSmallRight}"/>
 
                 <!-- Deactivate (Destructive Global Style) -->

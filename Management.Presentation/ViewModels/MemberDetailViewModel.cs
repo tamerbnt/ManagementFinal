@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -170,7 +170,6 @@ namespace Management.Presentation.ViewModels
 
                 if (result.IsSuccess)
                 {
-                    _notificationService.ShowSuccess($"Member {(IsEditMode ? "updated" : "created")} successfully.");
                     await _modalService.CloseCurrentModalAsync();
                 }
                 else
@@ -191,7 +190,6 @@ namespace Management.Presentation.ViewModels
             var renewResult = await _memberService.RenewMembersAsync(_facilityContext.CurrentFacilityId, new List<Guid> { _memberId.Value });
             if (renewResult.IsSuccess)
             {
-                _notificationService.ShowSuccess(_terminologyService.GetTerm("Strings.Global.Membershiprenewed"));
                 // Update local status/expiration if needed (or just close and refresh list)
                 await InitializeAsync(_memberId.Value);
             }

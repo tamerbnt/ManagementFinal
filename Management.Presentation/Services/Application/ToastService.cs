@@ -23,6 +23,33 @@ namespace Management.Presentation.Services.Application
         public void ShowSuccess(string message, string? title = null) => 
             AddToast(message, title ?? "Success", ToastType.Success);
 
+        public void ShowSuccess(string message, string undoLabel, Func<Task> undoAction)
+        {
+            var toast = new ToastMessage
+            {
+                Message = message,
+                Title = "Success",
+                Type = ToastType.Success,
+                HasUndo = true,
+                UndoLabel = undoLabel
+            };
+
+            toast.UndoCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                try 
+                {
+                    await undoAction();
+                    await _dispatcher.InvokeAsync(() => ActiveToasts.Remove(toast));
+                }
+                catch (Exception ex)
+                {
+                    ShowError($"Undo failed: {ex.Message}");
+                }
+            });
+
+            AddToastCore(toast);
+        }
+
         public void ShowError(string message, string? title = null) => 
             AddToast(message, title ?? "Error", ToastType.Error);
 
@@ -41,8 +68,13 @@ namespace Management.Presentation.Services.Application
                 Type = type
             };
 
+            AddToastCore(toast);
+        }
+
+        private void AddToastCore(ToastMessage toast)
+        {
             // Record in persistent history
-            var storeType = type switch
+            var storeType = toast.Type switch
             {
                 ToastType.Success => Management.Application.Stores.NotificationType.Success,
                 ToastType.Error => Management.Application.Stores.NotificationType.Error,
@@ -50,25 +82,36 @@ namespace Management.Presentation.Services.Application
                 ToastType.Info => Management.Application.Stores.NotificationType.Info,
                 _ => Management.Application.Stores.NotificationType.Info
             };
-            _notificationStore.Add(message, title, storeType);
+            _notificationStore.Add(toast.Message, toast.Title, storeType);
+
+            // Initialize DismissCommand
+            toast.DismissCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
+            {
+                _ = TriggerExitAsync(toast);
+            });
 
             // Non-blocking UI update
             _ = _dispatcher.InvokeAsync(() => ActiveToasts.Add(toast));
 
-            // Auto-hide after 5 seconds
-            _ = _dispatcher.InvokeAsync(() => 
+            // Auto-hide
+            var duration = toast.HasUndo ? 7 : 5; // 7 seconds for undo as per requirement
+            _ = Task.Run(async () => 
             {
-                var timer = new DispatcherTimer
-                {
-                    Interval = TimeSpan.FromSeconds(5)
-                };
-                timer.Tick += (s, e) =>
-                {
-                    _ = _dispatcher.InvokeAsync(() => ActiveToasts.Remove(toast));
-                    timer.Stop();
-                };
-                timer.Start();
+                await Task.Delay(TimeSpan.FromSeconds(duration));
+                await TriggerExitAsync(toast);
             });
+        }
+
+        private async Task TriggerExitAsync(ToastMessage toast)
+        {
+            if (toast.IsExiting) return;
+
+            await _dispatcher.InvokeAsync(() => toast.IsExiting = true);
+            
+            // Wait for XAML animation to complete (0.3s in MainWindow.xaml)
+            await Task.Delay(350); 
+            
+            await _dispatcher.InvokeAsync(() => ActiveToasts.Remove(toast));
         }
     }
 }

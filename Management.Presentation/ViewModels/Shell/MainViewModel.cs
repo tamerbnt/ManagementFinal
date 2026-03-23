@@ -60,6 +60,7 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly ITerminologyService _terminologyService;
         private readonly ICommandPaletteService _paletteService;
         private readonly INotificationService _notificationService;
+        private readonly IModalNavigationService _modalNavigationService;
         private readonly Dictionary<Type, object> _viewCache = new();
         // Suppresses OnFacilityChanged navigation during the initial startup handoff.
         // Set to false by InitializeInitialView() once the first navigation is queued.
@@ -263,10 +264,12 @@ namespace Management.Presentation.ViewModels.Shell
             INotificationService notificationService,
             System.IServiceProvider serviceProvider,
             ILogger<MainViewModel> logger,
-            IDiagnosticService diagnosticService)
+            IDiagnosticService diagnosticService,
+            IModalNavigationService modalNavigationService)
             : base(logger, diagnosticService, toastService)
         {
             _navigationService = navigationService;
+            _modalNavigationService = modalNavigationService;
             _sessionManager = sessionManager;
             _topBar = topBar;
             _commandPalette = commandPalette;
@@ -378,6 +381,11 @@ namespace Management.Presentation.ViewModels.Shell
         public ModalNavigationStore ModalStore => _modalNavigationStore;
         public bool IsUndoVisible => _undoService.IsBannerVisible;
         public bool IsSyncing => _syncStore.IsSyncing;
+
+        public async Task<ExitModalResult> RequestExitAsync()
+        {
+            return await _modalNavigationService.OpenModalWithResultAsync<AppExitViewModel, ExitModalResult>();
+        }
 
 
         private void OnFacilityChanged(FacilityType type)

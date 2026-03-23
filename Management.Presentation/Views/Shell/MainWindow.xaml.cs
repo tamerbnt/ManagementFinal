@@ -26,6 +26,27 @@ namespace Management.Presentation.Views.Shell
         public MainWindow(MainViewModel viewModel) : this()
         {
             DataContext = viewModel;
+            viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        }
+
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainViewModel.IsModalOpen))
+            {
+                if (DataContext is MainViewModel vm && vm.IsModalOpen)
+                {
+                    // Focus the window first to ensure a clean focus state
+                    this.Focus();
+                    
+                    // Delay slightly to allow the modal to be rendered and visible
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        // Transfer focus to the root layout to allow the modal's internal 
+                        // FocusManager.FocusedElement to take effect.
+                        Keyboard.Focus(this);
+                    }), System.Windows.Threading.DispatcherPriority.Input);
+                }
+            }
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
@@ -68,6 +89,45 @@ namespace Management.Presentation.Views.Shell
                         System.Windows.Input.Keyboard.ClearFocus();
                     }
                 }
+            }
+        }
+
+        private bool _isExiting = false;
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (_isExiting)
+            {
+                base.OnClosing(e);
+                return;
+            }
+
+            // Prevent immediate closing
+            e.Cancel = true;
+
+            // Trigger the async check without blocking the UI thread
+            _ = HandleClosingAsync();
+        }
+
+        private async Task HandleClosingAsync()
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                // Show the modal and wait for result
+                var result = await vm.RequestExitAsync();
+                
+                if (result != ExitModalResult.Cancel)
+                {
+                    // Allow shutdown
+                    _isExiting = true;
+                    System.Windows.Application.Current.Shutdown();
+                }
+            }
+            else
+            {
+                // Fallback: if data context is not set, just shutdown
+                _isExiting = true;
+                System.Windows.Application.Current.Shutdown();
             }
         }
 

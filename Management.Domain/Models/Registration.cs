@@ -195,5 +195,13 @@ namespace Management.Domain.Models
             Status = RegistrationStatus.Declined;
             UpdateTimestamp();
         }
+
+        public void RevertToPending()
+        {
+            if (Status == RegistrationStatus.Pending) return;
+            
+            Status = RegistrationStatus.Pending;
+            UpdateTimestamp();
+        }
     }
 }

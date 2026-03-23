@@ -22,6 +22,8 @@ using Management.Application.Interfaces.ViewModels;
 
 namespace Management.Presentation.ViewModels.Settings
 {
+    public record ShortcutItem(string Keys, string Description, string Category);
+
     public partial class SettingsViewModel : ViewModelBase, INavigationalLifecycle 
     {
         private readonly IServiceProvider _serviceProvider;
@@ -102,6 +104,9 @@ namespace Management.Presentation.ViewModels.Settings
         // Salon Services
         [ObservableProperty]
         private ObservableCollection<SalonServiceViewModel> _salonServices = new();
+
+        // Keyboard Shortcuts
+        public ObservableCollection<ShortcutItem> Shortcuts { get; } = new();
 
         public string UserInitials
         {
@@ -192,6 +197,32 @@ namespace Management.Presentation.ViewModels.Settings
                 SupportedLanguages.Add(lang);
             }
             SelectedLanguage = _localizationService.CurrentCulture;
+
+            InitializeShortcuts();
+        }
+
+        private void InitializeShortcuts()
+        {
+            Shortcuts.Clear();
+            
+            // Navigation
+            Shortcuts.Add(new ShortcutItem("Ctrl + 1", "Navigate to Home", "Navigation"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + 2", "Navigate to Members", "Navigation"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + 3", "Navigate to Sales", "Navigation"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + 4", "Navigate to Staff", "Navigation"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + 5", "Navigate to Settings", "Navigation"));
+
+            // Search & Tools
+            Shortcuts.Add(new ShortcutItem("Ctrl + F / Ctrl + K", "Focus Search Bar", "Tools"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + P", "Open Command Palette", "Tools"));
+
+            // Quick Actions
+            Shortcuts.Add(new ShortcutItem("Ctrl + N", "Quick Create Member", "Actions"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + Q", "Quick Sale / Walk-In", "Actions"));
+
+            // General
+            Shortcuts.Add(new ShortcutItem("Enter", "Submit Form / Confirm Action", "General"));
+            Shortcuts.Add(new ShortcutItem("Escape", "Close Modal / Cancel", "General"));
         }
 
         public Task PreInitializeAsync()

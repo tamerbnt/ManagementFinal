@@ -521,8 +521,17 @@ namespace Management.Presentation.ViewModels.Salon
             var appt = TodayAgenda.FirstOrDefault(a => a.ClientName.Contains(ScanInput, StringComparison.OrdinalIgnoreCase));
             if (appt != null)
             {
-                appt.Status = AppointmentStatus.InProgress;
-                _toastService.ShowSuccess(string.Format(_terminologyService.GetTerm("Terminology.Salon.Home.CheckIn.Success"), appt.ClientName));
+                var originalStatus = appt.Status;
+                await _salonService.UpdateAppointmentStatusAsync(appt.Id, AppointmentStatus.InProgress);
+                
+                _toastService.ShowSuccess(
+                    string.Format(_terminologyService.GetTerm("Terminology.Salon.Home.CheckIn.Success"), appt.ClientName),
+                    "Undo",
+                    async () => 
+                    {
+                        await _salonService.UpdateAppointmentStatusAsync(appt.Id, originalStatus);
+                    }
+                );
             }
             
             ScanInput = string.Empty;

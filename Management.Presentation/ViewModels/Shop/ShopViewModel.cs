@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Management.Application.Interfaces;
 using Management.Domain.Models;
+using Management.Domain.Interfaces;
 
 using Management.Application.ViewModels.Base;
 using Management.Application.Services;
@@ -133,7 +134,7 @@ namespace Management.Presentation.ViewModels.Shop
         public IRelayCommand ToggleViewModeCommand { get; }
         public IAsyncRelayCommand OpenAddProductCommand { get; }
         public IAsyncRelayCommand<ProductDto> OpenEditProductCommand { get; }
-        public IRelayCommand DeleteSelectedCommand { get; }
+        public IAsyncRelayCommand DeleteSelectedCommand { get; }
         public IRelayCommand ClearSelectionCommand { get; }
 
 
@@ -252,17 +253,47 @@ namespace Management.Presentation.ViewModels.Shop
                 }
             });
 
-            DeleteSelectedCommand = new RelayCommand(() => 
+            DeleteSelectedCommand = new AsyncRelayCommand(async () => 
             {
                 if (SelectedCount == 0) return;
                 var toRemove = Products.Where(p => p.IsSelected).ToList();
+                var removedIds = toRemove.Select(p => p.Id).ToList();
+
+                // Remove visually immediately
                 foreach (var item in toRemove)
                 {
                     Products.Remove(item);
                 }
-                _toastService.ShowSuccess(string.Format(GetTerm("Strings.Shop.DeletedProducts") ?? "Deleted {0} products.", toRemove.Count));
+
                 IsSelectionMode = false;
                 SelectedCount = 0;
+
+                // Perform repository delete
+                using var scope = _scopeFactory.CreateScope();
+                var repo = scope.ServiceProvider.GetRequiredService<IProductRepository>();
+                
+                foreach (var id in removedIds)
+                {
+                    await repo.DeleteAsync(id);
+                }
+
+                _toastService.ShowSuccess(
+                    string.Format(GetTerm("Strings.Shop.DeletedProducts") ?? "Deleted {0} products.", toRemove.Count),
+                    GetTerm("Strings.Shop.Undo") ?? "Undo",
+                    async () => 
+                    {
+                        using var undoScope = _scopeFactory.CreateScope();
+                        var undoRepo = undoScope.ServiceProvider.GetRequiredService<IProductRepository>();
+                        foreach (var id in removedIds)
+                        {
+                            await undoRepo.RestoreAsync(id);
+                        }
+                        
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                        {
+                            await LoadProductsAsync();
+                        });
+                    });
             });
 
             ClearSelectionCommand = new RelayCommand(() => 

@@ -19,6 +19,16 @@ namespace Management.Infrastructure.Repositories
             return await query.OrderBy(p => p.Name).ToListAsync();
         }
 
+        public async Task RestoreAsync(Guid id)
+        {
+            var product = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
+            if (product != null)
+            {
+                product.Restore();
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task<(IEnumerable<Product> Items, int TotalCount)> SearchProductsPagedAsync(
             string searchTerm, 
             int page, 

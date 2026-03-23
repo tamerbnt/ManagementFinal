@@ -10,10 +10,12 @@ namespace Management.Application.Features.Members.Commands.DeleteMember
     public class DeleteMemberCommandHandler : IRequestHandler<DeleteMemberCommand, Result>
     {
         private readonly IMemberRepository _memberRepository;
+        private readonly IMediator _mediator;
 
-        public DeleteMemberCommandHandler(IMemberRepository memberRepository)
+        public DeleteMemberCommandHandler(IMemberRepository memberRepository, IMediator mediator)
         {
             _memberRepository = memberRepository;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(DeleteMemberCommand request, CancellationToken cancellationToken)
@@ -25,6 +27,13 @@ namespace Management.Application.Features.Members.Commands.DeleteMember
             }
 
             await _memberRepository.DeleteAsync(request.Id);
+
+            // PUBLISH NOTIFICATION (Note: No undo for delete in this version as per standard pattern)
+            await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                member.FacilityId,
+                "MemberDelete",
+                member.FullName,
+                $"Deleted member {member.FullName}"), cancellationToken);
 
 
             return Result.Success();

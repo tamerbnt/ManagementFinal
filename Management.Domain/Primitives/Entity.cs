@@ -44,6 +44,12 @@ namespace Management.Domain.Primitives
             UpdateTimestamp();
         }
 
+        public void Restore()
+        {
+            IsDeleted = false;
+            UpdateTimestamp();
+        }
+
         public bool Equals(Entity? other)
         {
             if (other is null) return false;

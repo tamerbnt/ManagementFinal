@@ -19,6 +19,12 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <Thickness x:Key="Space.XL">32</Thickness>
     <Thickness x:Key="Space.XXL">48</Thickness>
     
+    <!-- Directional Tokens -->
+    <Thickness x:Key="Space.MD.Right">0,0,16,0</Thickness>
+    <Thickness x:Key="Space.MD.Left">16,0,0,0</Thickness>
+    <Thickness x:Key="Space.MD.Top">0,16,0,0</Thickness>
+    <Thickness x:Key="Space.MD.Bottom">0,0,0,16</Thickness>
+    
     <!-- Specific Layouts -->
     <Thickness x:Key="Margin.Standard">16</Thickness>
     <Thickness x:Key="Margin.Small">8</Thickness>

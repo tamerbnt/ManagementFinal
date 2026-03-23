@@ -142,6 +142,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">Confirmer la déconnexion</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">Êtes-vous sûr de vouloir vous déconnecter ?</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">Déconnexion</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">Quitter Luxurya ?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Message">Souhaitez-vous générer un dernier rapport de 'Clôture de journée' avant de quitter ?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Cancel">Rester dans l'application</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Close">Quitter l'espace de travail</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.CloseAndReport">Clôturer la journée et quitter</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Restored">Connexion aux services cloud restaurée.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Lost">Connexion aux services cloud perdue. La synchronisation est suspendue.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Guest">Invité</sys:String>

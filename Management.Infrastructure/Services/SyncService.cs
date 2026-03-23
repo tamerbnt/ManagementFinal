@@ -171,9 +171,10 @@ namespace Management.Infrastructure.Services
             
             // If facilityId is provided, we ONLY process messages for that facility.
             // If null, we fall back to current context (legacy) or all (global admin).
+            var delayThreshold = DateTime.UtcNow.AddSeconds(-7);
             var query = context.OutboxMessages
                 .IgnoreQueryFilters()
-                .Where(m => !m.IsProcessed && !m.IsDeadLetter && m.ErrorCount < 5);
+                .Where(m => !m.IsProcessed && !m.IsDeadLetter && m.ErrorCount < 5 && m.CreatedAt < delayThreshold);
 
             if (facilityId.HasValue && facilityId != Guid.Empty)
             {

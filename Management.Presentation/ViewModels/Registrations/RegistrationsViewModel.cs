@@ -45,6 +45,7 @@ namespace Management.Presentation.ViewModels.Registrations
         private readonly IWebsiteRegistrationService _websiteRegistrationService;
         private readonly SupabaseRealtimeService _realtimeService;
         private readonly Management.Domain.Services.IDialogService _dialogService;
+        private readonly IMemberService _memberService;
 
         public RegistrationsViewModel(
             ILogger<RegistrationsViewModel> logger,
@@ -53,13 +54,15 @@ namespace Management.Presentation.ViewModels.Registrations
             IFacilityContextService facilityContext,
             IWebsiteRegistrationService websiteRegistrationService,
             SupabaseRealtimeService realtimeService,
-            Management.Domain.Services.IDialogService dialogService)
+            Management.Domain.Services.IDialogService dialogService,
+            IMemberService memberService)
             : base(logger, diagnosticService, toastService)
         {
             _facilityContext = facilityContext;
             _websiteRegistrationService = websiteRegistrationService;
             _realtimeService = realtimeService;
             _dialogService = dialogService;
+            _memberService = memberService;
 
             ConfirmWebsiteRequestCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<SupabaseRegistrationRequest>(async request => 
             {
@@ -76,10 +79,30 @@ namespace Management.Presentation.ViewModels.Registrations
 
                 if (result is Management.Presentation.Stores.ModalResult modalResult && modalResult.IsSuccess)
                 {
-                    WebsiteRequests.Remove(request);
+                    var reqCopy = request;
+                    WebsiteRequests.Remove(reqCopy);
                     PendingWebsiteCount = WebsiteRequests.Count;
-                    _toastService.ShowSuccess("Registration confirmed and member created.");
-                    _ = _websiteRegistrationService.UpdateRequestStatusAsync(request.Id, "confirmed");
+                    
+                    _toastService.ShowSuccess("Registration confirmed and member created.", "Undo", async () =>
+                    {
+                        if (modalResult.Data is Guid createdMemberId)
+                        {
+                            await _memberService.DeleteMembersAsync(_facilityContext.CurrentFacilityId, new System.Collections.Generic.List<Guid> { createdMemberId });
+                        }
+                        await _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "pending");
+                        
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                        {
+                            if (!WebsiteRequests.Any(r => r.Id == reqCopy.Id))
+                            {
+                                reqCopy.Status = "pending";
+                                WebsiteRequests.Insert(0, reqCopy);
+                                PendingWebsiteCount = WebsiteRequests.Count;
+                            }
+                        });
+                    });
+                    
+                    _ = _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "confirmed");
                 }
             });
 

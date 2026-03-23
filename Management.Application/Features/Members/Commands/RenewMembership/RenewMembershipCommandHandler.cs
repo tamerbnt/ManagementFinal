@@ -14,13 +14,16 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
     {
         private readonly IMemberRepository _memberRepository;
         private readonly IMembershipPlanRepository _planRepository;
+        private readonly IMediator _mediator;
 
         public RenewMembershipCommandHandler(
             IMemberRepository memberRepository,
-            IMembershipPlanRepository planRepository)
+            IMembershipPlanRepository planRepository,
+            IMediator mediator)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(RenewMembershipCommand request, CancellationToken cancellationToken)
@@ -52,6 +55,14 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
                 }
                 
                 await _memberRepository.UpdateAsync(member);
+
+                // PUBLISH NOTIFICATION
+                await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                    member.FacilityId,
+                    "MemberUpdate",
+                    member.FullName,
+                    $"Renewed membership for {member.FullName}",
+                    member.Id.ToString()), cancellationToken);
             }
 
             return Result.Success();

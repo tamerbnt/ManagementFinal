@@ -12,6 +12,7 @@ namespace Management.Presentation.Services
         ObservableCollection<ToastViewModel> ActiveToasts { get; }
 
         void ShowSuccess(string message);
+        void ShowSuccess(string message, string undoLabel, System.Func<System.Threading.Tasks.Task> undoAction);
         void ShowError(string message);
         void ShowError(string title, string message); // Overload
         void ShowWarning(string message);

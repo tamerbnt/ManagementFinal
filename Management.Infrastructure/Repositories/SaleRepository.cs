@@ -43,6 +43,15 @@ namespace Management.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Sale>> GetSalesByMemberAsync(Guid memberId, Guid facilityId)
+        {
+            return await _dbSet.AsNoTracking()
+                .IgnoreQueryFilters()
+                .Where(s => s.MemberId == memberId && s.FacilityId == facilityId && !s.IsDeleted)
+                .OrderByDescending(s => s.Timestamp)
+                .ToListAsync();
+        }
+
         public override async Task<Sale?> GetByIdAsync(Guid id, Guid? facilityId = null)
         {
             if (facilityId.HasValue)

@@ -13,5 +13,6 @@ namespace Management.Application.Services
         Task<Result<decimal>> GetTotalRevenueAsync(Guid facilityId, DateTime start, DateTime end);
         Task<Result<List<SaleDto>>> GetSalesByRangeAsync(Guid facilityId, DateTime start, DateTime end);
         Task<Result<SaleDto>> GetSaleDetailsAsync(Guid facilityId, Guid saleId);
+        Task<Result> CancelSaleAsync(Guid saleId);
     }
 }

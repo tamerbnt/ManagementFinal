@@ -111,7 +111,8 @@ namespace Management.Application.Services
                 facilityId,
                 "Walk-In", 
                 "Walk-In Guest", 
-                result.Message));
+                result.Message,
+                sale.Id.ToString()));
 
             return result;
         }
@@ -178,7 +179,8 @@ namespace Management.Application.Services
                 facilityId,
                 "QuickSale", 
                 productName, 
-                $"Sold {productName} for {amount:N0} DA"));
+                $"Sold {productName} for {amount:N0} DA",
+                sale.Id.ToString()));
 
             return true;
         }

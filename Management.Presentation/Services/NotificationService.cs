@@ -128,6 +128,7 @@ namespace Management.Presentation.Services
 
         // Explicitly satisfy INotificationService to resolve signature/param-name ambiguity
         void INotificationService.ShowSuccess(string message) => Show(ToastType.Success, message);
+        void INotificationService.ShowSuccess(string message, string undoLabel, Func<Task> undoAction) => ShowSuccess(message, undoLabel, undoAction);
         void INotificationService.ShowError(string message) => Show(ToastType.Error, message);
         void INotificationService.ShowError(string title, string message) => Show(ToastType.Error, message, title);
         void INotificationService.ShowWarning(string message) => Show(ToastType.Warning, message);
@@ -183,6 +184,42 @@ namespace Management.Presentation.Services
             });
         }
 
+        public void ShowSuccess(string message, string undoLabel, Func<Task> undoAction)
+        {
+            if (string.IsNullOrWhiteSpace(message)) return;
+
+            System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
+            {
+                var toast = new ToastViewModel
+                {
+                    Id = Guid.NewGuid(),
+                    Type = ToastType.Success,
+                    Message = message,
+                    CreatedAt = DateTime.Now,
+                    IsPaused = false,
+                    IsExiting = false,
+                    HasUndo = true,
+                    UndoLabel = undoLabel
+                };
+                
+                toast.DismissCommand = new AsyncRelayCommand(() => DismissToastAsync(toast.Id));
+                toast.UndoCommand = new AsyncRelayCommand(async () =>
+                {
+                    await undoAction();
+                    await DismissToastAsync(toast.Id);
+                });
+
+                if (_activeToasts.Count >= MaxVisibleToasts)
+                {
+                    var oldest = _activeToasts.FirstOrDefault(t => !t.IsExiting);
+                    if (oldest != null) _activeToasts.Remove(oldest);
+                }
+
+                _activeToasts.Add(toast);
+                if (_soundEnabled) PlayNotificationSound(ToastType.Success);
+            });
+        }
+
         private async Task DismissToastAsync(Guid id)
         {
             if (System.Windows.Application.Current == null) return;
@@ -227,7 +264,7 @@ namespace Management.Presentation.Services
             var expiredItems = _activeToasts
                 .Where(t => !t.IsPaused &&
                             !t.IsExiting &&
-                            (now - t.CreatedAt).TotalSeconds >= ToastAutoDismissSeconds)
+                            (now - t.CreatedAt).TotalSeconds >= (t.HasUndo ? 6 : ToastAutoDismissSeconds))
                 .ToList();
 
             foreach (var toast in expiredItems)
