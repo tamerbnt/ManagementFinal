@@ -33,7 +33,7 @@ namespace Management.Infrastructure.Services
             return await _sender.Send(new GetPendingRegistrationsQuery(facilityId));
         }
 
-        public async Task<Result<Guid>> ApproveRegistrationAsync(Guid id, Guid facilityId)
+        public async Task<Result<(Guid MemberId, Guid? SaleId)>> ApproveRegistrationAsync(Guid id, Guid facilityId)
         {
             return await _sender.Send(new ApproveRegistrationCommand(id, facilityId));
         }

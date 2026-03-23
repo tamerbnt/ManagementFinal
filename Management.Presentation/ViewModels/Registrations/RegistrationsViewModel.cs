@@ -17,6 +17,7 @@ using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Presentation.Helpers;
 using Management.Application.DTOs;
 using Management.Application.Interfaces.ViewModels;
+using Management.Presentation.ViewModels.Members;
 
 namespace Management.Presentation.ViewModels.Registrations
 {
@@ -46,6 +47,7 @@ namespace Management.Presentation.ViewModels.Registrations
         private readonly SupabaseRealtimeService _realtimeService;
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly IMemberService _memberService;
+        private readonly ISaleService _saleService;
 
         public RegistrationsViewModel(
             ILogger<RegistrationsViewModel> logger,
@@ -55,7 +57,8 @@ namespace Management.Presentation.ViewModels.Registrations
             IWebsiteRegistrationService websiteRegistrationService,
             SupabaseRealtimeService realtimeService,
             Management.Domain.Services.IDialogService dialogService,
-            IMemberService memberService)
+            IMemberService memberService,
+            ISaleService saleService)
             : base(logger, diagnosticService, toastService)
         {
             _facilityContext = facilityContext;
@@ -63,6 +66,7 @@ namespace Management.Presentation.ViewModels.Registrations
             _realtimeService = realtimeService;
             _dialogService = dialogService;
             _memberService = memberService;
+            _saleService = saleService;
 
             ConfirmWebsiteRequestCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<SupabaseRegistrationRequest>(async request => 
             {
@@ -82,16 +86,45 @@ namespace Management.Presentation.ViewModels.Registrations
                     var reqCopy = request;
                     WebsiteRequests.Remove(reqCopy);
                     PendingWebsiteCount = WebsiteRequests.Count;
-                    
+
+                    // Capture approval data for undo — QuickRegistrationResult carries MemberId + ApprovedAt
+                    Guid? undoMemberId = null;
+                    DateTime? undoApprovedAt = null;
+                    if (modalResult.Data is QuickRegistrationResult regResult)
+                    {
+                        undoMemberId = regResult.MemberId;
+                        undoApprovedAt = regResult.ApprovedAt;
+                    }
+                    else if (modalResult.Data is Guid legacyId)
+                    {
+                        undoMemberId = legacyId; // fallback for backward compat
+                    }
+
                     _toastService.ShowSuccess("Registration confirmed and member created.", async () =>
                     {
-                        if (modalResult.Data is Guid createdMemberId)
+                        if (undoMemberId.HasValue)
                         {
-                            await _memberService.DeleteMembersAsync(_facilityContext.CurrentFacilityId, new System.Collections.Generic.List<Guid> { createdMemberId });
+                            await _memberService.DeleteMembersAsync(_facilityContext.CurrentFacilityId, new System.Collections.Generic.List<Guid> { undoMemberId.Value });
+
+                            // Cancel the associated sale created during registration
+                            if (undoApprovedAt.HasValue)
+                            {
+                                var windowStart = undoApprovedAt.Value.AddSeconds(-5);
+                                var windowEnd   = undoApprovedAt.Value.AddSeconds(30);
+                                var salesResult = await _saleService.GetSalesByRangeAsync(_facilityContext.CurrentFacilityId, windowStart, windowEnd);
+                                if (salesResult.IsSuccess)
+                                {
+                                    foreach (var sale in salesResult.Value)
+                                    {
+                                        if (sale.MemberId == undoMemberId.Value)
+                                            await _saleService.CancelSaleAsync(sale.Id);
+                                    }
+                                }
+                            }
                         }
                         await _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "pending");
-                        
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                         {
                             if (!WebsiteRequests.Any(r => r.Id == reqCopy.Id))
                             {
@@ -101,7 +134,7 @@ namespace Management.Presentation.ViewModels.Registrations
                             }
                         });
                     }, "Undo");
-                    
+
                     _ = _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "confirmed");
                 }
             });

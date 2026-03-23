@@ -35,6 +35,7 @@ namespace Management.Application.Features.Sales.Queries.GetSales
                 TotalAmount = s.TotalAmount.Amount,
                 PaymentMethod = s.PaymentMethod.ToString(),
                 TransactionType = s.TransactionType,
+                MemberId = s.MemberId,
                 ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
             }).ToList();
 
@@ -56,8 +57,7 @@ namespace Management.Application.Features.Sales.Queries.GetSales
                 TotalAmount = sale.TotalAmount.Amount,
                 PaymentMethod = sale.PaymentMethod.ToString(),
                 TransactionType = sale.TransactionType,
-                // DTO expects Dictionary<Guid,int>? Check SaleDto definition.
-                // Step 202: CheckoutRequestDto has Dictionary Items.
+                MemberId = sale.MemberId,
                 Items = sale.Items.ToDictionary(i => i.ProductId, i => i.Quantity),
                 ItemsSnapshot = sale.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
             });

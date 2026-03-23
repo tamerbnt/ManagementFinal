@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Management.Application.Features.Registrations.Commands.ApproveRegistration
 {
-    public class ApproveRegistrationCommandHandler : IRequestHandler<ApproveRegistrationCommand, Result<Guid>>
+    public class ApproveRegistrationCommandHandler : IRequestHandler<ApproveRegistrationCommand, Result<(Guid MemberId, Guid? SaleId)>>
     {
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IMemberRepository _memberRepository;
@@ -39,17 +39,17 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             _logger = logger;
         }
 
-        public async Task<Result<Guid>> Handle(ApproveRegistrationCommand request, CancellationToken cancellationToken)
+        public async Task<Result<(Guid MemberId, Guid? SaleId)>> Handle(ApproveRegistrationCommand request, CancellationToken cancellationToken)
         {
             var registration = await _registrationRepository.GetByIdAsync(request.RegistrationId, request.FacilityId);
             if (registration == null)
             {
-                return Result.Failure<Guid>(new Error("Registration.NotFound", "Registration not found"));
+                return Result.Failure<(Guid, Guid?)>(new Error("Registration.NotFound", "Registration not found"));
             }
 
             if (registration.Status != Domain.Enums.RegistrationStatus.Pending)
             {
-                return Result.Failure<Guid>(new Error("Registration.NotPending", "Only pending registrations can be approved"));
+                return Result.Failure<(Guid, Guid?)>(new Error("Registration.NotPending", "Only pending registrations can be approved"));
             }
 
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
@@ -68,7 +68,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                     Guid.NewGuid().ToString().Substring(0, 8).ToUpper(), // Generate temp CardId
                     registration.PreferredPlanId);
 
-                if (memberResult.IsFailure) return Result.Failure<Guid>(memberResult.Error);
+                if (memberResult.IsFailure) return Result.Failure<(Guid, Guid?)>(memberResult.Error);
 
                 var member = memberResult.Value;
                 member.FacilityId = request.FacilityId;
@@ -96,9 +96,12 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                     category: SaleCategory.Membership,
                     capturedLabel: $"Registration — {registration.FullName}");
 
+                Guid? createdSaleId = null;
+
                 if (saleResult.IsSuccess)
                 {
                     var saleEntity = saleResult.Value;
+                    createdSaleId = saleEntity.Id;
                     saleEntity.FacilityId = request.FacilityId;
                     saleEntity.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
 
@@ -151,13 +154,13 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                     _logger.LogError("[Registration] Could not create sale for registration {Id}: {Error}. Rolling back.",
                         registration.Id, saleResult.Error);
                     await transaction.RollbackAsync(cancellationToken);
-                    return Result.Failure<Guid>(saleResult.Error);
+                    return Result.Failure<(Guid, Guid?)>(saleResult.Error);
                 }
 
                 // Explicitly save all changes and commit
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
-                return Result.Success(member.Id);
+                return Result.Success((member.Id, createdSaleId));
             }
             catch (Exception ex)
             {

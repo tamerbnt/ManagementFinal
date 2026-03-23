@@ -23,6 +23,8 @@ namespace Management.Presentation.ViewModels.Members
         Gender Gender
     );
 
+    public record QuickRegistrationResult(Guid MemberId, DateTime ApprovedAt);
+
     public partial class QuickRegistrationViewModel : ViewModelBase
     {
         private readonly IMemberService _memberService;
@@ -34,6 +36,7 @@ namespace Management.Presentation.ViewModels.Members
         private readonly IGymOperationService _gymOperationService;
         private readonly Management.Presentation.Services.Salon.ISalonService _salonService;
         private readonly ITerminologyService _terminologyService;
+        private readonly ISaleService _saleService;
 
         private Guid? _originalPlanId;
         private DateTime _originalExpirationDate;
@@ -100,7 +103,8 @@ namespace Management.Presentation.ViewModels.Members
             IHardwareTurnstileService turnstileService,
             IGymOperationService gymOperationService,
             Management.Presentation.Services.Salon.ISalonService salonService,
-            ITerminologyService terminologyService)
+            ITerminologyService terminologyService,
+            ISaleService saleService)
             : base(logger, diagnosticService, toastService)
         {
             _memberService = memberService;
@@ -112,6 +116,7 @@ namespace Management.Presentation.ViewModels.Members
             _gymOperationService = gymOperationService;
             _salonService = salonService;
             _terminologyService = terminologyService;
+            _saleService = saleService;
 
             _isSalonFacility = _facilityContext.CurrentFacility == FacilityType.Salon;
             Title = "Quick Registration";
@@ -276,6 +281,7 @@ namespace Management.Presentation.ViewModels.Members
 
                     // Notify ViewModels to refresh (Dirty Flag)
                     CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Member>(_facilityContext.CurrentFacilityId));
+                    var approvedAt = DateTime.UtcNow;
                     if (priceToRecord > 0)
                     {
                         // Trigger sale recording
@@ -297,7 +303,8 @@ namespace Management.Presentation.ViewModels.Members
                         CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Sale>(_facilityContext.CurrentFacilityId));
                     }
 
-                    await _modalNavigationStore.CloseAsync(ModalResult.Success(IsRenewMode ? MemberIdToUpdate : resultCreate?.Value));
+                    var memberId = IsRenewMode ? MemberIdToUpdate : resultCreate?.Value;
+                    await _modalNavigationStore.CloseAsync(ModalResult.Success(new QuickRegistrationResult(memberId ?? Guid.Empty, approvedAt)));
                 }
                 else
                 {
