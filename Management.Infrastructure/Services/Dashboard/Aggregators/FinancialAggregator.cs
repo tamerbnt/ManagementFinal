@@ -99,7 +99,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             // COGS
             var salesIds = await _dbContext.Sales
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= start && s.Timestamp < end)
+                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= start && s.Timestamp < end && !s.IsDeleted)
                 .Select(s => s.Id)
                 .ToListAsync();
 
