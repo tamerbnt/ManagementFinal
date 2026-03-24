@@ -724,9 +724,29 @@ namespace Management.Infrastructure.Data
 
                 return await base.SaveChangesAsync(cancellationToken);
             }
+            catch (DbUpdateException ex)
+            {
+                // CRITICAL: Clear the ChangeTracker on failure
+                // Without this, failed entities poison all subsequent operations until the app is restarted
+                _logger.LogError(ex, "[DbContext] SaveChangesAsync failed (DbUpdateException) — clearing ChangeTracker to prevent poisoning");
+
+                // Detach all tracked entities so next SaveChangesAsync starts clean
+                foreach (var entry in ChangeTracker.Entries().ToList())
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                throw;
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during SaveChangesAsync.");
+                _logger.LogError(ex, "[DbContext] SaveChangesAsync unexpected exception — clearing ChangeTracker");
+
+                foreach (var entry in ChangeTracker.Entries().ToList())
+                {
+                    entry.State = EntityState.Detached;
+                }
+
                 throw;
             }
         }
