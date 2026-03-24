@@ -695,32 +695,6 @@ namespace Management.Infrastructure.Data
         {
             try
             {
-                // FORCE SOFT-DELETE PROCESSING (Redundant but guaranteed to run here)
-                var deletedEntries = ChangeTracker.Entries<Management.Domain.Primitives.Entity>()
-                    .Where(e => e.State == EntityState.Deleted)
-                    .ToList();
-
-                if (deletedEntries.Any())
-                {
-                    _logger.LogInformation("[AppDbContext] Intercepting {Count} deletes for soft-delete conversion.", deletedEntries.Count);
-                    foreach (var entry in deletedEntries)
-                    {
-                        var type = entry.Entity.GetType().Name;
-                        _logger.LogInformation("[AppDbContext] Converting {Type} {Id} to Soft-Delete.", type, entry.Entity.Id);
-                        
-                        // FAIL-SAFE: Ensure required properties are NOT NULL for SQLite
-                        if (entry.Entity is SaleItem si && si.UnitPriceSnapshot == null)
-                        {
-                            _logger.LogWarning("[AppDbContext] CRITICAL: SaleItem {Id} has NULL UnitPriceSnapshot. Repairing with fallback for soft-delete.", si.Id);
-                            // Use reflection to set the private field or setter
-                            var prop = typeof(SaleItem).GetProperty("UnitPriceSnapshot");
-                            prop?.SetValue(si, new Money(0, "DA"));
-                        }
-
-                        entry.State = EntityState.Modified;
-                        entry.Entity.Delete();
-                    }
-                }
 
                 return await base.SaveChangesAsync(cancellationToken);
             }
