@@ -38,6 +38,7 @@ namespace Management.Presentation.Handlers
 
         public async Task Handle(FacilityActionCompletedNotification notification, CancellationToken cancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine($"[BRIDGE] Handle called. ActionType={notification.ActionType}");
             // 1. Forward the MediatR notification to the UI Messenger
             _messenger.Send(new FacilityActionCompletedMessage(
                 notification.FacilityId,
@@ -60,6 +61,7 @@ namespace Management.Presentation.Handlers
                 {
                     _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
+                        System.Diagnostics.Debug.WriteLine($"[BRIDGE] Dispatcher.InvokeAsync called for ActionType={notification.ActionType}");
                         _toastService.ShowSuccess(notification.Message, async () =>
                         {
                             try 

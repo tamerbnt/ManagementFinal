@@ -272,12 +272,15 @@ namespace Management.Infrastructure.Data
                 entity.ToTable("members");
                 entity.HasKey(e => e.Id);
 
-                // Removed OwnsOne for Email, PhoneNumber, and EmergencyContactPhone to avoid conflict with ValueConverter
-                // These are now handled by the global ValueConverter and snake_case naming logic.
-                
-                // Ensure other properties are mapped correctly even if they have weird names
+                // Explicit mappings for properties that don't auto-snake-case correctly
                 entity.Property(e => e.FullName).HasColumnName("full_name");
                 entity.Property(e => e.CardId).HasColumnName("card_id");
+                
+                entity.Property(e => e.EmergencyContactPhone).HasColumnName("emergency_contact_phone")
+                    .HasConversion(
+                        v => v == null ? null : v.Value,
+                        v => string.IsNullOrEmpty(v) ? null : PhoneNumber.Create(v).Value
+                    );
                 entity.HasIndex(e => e.CardId).IsUnique().HasFilter("[card_id] IS NOT NULL").HasDatabaseName("idx_member_card_id_unique");
                 entity.HasIndex(e => e.Email).IsUnique().HasFilter("[email] IS NOT NULL").HasDatabaseName("idx_member_email_unique");
                 entity.HasIndex(e => e.PhoneNumber).IsUnique().HasFilter("[phone_number] IS NOT NULL").HasDatabaseName("idx_member_phone_unique");
@@ -390,9 +393,18 @@ namespace Management.Infrastructure.Data
             // Value Object: Money (Owned Types)
             modelBuilder.Entity<Sale>(entity =>
             {
-                entity.OwnsOne(s => s.SubtotalAmount);
-                entity.OwnsOne(s => s.TaxAmount);
-                entity.OwnsOne(s => s.TotalAmount);
+                entity.OwnsOne(s => s.SubtotalAmount, p => {
+                    p.Property(m => m.Amount).HasColumnName("subtotal_amount__amount");
+                    p.Property(m => m.Currency).HasColumnName("subtotal_amount__currency");
+                });
+                entity.OwnsOne(s => s.TaxAmount, p => {
+                    p.Property(m => m.Amount).HasColumnName("tax_amount__amount");
+                    p.Property(m => m.Currency).HasColumnName("tax_amount__currency");
+                });
+                entity.OwnsOne(s => s.TotalAmount, p => {
+                    p.Property(m => m.Amount).HasColumnName("total_amount__amount");
+                    p.Property(m => m.Currency).HasColumnName("total_amount__currency");
+                });
                 entity.Property(e => e.Category).HasColumnName("category");
                 entity.Property(e => e.CapturedLabel).HasColumnName("captured_label");
                 
@@ -554,21 +566,30 @@ namespace Management.Infrastructure.Data
                 // Column names
                 foreach (var property in entity.GetProperties())
                 {
+                    var storeObject = StoreObjectIdentifier.Table(entity.GetTableName() ?? "", entity.GetSchema());
+                    var currentName = property.GetColumnName(storeObject);
+
                     // EF Core Owned Types Fix: Shadow primary keys of owned types MUST map to the 
                     // principal's PK column (usually "id") for table sharing to work in Postgres.
-                    if (entity.IsOwned() && property.IsPrimaryKey())
+                    if (entity.IsOwned())
                     {
-                        property.SetColumnName("id");
-                        continue;
+                        if (property.IsPrimaryKey())
+                        {
+                            property.SetColumnName("id");
+                            continue;
+                        }
+                        
+                        // We configured the others manually (e.g. subtotal_amount__amount)
+                        // If they are explicitly changed from the default, leave them alone.
+                        if (!string.IsNullOrEmpty(currentName) && currentName != property.Name)
+                        {
+                            continue; // It's explicitly configured, don't rename it with regex.
+                        }
                     }
 
-                    // For all other properties, we want to snake_case the name.
-                    // Important: For owned types, 'property.Name' is just the property name (e.g. "Amount").
-                    // We need the full prefixed name (e.g. "Price_Amount") to map to "price_amount".
-                    // property.GetColumnName() returns the convention-based name including prefixes.
-                    var storeObject = StoreObjectIdentifier.Table(tableName, entity.GetSchema());
-                    var currentName = property.GetColumnName(storeObject) ?? property.Name;
-                    property.SetColumnName(ToSnakeCase(currentName));
+                    // For all other properties, we snake_case the name.
+                    var finalName = currentName ?? property.Name;
+                    property.SetColumnName(ToSnakeCase(finalName));
 
                 }
 

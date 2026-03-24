@@ -70,37 +70,27 @@ namespace Management.Application.Services
 
         public async Task<WalkInResult> ProcessWalkInAsync(decimal amount, Guid facilityId, string planName = "Walk-In")
         {
-            // 1. Create Sale Record - Categorized as WalkIn
+            System.Diagnostics.Debug.WriteLine("[WALKIN] ProcessWalkInAsync started");
+            
+            // 1. Create Sale Record
             var label = string.IsNullOrWhiteSpace(planName) ? "Walk-In" : planName;
             var saleResult = Sale.Create(null, PaymentMethod.Cash, "Walk-In", SaleCategory.WalkIn, label);
-            if (!saleResult.IsSuccess)
-            {
-                return new WalkInResult { Success = false, Message = "Failed to create sale." };
-            }
+            if (!saleResult.IsSuccess) return new WalkInResult { Success = false, Message = "Failed to create sale." };
 
             var sale = saleResult.Value;
             sale.FacilityId = facilityId;
             sale.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
             
-            // Add a default item
             var itemResult = SaleItem.Create(sale.Id, Guid.Empty, "Walk-In Pass", new Money(amount, "DA"), 1);
-            if (itemResult.IsSuccess)
-            {
-                sale.AddItem(itemResult.Value);
-            }
+            if (itemResult.IsSuccess) sale.AddItem(itemResult.Value);
 
             await _saleRepo.AddAsync(sale);
 
-            // 2. Log Access Event for occupancy tracking
+            // 2. Log Access Event 
             await _mediator.Send(new LogAccessEventCommand(
                 FacilityId: facilityId,
-                TurnstileId: Guid.Empty, // UI walk-in
-                CardId: "WALK-IN",
-                TransactionId: $"WI-{sale.Id}",
-                Granted: true,
-                Status: "Granted",
-                Direction: ScanDirection.Enter,
-                Reason: "Walk-In Entry"
+                TurnstileId: Guid.Empty, CardId: "WALK-IN", TransactionId: $"WI-{sale.Id}",
+                Granted: true, Status: "Granted", Direction: ScanDirection.Enter, Reason: "Walk-In Entry"
             ));
 
             var result = new WalkInResult
@@ -111,23 +101,21 @@ namespace Management.Application.Services
                 ReceiptNumber = $"WI-{DateTime.Now:yyyyMMdd}-{sale.Id.ToString().Substring(0,4).ToUpper()}"
             };
 
-            _ = Task.Run(async () => 
+            System.Diagnostics.Debug.WriteLine("[WALKIN] About to start Task.Run notification");
+            System.Diagnostics.Debug.WriteLine("[WALKIN] Publishing notification...");
+            try 
             {
-                try 
-                {
-                    await _mediator.Publish(new FacilityActionCompletedNotification(
-                        facilityId,
-                        "Walk-In", 
-                        "Walk-In Guest", 
-                        result.Message,
-                        sale.Id.ToString()));
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogWarning(ex, "Failed to publish Walk-In notification for sale {SaleId}", sale.Id);
-                }
-            });
+                await _mediator.Publish(new FacilityActionCompletedNotification(
+                    facilityId, "Walk-In", "Walk-In Guest", result.Message, sale.Id.ToString()));
+                System.Diagnostics.Debug.WriteLine("[WALKIN] Notification published");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WALKIN] Notification EXCEPTION: {ex}");
+                _logger?.LogWarning(ex, "Failed to publish Walk-In notification for sale {SaleId}", sale.Id);
+            }
 
+            System.Diagnostics.Debug.WriteLine("[WALKIN] ProcessWalkInAsync completed");
             return result;
         }
 
@@ -189,22 +177,22 @@ namespace Management.Application.Services
 
             await _saleRepo.AddAsync(sale);
 
-            _ = Task.Run(async () => 
+            try 
             {
-                try 
-                {
-                    await _mediator.Publish(new FacilityActionCompletedNotification(
-                        facilityId,
-                        "QuickSale", 
-                        productName, 
-                        $"Sold {productName} for {amount:N0} DA",
-                        sale.Id.ToString()));
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogWarning(ex, "Failed to publish QuickSale notification for product {ProductName}", productName);
-                }
-            });
+                System.Diagnostics.Debug.WriteLine("[QUICKSALE] Publishing notification...");
+                await _mediator.Publish(new FacilityActionCompletedNotification(
+                    facilityId,
+                    "QuickSale", 
+                    productName, 
+                    $"Sold {productName} for {amount:N0} DA",
+                    sale.Id.ToString()));
+                System.Diagnostics.Debug.WriteLine("[QUICKSALE] Notification published");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[QUICKSALE] Notification EXCEPTION: {ex}");
+                _logger?.LogWarning(ex, "Failed to publish QuickSale notification for product {ProductName}", productName);
+            }
 
             return true;
         }

@@ -33,54 +33,52 @@ namespace Management.Infrastructure.Data
         {
             if (context == null) return;
 
-            var entries = context.ChangeTracker.Entries().ToList();
-            Serilog.Log.Information("[AuditableInterceptor] Total tracked entries: {Count}", entries.Count);
+            // STEP 1 — Rescue primary entities first (Sale, SaleItem, Member etc)
+            // ToList() is critical — captures snapshot before we modify states
+            var deletedEntries = context.ChangeTracker
+                .Entries()
+                .Where(e => e.State == EntityState.Deleted)
+                .ToList();
 
-            foreach (var entry in entries)
+            foreach (var entry in deletedEntries)
             {
-                var type = entry.Entity.GetType().Name;
-                Serilog.Log.Information("[AuditableInterceptor] Found {Type} (State: {State})", type, entry.State);
-
+                // Both Entity and BaseEntity implement soft-delete via Delete()
                 if (entry.Entity is Management.Domain.Primitives.Entity primitiveEntity)
                 {
-                    if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                    {
-                        primitiveEntity.UpdateTimestamp();
-                    }
-
-                    if (entry.State == EntityState.Deleted)
-                    {
-                        Serilog.Log.Information("[AuditableInterceptor] Intercepted Delete for {Type} {Id}. Converting to Soft-Delete.", type, primitiveEntity.Id);
-                        
-                        if (entry.Entity is Management.Domain.Models.SaleItem si)
-                        {
-                            bool isPriceNull = si.UnitPriceSnapshot == null;
-                            Serilog.Log.Information("[AuditableInterceptor] SaleItem {Id} PRE-SOFT-DELETE - UnitPriceSnapshot IsNull: {IsNull}", si.Id, isPriceNull);
-                        }
-
-                        entry.State = EntityState.Modified;
-                        primitiveEntity.Delete();
-
-                        if (entry.Entity is Management.Domain.Models.SaleItem si2)
-                        {
-                            bool isPriceNull = si2.UnitPriceSnapshot == null;
-                            Serilog.Log.Information("[AuditableInterceptor] SaleItem {Id} POST-SOFT-DELETE - UnitPriceSnapshot IsNull: {IsNull}", si2.Id, isPriceNull);
-                        }
-                    }
+                    entry.State = EntityState.Modified;
+                    primitiveEntity.Delete();
+                    Serilog.Log.Information("[AuditableInterceptor] Soft-deleted Entity: {Type} {Id}", entry.Entity.GetType().Name, primitiveEntity.Id);
                 }
                 else if (entry.Entity is BaseEntity baseEntity)
                 {
-                    if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                    {
-                        baseEntity.UpdateTimestamp();
-                    }
-
-                    if (entry.State == EntityState.Deleted)
-                    {
-                        entry.State = EntityState.Modified;
-                        baseEntity.Delete();
-                    }
+                    entry.State = EntityState.Modified;
+                    baseEntity.Delete();
+                    Serilog.Log.Information("[AuditableInterceptor] Soft-deleted BaseEntity: {Type} {Id}", entry.Entity.GetType().Name, baseEntity.Id);
                 }
+                else if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                {
+                    // Audit timestamps for non-deleted entities
+                    if (entry.Entity is Management.Domain.Primitives.Entity p) p.UpdateTimestamp();
+                    else if (entry.Entity is BaseEntity b) b.UpdateTimestamp();
+                }
+            }
+
+            // STEP 2 — Rescue orphaned owned types AFTER the primary loop
+            // EF Core cascades EntityState.Deleted to owned types automatically
+            // These owned types are not BaseEntity/Entity so they were missed in Step 1
+            var orphanedOwnedTypes = context.ChangeTracker
+                .Entries()
+                .Where(e => e.State == EntityState.Deleted && 
+                           !(e.Entity is Management.Domain.Primitives.Entity) && 
+                           !(e.Entity is BaseEntity))
+                .ToList();
+
+            foreach (var entry in orphanedOwnedTypes)
+            {
+                // Setting to Unchanged means EF Core will not try to UPDATE them to NULL
+                // or DELETE them, which is correct for table-split owned types on a rescued parent.
+                entry.State = EntityState.Unchanged;
+                Serilog.Log.Information("[AuditableInterceptor] Rescued orphaned owned type: {Type}", entry.Entity.GetType().Name);
             }
         }
     }

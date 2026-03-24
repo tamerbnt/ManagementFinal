@@ -196,7 +196,7 @@ namespace Management.Infrastructure.Repositories
         {
             if (facilityId.HasValue)
             {
-                return await _dbSet
+                return await _dbSet.IgnoreQueryFilters()
                     .FirstOrDefaultAsync(p => p.Id == id && p.FacilityId == facilityId.Value && !p.IsDeleted);
             }
             return await base.GetByIdAsync(id);

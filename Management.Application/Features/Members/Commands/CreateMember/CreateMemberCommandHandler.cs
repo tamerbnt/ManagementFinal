@@ -177,22 +177,26 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                 // PUBLISH NOTIFICATION: Fired AFTER transaction.CommitAsync so the member and sale
                 // are guaranteed to be in SQLite before the undo callback can run.
                 // Still fire-and-forget so we don't delay the command response.
-                _ = Task.Run(async () =>
+                // PUBLISH NOTIFICATION: Fired AFTER transaction.CommitAsync so the member and sale
+                // are guaranteed to be in SQLite before the undo callback can run.
+                // Note: We await this to ensure sequential execution and avoid DbContext concurrency issues
+                // that arise from global scope (Scoped=Singleton) in desktop apps.
+                try
                 {
-                    try
-                    {
-                        await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                            member.FacilityId,
-                            "Registration",
-                            member.FullName,
-                            "New Member Registered",
-                            member.Id.ToString()));
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger?.LogWarning(ex, "Failed to publish registration notification for member {MemberId}", member.Id);
-                    }
-                });
+                    System.Diagnostics.Debug.WriteLine("[CREATE-MEMBER] Publishing notification...");
+                    await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                        member.FacilityId,
+                        "Registration",
+                        member.FullName,
+                        "New Member Registered",
+                        member.Id.ToString()), cancellationToken);
+                    System.Diagnostics.Debug.WriteLine("[CREATE-MEMBER] Notification completed");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CREATE-MEMBER] Notification EXCEPTION: {ex}");
+                    _logger?.LogWarning(ex, "Failed to publish registration notification for member {MemberId}", member.Id);
+                }
 
                 return Result.Success(member.Id);
             }

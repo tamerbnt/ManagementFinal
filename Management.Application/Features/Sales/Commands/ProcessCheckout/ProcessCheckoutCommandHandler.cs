@@ -50,6 +50,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
 
         public async Task<Result<bool>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
         {
+            System.Diagnostics.Debug.WriteLine("[CHECKOUT] Handle started");
             var checkoutRequest = request.Request;
             if (checkoutRequest.Items == null || !checkoutRequest.Items.Any())
             {
@@ -78,6 +79,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             saleEntity.FacilityId = request.FacilityId;
             saleEntity.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
 
+            System.Diagnostics.Debug.WriteLine("[CHECKOUT] Beginning transaction");
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
@@ -126,35 +128,43 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                 }
 
                 // Flush all changes to the DB before committing
+                System.Diagnostics.Debug.WriteLine("[CHECKOUT] Calling SaveChangesAsync");
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine("[CHECKOUT] SaveChangesAsync completed");
 
                 // COMMIT TRANSACTION BEFORE PUBLISHING NOTIFICATIONS
+                System.Diagnostics.Debug.WriteLine("[CHECKOUT] Calling CommitAsync");
                 await transaction.CommitAsync(cancellationToken);
+                System.Diagnostics.Debug.WriteLine("[CHECKOUT] CommitAsync completed — returning result");
 
                 // Notify activity stream - OUTSIDE TRANSACTION
                 // If notification fails (e.g. UI delay), the sale is already saved.
+                // Notify activity stream - OUTSIDE TRANSACTION
+                // If notification fails (e.g. UI delay), the sale is already saved.
+                // We await this to avoid DbContext disposal/concurrency issues in background tasks.
                 var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
-                _ = Task.Run(async () => 
+                try 
                 {
-                    try 
-                    {
-                        await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
-                            request.FacilityId,
-                            "Sale",
-                            firstItemName,
-                            $"Processed checkout for {productsToUpdate.Count} items",
-                            saleEntity.Id.ToString()), CancellationToken.None);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Notification publishing failed for sale {SaleId}, but transaction was successful.", saleEntity.Id);
-                    }
-                });
+                    System.Diagnostics.Debug.WriteLine("[CHECKOUT] Publishing notification...");
+                    await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
+                        request.FacilityId,
+                        "Sale",
+                        firstItemName,
+                        $"Processed checkout for {productsToUpdate.Count} items",
+                        saleEntity.Id.ToString()), cancellationToken);
+                    System.Diagnostics.Debug.WriteLine("[CHECKOUT] Notification completed");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[CHECKOUT] Notification EXCEPTION: {ex}");
+                    _logger.LogWarning(ex, "Notification publishing failed for sale {SaleId}, but transaction was successful.", saleEntity.Id);
+                }
 
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[CHECKOUT] EXCEPTION: {ex}");
                 // Only rollback if the transaction was NOT already committed successfully.
                 // Since IUnitOfWorkTransaction is a generic interface, we use a simple try-catch for safety.
                 if (transaction != null)

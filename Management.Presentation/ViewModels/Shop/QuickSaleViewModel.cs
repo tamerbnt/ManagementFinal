@@ -145,6 +145,7 @@ namespace Management.Presentation.ViewModels.Shop
         [RelayCommand(CanExecute = nameof(CanProcessSale))]
         private async Task ProcessSaleAsync()
         {
+            System.Diagnostics.Debug.WriteLine("[QUICKSALE] ProcessSaleAsync started");
             if (SelectedProduct == null) return;
 
             await ExecuteSafeAsync(async () =>
@@ -157,7 +158,10 @@ namespace Management.Presentation.ViewModels.Shop
                     itemsMap
                 );
 
+                System.Diagnostics.Debug.WriteLine("[QUICKSALE] Sending ProcessCheckoutCommand via SaleService");
                 var result = await _saleService.ProcessCheckoutAsync(_facilityContext.CurrentFacilityId, request);
+                System.Diagnostics.Debug.WriteLine($"[QUICKSALE] Sale result: {(result.IsSuccess ? "Success" : $"Failure: {result.Error.Message}")}");
+
                 if (result.IsSuccess)
                 {
                     // Notify ViewModels to refresh (Dirty Flag)
