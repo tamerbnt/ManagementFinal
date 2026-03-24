@@ -272,26 +272,8 @@ namespace Management.Presentation.ViewModels.Members
 
                     // Notify ViewModels to refresh (Dirty Flag) - Now handled via Bridge from CommandHandler notifications
                     var approvedAt = DateTime.UtcNow;
-                    if (priceToRecord > 0)
-                    {
-                        // Trigger sale recording
-                        var label = selectedPlanId != null ? SelectedPlan?.Name : null;
-                        if (selectedServiceId != null)
-                        {
-                            label = string.IsNullOrEmpty(label) ? SelectedSalonService?.Name : $"{label} + {SelectedSalonService?.Name}";
-                        }
-
-                        await _gymOperationService.SellItemAsync(
-                            (IsRenewMode ? MemberIdToUpdate : resultCreate?.Value)?.ToString(),
-                            priceToRecord,
-                            label ?? "Registration",
-                            _facilityContext.CurrentFacilityId,
-                            "Registration",
-                            selectedPlanId != null ? SaleCategory.Membership : SaleCategory.Service,
-                            label ?? "Registration");
-
-                        CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Sale>(_facilityContext.CurrentFacilityId));
-                    }
+                    // REVENUE TRACKING: Now handled centrally in CreateMemberCommandHandler.
+                    // Redundant ViewModel-side recording removed to prevent duplicate sales and ChangeTracker poisoning.
 
                     var memberId = IsRenewMode ? MemberIdToUpdate : resultCreate?.Value;
                     await _modalNavigationStore.CloseAsync(ModalResult.Success(new QuickRegistrationResult(memberId ?? Guid.Empty, approvedAt)));
