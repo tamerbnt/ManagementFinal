@@ -214,6 +214,7 @@
                 
                 <Button Grid.Column="0" 
                         Command="{Binding CancelCommand}" 
+                        IsCancel="True"
                         Style="{DynamicResource GhostButton}" 
                         Content="{DynamicResource Terminology.Global.Cancel}"/>
                         

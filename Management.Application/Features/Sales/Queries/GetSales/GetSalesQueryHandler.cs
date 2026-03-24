@@ -36,6 +36,7 @@ namespace Management.Application.Features.Sales.Queries.GetSales
                 PaymentMethod = s.PaymentMethod.ToString(),
                 TransactionType = s.TransactionType,
                 MemberId = s.MemberId,
+                MemberName = s.MemberId == null ? "Guest" : string.Empty, // Placeholder for linked members
                 ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
             }).ToList();
 

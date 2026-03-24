@@ -1060,6 +1060,7 @@ namespace Management.Presentation
 
 
             // --- PRESENTATION SERVICES (UI) ---
+            services.AddSingleton<CommunityToolkit.Mvvm.Messaging.IMessenger>(CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default);
             var wpfDispatcher = new WpfDispatcher(System.Windows.Application.Current.Dispatcher);
             services.AddSingleton<IDispatcher>(wpfDispatcher);
             services.AddSingleton<IDispatcherService>(wpfDispatcher);

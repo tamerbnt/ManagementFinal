@@ -1,11 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Management.Domain.Common;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Infrastructure.Data
 {
     public class AuditableEntityInterceptor : SaveChangesInterceptor
     {
+        public AuditableEntityInterceptor()
+        {
+            Serilog.Log.Information("[AuditableInterceptor] Constructor called.");
+        }
+
         public override InterceptionResult<int> SavingChanges(
             DbContextEventData eventData,
             InterceptionResult<int> result)
@@ -27,17 +33,53 @@ namespace Management.Infrastructure.Data
         {
             if (context == null) return;
 
-            foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
-            {
-                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                {
-                    entry.Entity.UpdateTimestamp();
-                }
+            var entries = context.ChangeTracker.Entries().ToList();
+            Serilog.Log.Information("[AuditableInterceptor] Total tracked entries: {Count}", entries.Count);
 
-                if (entry.State == EntityState.Deleted)
+            foreach (var entry in entries)
+            {
+                var type = entry.Entity.GetType().Name;
+                Serilog.Log.Information("[AuditableInterceptor] Found {Type} (State: {State})", type, entry.State);
+
+                if (entry.Entity is Management.Domain.Primitives.Entity primitiveEntity)
                 {
-                    entry.State = EntityState.Modified;
-                    entry.Entity.Delete();
+                    if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                    {
+                        primitiveEntity.UpdateTimestamp();
+                    }
+
+                    if (entry.State == EntityState.Deleted)
+                    {
+                        Serilog.Log.Information("[AuditableInterceptor] Intercepted Delete for {Type} {Id}. Converting to Soft-Delete.", type, primitiveEntity.Id);
+                        
+                        if (entry.Entity is Management.Domain.Models.SaleItem si)
+                        {
+                            bool isPriceNull = si.UnitPriceSnapshot == null;
+                            Serilog.Log.Information("[AuditableInterceptor] SaleItem {Id} PRE-SOFT-DELETE - UnitPriceSnapshot IsNull: {IsNull}", si.Id, isPriceNull);
+                        }
+
+                        entry.State = EntityState.Modified;
+                        primitiveEntity.Delete();
+
+                        if (entry.Entity is Management.Domain.Models.SaleItem si2)
+                        {
+                            bool isPriceNull = si2.UnitPriceSnapshot == null;
+                            Serilog.Log.Information("[AuditableInterceptor] SaleItem {Id} POST-SOFT-DELETE - UnitPriceSnapshot IsNull: {IsNull}", si2.Id, isPriceNull);
+                        }
+                    }
+                }
+                else if (entry.Entity is BaseEntity baseEntity)
+                {
+                    if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                    {
+                        baseEntity.UpdateTimestamp();
+                    }
+
+                    if (entry.State == EntityState.Deleted)
+                    {
+                        entry.State = EntityState.Modified;
+                        baseEntity.Delete();
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
 {
@@ -14,10 +15,16 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
         private readonly IAccessEventRepository _accessRepo;
         private readonly IPublisher _publisher;
 
-        public LogAccessEventCommandHandler(IAccessEventRepository accessRepo, IPublisher publisher)
+        private readonly Microsoft.Extensions.Logging.ILogger<LogAccessEventCommandHandler> _logger;
+
+        public LogAccessEventCommandHandler(
+            IAccessEventRepository accessRepo, 
+            IPublisher publisher,
+            Microsoft.Extensions.Logging.ILogger<LogAccessEventCommandHandler> logger)
         {
             _accessRepo = accessRepo;
             _publisher = publisher;
+            _logger = logger;
         }
 
         public async Task<Result<Guid>> Handle(LogAccessEventCommand request, CancellationToken cancellationToken)
@@ -42,11 +49,22 @@ namespace Management.Application.Features.Turnstiles.Commands.LogAccessEvent
 
             // PUBLISH NOTIFICATION: This is critical for the "People Inside" card to update instantly.
             // ActionType "Access" is handled by the Bridge to trigger a UI refresh.
-            await _publisher.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                request.FacilityId,
-                "Access",
-                "Member Check-In",
-                request.Reason), cancellationToken);
+            // PUBLISH NOTIFICATION: Decoupled to prevent UI failure from stalling check-in.
+            _ = Task.Run(async () => 
+            {
+                try 
+                {
+                    await _publisher.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                        request.FacilityId,
+                        "Access",
+                        "Member Check-In",
+                        request.Reason));
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to publish access notification for card {CardId}", request.CardId);
+                }
+            });
 
             return Result.Success(accessEvent.Id);
         }

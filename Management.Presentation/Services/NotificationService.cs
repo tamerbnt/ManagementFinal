@@ -112,10 +112,9 @@ namespace Management.Presentation.Services
                 // Queue Management: If full, force-dismiss the oldest one
                 if (_activeToasts.Count >= MaxVisibleToasts)
                 {
-                    var oldest = _activeToasts.FirstOrDefault(t => !t.IsExiting);
+                    var oldest = _activeToasts.FirstOrDefault();
                     if (oldest != null)
                     {
-                        // Instant remove for overflow to keep UI snappy
                         _activeToasts.Remove(oldest);
                     }
                 }
@@ -144,20 +143,18 @@ namespace Management.Presentation.Services
                     UndoLabel = undoLabel
                 };
                 
-                toast.DismissCommand = new AsyncRelayCommand(async () => 
-                {
-                    toast.IsExiting = true;
-                    await DismissToastAsync(toast.Id);
-                });
+                toast.DismissCommand = new AsyncRelayCommand(() => DismissToastAsync(toast.Id));
 
                 toast.UndoCommand = new AsyncRelayCommand(async () =>
                 {
-                    toast.IsExiting = true;
+                    // Start Exit immediately to show progress
+                    toast.IsExiting = true; 
                     try { await undoAction(); }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "[Undo] Undo action failed for message: {Message}", message);
                     }
+                    // Wait for animation to finish after logic if it wasn't already dismissed
                     await DismissToastAsync(toast.Id);
                 });
 
@@ -174,22 +171,26 @@ namespace Management.Presentation.Services
 
         private async Task DismissToastAsync(Guid id)
         {
-            if (System.Windows.Application.Current == null) return;
-
-            await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+            // Always run on UI thread
+            if (!System.Windows.Application.Current.Dispatcher.CheckAccess())
             {
-                var toast = _activeToasts.FirstOrDefault(t => t.Id == id);
-                if (toast == null || toast.IsExiting) return;
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => DismissToastAsync(id));
+                return;
+            }
 
-                // 1. Trigger Exit Animation (View binds to IsExiting)
+            var toast = _activeToasts.FirstOrDefault(t => t.Id == id);
+            if (toast == null) return;
+
+            // Step 1: Trigger Animation once
+            if (!toast.IsExiting)
+            {
                 toast.IsExiting = true;
-
-                // 2. Wait for Animation to finish (300ms)
+                // Step 2: WAIT for exactly the time the view needs
                 await Task.Delay(AnimationDurationMs);
+            }
 
-                // 3. Remove from Data
-                _activeToasts.Remove(toast);
-            });
+            // Step 3: Delete from collection (idempotent removal)
+            _activeToasts.Remove(toast);
         }
 
         public void PauseAutoDismiss(Guid id)

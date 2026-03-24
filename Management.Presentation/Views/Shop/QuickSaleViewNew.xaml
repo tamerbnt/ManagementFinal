@@ -223,6 +223,7 @@
 
                     <Button Grid.Column="0" 
                             Command="{Binding CancelCommand}" 
+                            IsCancel="True"
                             Style="{StaticResource GhostButton}" 
                             Content="{DynamicResource Terminology.Global.Cancel}" 
                             HorizontalAlignment="Left"

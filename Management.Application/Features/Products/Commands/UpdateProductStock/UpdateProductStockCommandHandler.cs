@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Management.Domain.Interfaces;
 using Management.Domain.Primitives;
 using MediatR;
@@ -11,15 +12,18 @@ namespace Management.Application.Features.Products.Commands.UpdateProductStock
         private readonly IProductRepository _productRepository;
         private readonly Stores.ProductStore _productStore;
         private readonly IMediator _mediator;
+        private readonly Microsoft.Extensions.Logging.ILogger<UpdateProductStockCommandHandler> _logger;
 
         public UpdateProductStockCommandHandler(
             IProductRepository productRepository, 
             Stores.ProductStore productStore,
-            IMediator mediator)
+            IMediator mediator,
+            Microsoft.Extensions.Logging.ILogger<UpdateProductStockCommandHandler> logger)
         {
             _productRepository = productRepository;
             _productStore = productStore;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<Result> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)
@@ -47,11 +51,22 @@ namespace Management.Application.Features.Products.Commands.UpdateProductStock
             });
 
             // Notify activity stream
-            await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
-                product.FacilityId,
-                "Inventory",
-                product.Name,
-                $"Stock adjusted: {request.QuantityChange} ({request.Reason})"), cancellationToken);
+            // Notify activity stream: Decoupled to prevent UI failure from stalling adjustment.
+            _ = Task.Run(async () => 
+            {
+                try 
+                {
+                    await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
+                        product.FacilityId,
+                        "Inventory",
+                        product.Name,
+                        $"Stock adjusted: {request.QuantityChange} ({request.Reason})"));
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to publish stock adjustment notification for product {ProductId}", product.Id);
+                }
+            });
             
             return Result.Success();
         }

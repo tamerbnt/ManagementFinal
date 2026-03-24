@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using System.Linq; // Added for Linq Select/Where
 using Management.Application.DTOs;
 using Management.Application.Interfaces; // For ICurrentUserService
@@ -24,6 +25,7 @@ namespace Management.Application.Services
         private readonly IMembershipPlanRepository _planRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantService _tenantService;
+        private readonly Microsoft.Extensions.Logging.ILogger<GymOperationService> _logger;
 
         public GymOperationService(
             IAccessControlService accessService, 
@@ -32,7 +34,8 @@ namespace Management.Application.Services
             ISaleRepository saleRepo,
             IMembershipPlanRepository planRepo,
             ICurrentUserService currentUserService,
-            ITenantService tenantService)
+            ITenantService tenantService,
+            Microsoft.Extensions.Logging.ILogger<GymOperationService> logger)
         {
             _accessService = accessService;
             _mediator = mediator;
@@ -41,6 +44,7 @@ namespace Management.Application.Services
             _planRepo = planRepo;
             _currentUserService = currentUserService;
             _tenantService = tenantService;
+            _logger = logger;
         }
 
         public async Task<ScanResult> ProcessScanAsync(string input, Guid facilityId)
@@ -107,12 +111,22 @@ namespace Management.Application.Services
                 ReceiptNumber = $"WI-{DateTime.Now:yyyyMMdd}-{sale.Id.ToString().Substring(0,4).ToUpper()}"
             };
 
-            await _mediator.Publish(new FacilityActionCompletedNotification(
-                facilityId,
-                "Walk-In", 
-                "Walk-In Guest", 
-                result.Message,
-                sale.Id.ToString()));
+            _ = Task.Run(async () => 
+            {
+                try 
+                {
+                    await _mediator.Publish(new FacilityActionCompletedNotification(
+                        facilityId,
+                        "Walk-In", 
+                        "Walk-In Guest", 
+                        result.Message,
+                        sale.Id.ToString()));
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to publish Walk-In notification for sale {SaleId}", sale.Id);
+                }
+            });
 
             return result;
         }
@@ -175,12 +189,22 @@ namespace Management.Application.Services
 
             await _saleRepo.AddAsync(sale);
 
-            await _mediator.Publish(new FacilityActionCompletedNotification(
-                facilityId,
-                "QuickSale", 
-                productName, 
-                $"Sold {productName} for {amount:N0} DA",
-                sale.Id.ToString()));
+            _ = Task.Run(async () => 
+            {
+                try 
+                {
+                    await _mediator.Publish(new FacilityActionCompletedNotification(
+                        facilityId,
+                        "QuickSale", 
+                        productName, 
+                        $"Sold {productName} for {amount:N0} DA",
+                        sale.Id.ToString()));
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to publish QuickSale notification for product {ProductName}", productName);
+                }
+            });
 
             return true;
         }

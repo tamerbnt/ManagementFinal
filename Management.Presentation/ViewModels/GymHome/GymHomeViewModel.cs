@@ -501,14 +501,17 @@ namespace Management.Presentation.ViewModels.GymHome
         {
             try
             {
+                // FIX: Use a fresh scope to resolve history providers.
+                // This prevents the 'Captive Dependency' where a Singleton ViewModel
+                // uses a Single Scoped DbContext concurrently across multiple threads.
+                using var scope = _scopeFactory.CreateScope();
+                var scopedProviders = scope.ServiceProvider.GetServices<Management.Application.Interfaces.App.IHistoryProvider>();
+
                 var segmentName = _facilityContext.CurrentFacility.ToString();
-                var provider = _historyProviders.FirstOrDefault(p => p.SegmentName == segmentName);
+                var provider = scopedProviders.FirstOrDefault(p => p.SegmentName == segmentName);
                 if (provider == null) return;
 
-                // Fix 3: Use a 24h window for triggered refreshes to keep the query fast.
-                // The initial full load (InitializeAsync) uses the same method, so 24h
-                // is a reasonable window — events older than a day rarely appear in the
-                // "Recent Activity" feed anyway.
+                // Use a 24h window for activity stream
                 var recentEvents = await provider.GetHistoryAsync(_facilityContext.CurrentFacilityId, DateTime.UtcNow.AddHours(-24), DateTime.UtcNow);
 
                 var dashboardTasks = recentEvents.Take(50).Select(e => 
@@ -517,6 +520,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     {
                         HistoryEventType.Access => e.IsSuccessful ? "✅" : "❌",
                         HistoryEventType.Payment => "🛒",
+                        HistoryEventType.Sale => "🛒",
                         HistoryEventType.Order => "🛒",
                         _ => "✨"
                     };
@@ -525,6 +529,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     {
                         HistoryEventType.Access => new string((e.Title ?? "??").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper(),
                         HistoryEventType.Payment => "$$",
+                        HistoryEventType.Sale => "$$",
                         HistoryEventType.Order => "$$",
                         _ => "??"
                     };
@@ -556,8 +561,6 @@ namespace Management.Presentation.ViewModels.GymHome
 
                     if (newItems.Any())
                     {
-                        // ObservableRangeCollection might not have InsertRange at index 0 in some versions
-                        // Prepend items manually
                         foreach (var item in newItems.OrderBy(a => a.SortDate))
                         {
                             ActivityStream.Insert(0, item);

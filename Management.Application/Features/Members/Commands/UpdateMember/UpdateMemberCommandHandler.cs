@@ -6,6 +6,7 @@ using Management.Domain.ValueObjects;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Management.Application.DTOs;
 using Management.Application.Interfaces;
 using Management.Application.Interfaces.App;
@@ -24,6 +25,7 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
         private readonly IFacilityContextService _facilityContext;
 
         private readonly IMediator _mediator;
+        private readonly Microsoft.Extensions.Logging.ILogger<UpdateMemberCommandHandler> _logger;
 
         public UpdateMemberCommandHandler(
             IMemberRepository memberRepository,
@@ -31,7 +33,8 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             ISalonServiceRepository salonRepository,
             IGymOperationService gymService,
             IFacilityContextService facilityContext,
-            IMediator mediator)
+            IMediator mediator,
+            Microsoft.Extensions.Logging.ILogger<UpdateMemberCommandHandler> logger)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
@@ -39,6 +42,7 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             _gymService = gymService;
             _facilityContext = facilityContext;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<Result> Handle(UpdateMemberCommand request, CancellationToken cancellationToken)
@@ -147,12 +151,23 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             }
 
             // PUBLISH NOTIFICATION
-            await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                member.FacilityId,
-                "MemberUpdate",
-                member.FullName,
-                $"Updated profile for {member.FullName}",
-                member.Id.ToString()), cancellationToken);
+            // PUBLISH NOTIFICATION: Decoupled to prevent UI failure from stalling update.
+            _ = Task.Run(async () => 
+            {
+                try 
+                {
+                    await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                        member.FacilityId,
+                        "MemberUpdate",
+                        member.FullName,
+                        $"Updated profile for {member.FullName}",
+                        member.Id.ToString()));
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Failed to publish update notification for member {MemberId}", member.Id);
+                }
+            });
 
             return Result.Success();
         }

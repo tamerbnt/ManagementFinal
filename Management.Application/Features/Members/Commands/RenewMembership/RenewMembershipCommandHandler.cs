@@ -7,6 +7,7 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Application.Features.Members.Commands.RenewMembership
 {
@@ -15,15 +16,18 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
         private readonly IMemberRepository _memberRepository;
         private readonly IMembershipPlanRepository _planRepository;
         private readonly IMediator _mediator;
+        private readonly Microsoft.Extensions.Logging.ILogger<RenewMembershipCommandHandler> _logger;
 
         public RenewMembershipCommandHandler(
             IMemberRepository memberRepository,
             IMembershipPlanRepository planRepository,
-            IMediator mediator)
+            IMediator mediator,
+            Microsoft.Extensions.Logging.ILogger<RenewMembershipCommandHandler> logger)
         {
             _memberRepository = memberRepository;
             _planRepository = planRepository;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<Result> Handle(RenewMembershipCommand request, CancellationToken cancellationToken)
@@ -56,13 +60,23 @@ namespace Management.Application.Features.Members.Commands.RenewMembership
                 
                 await _memberRepository.UpdateAsync(member);
 
-                // PUBLISH NOTIFICATION
-                await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                    member.FacilityId,
-                    "MemberUpdate",
-                    member.FullName,
-                    $"Renewed membership for {member.FullName}",
-                    member.Id.ToString()), cancellationToken);
+                // PUBLISH NOTIFICATION: Decoupled to prevent UI failure from stalling renewal.
+                _ = Task.Run(async () => 
+                {
+                    try 
+                    {
+                        await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                            member.FacilityId,
+                            "MemberUpdate",
+                            member.FullName,
+                            $"Renewed membership for {member.FullName}",
+                            member.Id.ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogWarning(ex, "Failed to publish renewal notification for member {MemberId}", member.Id);
+                    }
+                });
             }
 
             return Result.Success();

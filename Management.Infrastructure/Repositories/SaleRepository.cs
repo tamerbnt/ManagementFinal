@@ -18,7 +18,7 @@ namespace Management.Infrastructure.Repositories
             return await _dbSet.AsNoTracking()
                 .IgnoreQueryFilters() // Bypass global filter to allow explicit facility override
                 .Include(s => s.Items) // Eager load items for receipt details
-                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end)
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end && !s.IsDeleted)
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();
         }
@@ -30,7 +30,7 @@ namespace Management.Infrastructure.Repositories
             // Casting to double for the aggregate operation.
             return (decimal)await _dbSet
                 .IgnoreQueryFilters() // Bypass global filter to allow explicit facility override
-                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end)
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end && !s.IsDeleted)
                 .SumAsync(s => (double)s.TotalAmount.Amount);
         }
 
@@ -47,6 +47,18 @@ namespace Management.Infrastructure.Repositories
         {
             return await _dbSet.AsNoTracking()
                 .IgnoreQueryFilters()
+                .Include(s => s.Items) // Eager load items to ensure they are tracked for soft-deletion
+                .Where(s => s.MemberId == memberId && s.FacilityId == facilityId && !s.IsDeleted)
+                .OrderByDescending(s => s.Timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Sale>> GetSalesByMemberForUndoAsync(Guid memberId, Guid facilityId)
+        {
+            // IMPORTANT: No AsNoTracking() so they are attached to the context for soft-deletion
+            return await _dbSet
+                .IgnoreQueryFilters()
+                .Include(s => s.Items) // Eager load items for soft-deletion tracking
                 .Where(s => s.MemberId == memberId && s.FacilityId == facilityId && !s.IsDeleted)
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();

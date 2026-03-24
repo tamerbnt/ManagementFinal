@@ -138,6 +138,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="{DynamicResource Terminology.Global.Cancel}"
                         Command="{Binding CancelCommand}"
+                        IsCancel="True"
                         Style="{StaticResource SecondaryButton}"
                         Margin="{StaticResource MarginSmallRight}"/>
 

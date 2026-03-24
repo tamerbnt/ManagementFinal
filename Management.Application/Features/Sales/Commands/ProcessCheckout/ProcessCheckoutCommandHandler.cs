@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Management.Application.Interfaces;
 using Management.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Application.Features.Sales.Commands.ProcessCheckout
 {
@@ -25,6 +26,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantService _tenantService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ProcessCheckoutCommandHandler> _logger;
 
         public ProcessCheckoutCommandHandler(
             ISaleRepository saleRepository,
@@ -33,7 +35,8 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             IMediator mediator,
             ICurrentUserService currentUserService,
             ITenantService tenantService,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ILogger<ProcessCheckoutCommandHandler> logger)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
@@ -42,6 +45,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             _currentUserService = currentUserService;
             _tenantService = tenantService;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<Result<bool>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
@@ -108,10 +112,6 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     await _productRepository.UpdateAsync(p, saveChanges: false);
                 }
 
-                // FIX: Explicitly call SaveChangesAsync on the shared UnitOfWork context
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
-                await transaction.CommitAsync(cancellationToken);
-
                 // Notify UI after successful commit to prevent UI refresh storm during open transaction
                 foreach (var p in productsToUpdate)
                 {
@@ -125,19 +125,43 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     });
                 }
 
-                // Notify activity stream
+                // Flush all changes to the DB before committing
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // COMMIT TRANSACTION BEFORE PUBLISHING NOTIFICATIONS
+                await transaction.CommitAsync(cancellationToken);
+
+                // Notify activity stream - OUTSIDE TRANSACTION
+                // If notification fails (e.g. UI delay), the sale is already saved.
                 var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
-                await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
-                    request.FacilityId,
-                    "Sale",
-                    firstItemName,
-                    $"Processed checkout for {productsToUpdate.Count} items"), cancellationToken);
+                _ = Task.Run(async () => 
+                {
+                    try 
+                    {
+                        await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
+                            request.FacilityId,
+                            "Sale",
+                            firstItemName,
+                            $"Processed checkout for {productsToUpdate.Count} items",
+                            saleEntity.Id.ToString()), CancellationToken.None);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Notification publishing failed for sale {SaleId}, but transaction was successful.", saleEntity.Id);
+                    }
+                });
 
                 return Result.Success(true);
             }
             catch (Exception ex)
             {
-                if (transaction != null) await transaction.RollbackAsync(cancellationToken);
+                // Only rollback if the transaction was NOT already committed successfully.
+                // Since IUnitOfWorkTransaction is a generic interface, we use a simple try-catch for safety.
+                if (transaction != null)
+                {
+                    try { await transaction.RollbackAsync(cancellationToken); } catch { /* Ignore rollback failure if already committed */ }
+                }
+                _logger.LogError(ex, "Checkout failed for facility {FacilityId}", request.FacilityId);
                 return Result.Failure<bool>(new Error("Checkout.DatabaseError", $"Failed to save sale: {ex.Message}"));
             }
         }

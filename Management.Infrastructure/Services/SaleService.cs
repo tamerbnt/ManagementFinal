@@ -52,5 +52,10 @@ namespace Management.Infrastructure.Services
         {
             return await _sender.Send(new Management.Application.Features.Sales.Commands.DeleteSale.DeleteSaleCommand(saleId));
         }
+
+        public async Task<Result> CancelSalesByMemberAsync(Guid memberId, Guid facilityId)
+        {
+            return await _sender.Send(new Management.Application.Features.Sales.Commands.CancelSalesByMember.CancelSalesByMemberCommand(memberId, facilityId));
+        }
     }
 }

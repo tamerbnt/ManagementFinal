@@ -270,17 +270,7 @@ namespace Management.Presentation.ViewModels.Members
                 {
                     _turnstileService.CardScanned -= OnCardScanned;
 
-                    var action = IsRenewMode ? "Renewal" : "Registration";
-                    var msg = IsRenewMode ? $"Successfully updated and renewed {FullName}" : $"Successfully registered {FullName}";
-
-                    await _mediator.Publish(new FacilityActionCompletedNotification(
-                        _facilityContext.CurrentFacilityId,
-                        action,
-                        FullName,
-                        msg));
-
-                    // Notify ViewModels to refresh (Dirty Flag)
-                    CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Member>(_facilityContext.CurrentFacilityId));
+                    // Notify ViewModels to refresh (Dirty Flag) - Now handled via Bridge from CommandHandler notifications
                     var approvedAt = DateTime.UtcNow;
                     if (priceToRecord > 0)
                     {

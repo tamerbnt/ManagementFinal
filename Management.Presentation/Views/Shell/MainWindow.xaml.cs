@@ -21,6 +21,11 @@ namespace Management.Presentation.Views.Shell
         {
             InitializeComponent();
             this.SourceInitialized += (s, e) => WindowHelper.EnableMica(this);
+            this.Loaded += (s, e) => 
+            {
+                RootGrid.Focus();
+                Keyboard.Focus(RootGrid);
+            };
         }
 
         public MainWindow(MainViewModel viewModel) : this()

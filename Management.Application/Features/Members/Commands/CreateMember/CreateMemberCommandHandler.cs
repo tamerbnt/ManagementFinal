@@ -5,6 +5,7 @@ using Management.Domain.ValueObjects;
 using MediatR;
 using System;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Management.Application.DTOs;
 using Management.Application.Interfaces;
@@ -25,6 +26,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
         private readonly IFacilityContextService _facilityContext;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
+        private readonly Microsoft.Extensions.Logging.ILogger<CreateMemberCommandHandler> _logger;
 
         public CreateMemberCommandHandler(
             IMemberRepository memberRepository, 
@@ -35,7 +37,8 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             IGymOperationService gymService,
             IFacilityContextService facilityContext,
             IUnitOfWork unitOfWork,
-            IMediator mediator)
+            IMediator mediator,
+            Microsoft.Extensions.Logging.ILogger<CreateMemberCommandHandler> logger)
         {
             _memberRepository = memberRepository;
             _tenantService = tenantService;
@@ -46,6 +49,7 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             _facilityContext = facilityContext;
             _unitOfWork = unitOfWork;
             _mediator = mediator;
+            _logger = logger;
         }
 
         public async Task<Result<Guid>> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
@@ -145,15 +149,6 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             {
                 await _memberRepository.AddAsync(member, saveChanges: false);
 
-                // PUBLISH NOTIFICATION: This is critical for the "Active Members" and "Pending Registrations" cards.
-                // Even if no sale occurs, the UI needs to know a registration was completed.
-                await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                    member.FacilityId,
-                    "Registration",
-                    member.FullName,
-                    "New Member Registered",
-                    member.Id.ToString()), cancellationToken);
-
                 // AUTO-REVENUE: If a plan was selected, record the sale immediately.
                 if (planName != null && planPrice > 0)
                 {
@@ -178,6 +173,27 @@ namespace Management.Application.Features.Members.Commands.CreateMember
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
+
+                // PUBLISH NOTIFICATION: Fired AFTER transaction.CommitAsync so the member and sale
+                // are guaranteed to be in SQLite before the undo callback can run.
+                // Still fire-and-forget so we don't delay the command response.
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                            member.FacilityId,
+                            "Registration",
+                            member.FullName,
+                            "New Member Registered",
+                            member.Id.ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogWarning(ex, "Failed to publish registration notification for member {MemberId}", member.Id);
+                    }
+                });
+
                 return Result.Success(member.Id);
             }
             catch (Exception ex)

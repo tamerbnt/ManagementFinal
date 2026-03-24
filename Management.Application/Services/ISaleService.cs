@@ -14,5 +14,6 @@ namespace Management.Application.Services
         Task<Result<List<SaleDto>>> GetSalesByRangeAsync(Guid facilityId, DateTime start, DateTime end);
         Task<Result<SaleDto>> GetSaleDetailsAsync(Guid facilityId, Guid saleId);
         Task<Result> CancelSaleAsync(Guid saleId);
+        Task<Result> CancelSalesByMemberAsync(Guid memberId, Guid facilityId);
     }
 }

@@ -44,24 +44,15 @@ namespace Management.Application.Services.History
 
         public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate)
         {
-            // Parallel fetch for performance using new range-based methods
-            var transactionTask = _transactionService.GetHistoryByRangeAsync(facilityId, startDate, endDate);
-            var saleTask = _saleService.GetSalesByRangeAsync(facilityId, startDate, endDate);
-            var appointmentTask = _appointmentService.GetByRangeAsync(facilityId, startDate, endDate);
-            var accessTask = _accessEventService.GetEventsByRangeAsync(facilityId, startDate, endDate);
-            
-            // For Salon, Appointments are the main source of bookings.
-            var reservationTask = _reservationService.GetReservationsByRangeAsync(startDate, endDate);
-            var payrollTask = _financeService.GetPayrollByRangeAsync(facilityId, startDate, endDate);
-
-            await Task.WhenAll(transactionTask, saleTask, appointmentTask, accessTask, reservationTask, payrollTask);
-
-            var transactionsResult = await transactionTask;
-            var salesResult = await saleTask;
-            var appointments = await appointmentTask;
-            var accessResult = await accessTask;
-            var reservationsResult = await reservationTask;
-            var payrollResult = await payrollTask;
+            // FIX: Use sequential execution to prevent EF Core DbContext concurrency exceptions.
+            // Even with a fresh scope per refresh, the individual service calls in GymHistoryProvider
+            // attempt to use the SAME DbContext instance concurrently if Task.WhenAll is used.
+            var transactionsResult = await _transactionService.GetHistoryByRangeAsync(facilityId, startDate, endDate);
+            var salesResult = await _saleService.GetSalesByRangeAsync(facilityId, startDate, endDate);
+            var appointments = await _appointmentService.GetByRangeAsync(facilityId, startDate, endDate);
+            var accessResult = await _accessEventService.GetEventsByRangeAsync(facilityId, startDate, endDate);
+            var reservationsResult = await _reservationService.GetReservationsByRangeAsync(startDate, endDate);
+            var payrollResult = await _financeService.GetPayrollByRangeAsync(facilityId, startDate, endDate);
 
             var unifiedEvents = new List<UnifiedHistoryEventDto>();
 
@@ -95,7 +86,7 @@ namespace Management.Application.Services.History
                         Timestamp = sale.Timestamp,
                         Type = HistoryEventType.Sale,
                         Title = $"Sale: {sale.TransactionType}",
-                        Details = $"{sale.MemberName} - {string.Join(", ", sale.ItemsSnapshot.Keys)}",
+                        Details = $"{(string.IsNullOrEmpty(sale.MemberName) ? "Guest" : sale.MemberName)} - {string.Join(", ", sale.ItemsSnapshot.Keys)}",
                         Amount = sale.TotalAmount,
                         Metadata = sale.PaymentMethod
                     });
