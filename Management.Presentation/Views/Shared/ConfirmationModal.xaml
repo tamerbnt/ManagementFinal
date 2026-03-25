@@ -75,6 +75,7 @@
                 <!-- Confirm (Destructive or Primary) -->
                 <Button Content="{Binding ConfirmText, FallbackValue='OK'}"
                         Command="{Binding ConfirmCommand}"
+                        IsDefault="True"
                         MinWidth="{DynamicResource SizeButtonMinWidth}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">

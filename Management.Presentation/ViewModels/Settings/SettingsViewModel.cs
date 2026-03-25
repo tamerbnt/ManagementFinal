@@ -210,7 +210,7 @@ namespace Management.Presentation.ViewModels.Settings
             Shortcuts.Add(new ShortcutItem("Ctrl + 2", "Navigate to Members", "Navigation"));
             Shortcuts.Add(new ShortcutItem("Ctrl + 3", "Navigate to Sales", "Navigation"));
             Shortcuts.Add(new ShortcutItem("Ctrl + 4", "Navigate to Staff", "Navigation"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + 5", "Navigate to Settings", "Navigation"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + 6", "Navigate to Settings", "Navigation"));
 
             // Search & Tools
             Shortcuts.Add(new ShortcutItem("Ctrl + F / Ctrl + K", "Focus Search Bar", "Tools"));

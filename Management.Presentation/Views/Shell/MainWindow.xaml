@@ -104,6 +104,15 @@
             <KeyBinding.CommandParameter><sys:Int32>4</sys:Int32></KeyBinding.CommandParameter>
         </KeyBinding>
 
+        <!-- Missing Shortcuts -->
+        <KeyBinding Key="D6" Modifiers="Ctrl"
+                    Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
+        <KeyBinding Key="NumPad6" Modifiers="Ctrl"
+                    Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
+        
+        <KeyBinding Key="N" Modifiers="Ctrl"
+                    Command="{Binding Data.AddCommand, Source={StaticResource MainProxy}}"/>
+
         <!-- Search focus: Ctrl+F or Ctrl+K -->
         <KeyBinding Key="F" Modifiers="Ctrl"
                     Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>

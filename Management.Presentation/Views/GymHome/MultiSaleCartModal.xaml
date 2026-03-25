@@ -260,7 +260,8 @@
                                 MinWidth="120"/>
 
                         <Button Grid.Column="1" 
-                                Command="{Binding CheckoutCommand}" 
+                                Command="{Binding CheckoutCommand}"
+                                IsDefault="True"
                                 Style="{StaticResource PrimaryButton}" 
                                 MinWidth="220">
                             <Button.Content>
