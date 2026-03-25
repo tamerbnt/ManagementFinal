@@ -17,6 +17,7 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly IGymOperationService _gymService;
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly IFacilityContextService _facilityContext;
+        private readonly MediatR.IMediator _mediator;
 
         [ObservableProperty]
         private ObservableCollection<WalkInPlanDto> _plans = new();
@@ -35,11 +36,13 @@ namespace Management.Presentation.ViewModels.GymHome
         public WalkInConfirmationViewModel(
             IGymOperationService gymService,
             ModalNavigationStore modalNavigationStore,
-            IFacilityContextService facilityContext)
+            IFacilityContextService facilityContext,
+            MediatR.IMediator mediator)
         {
             _gymService = gymService;
             _modalNavigationStore = modalNavigationStore;
             _facilityContext = facilityContext;
+            _mediator = mediator;
             base.Title = "Process Walk-In";
             
             _ = InitializeAsync();
@@ -89,10 +92,34 @@ namespace Management.Presentation.ViewModels.GymHome
 
             await ExecuteLoadingAsync(async () =>
             {
+                var saleIds = new System.Collections.Generic.List<Guid>();
+
                 // Process each guest entry
                 for (int i = 0; i < GuestCount; i++)
                 {
-                    await _gymService.ProcessWalkInAsync(SelectedPlan.Price, _facilityContext.CurrentFacilityId, SelectedPlan.Name);
+                    // Suppress individual notifications to prevent "Toast Storm"
+                    var result = await _gymService.ProcessWalkInAsync(
+                        SelectedPlan.Price, 
+                        _facilityContext.CurrentFacilityId, 
+                        SelectedPlan.Name, 
+                        publishNotification: false);
+
+                    if (result.Success)
+                    {
+                        saleIds.Add(result.SaleId);
+                    }
+                }
+
+                if (saleIds.Any())
+                {
+                    // Publish ONE composite notification for the whole batch
+                    var batchIdString = string.Join(",", saleIds);
+                    await _mediator.Publish(new Management.Application.Notifications.FacilityActionCompletedNotification(
+                        _facilityContext.CurrentFacilityId,
+                        "Walk-In",
+                        $"{GuestCount} Guests",
+                        $"Processed {GuestCount} walk-in guests for {TotalPrice:N0} DA",
+                        batchIdString));
                 }
 
                 await _modalNavigationStore.CloseAsync(ModalResult.Success(new { Count = GuestCount, Plan = SelectedPlan.Name }));

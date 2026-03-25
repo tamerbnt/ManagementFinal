@@ -1,7 +1,9 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using Management.Presentation.ViewModels.Shell;
@@ -17,15 +19,90 @@ namespace Management.Presentation.Views.Shell
         private const double ExpandedWidth = 268;
         private const double CollapsedWidth = 72;
 
+        // ── Win32 structs for WM_GETMINMAXINFO ──────────────────────────────
+        private const int WM_GETMINMAXINFO = 0x0024;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int X; public int Y; }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MINMAXINFO
+        {
+            public POINT ptReserved;
+            public POINT ptMaxSize;
+            public POINT ptMaxPosition;
+            public POINT ptMinTrackSize;
+            public POINT ptMaxTrackSize;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left, Top, Right, Bottom;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        private const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
+
+        // ── Constructor ──────────────────────────────────────────────────────
         public MainWindow()
         {
             InitializeComponent();
-            this.SourceInitialized += (s, e) => WindowHelper.EnableMica(this);
-            this.Loaded += (s, e) => 
+            this.SourceInitialized += (s, e) =>
+            {
+                WindowHelper.EnableMica(this);
+                // Hook WndProc to fix taskbar overlap when maximized
+                var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+                source?.AddHook(WndProc);
+            };
+            this.Loaded += (s, e) =>
             {
                 RootGrid.Focus();
                 Keyboard.Focus(RootGrid);
             };
+        }
+
+        // Intercept WM_GETMINMAXINFO to constrain the maximized bounds to the
+        // current monitor's work area (i.e. excluding the taskbar).
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_GETMINMAXINFO)
+            {
+                var mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+
+                IntPtr hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+                var monitorInfo = new MONITORINFO { cbSize = Marshal.SizeOf<MONITORINFO>() };
+
+                if (GetMonitorInfo(hMonitor, ref monitorInfo))
+                {
+                    RECT workArea    = monitorInfo.rcWork;    // excludes taskbar
+                    RECT monitorArea = monitorInfo.rcMonitor; // full screen
+
+                    // ptMaxPosition is relative to the monitor's top-left corner
+                    mmi.ptMaxPosition.X = workArea.Left   - monitorArea.Left;
+                    mmi.ptMaxPosition.Y = workArea.Top    - monitorArea.Top;
+                    mmi.ptMaxSize.X     = workArea.Right  - workArea.Left;
+                    mmi.ptMaxSize.Y     = workArea.Bottom - workArea.Top;
+                }
+
+                Marshal.StructureToPtr(mmi, lParam, true);
+                handled = true;
+            }
+            return IntPtr.Zero;
         }
 
         public MainWindow(MainViewModel viewModel) : this()

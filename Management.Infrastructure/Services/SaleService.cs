@@ -20,10 +20,9 @@ namespace Management.Infrastructure.Services
             _sender = sender;
         }
 
-        public async Task<Result> ProcessCheckoutAsync(Guid facilityId, CheckoutRequestDto request)
+        public async Task<Result<Guid>> ProcessCheckoutAsync(Guid facilityId, CheckoutRequestDto request, bool publishNotification = true)
         {
-            var result = await _sender.Send(new ProcessCheckoutCommand(facilityId, request));
-            return result.IsSuccess ? Result.Success() : Result.Failure(result.Error);
+            return await _sender.Send(new ProcessCheckoutCommand(facilityId, request, publishNotification));
         }
 
         public async Task<Result<decimal>> GetTotalRevenueAsync(Guid facilityId, DateTime start, DateTime end)

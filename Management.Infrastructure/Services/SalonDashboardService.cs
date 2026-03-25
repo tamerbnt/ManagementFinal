@@ -25,15 +25,15 @@ namespace Management.Infrastructure.Services
         public async Task<SalonDashboardDto> GetDashboardStatsAsync(Guid facilityId)
         {
             using var scope = _scopeFactory.CreateScope();
-            var reservationRepository = scope.ServiceProvider.GetRequiredService<IReservationRepository>();
+            var appointmentRepository = scope.ServiceProvider.GetRequiredService<IAppointmentRepository>();
             var saleRepository = scope.ServiceProvider.GetRequiredService<ISaleRepository>();
             var staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
 
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            // Fetch today's reservations (Scoped)
-            var reservations = await reservationRepository.GetByDateRangeAsync(today, tomorrow, facilityId);
+            // Fetch today's appointments (Scoped)
+            var appointments = await appointmentRepository.GetByDateRangeAsync(today, tomorrow, facilityId);
             
             // Fetch today's revenue (Scoped & Optimized)
             var totalRevenue = await saleRepository.GetTotalRevenueAsync(facilityId, today, tomorrow);
@@ -44,11 +44,11 @@ namespace Management.Infrastructure.Services
 
             // Calculate utilization: (Appts / (Staff * 8 slots per day))
             double totalPossibleSlots = Math.Max(1, activeStaffCount * 8);
-            double utilization = (reservations.Count() / totalPossibleSlots) * 100;
+            double utilization = (appointments.Count() / totalPossibleSlots) * 100;
 
             return new SalonDashboardDto
             {
-                AppointmentsToday = reservations.Count(),
+                AppointmentsToday = appointments.Count(),
                 TotalRevenue = totalRevenue,
                 ChairUtilization = Math.Min(100, utilization),
                 RebookingRate = 0 // Feature pending analytics implementation

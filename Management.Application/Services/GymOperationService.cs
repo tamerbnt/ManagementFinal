@@ -68,7 +68,7 @@ namespace Management.Application.Services
             return result;
         }
 
-        public async Task<WalkInResult> ProcessWalkInAsync(decimal amount, Guid facilityId, string planName = "Walk-In")
+        public async Task<WalkInResult> ProcessWalkInAsync(decimal amount, Guid facilityId, string planName = "Walk-In", bool publishNotification = true)
         {
             System.Diagnostics.Debug.WriteLine("[WALKIN] ProcessWalkInAsync started");
             
@@ -98,21 +98,24 @@ namespace Management.Application.Services
                 Success = true,
                 Message = "Walk-In Entry Granted",
                 Amount = amount,
-                ReceiptNumber = $"WI-{DateTime.Now:yyyyMMdd}-{sale.Id.ToString().Substring(0,4).ToUpper()}"
+                ReceiptNumber = $"WI-{DateTime.Now:yyyyMMdd}-{sale.Id.ToString().Substring(0,4).ToUpper()}",
+                SaleId = sale.Id
             };
 
-            System.Diagnostics.Debug.WriteLine("[WALKIN] About to start Task.Run notification");
-            System.Diagnostics.Debug.WriteLine("[WALKIN] Publishing notification...");
-            try 
+            if (publishNotification)
             {
-                await _mediator.Publish(new FacilityActionCompletedNotification(
-                    facilityId, "Walk-In", "Walk-In Guest", result.Message, sale.Id.ToString()));
-                System.Diagnostics.Debug.WriteLine("[WALKIN] Notification published");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[WALKIN] Notification EXCEPTION: {ex}");
-                _logger?.LogWarning(ex, "Failed to publish Walk-In notification for sale {SaleId}", sale.Id);
+                System.Diagnostics.Debug.WriteLine("[WALKIN] Publishing notification...");
+                try 
+                {
+                    await _mediator.Publish(new FacilityActionCompletedNotification(
+                        facilityId, "Walk-In", "Walk-In Guest", result.Message, sale.Id.ToString()));
+                    System.Diagnostics.Debug.WriteLine("[WALKIN] Notification published");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[WALKIN] Notification EXCEPTION: {ex}");
+                    _logger?.LogWarning(ex, "Failed to publish Walk-In notification for sale {SaleId}", sale.Id);
+                }
             }
 
             System.Diagnostics.Debug.WriteLine("[WALKIN] ProcessWalkInAsync completed");
@@ -154,7 +157,7 @@ namespace Management.Application.Services
         }
 
 
-        public async Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "")
+        public async Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true)
         {
              var saleResult = Sale.Create(
                  memberId != null ? Guid.Parse(memberId) : null, 
@@ -177,21 +180,24 @@ namespace Management.Application.Services
 
             await _saleRepo.AddAsync(sale);
 
-            try 
+            if (publishNotification)
             {
-                System.Diagnostics.Debug.WriteLine("[QUICKSALE] Publishing notification...");
-                await _mediator.Publish(new FacilityActionCompletedNotification(
-                    facilityId,
-                    "QuickSale", 
-                    productName, 
-                    $"Sold {productName} for {amount:N0} DA",
-                    sale.Id.ToString()));
-                System.Diagnostics.Debug.WriteLine("[QUICKSALE] Notification published");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[QUICKSALE] Notification EXCEPTION: {ex}");
-                _logger?.LogWarning(ex, "Failed to publish QuickSale notification for product {ProductName}", productName);
+                try 
+                {
+                    System.Diagnostics.Debug.WriteLine("[QUICKSALE] Publishing notification...");
+                    await _mediator.Publish(new FacilityActionCompletedNotification(
+                        facilityId,
+                        "QuickSale", 
+                        productName, 
+                        $"Sold {productName} for {amount:N0} DA",
+                        sale.Id.ToString()));
+                    System.Diagnostics.Debug.WriteLine("[QUICKSALE] Notification published");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[QUICKSALE] Notification EXCEPTION: {ex}");
+                    _logger?.LogWarning(ex, "Failed to publish QuickSale notification for product {ProductName}", productName);
+                }
             }
 
             return true;

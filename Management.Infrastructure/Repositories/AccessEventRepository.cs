@@ -97,5 +97,10 @@ namespace Management.Infrastructure.Repositories
             }
             return await base.GetByIdAsync(id);
         }
+        public async Task<AccessEvent?> GetByTransactionIdAsync(string transactionId)
+        {
+            return await _dbSet.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => e.TransactionId == transactionId && !e.IsDeleted);
+        }
     }
 }

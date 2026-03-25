@@ -37,6 +37,12 @@ namespace Management.Presentation.Views.GymHome
 
         private void OnWindowPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            // CRITICAL: Never intercept modified key combinations.
+            // Ctrl+1–5, Ctrl+K, Ctrl+F are global shortcuts; Alt+key are system shortcuts.
+            // The barcode scanner only ever sends bare digits/letters — no modifiers.
+            if (Keyboard.Modifiers != ModifierKeys.None)
+                return;
+
             // Don't capture keys if an input control has focus (e.g., search box in top bar)
             if (Keyboard.FocusedElement is TextBox or PasswordBox)
                 return;

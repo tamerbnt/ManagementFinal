@@ -6,5 +6,6 @@ namespace Management.Application.DTOs
         public string Message { get; set; } = string.Empty;
         public string ReceiptNumber { get; set; } = string.Empty;
         public decimal Amount { get; set; }
+        public System.Guid SaleId { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Management.Application.Features.Sales.Commands.ProcessCheckout
 {
-    public record ProcessCheckoutCommand(Guid FacilityId, CheckoutRequestDto Request) : IRequest<Result<bool>>, IAuthorizeableRequest
+    public record ProcessCheckoutCommand(Guid FacilityId, CheckoutRequestDto Request, bool PublishNotification = true) : IRequest<Result<Guid>>, IAuthorizeableRequest
     {
         public IEnumerable<string> RequiredPermissions => new[] { "Check-In" };
     }

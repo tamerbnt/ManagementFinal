@@ -4,7 +4,9 @@ using Management.Presentation.Messages;
 using Management.Application.Services;
 using Management.Application.Interfaces.App;
 using Management.Domain.Models;
+using Management.Domain.Models.Salon;
 using Management.Application.DTOs;
+using Management.Presentation.Services.Salon;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -21,19 +23,22 @@ namespace Management.Presentation.Handlers
         private readonly IMemberService _memberService;
         private readonly ISaleService _saleService;
         private readonly IMediator _mediator;
+        private readonly ISalonService _salonService;
 
         public FacilityActionNotificationBridge(
             IMessenger messenger, 
             IToastService toastService,
             IMemberService memberService,
             ISaleService saleService,
-            IMediator mediator)
+            IMediator mediator,
+            ISalonService salonService)
         {
             _messenger = messenger;
             _toastService = toastService;
             _memberService = memberService;
             _saleService = saleService;
             _mediator = mediator;
+            _salonService = salonService;
         }
 
         public async Task Handle(FacilityActionCompletedNotification notification, CancellationToken cancellationToken)
@@ -53,41 +58,55 @@ namespace Management.Presentation.Handlers
                                    notification.ActionType == "QuickSale" || 
                                    notification.ActionType == "Sale" || 
                                    notification.ActionType == "Walk-In" ||
-                                   notification.ActionType == "Checkout";
+                                   notification.ActionType == "Checkout" ||
+                                   notification.ActionType == "Appointment";
 
             if (isUndoableAction)
             {
-                if (!string.IsNullOrEmpty(notification.EntityId) && Guid.TryParse(notification.EntityId, out var entityId))
+                if (!string.IsNullOrEmpty(notification.EntityId))
                 {
-                    _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    // Support comma-separated batch IDs (e.g., "id1,id2,id3")
+                    var entityIdStrings = notification.EntityId.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                    
+                    _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                     {
-                        System.Diagnostics.Debug.WriteLine($"[BRIDGE] Dispatcher.InvokeAsync called for ActionType={notification.ActionType}");
+                        System.Diagnostics.Debug.WriteLine($"[BRIDGE] Dispatcher.InvokeAsync called for ActionType={notification.ActionType}, Count={entityIdStrings.Length}");
+                        
                         _toastService.ShowSuccess(notification.Message, async () =>
                         {
                             try 
                             {
-                                if (notification.ActionType == "Registration")
+                                foreach (var idString in entityIdStrings)
                                 {
-                                    // Use the new atomic UndoRegistrationCommand to avoid AppDbContext concurrency issues
-                                    // and ensure data integrity (Member + Sales deleted correctly in one transaction)
-                                    await _mediator.Send(new Application.Features.Members.Commands.UndoRegistration.UndoRegistrationCommand(entityId, notification.FacilityId));
-                                    
-                                    _messenger.Send(new RefreshRequiredMessage<Member>(notification.FacilityId));
-                                    _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                    if (!Guid.TryParse(idString, out var entityId)) continue;
+
+                                    if (notification.ActionType == "Registration")
+                                    {
+                                        // Use the new atomic UndoRegistrationCommand to avoid AppDbContext concurrency issues
+                                        // and ensure data integrity (Member + Sales deleted correctly in one transaction)
+                                        await _mediator.Send(new Application.Features.Members.Commands.UndoRegistration.UndoRegistrationCommand(entityId, notification.FacilityId));
+                                        
+                                        _messenger.Send(new RefreshRequiredMessage<Member>(notification.FacilityId));
+                                        _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                    }
+                                    else if (notification.ActionType == "Appointment")
+                                    {
+                                        await _salonService.CancelAppointmentAsync(entityId);
+                                        _messenger.Send(new RefreshRequiredMessage<Appointment>(notification.FacilityId));
+                                    }
+                                    else
+                                    {
+                                        // Sale, QuickSale, Walk-In, Checkout
+                                        await _saleService.CancelSaleAsync(entityId);
+                                        _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                    }
                                 }
-                                else
-                                {
-                                    // Sale, QuickSale, Walk-In, Checkout
-                                    await _saleService.CancelSaleAsync(entityId);
-                                    _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
-                                }
-                                _toastService.ShowInfo("Action undone successfully.");
+                                
+                                string successMsg = entityIdStrings.Length > 1 ? $"{entityIdStrings.Length} actions undone successfully." : "Action undone successfully.";
+                                _toastService.ShowInfo(successMsg);
                             }
                             catch (Exception ex)
                             {
-                                // Log the error since it might be a DbUpdateException with deep inner exceptions
-                                // Note: _logger is not available here, but we can use System.Diagnostics.Debug or a static logger if available.
-                                // Actually, this class has access to dependencies. I'll add ILogger to it if missing.
                                 Console.WriteLine($"[Undo Error] {ex}");
                                 _toastService.ShowError($"Undo failed: {ex.Message}");
                             }

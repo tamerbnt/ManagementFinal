@@ -33,6 +33,7 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly IGymOperationService _gymOperationService;
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly Management.Domain.Services.IDialogService _dialogService;
+        private readonly MediatR.IMediator _mediator;
 
         [ObservableProperty]
         private CartTab _currentTab = CartTab.Products;
@@ -87,7 +88,8 @@ namespace Management.Presentation.ViewModels.GymHome
             Management.Domain.Services.IDialogService dialogService,
             ProductStore productStore,
             IGymOperationService gymOperationService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            MediatR.IMediator mediator)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
@@ -96,6 +98,7 @@ namespace Management.Presentation.ViewModels.GymHome
             _dialogService = dialogService;
             _productStore = productStore;
             _gymOperationService = gymOperationService;
+            _mediator = mediator;
 
             Title = GetTerm("Strings.GymHome.MultiSaleCart") ?? "Multi-Sale / Cart";
             _productStore.StockUpdated += OnProductStockUpdated;
@@ -271,6 +274,8 @@ namespace Management.Presentation.ViewModels.GymHome
 
             await ExecuteSafeAsync(async () =>
             {
+                var saleIds = new System.Collections.Generic.List<Guid>();
+
                 // 1. Process products via ISaleService for inventory tracking
                 if (CartItems.Any())
                 {
@@ -282,23 +287,50 @@ namespace Management.Presentation.ViewModels.GymHome
                         itemsMap
                     );
 
-                    var productResult = await _saleService.ProcessCheckoutAsync(_facilityContext.CurrentFacilityId, productRequest);
+                    // Suppress notification to prevent fragmentation
+                    var productResult = await _saleService.ProcessCheckoutAsync(
+                        _facilityContext.CurrentFacilityId, 
+                        productRequest, 
+                        publishNotification: false);
+
                     if (!productResult.IsSuccess)
                     {
                         ShowError((GetTerm("Strings.Shop.ProductCheckoutFailed") ?? "Product checkout failed: ") + " " + productResult.Error.Message);
-                        // Continue or stop? Usually stop if a partial failure occurs in a "multi" sale?
-                        // For Titan, we'll stop to let user fix issues.
                         return;
                     }
+                    saleIds.Add(productResult.Value);
                 }
 
                 // 2. Process walk-ins (Non-inventoried services)
                 for (int i = 0; i < WalkInCount; i++)
                 {
-                    await _gymOperationService.ProcessWalkInAsync(WalkInPrice, _facilityContext.CurrentFacilityId, SelectedWalkInPlan?.Name ?? "Walk-In");
+                    // Suppress notification to prevent fragmentation
+                    var walkInResult = await _gymOperationService.ProcessWalkInAsync(
+                        WalkInPrice, 
+                        _facilityContext.CurrentFacilityId, 
+                        SelectedWalkInPlan?.Name ?? "Walk-In",
+                        publishNotification: false);
+
+                    if (walkInResult.Success)
+                    {
+                        saleIds.Add(walkInResult.SaleId);
+                    }
                 }
 
-                // 3. Notify ViewModels to refresh (Dirty Flag)
+                // 3. Publish ONE composite notification for the whole cart
+                if (saleIds.Any())
+                {
+                    var batchIdString = string.Join(",", saleIds);
+                    var itemCount = CartItems.Count + WalkInCount;
+                    await _mediator.Publish(new Management.Application.Notifications.FacilityActionCompletedNotification(
+                        _facilityContext.CurrentFacilityId,
+                        "Checkout",
+                        "Multi-Sale Cart",
+                        $"Processed checkout for {itemCount} items ({GrandTotal:N0} DA)",
+                        batchIdString));
+                }
+
+                // 4. Notify ViewModels to refresh (Messenger remains the same)
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Sale>(_facilityContext.CurrentFacilityId));
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Member>(_facilityContext.CurrentFacilityId));
 

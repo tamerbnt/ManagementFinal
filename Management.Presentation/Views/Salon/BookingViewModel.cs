@@ -11,6 +11,7 @@ using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
 using Management.Presentation.Services.Salon;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +31,7 @@ namespace Management.Presentation.Views.Salon
         private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
         private readonly ITerminologyService _terminologyService;
         private readonly Management.Domain.Services.ITenantService _tenantService;
+        private readonly IMediator _mediator;
 
         private bool _isLoading;
         public bool IsLoading
@@ -240,7 +242,8 @@ namespace Management.Presentation.Views.Salon
             INotificationService notificationService, 
             Management.Domain.Services.IFacilityContextService facilityContext,
             ITerminologyService terminologyService,
-            Management.Domain.Services.ITenantService tenantService)
+            Management.Domain.Services.ITenantService tenantService,
+            IMediator mediator)
         {
             _salonService = salonService;
             _memberService = memberService;
@@ -250,6 +253,7 @@ namespace Management.Presentation.Views.Salon
             _facilityContext = facilityContext;
             _terminologyService = terminologyService;
             _tenantService = tenantService;
+            _mediator = mediator;
 
             // Use AsyncRelayCommand to properly propagate exceptions (avoid async void crash)
             SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteSave, CanSave);
@@ -359,7 +363,9 @@ namespace Management.Presentation.Views.Salon
             }
 
             var startTime = BookingDate.Add(BookingTime);
-            var endTime = startTime.AddMinutes(SelectedService.DurationMinutes > 0 ? SelectedService.DurationMinutes : 60);
+            var duration = SelectedService?.DurationMinutes ?? 60;
+            if (duration <= 0) duration = 60;
+            var endTime = startTime.AddMinutes(duration);
 
             if (await _salonService.HasConflictAsync(SelectedStaffId, SelectedClientId, startTime, endTime))
             {
@@ -418,20 +424,28 @@ namespace Management.Presentation.Views.Salon
                 TenantId = _tenantService.GetTenantId() ?? Guid.Empty,
                 FacilityId = _facilityContext.CurrentFacilityId,
                 ClientId = clientId,
-                ClientName = SelectedClientName,
+                ClientName = SelectedClientName ?? "Guest",
                 StaffId = SelectedStaffId,
-                StaffName = SelectedStaff.FullName, // Fix 2: Using property from SelectedStaff
+                StaffName = SelectedStaff?.FullName ?? "Unknown Staff", 
                 ServiceId = SelectedService?.Id ?? Guid.Empty, // Could be Empty if only plan selected
                 ServiceName = SelectedService?.Name ?? (SelectedMembershipPlan?.Name ?? "Membership Only"),
                 StartTime = startTime,
                 EndTime = endTime,
                 Price = Price,
                 Status = AppointmentStatus.Scheduled,
-                Notes = Notes
+                Notes = Notes ?? string.Empty
             };
 
             await _salonService.BookAppointmentAsync(appt);
-            _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Success"), NotificationType.Success);
+            
+            // Fix: Publish Undo-enabled notification using Mediator bridge
+            await _mediator.Publish(new Management.Application.Notifications.FacilityActionCompletedNotification(
+                appt.FacilityId, 
+                "Appointment", 
+                appt.ClientName, 
+                _terminologyService.GetTerm("Terminology.Salon.Booking.Success") ?? "Appointment Booked Successfully", 
+                appt.Id.ToString()));
+
             _modalService.CloseModal();
         }
     }

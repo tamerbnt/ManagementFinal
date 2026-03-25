@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Management.Application.Features.Sales.Commands.ProcessCheckout
 {
-    public class ProcessCheckoutCommandHandler : IRequestHandler<ProcessCheckoutCommand, Result<bool>>
+    public class ProcessCheckoutCommandHandler : IRequestHandler<ProcessCheckoutCommand, Result<Guid>>
     {
         private readonly ISaleRepository _saleRepository;
         private readonly IProductRepository _productRepository;
@@ -48,13 +48,13 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             _logger = logger;
         }
 
-        public async Task<Result<bool>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
+        public async Task<Result<Guid>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
         {
             System.Diagnostics.Debug.WriteLine("[CHECKOUT] Handle started");
             var checkoutRequest = request.Request;
             if (checkoutRequest.Items == null || !checkoutRequest.Items.Any())
             {
-                 return Result.Failure<bool>(new Error("Checkout.Empty", "Basket is empty."));
+                 return Result.Failure<Guid>(new Error("Checkout.Empty", "Basket is empty."));
             }
 
             var paymentMethod = checkoutRequest.Method;
@@ -73,7 +73,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             string capturedLabel = productName ?? "Miscellaneous Product";
 
             var sale = Sale.Create(checkoutRequest.MemberId, paymentMethod, transactionType, category, capturedLabel);
-            if (sale.IsFailure) return Result.Failure<bool>(sale.Error);
+            if (sale.IsFailure) return Result.Failure<Guid>(sale.Error);
 
             var saleEntity = sale.Value;
             saleEntity.FacilityId = request.FacilityId;
@@ -93,13 +93,13 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     var product = await _productRepository.GetByIdAsync(item.Key, request.FacilityId);
                     if (product == null)
                     {
-                         return Result.Failure<bool>(new Error("Checkout.ProductNotFound", $"Product {item.Key} not found."));
+                         return Result.Failure<Guid>(new Error("Checkout.ProductNotFound", $"Product {item.Key} not found."));
                     }
 
                     var decrementResult = product.DecrementStock(qty);
                     if (decrementResult.IsFailure)
                     {
-                        return Result.Failure<bool>(decrementResult.Error);
+                        return Result.Failure<Guid>(decrementResult.Error);
                     }
                     
                     productsToUpdate.Add(product);
@@ -140,27 +140,28 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                 // Notify activity stream - OUTSIDE TRANSACTION
                 // If notification fails (e.g. UI delay), the sale is already saved.
                 // Notify activity stream - OUTSIDE TRANSACTION
-                // If notification fails (e.g. UI delay), the sale is already saved.
-                // We await this to avoid DbContext disposal/concurrency issues in background tasks.
-                var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
-                try 
+                if (request.PublishNotification)
                 {
-                    System.Diagnostics.Debug.WriteLine("[CHECKOUT] Publishing notification...");
-                    await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
-                        request.FacilityId,
-                        "Sale",
-                        firstItemName,
-                        $"Processed checkout for {productsToUpdate.Count} items",
-                        saleEntity.Id.ToString()), cancellationToken);
-                    System.Diagnostics.Debug.WriteLine("[CHECKOUT] Notification completed");
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[CHECKOUT] Notification EXCEPTION: {ex}");
-                    _logger.LogWarning(ex, "Notification publishing failed for sale {SaleId}, but transaction was successful.", saleEntity.Id);
+                    var firstItemName = productsToUpdate.FirstOrDefault()?.Name ?? "Items";
+                    try 
+                    {
+                        System.Diagnostics.Debug.WriteLine("[CHECKOUT] Publishing notification...");
+                        await _mediator.Publish(new Notifications.FacilityActionCompletedNotification(
+                            request.FacilityId,
+                            "Sale",
+                            firstItemName,
+                            $"Processed checkout for {productsToUpdate.Count} items",
+                            saleEntity.Id.ToString()), cancellationToken);
+                        System.Diagnostics.Debug.WriteLine("[CHECKOUT] Notification completed");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[CHECKOUT] Notification EXCEPTION: {ex}");
+                        _logger.LogWarning(ex, "Notification publishing failed for sale {SaleId}, but transaction was successful.", saleEntity.Id);
+                    }
                 }
 
-                return Result.Success(true);
+                return Result.Success(saleEntity.Id);
             }
             catch (Exception ex)
             {
@@ -172,7 +173,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     try { await transaction.RollbackAsync(cancellationToken); } catch { /* Ignore rollback failure if already committed */ }
                 }
                 _logger.LogError(ex, "Checkout failed for facility {FacilityId}", request.FacilityId);
-                return Result.Failure<bool>(new Error("Checkout.DatabaseError", $"Failed to save sale: {ex.Message}"));
+                return Result.Failure<Guid>(new Error("Checkout.DatabaseError", $"Failed to save sale: {ex.Message}"));
             }
         }
     }

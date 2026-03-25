@@ -18,11 +18,15 @@ using Management.Domain.Services;
 using Management.Presentation.Services.Salon;
 using Management.Presentation.ViewModels;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Mvvm.Messaging;
 using Management.Domain.Services;
+using Management.Presentation.Messages;
 
 namespace Management.Presentation.Views.Salon
 {
-    public partial class AppointmentsViewModel : ViewModelBase, Management.Application.Interfaces.ViewModels.INavigationalLifecycle
+    public partial class AppointmentsViewModel : ViewModelBase, 
+        Management.Application.Interfaces.ViewModels.INavigationalLifecycle,
+        IRecipient<RefreshRequiredMessage<Appointment>>
     {
         private readonly ISalonService _salonService;
         private readonly INotificationService _notificationService;
@@ -99,6 +103,15 @@ namespace Management.Presentation.Views.Salon
             // Subscribe to real-time status changes from the service layer
             _salonService.AppointmentStatusChanged += OnAppointmentStatusChanged;
             _salonService.AppointmentAdded += OnAppointmentAdded;
+            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.RegisterAll(this);
+        }
+
+        public void Receive(RefreshRequiredMessage<Appointment> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            _logger?.LogInformation("[Appointments] Refresh message received for facility {Id}", message.Value);
+            System.Windows.Application.Current?.Dispatcher.InvokeAsync(async () => await LoadAppointments());
         }
 
         public Task InitializeAsync() => Task.CompletedTask;

@@ -28,6 +28,7 @@ namespace Management.Presentation.Services.Salon
         Task CompleteAppointmentAsync(Guid appointmentId, IEnumerable<ProductUsage> products);
         Task BookAppointmentAsync(Appointment appointment);
         Task UpdateAppointmentStatusAsync(Guid appointmentId, AppointmentStatus newStatus);
+        Task CancelAppointmentAsync(Guid appointmentId);
         event EventHandler<(Guid AppointmentId, AppointmentStatus NewStatus)>? AppointmentStatusChanged;
         event EventHandler<Appointment>? AppointmentAdded;
     }
@@ -320,7 +321,7 @@ namespace Management.Presentation.Services.Salon
                             price,
                             label,
                             appt.FacilityId,
-                            "Service", // Simplified transaction type
+                            $"SalonAppt-{appt.Id}", // Linked ID for Undo behavior
                             Management.Domain.Enums.SaleCategory.Service, // <- Changed from Membership
                             label
                         );
@@ -336,6 +337,36 @@ namespace Management.Presentation.Services.Salon
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"UpdateAppointmentStatusAsync failed: {ex.Message}");
+            }
+        }
+
+        public async Task CancelAppointmentAsync(Guid appointmentId)
+        {
+            try 
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var appointmentRepository = scope.ServiceProvider.GetRequiredService<IAppointmentRepository>();
+
+                // 1. Soft Delete in DB
+                await appointmentRepository.DeleteAsync(appointmentId);
+
+                // 2. Update local collection and notify
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher != null)
+                {
+                    await dispatcher.InvokeAsync(() => 
+                    {
+                        var localItem = Appointments.FirstOrDefault(a => a.Id == appointmentId);
+                        if (localItem != null)
+                        {
+                            Appointments.Remove(localItem);
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CancelAppointmentAsync failed: {ex.Message}");
             }
         }
     }
