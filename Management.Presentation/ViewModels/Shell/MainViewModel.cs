@@ -159,6 +159,9 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private ICommand? _quickSaleCommand;
 
+        [ObservableProperty]
+        private ICommand? _walkInCommand;
+
         public bool IsBulkSelectionActive => SelectionCount > 0;
         public string SelectionCountText => $"{SelectionCount} {_terminologyService.GetTerm(SelectionCount == 1 ? "Item" : "Items")} Selected";
         public bool ShowOfflineBanner => IsOffline;
@@ -320,6 +323,7 @@ namespace Management.Presentation.ViewModels.Shell
             LogoutCommand = new AsyncRelayCommand(ExecuteLogout);
             OpenCommandPaletteCommand = new RelayCommand(() => _paletteService.Open());
             QuickSaleCommand = new AsyncRelayCommand(ExecuteQuickSaleAsync);
+            WalkInCommand = new AsyncRelayCommand(ExecuteWalkInAsync);
             ToggleDiagnosticCommand = new RelayCommand(() => IsDiagnosticVisible = !IsDiagnosticVisible);
             UndoCommand = new AsyncRelayCommand(async () => await _undoService.UndoAsync(), () => _undoService.CanUndo);
             ToggleDensityCommand = new RelayCommand(() => GlobalRowHeight = GlobalRowHeight == 72 ? 48 : 72);
@@ -626,6 +630,7 @@ namespace Management.Presentation.ViewModels.Shell
             switch (currentVm)
             {
                 case DashboardViewModel _:
+                case Management.Presentation.ViewModels.GymHome.GymHomeViewModel _:
                 case MembersViewModel _:
                     AddButtonText = _terminologyService.GetTerm("Terminology.Add.Member");
                     IsAddButtonEnabled = true;
@@ -671,6 +676,11 @@ namespace Management.Presentation.ViewModels.Shell
         private async Task ExecuteQuickSaleAsync()
         {
             await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.Shop.QuickSaleViewModel>();
+        }
+
+        private async Task ExecuteWalkInAsync()
+        {
+            await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.GymHome.WalkInConfirmationViewModel>();
         }
 
         private async Task ExecuteLogout()

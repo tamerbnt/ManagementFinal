@@ -193,6 +193,13 @@ namespace Management.Presentation.Views.Shell
                         e.Handled = true;
                         return;
                     }
+
+                    if (vm.IsSettingsOpen)
+                    {
+                        vm.CloseSettingsCommand.Execute(null);
+                        e.Handled = true;
+                        return;
+                    }
                 }
             }
         }
