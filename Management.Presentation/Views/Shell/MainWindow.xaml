@@ -112,6 +112,8 @@
         
         <KeyBinding Key="N" Modifiers="Ctrl"
                     Command="{Binding Data.AddCommand, Source={StaticResource MainProxy}}"/>
+        <KeyBinding Key="Q" Modifiers="Ctrl"
+                    Command="{Binding Data.QuickSaleCommand, Source={StaticResource MainProxy}}"/>
 
         <!-- Search focus: Ctrl+F or Ctrl+K -->
         <KeyBinding Key="F" Modifiers="Ctrl"

@@ -156,6 +156,9 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private ICommand? _addCommand;
 
+        [ObservableProperty]
+        private ICommand? _quickSaleCommand;
+
         public bool IsBulkSelectionActive => SelectionCount > 0;
         public string SelectionCountText => $"{SelectionCount} {_terminologyService.GetTerm(SelectionCount == 1 ? "Item" : "Items")} Selected";
         public bool ShowOfflineBanner => IsOffline;
@@ -316,6 +319,7 @@ namespace Management.Presentation.ViewModels.Shell
             // Initialize Commands
             LogoutCommand = new AsyncRelayCommand(ExecuteLogout);
             OpenCommandPaletteCommand = new RelayCommand(() => _paletteService.Open());
+            QuickSaleCommand = new AsyncRelayCommand(ExecuteQuickSaleAsync);
             ToggleDiagnosticCommand = new RelayCommand(() => IsDiagnosticVisible = !IsDiagnosticVisible);
             UndoCommand = new AsyncRelayCommand(async () => await _undoService.UndoAsync(), () => _undoService.CanUndo);
             ToggleDensityCommand = new RelayCommand(() => GlobalRowHeight = GlobalRowHeight == 72 ? 48 : 72);
@@ -625,19 +629,19 @@ namespace Management.Presentation.ViewModels.Shell
                 case MembersViewModel _:
                     AddButtonText = _terminologyService.GetTerm("Terminology.Add.Member");
                     IsAddButtonEnabled = true;
-                    AddCommand = new RelayCommand(ExecuteAddMember);
+                    AddCommand = new AsyncRelayCommand(ExecuteAddMemberAsync);
                     break;
 
                 case FinanceAndStaffViewModel _:
                     AddButtonText = _terminologyService.GetTerm("Terminology.Add.Payment");
                     IsAddButtonEnabled = true;
-                    AddCommand = new RelayCommand(ExecuteAddPayment);
+                    AddCommand = new AsyncRelayCommand(ExecuteAddPaymentAsync);
                     break;
 
                 case ShopViewModel _:
                     AddButtonText = _terminologyService.GetTerm("Terminology.Add.Product");
                     IsAddButtonEnabled = true;
-                    AddCommand = new RelayCommand(ExecuteAddProduct);
+                    AddCommand = new AsyncRelayCommand(ExecuteAddProductAsync);
                     break;
 
                 case RegistrationsViewModel _:
@@ -649,9 +653,25 @@ namespace Management.Presentation.ViewModels.Shell
             }
         }
 
-        private void ExecuteAddMember() { /* Implementation skipped per user instructions or existing logic */ }
-        private void ExecuteAddPayment() { }
-        private void ExecuteAddProduct() { }
+        private async Task ExecuteAddMemberAsync()
+        {
+            await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.Members.QuickRegistrationViewModel>();
+        }
+
+        private async Task ExecuteAddPaymentAsync()
+        {
+            await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.Shop.QuickSaleViewModel>();
+        }
+
+        private async Task ExecuteAddProductAsync()
+        {
+            await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.Shop.QuickSaleViewModel>();
+        }
+
+        private async Task ExecuteQuickSaleAsync()
+        {
+            await _dialogService.ShowCustomDialogAsync<Management.Presentation.ViewModels.Shop.QuickSaleViewModel>();
+        }
 
         private async Task ExecuteLogout()
         {

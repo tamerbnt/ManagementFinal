@@ -448,6 +448,16 @@ namespace Management.Presentation.Services
             // Set up event handlers
             window.Closed += OnModalWindowClosed;
             window.PreviewKeyDown += OnModalWindowPreviewKeyDown;
+            
+            // Design System: Push logical focus inside the modal explicitly when loaded.
+            // This guarantees the 'IsDefault="True"' confirm buttons bind correctly to the Enter key.
+            window.Loaded += (s, e) =>
+            {
+                if (!window.IsKeyboardFocusWithin)
+                {
+                    window.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+                }
+            };
 
             var state = new ModalState
             {
