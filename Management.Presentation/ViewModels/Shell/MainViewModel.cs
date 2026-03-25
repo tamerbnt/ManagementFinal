@@ -322,11 +322,13 @@ namespace Management.Presentation.ViewModels.Shell
             // Keyboard Shortcut Commands
             FocusSearchCommand = new RelayCommand(() =>
             {
+                System.Diagnostics.Debug.WriteLine($"[KEYS-CMD] FocusSearchCommand EXECUTED IsOperational={IsOperational}");
                 if (IsOperational)
                     WeakReferenceMessenger.Default.Send(new FocusSearchMessage());
             });
             NavigateToIndexCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<int>(index =>
             {
+                System.Diagnostics.Debug.WriteLine($"[KEYS-CMD] NavigateToIndexCommand EXECUTED with index={index} IsOperational={IsOperational} MenuItems.Count={MenuItems?.Count}");
                 if (!IsOperational) return;
                 if (index >= 0 && index < MenuItems.Count)
                     SelectedMenuItem = MenuItems[index];

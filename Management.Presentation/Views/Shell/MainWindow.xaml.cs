@@ -74,17 +74,40 @@ namespace Management.Presentation.Views.Shell
                 RootGrid.Focus();
                 Keyboard.Focus(RootGrid);
 
-                // Fix 4: verify all Window.InputBindings resolved correctly.
-                // Any null Command means the BindingProxy did not receive the DataContext in time.
-                Serilog.Log.Debug("[Shortcuts] Window loaded. InputBindings count={Count}", InputBindings.Count);
-                foreach (InputBinding binding in InputBindings)
+                // Fix 4 + Step 1.2: verify all Window.InputBindings resolved correctly.
+                System.Diagnostics.Debug.WriteLine($"[KEYS-LOAD] Window Loaded");
+                System.Diagnostics.Debug.WriteLine($"[KEYS-LOAD] DataContext={DataContext?.GetType().Name ?? "NULL"}");
+                System.Diagnostics.Debug.WriteLine($"[KEYS-LOAD] Window.InputBindings count={InputBindings.Count}");
+                foreach (InputBinding ib in InputBindings)
                 {
-                    if (binding.Command == null)
+                    if (ib is KeyBinding kb)
                     {
-                        Serilog.Log.Warning("[Shortcuts] InputBinding has NULL command — Key={Key}",
-                            (binding as KeyBinding)?.Key);
+                        System.Diagnostics.Debug.WriteLine(
+                            $"[KEYS-LOAD]   KeyBinding: Key={kb.Key} Mod={kb.Modifiers} " +
+                            $"Command={kb.Command?.GetType().Name ?? "NULL"} " +
+                            $"CanExecute={kb.Command?.CanExecute(kb.CommandParameter)}");
+                    }
+                    Serilog.Log.Warning("[Shortcuts] InputBinding has NULL command — Key={Key}",
+                        (ib as KeyBinding)?.Key);
+                }
+
+                // Also check RootGrid InputBindings (should be 0 after Fix 2)
+                if (FindName("RootGrid") is FrameworkElement grid)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[KEYS-LOAD] RootGrid.InputBindings count={grid.InputBindings.Count}");
+                    foreach (InputBinding ib in grid.InputBindings)
+                    {
+                        if (ib is KeyBinding kb)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                $"[KEYS-LOAD]   RootGrid KeyBinding: Key={kb.Key} Mod={kb.Modifiers} " +
+                                $"Command={kb.Command?.GetType().Name ?? "NULL"} " +
+                                $"CanExecute={kb.Command?.CanExecute(kb.CommandParameter)}");
+                        }
                     }
                 }
+
+                Serilog.Log.Debug("[Shortcuts] Window loaded. InputBindings count={Count}", InputBindings.Count);
             };
         }
 
@@ -145,7 +168,18 @@ namespace Management.Presentation.Views.Shell
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine(
+                $"[KEYS-TRACE] OnPreviewKeyDown: Key={e.Key} Modifiers={Keyboard.Modifiers} " +
+                $"Handled={e.Handled} Source={e.Source?.GetType().Name} " +
+                $"OriginalSource={e.OriginalSource?.GetType().Name} " +
+                $"FocusedElement={Keyboard.FocusedElement?.GetType().Name}");
+
             base.OnPreviewKeyDown(e);
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[KEYS-TRACE] After base.OnPreviewKeyDown: Handled={e.Handled}");
+
+            if (e.Handled) return; // something in base already handled it
 
             if (e.Key == Key.Escape)
             {
@@ -161,6 +195,15 @@ namespace Management.Presentation.Views.Shell
                     }
                 }
             }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine(
+                $"[KEYS-TRACE] OnKeyDown: Key={e.Key} Modifiers={Keyboard.Modifiers} Handled={e.Handled}");
+            base.OnKeyDown(e);
+            System.Diagnostics.Debug.WriteLine(
+                $"[KEYS-TRACE] After base.OnKeyDown: Handled={e.Handled}");
         }
 
         protected override void OnPreviewMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
