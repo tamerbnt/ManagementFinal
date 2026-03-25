@@ -73,6 +73,18 @@ namespace Management.Presentation.Views.Shell
             {
                 RootGrid.Focus();
                 Keyboard.Focus(RootGrid);
+
+                // Fix 4: verify all Window.InputBindings resolved correctly.
+                // Any null Command means the BindingProxy did not receive the DataContext in time.
+                Serilog.Log.Debug("[Shortcuts] Window loaded. InputBindings count={Count}", InputBindings.Count);
+                foreach (InputBinding binding in InputBindings)
+                {
+                    if (binding.Command == null)
+                    {
+                        Serilog.Log.Warning("[Shortcuts] InputBinding has NULL command — Key={Key}",
+                            (binding as KeyBinding)?.Key);
+                    }
+                }
             };
         }
 

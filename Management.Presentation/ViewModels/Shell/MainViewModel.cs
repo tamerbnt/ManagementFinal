@@ -669,11 +669,17 @@ namespace Management.Presentation.ViewModels.Shell
             // TEMP DIAGNOSTIC — remove after verifying single navigation on startup
             Serilog.Log.Debug("[Navigation] NavigateToViewModelAsync called for {Type}", viewModelType.Name);
 
-            // Thread-safe atomic lock: if another navigation is already in progress, skip.
-            // This is the primary guard against the triple-navigation race condition.
+            // Thread-safe atomic lock: if another navigation is already in progress, retry after a
+            // short delay instead of silently dropping the request (e.g. rapid shortcut presses).
             if (System.Threading.Interlocked.CompareExchange(ref _navigationInProgress, 1, 0) != 0)
             {
-                Serilog.Log.Debug("[Navigation] Skipped concurrent navigation to {Type} — lock held.", viewModelType.Name);
+                Serilog.Log.Debug("[Navigation] Navigation in progress — retrying {Type} after 350ms", viewModelType.Name);
+                _ = System.Threading.Tasks.Task.Run(async () =>
+                {
+                    await System.Threading.Tasks.Task.Delay(350);
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                        () => _ = NavigateToViewModelAsync(viewModelType));
+                });
                 return;
             }
 
@@ -685,6 +691,7 @@ namespace Management.Presentation.ViewModels.Shell
                 if (navigationStore.CurrentViewModel?.GetType() == viewModelType ||
                     navigationStore.NextViewModel?.GetType() == viewModelType)
                 {
+                    Serilog.Log.Debug("[Navigation] Already on {Type} — shortcut ignored", viewModelType.Name);
                     return;
                 }
 
