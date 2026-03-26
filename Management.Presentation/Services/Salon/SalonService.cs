@@ -12,6 +12,8 @@ using Management.Domain.Services;
 using Management.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Management.Presentation.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Management.Presentation.Services.Salon
 {
@@ -287,7 +289,13 @@ namespace Management.Presentation.Services.Salon
                         localItem.Status = newStatus;
                     }
 
+                    // Path 1 — direct in-memory mutation via event (fast, no DB round trip)
                     AppointmentStatusChanged?.Invoke(this, (appointmentId, newStatus));
+
+                    // Path 2 — messenger fallback (triggers full reload if Path 1 missed)
+                    // This fires AFTER the event so AppointmentsViewModel gets both
+                    WeakReferenceMessenger.Default.Send(
+                        new RefreshRequiredMessage<Appointment>(appt.FacilityId));
                 });
             }
 
