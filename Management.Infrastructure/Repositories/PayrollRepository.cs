@@ -45,7 +45,7 @@ namespace Management.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task RestoreAsync(Guid id)
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
             var entry = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.Id == id);
             if (entry != null)

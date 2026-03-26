@@ -260,43 +260,50 @@ namespace Management.Presentation.ViewModels.Shop
                 if (SelectedCount == 0) return;
                 var toRemove = Products.Where(p => p.IsSelected).ToList();
                 var removedIds = toRemove.Select(p => p.Id).ToList();
+                var facilityId = _facilityContext.CurrentFacilityId;
 
-                // Remove visually immediately
-                foreach (var item in toRemove)
-                {
-                    Products.Remove(item);
-                }
-
-                IsSelectionMode = false;
-                SelectedCount = 0;
-
-                // Perform repository delete
+                // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
                 using var scope = _scopeFactory.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IProductRepository>();
+                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
                 
+                bool anyFailed = false;
                 foreach (var id in removedIds)
                 {
-                    await repo.DeleteAsync(id);
+                    var result = await productService.DeleteProductAsync(facilityId, id);
+                    if (result.IsFailure) anyFailed = true;
                 }
 
-                Debug.WriteLine($"[SHOP] Delete called. Count={toRemove.Count}, CallsUndoOverload=True");
-                _toastService.ShowSuccess(
-                    string.Format(GetTerm("Strings.Shop.DeletedProducts") ?? "Deleted {0} products.", toRemove.Count),
-                    async () => 
+                if (!anyFailed)
+                {
+                    foreach (var item in toRemove)
                     {
-                        using var undoScope = _scopeFactory.CreateScope();
-                        var undoRepo = undoScope.ServiceProvider.GetRequiredService<IProductRepository>();
-                        foreach (var id in removedIds)
+                        Products.Remove(item);
+                    }
+
+                    IsSelectionMode = false;
+                    SelectedCount = 0;
+
+                    _toastService.ShowSuccess(
+                        $"{toRemove.Count} product(s) deleted.",
+                        undoAction: async () => 
                         {
-                            await undoRepo.RestoreAsync(id);
-                        }
-                        
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
-                        {
-                            await LoadProductsAsync();
+                            using var undoScope = _scopeFactory.CreateScope();
+                            var undoService = undoScope.ServiceProvider.GetRequiredService<IProductService>();
+                            foreach (var id in removedIds)
+                            {
+                                await undoService.RestoreProductAsync(facilityId, id);
+                            }
+                            
+                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                            {
+                                await LoadProductsAsync(force: true);
+                            });
                         });
-                    },
-                    GetTerm("Strings.Shop.Undo") ?? "Undo");
+                }
+                else
+                {
+                    _toastService.ShowError("Some products failed to delete.");
+                }
             });
 
             ClearSelectionCommand = new RelayCommand(() => 
@@ -488,8 +495,9 @@ namespace Management.Presentation.ViewModels.Shop
             await LoadProductsAsync(false);
         }
 
-        private async Task LoadProductsAsync(bool isLoadMore)
+        public async Task LoadProductsAsync(bool isLoadMore = false, bool force = false)
         {
+            if (IsLoading && !force) return;
             try
             {
                 var facilityId = _facilityContext.CurrentFacilityId;

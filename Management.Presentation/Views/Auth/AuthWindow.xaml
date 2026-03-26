@@ -311,9 +311,86 @@
 
             </StackPanel>
 
-            <!-- Toast notifications -->
-            <StackPanel x:Name="ToastContainer" VerticalAlignment="Top" HorizontalAlignment="Right"
-                        Margin="0,24,24,0" Panel.ZIndex="3000"/>
+            <!-- Toast notifications overlay -->
+            <ItemsControl ItemsSource="{Binding ActiveToasts}"
+                          VerticalAlignment="Top" 
+                          HorizontalAlignment="Right"
+                          Margin="0,24,24,0" 
+                          Panel.ZIndex="3000">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Reusing the standard toast design from the system -->
+                        <Border x:Name="ToastCard" 
+                                Width="320" 
+                                CornerRadius="12" 
+                                Background="White"
+                                Padding="12"
+                                Margin="0,0,0,8">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="20" Opacity="0.10" Color="Black" Direction="270" ShadowDepth="4"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Type Icon -->
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="6" Margin="0,0,10,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                    <Setter Property="Background" Value="#E8F5E9"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                    <Setter Property="Background" Value="#FEECEC"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                    <Setter Property="Background" Value="#FFF8E1"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Path Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Success">
+                                                        <Setter Property="Data" Value="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                                                        <Setter Property="Fill" Value="#2E7D32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Error">
+                                                        <Setter Property="Data" Value="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                                        <Setter Property="Fill" Value="#C62828"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Type}" Value="Warning">
+                                                        <Setter Property="Data" Value="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                                                        <Setter Property="Fill" Value="#E65100"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </Border>
+
+                                <TextBlock Grid.Column="1" Text="{Binding Message}" FontSize="12" Foreground="#111827" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                
+                                <Button Grid.Column="2" Command="{Binding DismissCommand}" Width="20" Height="20" Background="Transparent" BorderThickness="0" Margin="4,0,0,0">
+                                    <Path Data="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" 
+                                          Fill="#9CA3AF" Stretch="Uniform" Width="8" Height="8"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
         </Grid>
     </Border>

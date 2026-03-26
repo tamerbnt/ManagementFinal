@@ -19,5 +19,6 @@ namespace Management.Application.Services
         Task<Result> UpdateProductAsync(Guid facilityId, ProductDto product);
         Task<Result> UpdateStockAsync(Guid facilityId, Guid productId, int quantityChange, string reason);
         Task<Result> DeleteProductAsync(Guid facilityId, Guid id);
+        Task<Result> RestoreProductAsync(Guid facilityId, Guid id);
     }
 }

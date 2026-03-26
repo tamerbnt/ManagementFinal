@@ -61,5 +61,13 @@ namespace Management.Infrastructure.Repositories
                 .Include(a => a.UsedProducts)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
+
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            await _dbSet
+                .IgnoreQueryFilters()
+                .Where(a => a.Id == id)
+                .ExecuteUpdateAsync(a => a.SetProperty(x => x.IsDeleted, false));
+        }
     }
 }

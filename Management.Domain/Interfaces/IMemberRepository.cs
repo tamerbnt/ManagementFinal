@@ -38,6 +38,6 @@ namespace Management.Domain.Interfaces
         Task<int> GetActiveCountAsync(Guid? facilityId = null);
         Task<int> GetTotalCountAsync(Guid? facilityId = null);
         Task<int> GetExpiringCountAsync(DateTime threshold, Guid? facilityId = null);
-        Task RestoreAsync(Guid id);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

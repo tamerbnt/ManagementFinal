@@ -30,5 +30,10 @@ namespace Management.Application.Services
         /// </summary>
         /// <exception cref="Management.Domain.Exceptions.BusinessRuleViolationException">Thrown if plan has active members assigned.</exception>
         Task<Result> DeletePlanAsync(Guid facilityId, Guid id);
+
+        /// <summary>
+        /// Restores a soft-deleted plan.
+        /// </summary>
+        Task<Result> RestorePlanAsync(Guid facilityId, Guid id);
     }
 }

@@ -465,6 +465,7 @@ namespace Management.Presentation
                 mappingService.Register<PayrollViewModel, PayrollView>();
                 mappingService.Register<PayrollHistoryViewModel, PayrollHistoryView>();
                 mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
+                mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 // SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
@@ -1088,7 +1089,6 @@ namespace Management.Presentation
                 ));
 
             services.AddSingleton<IDialogService, Management.Presentation.Services.DialogService>();
-            services.AddSingleton<IToastNotificationService, ToastNotificationService>();
             // services.AddSingleton<INotificationService, NotificationService>(); // Moved up for unification
             services.AddSingleton<IOnboardingStateStore, OnboardingStateStore>();
             services.AddSingleton<IStateResettable>(s => (OnboardingStateStore)s.GetRequiredService<IOnboardingStateStore>());

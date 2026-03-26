@@ -12,9 +12,6 @@ namespace Management.Infrastructure.Data
     /// <summary>
     /// Generic repository base class implementing common CRUD operations.
     /// </summary>
-    /// <summary>
-    /// Generic repository base class implementing common CRUD operations.
-    /// </summary>
     public abstract class Repository<T> : IRepository<T> where T : Management.Domain.Primitives.Entity
     {
         protected readonly DbContext _context;
@@ -26,19 +23,13 @@ namespace Management.Infrastructure.Data
             _dbSet = context.Set<T>();
         }
 
-
-
         public virtual async Task<T?> GetByIdAsync(Guid id, Guid? facilityId = null)
         {
             if (facilityId.HasValue && typeof(IFacilityEntity).IsAssignableFrom(typeof(T)))
             {
                 var query = _dbSet.IgnoreQueryFilters();
-                // We use dynamic linq or cast to IFacilityEntity for the filter
-                // For simplicity in the base class, we can use EF.Property if needed or let derived classes override
-                // But a generic implementation for IFacilityEntity is better:
                 return await query.FirstOrDefaultAsync(e => e.Id == id && 
-                    EF.Property<Guid>(e, "FacilityId") == facilityId.Value && 
-                    !e.IsDeleted);
+                    EF.Property<Guid>(e, "FacilityId") == facilityId.Value);
             }
             return await _dbSet.FindAsync(id);
         }
@@ -77,6 +68,22 @@ namespace Management.Infrastructure.Data
                 {
                     await _context.SaveChangesAsync();
                 }
+            }
+        }
+
+        public virtual async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            var query = _dbSet.IgnoreQueryFilters();
+            if (facilityId.HasValue && typeof(IFacilityEntity).IsAssignableFrom(typeof(T)))
+            {
+                query = query.Where(e => EF.Property<Guid>(e, "FacilityId") == facilityId.Value);
+            }
+
+            var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
+            if (entity != null)
+            {
+                entity.Restore();
+                await _context.SaveChangesAsync();
             }
         }
 

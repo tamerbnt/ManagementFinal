@@ -36,11 +36,13 @@ namespace Management.Application.Services
         /// </summary>
         Task<Result> UpdateStaffAsync(StaffDto staff);
 
-        /// <summary>
-        /// Revokes access and soft-deletes the staff member.
-        /// </summary>
         /// <exception cref="Management.Domain.Exceptions.BusinessRuleViolationException">Thrown if trying to delete the last Admin.</exception>
         Task<Result> RemoveStaffAsync(Guid id);
+
+        /// <summary>
+        /// Restores a soft-deleted staff member.
+        /// </summary>
+        Task<Result> RestoreStaffAsync(Guid id);
 
         /// <summary>
         /// Updates the granular permission matrix for a staff member.

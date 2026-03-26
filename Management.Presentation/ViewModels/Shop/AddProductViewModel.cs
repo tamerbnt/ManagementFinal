@@ -30,9 +30,11 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty] private decimal _cost;
         [ObservableProperty] private int _stockQuantity;
         [ObservableProperty] private int _reorderLevel = 10;
-
-        private bool _isEditMode;
+        
+        [ObservableProperty] private bool _isEditMode;
         private Guid _productId;
+
+        private readonly IDialogService _dialogService;
 
         public AddProductViewModel(
             ITerminologyService terminologyService,
@@ -41,12 +43,14 @@ namespace Management.Presentation.ViewModels.Shop
             ILogger<AddProductViewModel> logger,
             IDiagnosticService diagnosticService,
             IToastService toastService,
+            IDialogService dialogService,
             ModalNavigationStore modalNavigationStore,
             ILocalizationService localizationService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
             _modalNavigationStore = modalNavigationStore;
+            _dialogService = dialogService;
             UpdateTitle();
         }
 
@@ -54,7 +58,7 @@ namespace Management.Presentation.ViewModels.Shop
         {
             if (parameter is ProductDto product)
             {
-                _isEditMode = true;
+                IsEditMode = true;
                 _productId = product.Id;
                 Name = product.Name;
                 Sku = product.SKU;
@@ -70,7 +74,7 @@ namespace Management.Presentation.ViewModels.Shop
 
         private void UpdateTitle()
         {
-            Title = _isEditMode 
+            Title = IsEditMode 
                 ? (GetTerm("Strings.Shop.EditProduct") ?? "Edit Product")
                 : (GetTerm("Strings.Shop.AddNewProduct") ?? "Add New Product");
         }
@@ -93,7 +97,7 @@ namespace Management.Presentation.ViewModels.Shop
             {
                 var product = new ProductDto
                 {
-                    Id = _isEditMode ? _productId : Guid.NewGuid(),
+                    Id = IsEditMode ? _productId : Guid.NewGuid(),
                     Name = Name,
                     SKU = Sku,
                     Category = Category,
@@ -104,7 +108,7 @@ namespace Management.Presentation.ViewModels.Shop
                 };
 
                 Result result;
-                if (_isEditMode)
+                if (IsEditMode)
                 {
                     result = await _productService.UpdateProductAsync(_facilityContext.CurrentFacilityId, product);
                 }
@@ -118,7 +122,7 @@ namespace Management.Presentation.ViewModels.Shop
                     // Notify ViewModels to refresh (Dirty Flag)
                     CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(_facilityContext.CurrentFacilityId));
 
-                    string message = _isEditMode 
+                    string message = IsEditMode 
                         ? string.Format(GetTerm("Strings.Shop.ProductUpdatedSuccessfully") ?? "Product '{0}' updated successfully.", Name)
                         : string.Format(GetTerm("Strings.Shop.ProductAddedSuccessfully") ?? "Product '{0}' added successfully.", Name);
 
@@ -127,9 +131,43 @@ namespace Management.Presentation.ViewModels.Shop
                 }
                 else
                 {
-                    _toastService.ShowError($"{(_isEditMode ? "Failed to update" : "Failed to add")} product: {result.Error}");
+                    _toastService.ShowError($"{(IsEditMode ? "Failed to update" : "Failed to add")} product: {result.Error}");
                 }
-            }, _isEditMode ? "Updating product..." : "Adding product...");
+            }, IsEditMode ? "Updating product..." : "Adding product...");
+        }
+
+        [RelayCommand]
+        private async Task DeleteAsync()
+        {
+            if (!IsEditMode || _productId == Guid.Empty) return;
+
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            var facilityId = _facilityContext.CurrentFacilityId;
+            var productId = _productId;
+            var productName = Name;
+
+            await ExecuteLoadingAsync(async () =>
+            {
+                var result = await _productService.DeleteProductAsync(facilityId, productId);
+
+                if (result.IsSuccess)
+                {
+                    WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(facilityId));
+                    _toastService.ShowSuccess(
+                        $"Product '{productName}' deleted.",
+                        undoAction: async () => 
+                        {
+                            await _productService.RestoreProductAsync(facilityId, productId);
+                            WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(facilityId));
+                        });
+                    
+                    await _modalNavigationStore.CloseAsync(ModalResult.Success());
+                }
+                else
+                {
+                    _toastService.ShowError($"Failed to delete product: {result.Error}");
+                }
+            }, "Deleting product...");
         }
 
         [RelayCommand]

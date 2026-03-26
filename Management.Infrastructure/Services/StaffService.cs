@@ -3,6 +3,7 @@ using Management.Application.Services;
 using Management.Application.Features.Staff.Commands.CreateStaff;
 using Management.Application.Features.Staff.Commands.UpdateStaff;
 using Management.Application.Features.Staff.Commands.TerminateStaff;
+using Management.Application.Features.Staff.Commands.RestoreStaff;
 using Management.Application.DTOs;
 using Management.Domain.Primitives;
 using Management.Domain.Services;
@@ -93,6 +94,11 @@ namespace Management.Infrastructure.Services
         public async Task<Result> RemoveStaffAsync(Guid id)
         {
             return await _sender.Send(new TerminateStaffCommand(id));
+        }
+
+        public async Task<Result> RestoreStaffAsync(Guid id)
+        {
+            return await _sender.Send(new RestoreStaffCommand(id));
         }
 
         public async Task<Result<List<string>>> GetAvailableFacilitiesForStaffAsync(Guid staffId)

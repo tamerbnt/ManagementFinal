@@ -3,6 +3,7 @@ using Management.Application.Services;
 using Management.Application.Features.Products.Commands.CreateProduct;
 using Management.Application.Features.Products.Commands.UpdateProduct;
 using Management.Application.Features.Products.Commands.DeleteProduct;
+using Management.Application.Features.Products.Commands.RestoreProduct;
 using Management.Application.Features.Products.Commands.UpdateProductStock;
 using Management.Application.DTOs;
 using Management.Domain.Enums;
@@ -81,6 +82,11 @@ namespace Management.Infrastructure.Services
         public async Task<Result> DeleteProductAsync(Guid facilityId, Guid id)
         {
             return await _sender.Send(new DeleteProductCommand(id, facilityId));
+        }
+
+        public async Task<Result> RestoreProductAsync(Guid facilityId, Guid id)
+        {
+            return await _sender.Send(new RestoreProductCommand(id, facilityId));
         }
     }
 }

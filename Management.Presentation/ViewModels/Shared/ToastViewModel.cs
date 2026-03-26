@@ -8,7 +8,7 @@ using Management.Presentation.Extensions;
 
 namespace Management.Presentation.ViewModels.Shared
 {
-    public class ToastViewModel : ViewModelBase
+    public partial class ToastViewModel : ViewModelBase
     {
         public Guid Id { get; set; }
         public ToastType Type { get; set; }
@@ -16,8 +16,16 @@ namespace Management.Presentation.ViewModels.Shared
         public DateTime CreatedAt { get; set; }
         public ICommand DismissCommand { get; set; } = null!;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasUndo))]
+        private ICommand? _undoCommand;
+
+        partial void OnUndoCommandChanged(ICommand? value)
+        {
+            OnPropertyChanged(nameof(HasUndo));
+        }
+
         public bool HasUndo => UndoCommand != null;
-        public ICommand? UndoCommand { get; set; }
         public string UndoLabel { get; set; } = "Undo";
 
 

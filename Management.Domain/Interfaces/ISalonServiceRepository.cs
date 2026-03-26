@@ -8,5 +8,6 @@ namespace Management.Domain.Interfaces
     public interface ISalonServiceRepository : IRepository<SalonService>
     {
         Task<IEnumerable<SalonService>> GetAllAsync(Guid facilityId);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

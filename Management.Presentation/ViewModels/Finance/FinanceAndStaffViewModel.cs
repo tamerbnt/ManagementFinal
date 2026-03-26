@@ -150,7 +150,7 @@ namespace Management.Presentation.ViewModels.Finance
             _syncService.SyncCompleted += OnSyncCompleted;
             Title = GetTerm("Terminology.Staff.Header") ?? "Staff";
 
-            LoadStaffCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadStaffAsync);
+            LoadStaffCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => LoadStaffAsync());
             
             CloseDetailCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
@@ -159,6 +159,9 @@ namespace Management.Presentation.ViewModels.Finance
                 IsEditing = false;
             });
             GoToMemberProfileCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<HistoryTransaction>(transaction => { /* Navigate to member */ });
+            LoadHistoryCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
+            ViewDetailsCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<HistoryTransaction>(_ => Task.CompletedTask);
+            SaveAuditNoteCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
 
             SwitchViewModeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<string>(mode => ViewMode = mode ?? "List");
             
@@ -260,35 +263,36 @@ namespace Management.Presentation.ViewModels.Finance
             {
                 if (staff == null) return;
 
-                var confirmed = await _dialogService.ShowConfirmationAsync(
-                    string.Format(_localizationService?.GetString("Terminology.Staff.Delete.ConfirmTitle") ?? "Delete {0}", staff.FullName),
-                    string.Format(_localizationService?.GetString("Terminology.Staff.Delete.ConfirmMessage") ?? "Are you sure you want to delete this staff member? This will also remove them from the cloud."),
-                    _localizationService?.GetString("Terminology.Staff.Delete.ConfirmAction") ?? "Delete",
-                    _localizationService?.GetString("Terminology.Staff.Delete.CancelAction") ?? "Cancel"
-                );
-
-                if (confirmed)
+                // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+                var staffId = Guid.Parse(staff.Id);
+                var result = await _staffService.RemoveStaffAsync(staffId);
+                if (result.IsSuccess)
                 {
-                    var result = await _staffService.RemoveStaffAsync(Guid.Parse(staff.Id));
-                    if (result.IsSuccess)
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
-                        _toastService?.ShowSuccess(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteSuccess") ?? "Deleted {0}", staff.FullName));
-                        
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                        if (SelectedStaff == staff)
                         {
-                            if (SelectedStaff == staff)
+                            IsDetailOpen = false;
+                            SelectedStaff = null;
+                        }
+                        StaffMembers.Remove(staff);
+                        ApplyFilters();
+                    });
+
+                    _toastService?.ShowSuccess(
+                        $"Staff member '{staff.FullName}' removed.",
+                        undoAction: async () => 
+                        {
+                            var restoreResult = await _staffService.RestoreStaffAsync(staffId);
+                            if (restoreResult.IsSuccess)
                             {
-                                IsDetailOpen = false;
-                                SelectedStaff = null;
+                                await LoadStaffAsync(force: true); // Refresh collection
                             }
-                            StaffMembers.Remove(staff);
-                            ApplyFilters();
                         });
-                    }
-                    else
-                    {
-                        _toastService?.ShowError(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteError") ?? "Failed to delete staff: {0}", result.Error.Message));
-                    }
+                }
+                else
+                {
+                    _toastService?.ShowError(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteError") ?? "Failed to delete staff: {0}", result.Error.Message));
                 }
             });
 
@@ -310,9 +314,9 @@ namespace Management.Presentation.ViewModels.Finance
             await LoadStaffAsync();
         }
 
-        private async Task LoadStaffAsync()
+        private async Task LoadStaffAsync(bool force = false)
         {
-            if (IsLoading) return;
+            if (IsLoading && !force) return;
             IsLoading = true;
 
             try
@@ -338,7 +342,7 @@ namespace Management.Presentation.ViewModels.Finance
                                 HireDate = dto.HireDate,
                                 Salary = dto.Salary,
                                 PaymentDay = dto.PaymentDay,
-                                                                Initials = string.Join("", (dto.FullName ?? "Staff Member").Split(' ').Select(n => n?.FirstOrDefault() ?? 'S')).ToUpper()
+                                                                Initials = string.Join("", (dto.FullName ?? "Staff Member").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(n => n?.FirstOrDefault() ?? 'S')).ToUpper()
                             };
 
                             vm.Permissions.Clear();

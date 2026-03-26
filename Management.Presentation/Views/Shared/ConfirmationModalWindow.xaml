@@ -1,0 +1,15 @@
+<controls:ModernWindow x:Class="Management.Presentation.Views.Shared.ConfirmationModalWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shared="clr-namespace:Management.Presentation.Views.Shared"
+        xmlns:controls="clr-namespace:Management.Presentation.Resources.Controls"
+        Title="Confirmation"
+        SizeToContent="WidthAndHeight"
+        MinWidth="400"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Grid Margin="16">
+        <shared:ConfirmationModal />
+    </Grid>
+</controls:ModernWindow>

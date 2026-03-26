@@ -8,5 +8,6 @@ namespace Management.Domain.Interfaces
     {
         Task<IEnumerable<MembershipPlan>> GetActivePlansAsync(System.Guid? facilityId = null, bool activeOnly = true);
         Task<MembershipPlan?> GetByIdAsync(System.Guid id, System.Guid? facilityId = null);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

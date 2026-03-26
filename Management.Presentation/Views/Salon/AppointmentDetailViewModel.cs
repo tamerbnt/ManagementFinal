@@ -7,6 +7,8 @@ using Management.Presentation.Extensions;
 using Management.Presentation.Services;
 using Management.Presentation.Services.Localization;
 using Management.Domain.Services;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
 
 namespace Management.Presentation.Views.Salon
 {
@@ -17,6 +19,7 @@ namespace Management.Presentation.Views.Salon
         private readonly Services.Salon.ISalonService _salonService;
         private readonly ITerminologyService _terminologyService;
         private readonly ILocalizationService _localizationService;
+        private readonly IDialogService _dialogService;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ActionButtonText))]
@@ -34,19 +37,23 @@ namespace Management.Presentation.Views.Salon
             INotificationService notificationService,
             Services.Salon.ISalonService salonService,
             ITerminologyService terminologyService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IDialogService dialogService)
         {
             _modalService = modalService;
             _notificationService = notificationService;
             _salonService = salonService;
             _terminologyService = terminologyService;
             _localizationService = localizationService;
+            _dialogService = dialogService;
             CloseCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteClose);
             UpdateStatusCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteUpdateStatus);
+            CancelCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteCancel);
         }
 
         public ICommand CloseCommand { get; }
         public ICommand UpdateStatusCommand { get; }
+        public ICommand CancelCommand { get; }
 
         public override System.Threading.Tasks.Task OnModalOpenedAsync(object parameter, System.Threading.CancellationToken cancellationToken = default)
         {
@@ -92,6 +99,30 @@ namespace Management.Presentation.Views.Salon
                 _notificationService.ShowSuccess(
                     $"Appointment moved to {nextStatus}");
             });
+        }
+
+        private async System.Threading.Tasks.Task ExecuteCancel()
+        {
+            if (Appointment == null) return;
+
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            var appointmentId = Appointment.Id;
+            var clientName = Appointment.ClientName;
+
+            await _salonService.CancelAppointmentAsync(appointmentId);
+
+            // Close modal immediately
+            await _modalService.CloseCurrentModalAsync();
+
+            // Notify with Undo
+            _notificationService.ShowSuccess(
+                $"Appointment for {clientName} cancelled.",
+                undoAction: async () => 
+                {
+                    await _salonService.RestoreAppointmentAsync(appointmentId);
+                    // Force refresh to ensure schedule updates
+                    WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Appointment>(Appointment.FacilityId));
+                });
         }
     }
 }

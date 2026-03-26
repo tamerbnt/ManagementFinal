@@ -241,7 +241,6 @@ namespace Management.Presentation.ViewModels.Members
         }
 
         private readonly object _membersLock = new();
-        private MemberDto? _memberToDelete;
 
         public ObservableRangeCollection<MemberDto> FilteredMembers { get; } = new();
 
@@ -314,34 +313,51 @@ namespace Management.Presentation.ViewModels.Members
             PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
             RenewSelectedCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
             
-            // Delete Flow: Show Confirmation -> Execute
-            DeleteSingleMemberCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<MemberDto>(member => 
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            DeleteSingleMemberCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
             {
                 if (member == null) return;
-                _memberToDelete = member;
-                IsDeleteConfirmationVisible = true;
+                
+                var ids = new List<Guid> { member.Id };
+                var result = await _memberService.DeleteMembersAsync(_facilityContext.CurrentFacilityId, ids);
+                if (result.IsSuccess)
+                {
+                    FilteredMembers.Remove(member);
+                    if (SelectedMember?.Id == member.Id)
+                    {
+                        IsDetailPanelOpen = false;
+                        SelectedMember = null;
+                    }
+
+                    _toastService.ShowSuccess(
+                        $"Member '{member.FullName}' deleted.",
+                        undoAction: async () => 
+                        {
+                            var restoreResult = await _memberService.RestoreMembersAsync(_facilityContext.CurrentFacilityId, ids);
+                            if (restoreResult.IsSuccess)
+                            {
+                                await LoadMembersAsync(force: true); // Refresh collection
+                            }
+                        });
+                }
+                else
+                {
+                    _toastService.ShowError(result.Error?.Message ?? "Failed to delete member.");
+                }
             });
 
             DeleteSelectedCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 if (SelectedCount > 0) 
                 {
-                    _memberToDelete = null; 
                     IsDeleteConfirmationVisible = true;
                 }
             });
 
             DeleteConfirmedCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
             {
-                var idsToDelete = new List<Guid>();
-                if (_memberToDelete != null)
-                {
-                    idsToDelete.Add(_memberToDelete.Id);
-                }
-                else
-                {
-                    idsToDelete.AddRange(FilteredMembers.Where(m => m.IsSelected).Select(m => m.Id));
-                }
+                var toRemove = FilteredMembers.Where(m => m.IsSelected).ToList();
+                var idsToDelete = toRemove.Select(m => m.Id).ToList();
 
                 if (!idsToDelete.Any())
                 {
@@ -349,27 +365,36 @@ namespace Management.Presentation.ViewModels.Members
                     return;
                 }
 
+                IsDeleteConfirmationVisible = false; // Close confirm immediately if it was open
+
                 await ExecuteLoadingAsync(async () => 
                 {
                     var result = await _memberService.DeleteMembersAsync(_facilityContext.CurrentFacilityId, idsToDelete);
                     if (result.IsSuccess)
                     {
-                        var toRemove = FilteredMembers.Where(m => idsToDelete.Contains(m.Id)).ToList();
                         foreach(var item in toRemove)
                         {
                             FilteredMembers.Remove(item);
                         }
                         
-                        toastService.ShowSuccess($"Deleted {idsToDelete.Count} member(s) successfully.");
+                        _toastService.ShowSuccess(
+                            $"{idsToDelete.Count} member(s) deleted.",
+                            undoAction: async () => 
+                            {
+                                var restoreResult = await _memberService.RestoreMembersAsync(_facilityContext.CurrentFacilityId, idsToDelete);
+                                if (restoreResult.IsSuccess)
+                                {
+                                    await LoadMembersAsync(force: true);
+                                }
+                            });
+
                         IsSelectionMode = false;
                         SelectedCount = 0;
                         SelectAll = false;
-                        _memberToDelete = null;
-                        IsDeleteConfirmationVisible = false;
                     }
                     else
                     {
-                        toastService.ShowError($"Failed to delete member(s): {result.Error.Message}");
+                        _toastService.ShowError($"Failed to delete member(s): {result.Error.Message}");
                     }
                 });
             });
@@ -377,7 +402,6 @@ namespace Management.Presentation.ViewModels.Members
             CancelDeleteCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 IsDeleteConfirmationVisible = false;
-                _memberToDelete = null;
             });
             
             ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
@@ -495,14 +519,9 @@ namespace Management.Presentation.ViewModels.Members
         }
 
 
-        private async Task LoadMembersAsync()
+        private async Task LoadMembersAsync(bool isLoadMore = false, bool force = false)
         {
-            await LoadMembersAsync(false);
-        }
-
-        private async Task LoadMembersAsync(bool isLoadMore)
-        {
-            if (IsLoading) return;
+            if (IsLoading && !force) return;
             IsLoading = true;
 
             try

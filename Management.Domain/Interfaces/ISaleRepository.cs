@@ -19,6 +19,6 @@ namespace Management.Domain.Interfaces
         
         Task<IEnumerable<Sale>> GetSalesByMemberAsync(Guid memberId, Guid facilityId);
         Task<IEnumerable<Sale>> GetSalesByMemberForUndoAsync(Guid memberId, Guid facilityId);
-        Task RestoreAsync(Guid id);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

@@ -74,7 +74,7 @@ namespace Management.Infrastructure.Repositories
             return await base.GetByIdAsync(id);
         }
 
-        public async Task RestoreAsync(Guid id)
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
             var sale = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == id);
             if (sale != null)

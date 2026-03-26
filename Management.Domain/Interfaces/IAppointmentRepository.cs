@@ -10,5 +10,6 @@ namespace Management.Domain.Interfaces
         Task<IEnumerable<Appointment>> GetByDateRangeAsync(DateTime start, DateTime end, Guid? facilityId = null);
         Task<IEnumerable<Appointment>> GetByStaffAsync(Guid staffId, DateTime start, DateTime end, Guid? facilityId = null);
         Task<bool> HasConflictAsync(Guid staffId, DateTime start, DateTime end, Guid? excludingAppointmentId = null, Guid? facilityId = null);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

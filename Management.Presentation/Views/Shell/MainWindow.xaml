@@ -58,74 +58,73 @@
         </Style>
     </Window.Resources>
 
-    <Window.InputBindings>
-        <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 — number row (D1-D5) -->
-        <KeyBinding Key="D1" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>0</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="D2" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>1</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="D3" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>2</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="D4" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>3</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="D5" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>4</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-
-        <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 — numpad row (NumPad1-NumPad5) -->
-        <!-- REQUIRED: debug output shows keyboard sends Key=NumPad1, not Key=D1 -->
-        <KeyBinding Key="NumPad1" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>0</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="NumPad2" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>1</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="NumPad3" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>2</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="NumPad4" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>3</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-        <KeyBinding Key="NumPad5" Modifiers="Ctrl"
-                    Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
-            <KeyBinding.CommandParameter><sys:Int32>4</sys:Int32></KeyBinding.CommandParameter>
-        </KeyBinding>
-
-        <!-- Missing Shortcuts -->
-        <KeyBinding Key="D6" Modifiers="Ctrl"
-                    Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
-        <KeyBinding Key="NumPad6" Modifiers="Ctrl"
-                    Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
-        
-        <KeyBinding Key="N" Modifiers="Ctrl"
-                    Command="{Binding Data.AddCommand, Source={StaticResource MainProxy}}"/>
-        <KeyBinding Key="Q" Modifiers="Ctrl"
-                    Command="{Binding Data.QuickSaleCommand, Source={StaticResource MainProxy}}"/>
-        <KeyBinding Key="W" Modifiers="Ctrl"
-                    Command="{Binding Data.WalkInCommand, Source={StaticResource MainProxy}}"/>
-
-        <!-- Search focus: Ctrl+F or Ctrl+K -->
-        <KeyBinding Key="F" Modifiers="Ctrl"
-                    Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
-        <KeyBinding Key="K" Modifiers="Ctrl"
-                    Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
-    </Window.InputBindings>
-
     <!-- Root: Solid background to ground the atmospheric nebula and prevent corner artifacts when AllowsTransparency=False -->
     <Grid x:Name="RootGrid" Background="{DynamicResource Brush.Window.Background}" Focusable="True">
+        <Grid.InputBindings>
+            <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 — number row (D1-D5) -->
+            <KeyBinding Key="D1" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>0</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="D2" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>1</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="D3" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>2</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="D4" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>3</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="D5" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>4</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+
+            <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 — numpad row (NumPad1-NumPad5) -->
+            <!-- REQUIRED: debug output shows keyboard sends Key=NumPad1, not Key=D1 -->
+            <KeyBinding Key="NumPad1" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>0</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="NumPad2" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>1</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="NumPad3" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>2</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="NumPad4" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>3</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+            <KeyBinding Key="NumPad5" Modifiers="Ctrl"
+                        Command="{Binding Data.NavigateToIndexCommand, Source={StaticResource MainProxy}}">
+                <KeyBinding.CommandParameter><sys:Int32>4</sys:Int32></KeyBinding.CommandParameter>
+            </KeyBinding>
+
+            <!-- Missing Shortcuts -->
+            <KeyBinding Key="D6" Modifiers="Ctrl"
+                        Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
+            <KeyBinding Key="NumPad6" Modifiers="Ctrl"
+                        Command="{Binding Data.OpenSettingsCommand, Source={StaticResource MainProxy}}"/>
+            
+            <KeyBinding Key="N" Modifiers="Ctrl"
+                        Command="{Binding Data.AddCommand, Source={StaticResource MainProxy}}"/>
+            <KeyBinding Key="Q" Modifiers="Ctrl"
+                        Command="{Binding Data.QuickSaleCommand, Source={StaticResource MainProxy}}"/>
+            <KeyBinding Key="W" Modifiers="Ctrl"
+                        Command="{Binding Data.WalkInCommand, Source={StaticResource MainProxy}}"/>
+
+            <!-- Search focus: Ctrl+F or Ctrl+K -->
+            <KeyBinding Key="F" Modifiers="Ctrl"
+                        Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
+            <KeyBinding Key="K" Modifiers="Ctrl"
+                        Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
+        </Grid.InputBindings>
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>
                 <Style TargetType="Grid">

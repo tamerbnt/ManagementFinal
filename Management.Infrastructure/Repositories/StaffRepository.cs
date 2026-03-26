@@ -140,5 +140,15 @@ namespace Management.Infrastructure.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            await _dbSet
+                .IgnoreQueryFilters()
+                .Where(s => s.Id == id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.IsDeleted, false)
+                    .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
+        }
     }
 }

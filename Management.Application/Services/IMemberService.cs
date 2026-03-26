@@ -37,6 +37,11 @@ namespace Management.Application.Services
         Task<Result> DeleteMembersAsync(Guid facilityId, List<Guid> ids);
 
         /// <summary>
+        /// Restores a list of soft-deleted members.
+        /// </summary>
+        Task<Result> RestoreMembersAsync(Guid facilityId, List<Guid> ids);
+
+        /// <summary>
         /// Extends the expiration date for a list of members based on their plan default.
         /// </summary>
         Task<Result> RenewMembersAsync(Guid facilityId, List<Guid> ids);

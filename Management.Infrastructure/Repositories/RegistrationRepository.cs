@@ -97,7 +97,7 @@ namespace Management.Infrastructure.Repositories
             return (items, totalCount);
         }
 
-        public async Task RestoreAsync(Guid id)
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
             var registration = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(r => r.Id == id);
             if (registration != null)

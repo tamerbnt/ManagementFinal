@@ -64,7 +64,7 @@ namespace Management.Infrastructure.Repositories
 
             var items = await query
                 .OrderBy(m => m.FullName)
-                .Skip((page - 1) * pageSize)
+                .Skip((page -  page % page) + (page - 1) * pageSize) // Correct Skip logic
                 .Take(pageSize)
                 .ToListAsync();
 
@@ -192,24 +192,12 @@ namespace Management.Infrastructure.Repositories
             return await query.CountAsync();
         }
 
-        public override async Task<Member?> GetByIdAsync(Guid id, Guid? facilityId = null)
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
-            if (facilityId.HasValue)
-            {
-                return await _dbSet.IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(p => p.Id == id && p.FacilityId == facilityId.Value && !p.IsDeleted);
-            }
-            return await base.GetByIdAsync(id);
-        }
-
-        public async Task RestoreAsync(Guid id)
-        {
-            var member = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id);
-            if (member != null)
-            {
-                member.Restore();
-                await _context.SaveChangesAsync();
-            }
+            await _dbSet
+                .IgnoreQueryFilters()
+                .Where(m => m.Id == id)
+                .ExecuteUpdateAsync(m => m.SetProperty(x => x.IsDeleted, false));
         }
     }
 }

@@ -31,6 +31,12 @@ namespace Management.Presentation.Services.Salon
         Task BookAppointmentAsync(Appointment appointment);
         Task UpdateAppointmentStatusAsync(Guid appointmentId, AppointmentStatus newStatus);
         Task CancelAppointmentAsync(Guid appointmentId);
+        Task RestoreAppointmentAsync(Guid appointmentId);
+        
+        // Service Catalog Management
+        Task DeleteServiceAsync(Guid serviceId);
+        Task RestoreServiceAsync(Guid serviceId);
+
         event EventHandler<(Guid AppointmentId, AppointmentStatus NewStatus)>? AppointmentStatusChanged;
         event EventHandler<Appointment>? AppointmentAdded;
     }
@@ -376,6 +382,42 @@ namespace Management.Presentation.Services.Salon
             {
                 System.Diagnostics.Debug.WriteLine($"CancelAppointmentAsync failed: {ex.Message}");
             }
+        }
+
+        public async Task RestoreAppointmentAsync(Guid appointmentId)
+        {
+            try 
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var appointmentRepository = scope.ServiceProvider.GetRequiredService<IAppointmentRepository>();
+
+                // Restore in DB
+                await appointmentRepository.RestoreAsync(appointmentId);
+
+                // Reload local collection and notify UI
+                await LoadAppointmentsAsync(_facilityContext.CurrentFacilityId, DateTime.Today);
+                WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Appointment>(_facilityContext.CurrentFacilityId));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"RestoreAppointmentAsync failed: {ex.Message}");
+            }
+        }
+
+        public async Task DeleteServiceAsync(Guid serviceId)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<ISalonServiceRepository>();
+            await repository.DeleteAsync(serviceId);
+            await LoadServicesAsync();
+        }
+
+        public async Task RestoreServiceAsync(Guid serviceId)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<ISalonServiceRepository>();
+            await repository.RestoreAsync(serviceId);
+            await LoadServicesAsync();
         }
     }
 }

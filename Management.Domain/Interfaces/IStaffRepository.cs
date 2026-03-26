@@ -14,5 +14,6 @@ namespace Management.Domain.Interfaces
         Task SafeAddAsync(StaffMember staff);
         Task<Management.Domain.Enums.FacilityType?> GetFacilityTypeByIdAsync(Guid facilityId);
         Task UpdatePinAsync(Guid staffId, string hashedPin);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

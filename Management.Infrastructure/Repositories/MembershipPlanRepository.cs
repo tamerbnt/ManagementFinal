@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +48,22 @@ namespace Management.Infrastructure.Repositories
             return await query
                 .Include(p => p.AccessibleFacilities)
                 .ToListAsync();
+        }
+
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            var query = _dbSet.IgnoreQueryFilters();
+            if (facilityId.HasValue)
+                query = query.Where(p => p.FacilityId == facilityId.Value);
+
+            var plan = await query.FirstOrDefaultAsync(p => p.Id == id);
+            if (plan != null)
+            {
+                plan.Restore();
+                // Ensure plan becomes active again if it was deactivated
+                plan.Activate(); 
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

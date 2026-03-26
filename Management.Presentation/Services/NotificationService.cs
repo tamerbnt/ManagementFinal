@@ -137,7 +137,7 @@ namespace Management.Presentation.Services
                     Id = Guid.NewGuid(),
                     Type = ToastType.Success,
                     Message = message,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                     IsPaused = false,
                     IsExiting = false,
                     UndoLabel = undoLabel
@@ -145,13 +145,32 @@ namespace Management.Presentation.Services
                 
                 toast.DismissCommand = new AsyncRelayCommand(() => DismissToastAsync(toast.Id));
 
+                Serilog.Log.Information("[Notification] Creating success toast with undo: {Message} ({Label})", message, undoLabel);
+                
                 toast.UndoCommand = new AsyncRelayCommand(async () =>
                 {
+                    System.Diagnostics.Debug.WriteLine($"\n[DIAGNOSTIC] === UNDO COMMAND EXECUTION STARTED ===");
+                    System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] Message Context: {message}");
+                    Serilog.Log.Information("[Notification] Undo triggered for: {Message}", message);
                     // Start Exit immediately to show progress
                     toast.IsExiting = true; 
-                    try { await undoAction(); }
+                    try 
+                    { 
+                        await undoAction(); 
+                        System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] === UNDO COMMAND COMPLETED SUCCESSFULLY ===\n");
+                    }
                     catch (Exception ex)
                     {
+                        System.Diagnostics.Debug.WriteLine($"\n[DIAGNOSTIC] !!! UNDO COMMAND FAILED !!!");
+                        System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] Exception Type: {ex.GetType().FullName}");
+                        System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] Message: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] StackTrace:\n{ex.StackTrace}");
+                        if (ex.InnerException != null) 
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] InnerException: {ex.InnerException.GetType().FullName} - {ex.InnerException.Message}");
+                            System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] Inner StackTrace:\n{ex.InnerException.StackTrace}");
+                        }
+                        System.Diagnostics.Debug.WriteLine($"[DIAGNOSTIC] =======================================\n");
                         _logger.LogError(ex, "[Undo] Undo action failed for message: {Message}", message);
                     }
                     // Wait for animation to finish after logic if it wasn't already dismissed

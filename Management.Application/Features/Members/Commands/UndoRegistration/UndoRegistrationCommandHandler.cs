@@ -48,10 +48,13 @@ namespace Management.Application.Features.Members.Commands.UndoRegistration
                 // 3. Delete each sale
                 // Since they are tracked with their items, the Interceptor will catch everything
                 // and perform a soft-delete (Modified state + IsDeleted=true) for both parent and children.
-                foreach (var sale in sales)
+                if (sales != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[UNDO] Soft-deleting sale {sale.Id}");
-                    await _saleRepository.DeleteAsync(sale.Id, saveChanges: false);
+                    foreach (var sale in sales)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[UNDO] Soft-deleting sale {sale.Id}");
+                        await _saleRepository.DeleteAsync(sale.Id, saveChanges: false);
+                    }
                 }
 
                 // 4. Delete Member

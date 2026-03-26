@@ -3,6 +3,7 @@ using Management.Application.Services;
 using Management.Application.Features.Plans.Commands.CreatePlan;
 using Management.Application.Features.Plans.Commands.UpdatePlan;
 using Management.Application.Features.Plans.Commands.DeletePlan;
+using Management.Application.Features.Plans.Commands.RestorePlan;
 using Management.Application.DTOs;
 using Management.Domain.Primitives;
 using Management.Domain.Services;
@@ -47,6 +48,16 @@ namespace Management.Infrastructure.Services
         public async Task<Result> DeletePlanAsync(Guid facilityId, Guid id)
         {
             var result = await _sender.Send(new DeletePlanCommand(id, facilityId));
+            if (result.IsSuccess)
+            {
+                _cache.InvalidatePlanSchedule(id);
+            }
+            return result;
+        }
+
+        public async Task<Result> RestorePlanAsync(Guid facilityId, Guid id)
+        {
+            var result = await _sender.Send(new RestorePlanCommand(id, facilityId));
             if (result.IsSuccess)
             {
                 _cache.InvalidatePlanSchedule(id);

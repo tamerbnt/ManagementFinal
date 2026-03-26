@@ -29,5 +29,21 @@ namespace Management.Infrastructure.Repositories
             }
             return await query.FirstOrDefaultAsync(s => s.Id == id);
         }
+
+        public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            var query = _dbSet.IgnoreQueryFilters();
+            if (facilityId.HasValue)
+                query = query.Where(p => p.FacilityId == facilityId.Value);
+
+            var service = await query.FirstOrDefaultAsync(p => p.Id == id);
+            if (service != null)
+            {
+                service.Restore();
+                // SalonService doesn't have IsActive, but we follow the pattern for consistency
+                // if it's ever added or if we want to ensure any other flags are reset.
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

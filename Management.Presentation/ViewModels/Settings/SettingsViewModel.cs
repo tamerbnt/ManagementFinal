@@ -321,9 +321,9 @@ namespace Management.Presentation.ViewModels.Settings
 
 
         [RelayCommand]
-        public async Task LoadPlansAsync()
+        public async Task LoadPlansAsync(bool force = false)
         {
-            if (IsLoading) return;
+            if (IsLoading && !force) return;
             IsLoading = true;
 
             try
@@ -524,9 +524,9 @@ namespace Management.Presentation.ViewModels.Settings
         private bool _servicesLoaded = false;
 
         [RelayCommand]
-        public async Task LoadSalonServicesAsync()
+        public async Task LoadSalonServicesAsync(bool force = false)
         {
-            if (IsLoading) return;
+            if (IsLoading && !force) return;
             IsLoading = true;
 
             try
@@ -596,25 +596,23 @@ namespace Management.Presentation.ViewModels.Settings
         {
             if (service == null) return;
 
-            var result = await _dialogService.ShowConfirmationAsync(
-                _localizationService.GetString("TerminologyDeleteLabel"), 
-                $"Are you sure you want to delete '{service.Name}'?");
-
-            if (result)
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            try
             {
-                using var scope = _serviceProvider.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<Management.Infrastructure.Data.AppDbContext>();
-                
-                var dbService = await context.SalonServices.FindAsync(service.Id);
-                if (dbService != null)
-                {
-                    context.SalonServices.Remove(dbService);
-                    await context.SaveChangesAsync();
-                    
-                    // Update UI
-                    SalonServices.Remove(service);
-                    await _salonServiceInternal.LoadServicesAsync();
-                }
+                await _salonServiceInternal.DeleteServiceAsync(service.Id);
+                SalonServices.Remove(service);
+
+                _toastService.ShowSuccess(
+                    $"Service '{service.Name}' deleted.",
+                    undoAction: async () => 
+                    {
+                        await _salonServiceInternal.RestoreServiceAsync(service.Id);
+                         await LoadSalonServicesAsync(force: true); // Refresh collection
+                    });
+            }
+            catch (Exception ex)
+            {
+                _toastService.ShowError($"Failed to delete service: {ex.Message}");
             }
         }
 
@@ -782,46 +780,57 @@ namespace Management.Presentation.ViewModels.Settings
         {
             if (plan == null) return;
 
-            bool confirmed = await _dialogService.ShowConfirmationAsync(
-                _localizationService.GetString("Terminology.Settings.Plans.Delete"),
-                $"Are you sure you want to delete the plan '{plan.Name}'? This action cannot be undone.",
-                confirmText: "Delete",
-                cancelText: "Cancel",
-                isDestructive: true);
-
-            if (confirmed)
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            var result = await _planService.DeletePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
+            if (result.IsSuccess)
             {
-                var result = await _planService.DeletePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
-                if (result.IsSuccess)
-                {
-                    _plansLoaded = false;
-                    MembershipPlans.Remove(plan);
-                }
-            }
-        }
+                MembershipPlans.Remove(plan);
+                _plansLoaded = false;
 
-        [RelayCommand]
+                _toastService.ShowSuccess(
+                    $"Plan '{plan.Name}' deleted.",
+                    undoAction: async () => 
+                    {
+                        var restoreResult = await _planService.RestorePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
+                        if (restoreResult.IsSuccess)
+                        {
+                            await LoadPlansAsync(force: true); // Refresh collection
+                        }
+                    });
+            }
+            else
+            {
+                _toastService.ShowError(result.Error?.Message ?? "Failed to delete plan.");
+            }
+        }        [RelayCommand]
         private async Task DeleteWalkInPlan(WalkInPlanViewModel plan)
         {
             if (plan == null) return;
 
-            bool confirmed = await _dialogService.ShowConfirmationAsync(
-                _localizationService.GetString("Terminology.Settings.Plans.Delete"),
-                $"Are you sure you want to delete the walk-in plan '{plan.Name}'? This action cannot be undone.",
-                confirmText: "Delete",
-                cancelText: "Cancel",
-                isDestructive: true);
-
-            if (confirmed)
+            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
+            var result = await _planService.DeletePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
+            if (result.IsSuccess)
             {
-                var result = await _planService.DeletePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
-                if (result.IsSuccess)
-                {
-                    _plansLoaded = false;
-                    WalkInPlans.Remove(plan);
-                }
+                WalkInPlans.Remove(plan);
+                _plansLoaded = false;
+
+                _toastService.ShowSuccess(
+                    $"Walk-in plan '{plan.Name}' deleted.",
+                    undoAction: async () => 
+                    {
+                        var restoreResult = await _planService.RestorePlanAsync(_facilityContext.CurrentFacilityId, plan.Id);
+                        if (restoreResult.IsSuccess)
+                        {
+                            await LoadPlansAsync(); // Refresh collection
+                        }
+                    });
+            }
+            else
+            {
+                _toastService.ShowError(result.Error?.Message ?? "Failed to delete plan.");
             }
         }
+ 
 
         public DeviceManagementViewModel DeviceManagement => _deviceManagement.Value;
     }

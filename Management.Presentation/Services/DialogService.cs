@@ -16,13 +16,16 @@ namespace Management.Presentation.Services
     public class DialogService : Management.Domain.Services.IDialogService
     {
         private readonly ModalNavigationStore _modalNavigationStore;
+        private readonly IModalNavigationService _modalNavigationService;
         private readonly IServiceProvider _serviceProvider;
 
         public DialogService(
             ModalNavigationStore modalNavigationStore,
+            IModalNavigationService modalNavigationService,
             IServiceProvider serviceProvider)
         {
             _modalNavigationStore = modalNavigationStore;
+            _modalNavigationService = modalNavigationService;
             _serviceProvider = serviceProvider;
         }
 
@@ -50,7 +53,29 @@ namespace Management.Presentation.Services
             vm.Configure(title, message, confirmText, cancelText, isDestructive);
             vm.IsAlert = false;
 
-            // Use the async Open method on the store
+            // HYBRID FIX: Check if we are inside a Window-based modal (e.g. AppointmentDetailModal)
+            // If so, we MUST use a window-based confirmation to avoid Z-index issues.
+            var activeWindow = WpfApp.Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsActive);
+            bool isInsideWindowModal = activeWindow != null && activeWindow != WpfApp.Current.MainWindow;
+
+            if (isInsideWindowModal)
+            {
+                var config = new Management.Presentation.ViewModels.Shared.ConfirmationModalConfig
+                {
+                    Title = title,
+                    Message = message,
+                    ConfirmText = confirmText,
+                    CancelText = cancelText,
+                    IsDestructive = isDestructive,
+                    IsAlert = false
+                };
+
+                return await _modalNavigationService.OpenModalWithResultAsync<
+                    Management.Presentation.ViewModels.Shared.ConfirmationModalViewModel, bool>(
+                    ModalSize.Small, config);
+            }
+
+            // Use the original overlay-based async Open method on the store
             var modalResult = await _modalNavigationStore.OpenAsync(vm);
             return modalResult.IsSuccess;
         }
@@ -70,6 +95,28 @@ namespace Management.Presentation.Services
             vm.Configure(title, message, buttonText, string.Empty, false);
             vm.IsAlert = true;
             vm.IsSuccess = isSuccess;
+
+            // HYBRID FIX: Check if we are inside a Window-based modal
+            var activeWindow = WpfApp.Current.Windows.Cast<Window>().FirstOrDefault(w => w.IsActive);
+            bool isInsideWindowModal = activeWindow != null && activeWindow != WpfApp.Current.MainWindow;
+
+            if (isInsideWindowModal)
+            {
+                var config = new Management.Presentation.ViewModels.Shared.ConfirmationModalConfig
+                {
+                    Title = title,
+                    Message = message,
+                    ConfirmText = buttonText,
+                    CancelText = string.Empty,
+                    IsDestructive = false,
+                    IsAlert = true,
+                    IsSuccess = isSuccess
+                };
+
+                await _modalNavigationService.OpenModalAsync<Management.Presentation.ViewModels.Shared.ConfirmationModalViewModel>(
+                    ModalSize.Small, config);
+                return;
+            }
 
             // Use the async Open method on the store
             await _modalNavigationStore.OpenAsync(vm);

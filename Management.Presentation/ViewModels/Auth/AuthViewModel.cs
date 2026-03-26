@@ -3,6 +3,7 @@ using Management.Presentation.Services;
 using Management.Application.Stores;
 using Management.Presentation.Stores;
 using Management.Presentation.Extensions;
+using Management.Presentation.ViewModels.Shared;
 using System;
 
 namespace Management.Presentation.ViewModels
@@ -11,6 +12,7 @@ namespace Management.Presentation.ViewModels
     {
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly NavigationStore _navigationStore;
+        private readonly INotificationService _notificationService;
 
         private ViewModelBase? _currentView;
         public ViewModelBase? CurrentView
@@ -33,12 +35,15 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _isModalOpen, value);
         }
 
-        public AuthViewModel(ModalNavigationStore modalNavigationStore, NavigationStore navigationStore)
+        public System.Collections.ObjectModel.ObservableCollection<ToastViewModel> ActiveToasts => _notificationService.ActiveToasts;
+
+        public AuthViewModel(ModalNavigationStore modalNavigationStore, NavigationStore navigationStore, INotificationService notificationService)
         {
             _modalNavigationStore = modalNavigationStore;
             _modalNavigationStore.PropertyChanged += OnModalStorePropertyChanged;
 
             _navigationStore = navigationStore;
+            _notificationService = notificationService;
             _currentView = _navigationStore.CurrentViewModel as ViewModelBase;
             _navigationStore.CurrentViewModelChanged += OnCurrentViewModelChanged;
 

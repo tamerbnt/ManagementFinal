@@ -54,6 +54,12 @@ namespace Management.Infrastructure.Repositories
             InvalidateCache(entity.FacilityId);
         }
 
+        public async Task RestoreAsync(Guid id, Guid? facilityId = null)
+        {
+            await _innerRepository.RestoreAsync(id, facilityId);
+            InvalidateCache(facilityId);
+        }
+
         public async Task<IEnumerable<MembershipPlan>> GetActivePlansAsync(Guid? facilityId = null, bool activeOnly = true)
         {
             var cacheKey = PlansCacheKeyPrefix + (facilityId?.ToString() ?? "all") + (activeOnly ? "_active" : "_all");

@@ -130,6 +130,16 @@
                         Style="{DynamicResource SecondaryButton}"
                         Margin="{DynamicResource MarginSmallRight}"/>
 
+                <Button Content="Delete" 
+                        Command="{Binding DeleteCommand}"
+                        Style="{DynamicResource SecondaryButton}"
+                        Foreground="{DynamicResource Brush.Accent.Red}"
+                        BorderBrush="{DynamicResource Brush.Accent.Red}"
+                        BorderThickness="1"
+                        MinWidth="{DynamicResource SizeButtonMinWidth}"
+                        Margin="{DynamicResource MarginSmallRight}"
+                        Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"/>
+
                 <Button Content="{DynamicResource Terminology.Shop.AddProduct.Action.Save}" 
                         Command="{Binding SaveCommand}"
                         Style="{DynamicResource PrimaryButton}"

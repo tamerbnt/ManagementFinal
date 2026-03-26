@@ -5,6 +5,7 @@ using Management.Application.Features.Members.Queries.GetMemberMetrics;
 using Management.Application.Features.Members.Commands.CreateMember;
 using Management.Application.Features.Members.Commands.UpdateMember;
 using Management.Application.Features.Members.Commands.DeleteMember;
+using Management.Application.Features.Members.Commands.RestoreMember;
 using Management.Application.Features.Members.Commands.RenewMembership;
 using Management.Application.DTOs;
 using Management.Domain.Primitives;
@@ -50,6 +51,16 @@ namespace Management.Infrastructure.Services
             foreach (var id in ids)
             {
                 var result = await _sender.Send(new DeleteMemberCommand(id));
+                if (result.IsFailure) return result;
+            }
+            return Result.Success();
+        }
+
+        public async Task<Result> RestoreMembersAsync(Guid facilityId, List<Guid> ids)
+        {
+            foreach (var id in ids)
+            {
+                var result = await _sender.Send(new RestoreMemberCommand(id));
                 if (result.IsFailure) return result;
             }
             return Result.Success();

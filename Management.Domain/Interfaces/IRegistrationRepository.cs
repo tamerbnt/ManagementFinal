@@ -19,6 +19,6 @@ namespace Management.Domain.Interfaces
             int pageSize,
             RegistrationStatus? status = null,
             RegistrationFilterType? filterType = null);
-        Task RestoreAsync(System.Guid id);
+        Task RestoreAsync(Guid id, Guid? facilityId = null);
     }
 }

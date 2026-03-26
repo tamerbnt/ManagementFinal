@@ -14,11 +14,6 @@ namespace Management.Presentation.Views.Auth
         {
             InitializeComponent();
             
-            // Initialize toast notification service
-            var app = System.Windows.Application.Current as App;
-            var toastService = app?.ServiceProvider?.GetService<IToastNotificationService>() as ToastNotificationService;
-            toastService?.Initialize(ToastContainer);
-
             DataContextChanged += AuthWindow_DataContextChanged;
         }
 

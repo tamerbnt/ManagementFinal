@@ -4,9 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
-             d:DesignHeight="80" d:DesignWidth="360"
-             Width="360" MinHeight="80">
-    
+             d:DesignHeight="80" d:DesignWidth="420"
+             Width="420" MinHeight="80">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
     <UserControl.RenderTransform>
         <TranslateTransform x:Name="SlideTransform" X="0"/>
     </UserControl.RenderTransform>
@@ -41,6 +45,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             
             <!-- Icon -->
@@ -75,6 +80,20 @@
                 <TextBlock x:Name="TitleText" FontSize="14" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap"/>
                 <TextBlock x:Name="MessageText" FontSize="12.5" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,4,0,0"/>
             </StackPanel>
+
+            <!-- Undo Button — only visible when HasUndo = true -->
+            <Button Grid.Column="2"
+                    Content="{Binding UndoLabel}"
+                    Command="{Binding UndoCommand}"
+                    Visibility="{Binding HasUndo,
+                        Converter={StaticResource BoolToVisibilityConverter},
+                        FallbackValue=Collapsed}"
+                    Style="{DynamicResource Button.Secondary}"
+                    Height="28"
+                    Padding="12,0"
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Cursor="Hand"/>
         </Grid>
     </Border>
 </UserControl>
