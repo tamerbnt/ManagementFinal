@@ -105,18 +105,19 @@ namespace Management.Infrastructure.Repositories
 
         public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
-            var query = _dbSet.IgnoreQueryFilters();
+            // BEFORE: fetch + Restore() + Activate() + SaveChangesAsync
+            //         Risk: stale change-tracker entry with IsDeleted=true causes conflict.
+            // AFTER:  ExecuteUpdateAsync — direct SQL UPDATE, bypasses the change tracker entirely.
+            var query = _dbSet.IgnoreQueryFilters()
+                .Where(p => p.Id == id);
+
             if (facilityId.HasValue)
                 query = query.Where(p => p.FacilityId == facilityId.Value);
 
-            var product = await query.FirstOrDefaultAsync(p => p.Id == id);
-            if (product != null)
-            {
-                product.Restore();
-                // Ensure product becomes active again so it shows up in UI
-                product.Activate(); 
-                await _context.SaveChangesAsync();
-            }
+            await query.ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.IsDeleted, false)
+                .SetProperty(p => p.IsActive, true)
+                .SetProperty(p => p.UpdatedAt, DateTime.UtcNow));
         }
     }
 }
