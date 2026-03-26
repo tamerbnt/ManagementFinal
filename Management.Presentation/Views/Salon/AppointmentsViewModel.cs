@@ -108,6 +108,7 @@ namespace Management.Presentation.Views.Salon
 
         public void Receive(RefreshRequiredMessage<Appointment> message)
         {
+            System.Diagnostics.Debug.WriteLine($"[APPT-VM] Received RefreshRequiredMessage<Appointment> at {DateTime.Now:HH:mm:ss.fff}");
             if (message.Value != _facilityContext.CurrentFacilityId) return;
             
             _logger?.LogInformation("[Appointments] Refresh message received for facility {Id}", message.Value);
@@ -194,6 +195,7 @@ namespace Management.Presentation.Views.Salon
 
         private async Task LoadAppointments()
         {
+            System.Diagnostics.Debug.WriteLine($"[APPT-VM] LoadAppointmentsAsync started at {DateTime.Now:HH:mm:ss.fff}");
             IsLoading = true;
             try
             {
@@ -217,6 +219,9 @@ namespace Management.Presentation.Views.Salon
             finally
             {
                 IsLoading = false;
+                System.Diagnostics.Debug.WriteLine($"[APPT-VM] LoadAppointmentsAsync completed. Count={Appointments.Count}");
+                foreach (var appt in Appointments)
+                    System.Diagnostics.Debug.WriteLine($"[APPT-VM] Appointment Id={appt.Id} Status={appt.Status}");
             }
         }
 
@@ -363,11 +368,22 @@ namespace Management.Presentation.Views.Salon
         private readonly List<SchedulerStaffViewModel> _allStylists;
         private readonly bool _isCompact;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(StatusBackgroundBrush))]
-        [NotifyPropertyChangedFor(nameof(StatusAccentBrush))]
-        [NotifyPropertyChangedFor(nameof(ServiceTextBrush))]
         private AppointmentStatus _status;
+        public AppointmentStatus Status
+        {
+            get => _status;
+            set
+            {
+                System.Diagnostics.Debug.WriteLine($"[APPT-DTO] Status setter called. Old={_status} New={value}");
+                if (_status == value) return;
+                _status = value;
+                OnPropertyChanged(nameof(Status));
+                OnPropertyChanged(nameof(StatusBackgroundBrush));
+                OnPropertyChanged(nameof(StatusAccentBrush));
+                OnPropertyChanged(nameof(ServiceTextBrush));
+                System.Diagnostics.Debug.WriteLine($"[APPT-DTO] OnPropertyChanged fired for Status");
+            }
+        }
 
         [ObservableProperty]
         private bool _isUpdating;

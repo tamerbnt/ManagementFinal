@@ -43,7 +43,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/> <!-- Row 0: Header (Greeting) -->
                 <RowDefinition Height="*"/>    <!-- Row 1: Multi-Zone Content -->
-                <RowDefinition Height="32"/>   <!-- Row 2: Bottom Breathing Room -->
             </Grid.RowDefinitions>
 
             <!-- ====================================================================== -->

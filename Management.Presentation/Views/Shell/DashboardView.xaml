@@ -261,7 +261,6 @@
                                Value="{Binding TotalActiveMembers}" 
                                IconData="{StaticResource IconMembers}" 
                                IconBrush="{DynamicResource StatusSuccessBrush}" 
-                               Background="{DynamicResource CardBackgroundBrush}"
                                IsLoading="{Binding IsLoading}" Height="170">
                     <data:StatTile.Style>
                         <Style TargetType="data:StatTile">
@@ -414,7 +413,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Chart Section -->
-            <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,24,24">
+            <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,24,0">
                     <Border.Effect>
                         <StaticResource ResourceKey="Shadow.Level2"/>
                     </Border.Effect>
@@ -441,7 +440,7 @@
                 </Border>
 
                 <!-- Right Panel: Retention Focus (Gym) / Revenue by Plan (Salon) -->
-                <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,24">
+                <Grid Grid.Row="0" Grid.Column="1" Margin="0,0,0,0">
 
                     <!-- Revenue by Plan -->
                     <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">

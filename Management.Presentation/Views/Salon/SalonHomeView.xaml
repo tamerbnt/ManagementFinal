@@ -40,7 +40,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="32"/>
             </Grid.RowDefinitions>
 
             <!-- SECTION 0: HEADER -->

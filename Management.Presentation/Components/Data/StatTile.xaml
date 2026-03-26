@@ -8,7 +8,7 @@
              d:DesignHeight="150" d:DesignWidth="250">
     
     <Border x:Name="RootBorder" 
-            Background="White"
+            Background="{DynamicResource CardBackgroundBrush}"
             CornerRadius="16" 
             Width="Auto"
             Height="Auto"

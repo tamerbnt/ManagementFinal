@@ -80,6 +80,8 @@ namespace Management.Presentation.Views.Salon
 
                     if (nextStatus != Appointment.Status)
                     {
+                        System.Diagnostics.Debug.WriteLine("[APPT] State change command started");
+                        System.Diagnostics.Debug.WriteLine($"[APPT] Appointment ID={Appointment.Id} CurrentStatus={Appointment.Status}");
                         // Capture data before VM is potentially disposed
                         var apptId = Appointment.Id;
                         var statusToSet = nextStatus;
@@ -93,15 +95,21 @@ namespace Management.Presentation.Views.Salon
                         {
                             try 
                             {
+                                System.Diagnostics.Debug.WriteLine("[APPT] About to call service/handler");
                                 await _salonService.UpdateAppointmentStatusAsync(apptId, statusToSet);
+                                System.Diagnostics.Debug.WriteLine($"[APPT] Service returned. Result success=True");
+                                System.Diagnostics.Debug.WriteLine("[APPT] Checking if collection is updated...");
+                                System.Diagnostics.Debug.WriteLine("[APPT] Collection update triggered"); // Via dispatcher in service
                                 
                                 System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
                                 {
                                     _notificationService.ShowSuccess(string.Format(successMessageTemplate, statusToSet));
                                 });
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
+                                System.Diagnostics.Debug.WriteLine($"[APPT] NO collection update after state change");
+                                System.Diagnostics.Debug.WriteLine($"[APPT] EXCEPTION: {ex}");
                                 _notificationService.ShowError("Failed to update appointment status in background");
                             }
                         });
