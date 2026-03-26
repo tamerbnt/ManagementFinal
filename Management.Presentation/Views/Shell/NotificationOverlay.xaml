@@ -1,3 +1,13 @@
+<!--
+    LEGACY: This overlay is not referenced anywhere in the current UI.
+    ToastNotification.xaml (Controls/ToastNotification.xaml) is the active toast component,
+    wired via ItemsControl in MainWindow.xaml bound to NotificationService.ActiveToasts.
+    
+    Additional issue: this file binds to {Binding CurrentMessage} but ToastViewModel
+    exposes .Message (not .CurrentMessage) — the binding would fail silently even if wired.
+    
+    Safe to remove in a future cleanup commit.
+-->
 <UserControl x:Class="Management.Presentation.Views.Shell.NotificationOverlay"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -50,6 +60,7 @@
                 
                 <Ellipse Width="12" Height="12" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                 
+                <!-- LEGACY BINDING: {Binding CurrentMessage} should be {Binding Message} to match ToastViewModel -->
                 <TextBlock Grid.Column="1" Text="{Binding CurrentMessage}" 
                            Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" 
                            Margin="16,0" FontSize="14"/>
