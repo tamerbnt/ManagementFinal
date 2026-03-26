@@ -7,9 +7,11 @@
              d:DesignHeight="80" d:DesignWidth="420"
              Width="420" MinHeight="80">
 
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    </UserControl.Resources>
+    <!--
+        NOTE: BoolToVisibilityConverter is registered globally via
+        Resources/Converters.xaml (merged in App.xaml).
+        No local redeclaration needed.
+    -->
 
     <UserControl.RenderTransform>
         <TranslateTransform x:Name="SlideTransform" X="0"/>
@@ -81,7 +83,8 @@
                 <TextBlock x:Name="MessageText" FontSize="12.5" Foreground="#CBD5E1" TextWrapping="Wrap" Margin="0,4,0,0"/>
             </StackPanel>
 
-            <!-- Undo Button — only visible when HasUndo = true -->
+            <!-- Undo Button — visible only when HasUndo = true.
+                 BoolToVisibilityConverter is from the global Converters.xaml dictionary. -->
             <Button Grid.Column="2"
                     Content="{Binding UndoLabel}"
                     Command="{Binding UndoCommand}"
