@@ -48,6 +48,10 @@ namespace Management.Infrastructure.Services
             foreach (var r in reservations)
             {
                 var member = await memberRepository.GetByIdAsync(r.MemberId);
+                
+                // If member is null, they were likely soft-deleted. Skip these for Recent Activity.
+                if (member == null) continue;
+
                 var staff = r.ResourceId.HasValue ? await staffRepository.GetByIdAsync(r.ResourceId.Value) : null;
                 var serviceName = "Unknown Service";
                 

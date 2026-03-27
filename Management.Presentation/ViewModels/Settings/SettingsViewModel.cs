@@ -19,6 +19,7 @@ using System.Globalization;
 using Management.Presentation.Stores;
 using Management.Presentation.Services.State;
 using Management.Application.Interfaces.ViewModels;
+using Management.Application.Interfaces.App;
 
 namespace Management.Presentation.ViewModels.Settings
 {
@@ -127,14 +128,15 @@ namespace Management.Presentation.ViewModels.Settings
             IMembershipPlanService planService, 
             IDialogService dialogService, 
             ISettingsService settingsService,
-            IFacilityContextService facilityContext,
+            Management.Domain.Services.IFacilityContextService facilityContext,
             SessionManager sessionManager,
             ILocalizationService localizationService,
             IHardwareService hardwareService,
             Management.Presentation.Services.Salon.ISalonService salonService,
             IBackupService backupService,
             ModalNavigationStore modalNavigationStore,
-            Lazy<DeviceManagementViewModel> deviceManagement) : base()
+            System.Lazy<DeviceManagementViewModel> deviceManagement,
+            Management.Application.Interfaces.App.IToastService toastService) : base(null, null, toastService)
         {
             _serviceProvider = serviceProvider;
             _planService = planService;

@@ -24,9 +24,7 @@ namespace Management.Application.Features.Products.Commands.DeleteProduct
                 return Result.Failure(new Error("Product.NotFound", "Product not found"));
             }
 
-            product.Deactivate();
-            await _productRepository.UpdateAsync(product);
-
+            await _productRepository.DeleteAsync(product.Id);
             return Result.Success();
         }
     }

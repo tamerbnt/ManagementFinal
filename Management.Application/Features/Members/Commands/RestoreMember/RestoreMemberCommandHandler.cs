@@ -27,26 +27,8 @@ namespace Management.Application.Features.Members.Commands.RestoreMember
         {
             await _memberRepository.RestoreAsync(request.Id);
 
-            // PUBLISH NOTIFICATION (Decoupled)
-            _ = Task.Run(async () => 
-            {
-                try 
-                {
-                    var member = await _memberRepository.GetByIdAsync(request.Id);
-                    if (member != null)
-                    {
-                        await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                            member.FacilityId,
-                            "MemberRestore",
-                            member.FullName,
-                            $"Restored member {member.FullName}"));
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    _logger?.LogWarning(ex, "Failed to publish restore notification for member {MemberId}", request.Id);
-                }
-            });
+            // NOTIFICATION REMOVED: User does not want delete/restore history in Recent Activity.
+            // If needed for audit in the future, this should be sent to a dedicated audit stream, not the dashboard.
 
             return Result.Success();
         }

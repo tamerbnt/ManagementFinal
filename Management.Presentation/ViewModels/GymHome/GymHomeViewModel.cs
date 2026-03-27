@@ -555,19 +555,12 @@ namespace Management.Presentation.ViewModels.GymHome
 
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    // Non-destructive update: Add missing items instead of wiping everything
-                    var existingKeys = new HashSet<string>(ActivityStream.OfType<ActivityLogItem>().Select(a => $"{a.SortDate:O}_{a.Title}"));
-                    var newItems = dashboardTasks.Where(a => !existingKeys.Contains($"{a.SortDate:O}_{a.Title}")).ToList();
-
-                    if (newItems.Any())
+                    // Destructive update: Ensure UI perfectly matches history.
+                    // This prunes undone/deleted sales and events for deleted members.
+                    ActivityStream.Clear();
+                    foreach (var item in dashboardTasks)
                     {
-                        foreach (var item in newItems.OrderBy(a => a.SortDate))
-                        {
-                            ActivityStream.Insert(0, item);
-                        }
-                        
-                        // Limit to 50
-                        while (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
+                        ActivityStream.Add(item);
                     }
                 });
             }
@@ -587,7 +580,7 @@ namespace Management.Presentation.ViewModels.GymHome
             // Compute trend text vs last hour
             if (lastHourCount < 0)
             {
-                // No data yet â€” hide trend
+                // No data yet - hide trend
                 OccupancyTrendText = string.Empty;
                 HasOccupancyTrend = false;
             }
@@ -596,7 +589,7 @@ namespace Management.Presentation.ViewModels.GymHome
                 // Avoid divide-by-zero: just show absolute delta
                 var delta = count;
                 IsTrendPositive = delta >= 0;
-                var arrow = IsTrendPositive ? "â–²" : "â–¼";
+                var arrow = IsTrendPositive ? "▲" : "▼";
                 var vsLastHour = GetResource("Terminology.Dashboard.Stat.VsLastHour", "vs last hour");
                 OccupancyTrendText = delta == 0 ? vsLastHour : $"{arrow} {Math.Abs(delta)} {vsLastHour}";
                 HasOccupancyTrend = true;
@@ -605,7 +598,7 @@ namespace Management.Presentation.ViewModels.GymHome
             {
                 var percentDelta = (int)Math.Round(((double)(count - lastHourCount) / lastHourCount) * 100);
                 IsTrendPositive = percentDelta >= 0;
-                var arrow = IsTrendPositive ? "â–²" : "â–¼";
+                var arrow = IsTrendPositive ? "▲" : "▼";
                 var vsLastHour = GetResource("Terminology.Dashboard.Stat.VsLastHour", "vs last hour");
                 OccupancyTrendText = $"{arrow} {Math.Abs(percentDelta)}% {vsLastHour}";
                 HasOccupancyTrend = true;
@@ -777,6 +770,12 @@ namespace Management.Presentation.ViewModels.GymHome
             if (IsDisposed) return;
             try
             {
+                if (message.ActionType == "MemberDelete" || message.ActionType == "MemberRestore")
+                {
+                    _logger?.LogInformation("[GymHome] Skipping dashboard log for {ActionType} as requested.", message.ActionType);
+                    return;
+                }
+
                 // 1. Calculate / Prepare Data (Off-UI Thread)
                 string icon = message.ActionType switch
                 {

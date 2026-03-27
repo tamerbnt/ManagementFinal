@@ -173,21 +173,24 @@
                                 <ItemsControl ItemsSource="{Binding ActivityStream}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="12" Padding="12" Margin="0,0,0,10">
+                                            <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="12" Padding="16" Margin="0,0,0,12">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,12,0">
-                                                        <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}"/>
+                                                    <Border Width="40" Height="40" CornerRadius="20" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,16,0">
+                                                        <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}"/>
                                                     </Border>
                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                                        <TextBlock Text="{Binding StatusResourceKey, Converter={StaticResource ResourceLookupConverter}}" FontSize="10" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                                        <TextBlock Text="{Binding Status}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,2,0,0"/>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="2" Text="{Binding Timestamp}" FontSize="9" Foreground="{DynamicResource Brush.Text.Tertiary}" VerticalAlignment="Top"/>
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Top" Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Timestamp}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}" Margin="0,0,6,0"/>
+                                                        <TextBlock Text="{Binding RelativeTime, StringFormat='({0})'}" FontSize="13" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                    </StackPanel>
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>

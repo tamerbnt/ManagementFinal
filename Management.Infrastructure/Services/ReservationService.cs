@@ -14,10 +14,12 @@ namespace Management.Infrastructure.Services
     public class ReservationService : IReservationService
     {
         private readonly IRepository<Reservation> _reservationRepository;
+        private readonly IMemberRepository _memberRepository;
 
-        public ReservationService(IRepository<Reservation> reservationRepository)
+        public ReservationService(IRepository<Reservation> reservationRepository, IMemberRepository memberRepository)
         {
             _reservationRepository = reservationRepository;
+            _memberRepository = memberRepository;
         }
 
         public async Task<Result<List<ReservationDto>>> GetReservationsByRangeAsync(DateTime start, DateTime end)
@@ -25,16 +27,23 @@ namespace Management.Infrastructure.Services
             var entities = await _reservationRepository.GetAllAsync();
             var filtered = entities.Where(r => r.StartTime >= start && r.StartTime <= end).ToList();
             
-            var dtos = filtered.Select(r => new ReservationDto(
-                r.Id,
-                r.ResourceType ?? "Unknown Activity",
-                "TBD", // InstructorName - not in model
-                "TBD", // Location - not in model
-                r.StartTime,
-                r.EndTime
-            )).ToList();
+            var result = new List<ReservationDto>();
+            foreach (var r in filtered)
+            {
+                var member = await _memberRepository.GetByIdAsync(r.MemberId);
+                if (member == null) continue; // Skip if member is deleted
 
-            return Result.Success(dtos);
+                result.Add(new ReservationDto(
+                    r.Id,
+                    r.ResourceType ?? "Unknown Activity",
+                    "TBD", 
+                    "TBD", 
+                    r.StartTime,
+                    r.EndTime
+                ));
+            }
+
+            return Result.Success(result);
         }
 
         public async Task<Result<List<ReservationDto>>> GetReservationsByMemberAsync(Guid memberId)

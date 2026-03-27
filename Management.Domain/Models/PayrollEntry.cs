@@ -53,7 +53,7 @@ namespace Management.Domain.Models
 
         public void MarkAsPaid()
         {
-            PaidAmount = Amount;
+            PaidAmount = new Money(Amount.Amount, Amount.Currency);
             UpdateTimestamp();
         }
     }

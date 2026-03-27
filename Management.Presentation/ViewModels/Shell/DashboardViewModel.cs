@@ -474,7 +474,7 @@ namespace Management.Presentation.ViewModels.Shell
                     
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
-                        ActivePeopleCount = summary.ActiveMembers;
+                        ActivePeopleCount = summary.CheckInsToday;
                         TotalActiveMembers = summary.ActiveMembers; 
                         TotalMembers = summary.TotalMembers;
                         ExpiringSoonCount = summary.ExpiringSoonCount;
@@ -721,7 +721,7 @@ namespace Management.Presentation.ViewModels.Shell
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (IsDisposed) return;
-                    ActivePeopleCount = summary.ActiveMembers;
+                    ActivePeopleCount = summary.CheckInsToday;
                     TotalActiveMembers = summary.ActiveMembers;
                     TotalMembers = summary.TotalMembers;
                     ExpiringSoonCount = summary.ExpiringSoonCount;
@@ -745,7 +745,7 @@ namespace Management.Presentation.ViewModels.Shell
             {
                 try
                 {
-                    await Task.Delay(300, token);
+                    await Task.Delay(500, token);
                     if (token.IsCancellationRequested || IsDisposed) return;
                     
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>

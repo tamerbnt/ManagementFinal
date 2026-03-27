@@ -9,11 +9,13 @@ using Management.Domain.ValueObjects;
 using Management.Presentation.Services.State;
 using Management.Presentation.Stores;
 using Microsoft.Extensions.Logging;
+using MediatR;
+using Management.Application.DTOs;
 using Management.Application.Services;
+using Management.Application.Features.Finance.Commands.CreatePayrollEntry;
 using Management.Domain.Services;
 using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Extensions;
-using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Services;
 using Management.Presentation.Services.Localization;
 using System;
@@ -29,6 +31,7 @@ namespace Management.Presentation.ViewModels.Finance
         private readonly IPayrollRepository _payrollRepository;
         private readonly IStaffService _staffService;
         private readonly IModalNavigationService _modalNavigationService;
+        private readonly IMediator _mediator;
 
         [ObservableProperty]
         private ObservableCollection<StaffMemberPayrollDto> _staffList = new();
@@ -56,8 +59,9 @@ namespace Management.Presentation.ViewModels.Finance
             IDiagnosticService diagnosticService,
             IToastService toastService,
             IPayrollRepository payrollRepository,
-            IStaffService staffService,
+            IStaffService staffService, 
             IModalNavigationService modalNavigationService,
+            IMediator mediator,
             IFacilityContextService facilityContext,
             ITerminologyService terminologyService,
             ILocalizationService localizationService)
@@ -66,6 +70,7 @@ namespace Management.Presentation.ViewModels.Finance
             _payrollRepository = payrollRepository;
             _staffService = staffService;
             _modalNavigationService = modalNavigationService;
+            _mediator = mediator;
 
             PayCommand = new AsyncRelayCommand(ExecutePayAsync, () => SelectedStaff != null && AmountToPay > 0);
             CancelCommand = new AsyncRelayCommand(CloseAsync);
@@ -157,40 +162,45 @@ namespace Management.Presentation.ViewModels.Finance
                 DateTime start = new DateTime(now.Year, now.Month, 1);
                 DateTime end = start.AddMonths(1).AddDays(-1);
 
-                // Create a hard record for the history
-                var entryResult = PayrollEntry.Create(
-                    SelectedStaff.Id,
-                    start,
-                    end,
-                    new Money(AmountToPay, "DA"),
-                    SelectedStaff.BaseSalary,
-                    AbsenceDays,
-                    DeductionPerDay);
-
-                if (entryResult.IsSuccess)
+                // 1. Create the base record via Command to ensure initial persistence
+                var cmd = new CreatePayrollEntryCommand(new PayrollEntryDto
                 {
-                    var entry = entryResult.Value;
-                    entry.FacilityId = _facilityContext.CurrentFacilityId;
-                    entry.TenantId = SelectedStaff.TenantId;
+                    StaffId = SelectedStaff.Id,
+                    PayPeriodStart = start,
+                    PayPeriodEnd = end,
+                    Amount = AmountToPay,
+                    BaseSalary = SelectedStaff.BaseSalary,
+                    AbsenceCount = AbsenceDays,
+                    AbsenceDeduction = DeductionPerDay
+                });
 
-                    // Persist to repository
-                    await _payrollRepository.AddAsync(entry);
-                    
-                    // Mark as paid
-                    entry.MarkAsPaid();
-                    await _payrollRepository.UpdateAsync(entry);
+                var idResult = await _mediator.Send(cmd);
 
-                    _logger.LogInformation("Payroll entry {EntryId} created for staff {StaffId}", entry.Id, SelectedStaff.Id);
+                if (idResult.IsSuccess)
+                {
+                    // 2. Fetch the tracked entity and mark as paid.
+                    // This two-stage process ensures EF Core observes the PaidAmount change on a tracked entity,
+                    // resolving the 0-value persistence bug in SQLite for owned types.
+                    var entry = await _payrollRepository.GetByIdAsync(idResult.Value);
+                    if (entry != null)
+                    {
+                        entry.FacilityId = _facilityContext.CurrentFacilityId;
+                        entry.TenantId = SelectedStaff.TenantId;
+
+                        entry.MarkAsPaid();
+                        await _payrollRepository.UpdateAsync(entry);
+
+                        _logger.LogInformation("Payroll entry {EntryId} created and paid for staff {StaffId}", entry.Id, SelectedStaff.Id);
+                    }
                 }
 
                 var successMsg = string.Format(GetTerm("Terminology.Payroll.Success") ?? "Successfully processed payroll of {0} DA for {1}", AmountToPay.ToString("N2"), SelectedStaff.Name);
                 
-                if (entryResult.IsSuccess)
+                if (idResult.IsSuccess)
                 {
                     _toastService.ShowSuccess(successMsg, async () =>
                     {
-                        var entry = entryResult.Value;
-                        await _payrollRepository.DeleteAsync(entry.Id);
+                        await _payrollRepository.DeleteAsync(idResult.Value);
                         WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
                     }, "Undo");
                 }

@@ -16,5 +16,10 @@ namespace Management.Application.DTOs
         public string PaymentMethod { get; set; } = string.Empty;
         public DateTime? ProcessedAt { get; set; }
         public string Notes { get; set; } = string.Empty;
+        
+        // Hardening fields
+        public decimal BaseSalary { get; set; }
+        public int AbsenceCount { get; set; }
+        public decimal AbsenceDeduction { get; set; }
     }
 }

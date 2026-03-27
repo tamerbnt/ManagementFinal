@@ -34,23 +34,8 @@ namespace Management.Application.Features.Members.Commands.DeleteMember
 
             await _memberRepository.DeleteAsync(request.Id);
 
-            // PUBLISH NOTIFICATION (Note: No undo for delete in this version as per standard pattern)
-            // PUBLISH NOTIFICATION: Decoupled to prevent UI failure from stalling delete.
-            _ = Task.Run(async () => 
-            {
-                try 
-                {
-                    await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                        member.FacilityId,
-                        "MemberDelete",
-                        member.FullName,
-                        $"Deleted member {member.FullName}"));
-                }
-                catch (Exception ex)
-                {
-                    _logger?.LogWarning(ex, "Failed to publish delete notification for member {MemberId}", member.Id);
-                }
-            });
+            // NOTIFICATION REMOVED: User does not want delete history in Recent Activity.
+            // If needed for audit in the future, this should be sent to a dedicated audit stream, not the dashboard.
 
 
             return Result.Success();

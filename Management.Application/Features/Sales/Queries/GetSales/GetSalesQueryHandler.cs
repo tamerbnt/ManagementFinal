@@ -1,5 +1,6 @@
 using Management.Application.DTOs;
 using Management.Domain.Interfaces;
+using Management.Domain.Models;
 using Management.Domain.Primitives;
 using MediatR;
 using System.Collections.Generic;
@@ -15,30 +16,47 @@ namespace Management.Application.Features.Sales.Queries.GetSales
         IRequestHandler<GetTotalRevenueQuery, Result<decimal>>
     {
         private readonly ISaleRepository _saleRepository;
+        private readonly IMemberRepository _memberRepository;
 
-        public GetSalesQueryHandler(ISaleRepository saleRepository)
+        public GetSalesQueryHandler(ISaleRepository saleRepository, IMemberRepository memberRepository)
         {
             _saleRepository = saleRepository;
+            _memberRepository = memberRepository;
         }
 
         public async Task<Result<List<SaleDto>>> Handle(GetSalesHistoryQuery request, CancellationToken cancellationToken)
         {
             var sales = await _saleRepository.GetByDateRangeAsync(request.FacilityId, request.Start, request.End);
             
-            // Safety cap for history views - increased for high-volume days
-            var limitedSales = sales.Take(2000);
-
-            var dtos = limitedSales.Select(s => new SaleDto
+            // Resolve member names and filter out sales from deleted members
+            var memberIds = sales.Where(s => s.MemberId.HasValue).Select(s => s.MemberId!.Value).Distinct().ToList();
+            var members = new Dictionary<Guid, Member>();
+            
+            if (memberIds.Any())
             {
-                Id = s.Id,
-                Timestamp = s.Timestamp,
-                TotalAmount = s.TotalAmount.Amount,
-                PaymentMethod = s.PaymentMethod.ToString(),
-                TransactionType = s.TransactionType,
-                MemberId = s.MemberId,
-                MemberName = s.MemberId == null ? "Guest" : string.Empty, // Placeholder for linked members
-                ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
-            }).ToList();
+                // We use search or list; but to ensure we respect deletion, we just get them normally.
+                // Standard repository GetByIdAsync/GetAllAsync filters out IsDeleted by default.
+                foreach (var id in memberIds)
+                {
+                    var m = await _memberRepository.GetByIdAsync(id);
+                    if (m != null) members[id] = m;
+                }
+            }
+
+            var dtos = sales
+                .Where(s => !s.MemberId.HasValue || members.ContainsKey(s.MemberId.Value)) // Exclude if member exists then was deleted
+                .Take(2000)
+                .Select(s => new SaleDto
+                {
+                    Id = s.Id,
+                    Timestamp = s.Timestamp,
+                    TotalAmount = s.TotalAmount.Amount,
+                    PaymentMethod = s.PaymentMethod.ToString(),
+                    TransactionType = s.TransactionType,
+                    MemberId = s.MemberId,
+                    MemberName = s.MemberId.HasValue && members.TryGetValue(s.MemberId.Value, out var m) ? m.FullName : "Guest",
+                    ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
+                }).ToList();
 
             return Result.Success(dtos);
         }

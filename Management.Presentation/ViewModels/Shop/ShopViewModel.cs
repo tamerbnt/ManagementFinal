@@ -497,7 +497,6 @@ namespace Management.Presentation.ViewModels.Shop
 
         public async Task LoadProductsAsync(bool isLoadMore = false, bool force = false)
         {
-            if (IsLoading && !force) return;
             try
             {
                 var facilityId = _facilityContext.CurrentFacilityId;

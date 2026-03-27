@@ -8,10 +8,10 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d" 
         Title="Quit Luxurya"
-        Height="400" Width="600"
+        Height="500" Width="700"
         WindowStyle="None" 
-        AllowsTransparency="False"
-        Background="{DynamicResource Brush.Window.Background}"
+        AllowsTransparency="True"
+        Background="Transparent"
         WindowStartupLocation="CenterScreen"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
@@ -20,7 +20,7 @@
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0"
-                          GlassFrameThickness="-1"
+                          GlassFrameThickness="0"
                           CornerRadius="24"
                           ResizeBorderThickness="0"/>
     </shell:WindowChrome.WindowChrome>
@@ -28,6 +28,7 @@
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
+            Margin="50"
             Padding="{DynamicResource PaddingModal}">
 
         <i:Interaction.Behaviors>

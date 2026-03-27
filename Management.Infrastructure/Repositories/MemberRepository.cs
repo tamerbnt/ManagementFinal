@@ -64,7 +64,7 @@ namespace Management.Infrastructure.Repositories
 
             var items = await query
                 .OrderBy(m => m.FullName)
-                .Skip((page -  page % page) + (page - 1) * pageSize) // Correct Skip logic
+                .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
@@ -167,8 +167,8 @@ namespace Management.Infrastructure.Repositories
         {
             var now = DateTime.UtcNow;
             var query = facilityId.HasValue
-                ? _dbSet.IgnoreQueryFilters().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.ExpirationDate >= now)
-                : _dbSet.Where(m => !m.IsDeleted && m.ExpirationDate >= now);
+                ? _dbSet.Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now)
+                : _dbSet.Where(m => !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now);
 
             return await query.CountAsync();
         }
@@ -176,7 +176,7 @@ namespace Management.Infrastructure.Repositories
         public async Task<int> GetTotalCountAsync(Guid? facilityId = null)
         {
             var query = facilityId.HasValue
-                ? _dbSet.IgnoreQueryFilters().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted)
+                ? _dbSet.Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted)
                 : _dbSet.Where(m => !m.IsDeleted);
 
             return await query.CountAsync();
@@ -186,8 +186,8 @@ namespace Management.Infrastructure.Repositories
         {
             var now = DateTime.UtcNow;
             var query = facilityId.HasValue
-                ? _dbSet.IgnoreQueryFilters().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.ExpirationDate >= now && m.ExpirationDate <= threshold)
-                : _dbSet.Where(m => !m.IsDeleted && m.ExpirationDate >= now && m.ExpirationDate <= threshold);
+                ? _dbSet.Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate >= now && m.ExpirationDate <= threshold)
+                : _dbSet.Where(m => !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate >= now && m.ExpirationDate <= threshold);
 
             return await query.CountAsync();
         }
@@ -197,7 +197,9 @@ namespace Management.Infrastructure.Repositories
             await _dbSet
                 .IgnoreQueryFilters()
                 .Where(m => m.Id == id)
-                .ExecuteUpdateAsync(m => m.SetProperty(x => x.IsDeleted, false));
+                .ExecuteUpdateAsync(m => m
+                    .SetProperty(x => x.IsDeleted, false)
+                    .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
         }
     }
 }

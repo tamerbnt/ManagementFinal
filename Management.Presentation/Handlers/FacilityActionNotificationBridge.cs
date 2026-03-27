@@ -119,9 +119,12 @@ namespace Management.Presentation.Handlers
                         _toastService.ShowSuccess(notification.Message));
                 }
             }
-            else if (notification.ActionType == "MemberUpdate" || notification.ActionType == "MemberDelete" || 
+            else if (notification.ActionType == "MemberUpdate" || 
                      notification.ActionType == "MemberRestore" || notification.ActionType == "InventoryPurchase")
             {
+                // MemberDelete is intentionally excluded: MembersViewModel already shows
+                // a ShowSuccess(message, undoAction) toast. Showing a second plain toast here
+                // would evict it from the 1-slot queue before the user can click Undo.
                  _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                         _toastService.ShowSuccess(notification.Message));
             }

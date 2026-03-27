@@ -13,6 +13,18 @@ namespace Management.Presentation.ViewModels.Shared
         // Helper date for sorting in unified streams
         public DateTime SortDate { get; set; } = DateTime.Now;
 
+        public string RelativeTime
+        {
+            get
+            {
+                var diff = System.DateTime.Now - SortDate;
+                if (diff.TotalMinutes < 1) return "now";
+                if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}min ago";
+                if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
+                return $"{(int)diff.TotalDays}d ago";
+            }
+        }
+
         public string Name => Title;
         public string AvatarInitials => Initials;
 

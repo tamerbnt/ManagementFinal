@@ -43,8 +43,8 @@ namespace Management.Infrastructure.Repositories
         private IQueryable<Product> BuildSearchQuery(string searchTerm, Guid? facilityId, ProductCategory? category = null)
         {
             var query = facilityId.HasValue
-                ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && !p.IsDeleted)
-                : _dbSet.AsNoTracking().Where(p => !p.IsDeleted);
+                ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && !p.IsDeleted && p.IsActive)
+                : _dbSet.AsNoTracking().Where(p => !p.IsDeleted && p.IsActive);
 
             if (category.HasValue)
             {
@@ -118,6 +118,19 @@ namespace Management.Infrastructure.Repositories
                 .SetProperty(p => p.IsDeleted, false)
                 .SetProperty(p => p.IsActive, true)
                 .SetProperty(p => p.UpdatedAt, DateTime.UtcNow));
+
+            // Sync the Change Tracker: If the entity was tracked as Modified/Deleted in the same session,
+            // the tracker remains stale. A subsequent SaveChangesAsync() would overwrite the DB with 
+            // the stale state.
+            var tracked = _context.ChangeTracker.Entries<Product>()
+                .FirstOrDefault(e => e.Entity.Id == id);
+
+            if (tracked != null)
+            {
+                tracked.Entity.Restore();
+                tracked.Entity.Activate();
+                tracked.State = EntityState.Unchanged; // Reflect that it now matches the DB
+            }
         }
     }
 }

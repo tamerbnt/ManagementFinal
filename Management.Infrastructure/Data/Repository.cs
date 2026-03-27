@@ -51,7 +51,7 @@ namespace Management.Infrastructure.Data
 
         public virtual async Task UpdateAsync(T entity, bool saveChanges = true)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            _dbSet.Update(entity);
             if (saveChanges)
             {
                 await _context.SaveChangesAsync();
