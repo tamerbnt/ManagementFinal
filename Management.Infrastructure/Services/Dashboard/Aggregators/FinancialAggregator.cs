@@ -131,14 +131,24 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var payrollSumDouble = await _dbContext.PayrollEntries
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
+                .Where(p => p.FacilityId == facilityId 
+                    && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) 
+                    && (p.UpdatedAt ?? p.CreatedAt) >= start 
+                    && (p.UpdatedAt ?? p.CreatedAt) < end
+                    && !p.IsDeleted
+                    && EF.Property<bool>(p, "IsPaidShadow"))
                 .Select(p => (double)p.PaidAmount.Amount)
                 .SumAsync();
 
             var payrollCount = await _dbContext.PayrollEntries
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) && (p.UpdatedAt ?? p.CreatedAt) >= start && (p.UpdatedAt ?? p.CreatedAt) < end)
+                .Where(p => p.FacilityId == facilityId 
+                    && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) 
+                    && (p.UpdatedAt ?? p.CreatedAt) >= start 
+                    && (p.UpdatedAt ?? p.CreatedAt) < end
+                    && !p.IsDeleted
+                    && EF.Property<bool>(p, "IsPaidShadow"))
                 .CountAsync();
 
             var payroll = (decimal)payrollSumDouble;
