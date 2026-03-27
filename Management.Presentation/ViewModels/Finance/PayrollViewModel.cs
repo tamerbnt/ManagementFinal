@@ -163,6 +163,7 @@ namespace Management.Presentation.ViewModels.Finance
                 DateTime end = start.AddMonths(1).AddDays(-1);
 
                 // 1. Create the base record via Command to ensure initial persistence
+                // Atomic Fix: Pass IsPaid: true so the handler marks it as paid in one transaction
                 var cmd = new CreatePayrollEntryCommand(new PayrollEntryDto
                 {
                     StaffId = SelectedStaff.Id,
@@ -172,45 +173,30 @@ namespace Management.Presentation.ViewModels.Finance
                     BaseSalary = SelectedStaff.BaseSalary,
                     AbsenceCount = AbsenceDays,
                     AbsenceDeduction = DeductionPerDay
-                });
+                }, IsPaid: true);
 
                 var idResult = await _mediator.Send(cmd);
 
                 if (idResult.IsSuccess)
                 {
-                    // 2. Fetch the tracked entity and mark as paid.
-                    // This two-stage process ensures EF Core observes the PaidAmount change on a tracked entity,
-                    // resolving the 0-value persistence bug in SQLite for owned types.
-                    var entry = await _payrollRepository.GetByIdAsync(idResult.Value);
-                    if (entry != null)
-                    {
-                        entry.FacilityId = _facilityContext.CurrentFacilityId;
-                        entry.TenantId = SelectedStaff.TenantId;
+                    _logger.LogInformation("Payroll entry {EntryId} created and paid successfully for staff {StaffId}", idResult.Value, SelectedStaff.Id);
 
-                        entry.MarkAsPaid();
-                        await _payrollRepository.UpdateAsync(entry);
-
-                        _logger.LogInformation("Payroll entry {EntryId} created and paid for staff {StaffId}", entry.Id, SelectedStaff.Id);
-                    }
-                }
-
-                var successMsg = string.Format(GetTerm("Terminology.Payroll.Success") ?? "Successfully processed payroll of {0} DA for {1}", AmountToPay.ToString("N2"), SelectedStaff.Name);
-                
-                if (idResult.IsSuccess)
-                {
+                    var successMsg = string.Format(GetTerm("Terminology.Payroll.Success") ?? "Successfully processed payroll of {0} DA for {1}", AmountToPay.ToString("N2"), SelectedStaff.Name);
+                    
                     _toastService.ShowSuccess(successMsg, async () =>
                     {
                         await _payrollRepository.DeleteAsync(idResult.Value);
                         WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
                     }, "Undo");
+
+                    // Send refresh message to update Dashboard Expenses card and other observers
+                    WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
                 }
                 else
                 {
-                    _toastService.ShowSuccess(successMsg);
+                    _logger.LogError("Failed to process payroll: {Error}", idResult.Error);
+                    _toastService.ShowError(string.Format(GetTerm("Terminology.Payroll.Error") ?? "Failed to process payroll: {0}", idResult.Error.Message));
                 }
-
-                // Send refresh message to update Dashboard Expenses card
-                WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
 
                 _modalNavigationService.CloseModal();
             }, GetTerm("Terminology.Payroll.Processing") ?? "Processing payment...");
