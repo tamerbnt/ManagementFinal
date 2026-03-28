@@ -96,6 +96,14 @@ namespace Management.Infrastructure.Data
 
                 // EMERGENCY SYNC RESET: Reset error count for stalled messages
                 try { await Database.ExecuteSqlRawAsync("UPDATE outbox_messages SET error_count = 0 WHERE is_processed = 0;", ct); } catch { }
+
+                // SCHEMA HEAL: Add legacy 'price' shadow column if missing.
+                // EF Core maps a shadow property "price" to satisfy old NOT NULL constraints.
+                // If the DB was created before this column was introduced, every product INSERT
+                // throws DbUpdateException. The try/catch is intentional — it's a no-op if 
+                // the column already exists (SQLite does not support ADD COLUMN IF NOT EXISTS).
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE products ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
@@ -622,6 +630,7 @@ namespace Management.Infrastructure.Data
         private void ApplyFacilityFilter<T>(ModelBuilder modelBuilder) where T : class, IFacilityEntity
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
+                _tenantService.GetRole() == "Owner" ||
                 _facilityContext.CurrentFacilityId == Guid.Empty || 
                 e.FacilityId == _facilityContext.CurrentFacilityId);
         }
@@ -630,7 +639,9 @@ namespace Management.Infrastructure.Data
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
                 (_tenantService.GetTenantId() == null || e.TenantId == _tenantService.GetTenantId() || e.TenantId == Guid.Empty) &&
-                (_facilityContext.CurrentFacilityId == Guid.Empty || e.FacilityId == _facilityContext.CurrentFacilityId));
+                (_tenantService.GetRole() == "Owner" || 
+                 _facilityContext.CurrentFacilityId == Guid.Empty || 
+                 e.FacilityId == _facilityContext.CurrentFacilityId));
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

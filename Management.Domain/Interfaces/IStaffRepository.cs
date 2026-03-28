@@ -15,5 +15,6 @@ namespace Management.Domain.Interfaces
         Task<Management.Domain.Enums.FacilityType?> GetFacilityTypeByIdAsync(Guid facilityId);
         Task UpdatePinAsync(Guid staffId, string hashedPin);
         Task RestoreAsync(Guid id, Guid? facilityId = null);
+        Task CleanCrossFacilityStaffAsync(IEnumerable<Guid> authorizedFacilityIds);
     }
 }

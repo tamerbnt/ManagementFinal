@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Management.Application.Interfaces.App;
 using Management.Application.Services;
 using Management.Domain.Interfaces;
@@ -15,10 +16,12 @@ using Management.Presentation.Services.Localization;
 using Management.Presentation.Extensions;
 using Microsoft.Extensions.Logging;
 using Management.Domain.Services;
+using Management.Presentation.Messages;
 
 namespace Management.Presentation.ViewModels.Finance
 {
-    public partial class PayrollHistoryViewModel : FacilityAwareViewModelBase
+    public partial class PayrollHistoryViewModel : FacilityAwareViewModelBase, 
+        CommunityToolkit.Mvvm.Messaging.IRecipient<RefreshRequiredMessage<PayrollEntry>>
     {
         private readonly IPayrollRepository _payrollRepository;
         private readonly IStaffRepository _staffRepository;
@@ -51,6 +54,9 @@ namespace Management.Presentation.ViewModels.Finance
             
             CloseCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(CloseAsync);
             PayCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<Guid>(ExecutePayAsync);
+
+            // Register for refresh messages
+            WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<PayrollEntry>>(this);
         }
 
         public override async Task OnModalOpenedAsync(object parameter, System.Threading.CancellationToken cancellationToken = default)
@@ -108,6 +114,15 @@ namespace Management.Presentation.ViewModels.Finance
         {
             // Open the processor modal we built previously, passing the staff ID
             await _modalNavigationService.OpenModalAsync<PayrollViewModel>(parameter: staffId);
+        }
+
+        public void Receive(RefreshRequiredMessage<PayrollEntry> message)
+        {
+            if (message.Value == CurrentFacilityId)
+            {
+                _logger.LogInformation("Refreshing payroll history due to RefreshRequiredMessage");
+                _ = LoadDataAsync();
+            }
         }
 
         private async Task CloseAsync()

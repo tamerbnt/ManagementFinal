@@ -95,6 +95,10 @@ namespace Management.Infrastructure.Repositories
 
         public override async Task<Product?> GetByIdAsync(Guid id, Guid? facilityId = null)
         {
+            // ISOLATION: Detach existing entry to ensure fresh reload in shared DbContext
+            var tracked = _context.ChangeTracker.Entries<Product>().FirstOrDefault(e => e.Entity.Id == id);
+            if (tracked != null) tracked.State = EntityState.Detached;
+
             if (facilityId.HasValue)
             {
                 return await _dbSet.IgnoreQueryFilters()

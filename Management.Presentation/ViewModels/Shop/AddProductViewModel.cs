@@ -10,22 +10,24 @@ using Management.Domain.Services;
 using Management.Presentation.Extensions;
 using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Stores;
-using Management.Domain.Services;
 using Management.Presentation.Services.Localization;
 using Management.Domain.Primitives;
 using Management.Application.Interfaces.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Management.Presentation.ViewModels.Shop
 {
     public partial class AddProductViewModel : FacilityAwareViewModelBase, IModalAware
     {
-        private readonly IProductService _productService;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ModalNavigationStore _modalNavigationStore;
 
         [ObservableProperty] private string _name = string.Empty;
+        [ObservableProperty] private string _description = string.Empty;
         [ObservableProperty] private string _sku = string.Empty;
         [ObservableProperty] private string _category = "Supplements";
+        [ObservableProperty] private string? _imageUrl;
         [ObservableProperty] private decimal _price;
         [ObservableProperty] private decimal _cost;
         [ObservableProperty] private int _stockQuantity;
@@ -38,7 +40,7 @@ namespace Management.Presentation.ViewModels.Shop
 
         public AddProductViewModel(
             ITerminologyService terminologyService,
-            IProductService productService,
+            IServiceScopeFactory scopeFactory,
             IFacilityContextService facilityContext,
             ILogger<AddProductViewModel> logger,
             IDiagnosticService diagnosticService,
@@ -48,7 +50,7 @@ namespace Management.Presentation.ViewModels.Shop
             ILocalizationService localizationService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
-            _productService = productService;
+            _scopeFactory = scopeFactory;
             _modalNavigationStore = modalNavigationStore;
             _dialogService = dialogService;
             UpdateTitle();
@@ -62,11 +64,14 @@ namespace Management.Presentation.ViewModels.Shop
                 _productId = product.Id;
                 Name = product.Name;
                 Sku = product.SKU;
-                Category = product.Category;
+                Category = product.Category ?? "Supplements";
                 Price = product.Price;
                 Cost = product.Cost;
                 StockQuantity = product.StockQuantity;
                 ReorderLevel = product.ReorderLevel;
+                // Preserve description and image
+                Description = product.Description;
+                ImageUrl = product.ImageUrl;
                 UpdateTitle();
             }
             return Task.CompletedTask;
@@ -99,6 +104,8 @@ namespace Management.Presentation.ViewModels.Shop
                 {
                     Id = IsEditMode ? _productId : Guid.NewGuid(),
                     Name = Name,
+                    Description = Description,
+                    ImageUrl = ImageUrl,
                     SKU = Sku,
                     Category = Category,
                     Price = Price,
@@ -107,14 +114,21 @@ namespace Management.Presentation.ViewModels.Shop
                     ReorderLevel = ReorderLevel
                 };
 
+                // CRITICAL FIX: resolve IProductService from a FRESH scope so the underlying
+                // UpdateProductCommandHandler gets its own isolated AppDbContext.
+                // Resolving from the root container gives the handler the long-lived root-scope
+                // DbContext which can be in a stale/dirty state from previous operations.
                 Result result;
+                using var scope = _scopeFactory.CreateScope();
+                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+
                 if (IsEditMode)
                 {
-                    result = await _productService.UpdateProductAsync(_facilityContext.CurrentFacilityId, product);
+                    result = await productService.UpdateProductAsync(_facilityContext.CurrentFacilityId, product);
                 }
                 else
                 {
-                    result = await _productService.CreateProductAsync(_facilityContext.CurrentFacilityId, product);
+                    result = await productService.CreateProductAsync(_facilityContext.CurrentFacilityId, product);
                 }
 
                 if (result.IsSuccess)
@@ -141,14 +155,15 @@ namespace Management.Presentation.ViewModels.Shop
         {
             if (!IsEditMode || _productId == Guid.Empty) return;
 
-            // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
             var facilityId = _facilityContext.CurrentFacilityId;
             var productId = _productId;
             var productName = Name;
 
             await ExecuteLoadingAsync(async () =>
             {
-                var result = await _productService.DeleteProductAsync(facilityId, productId);
+                using var scope = _scopeFactory.CreateScope();
+                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                var result = await productService.DeleteProductAsync(facilityId, productId);
 
                 if (result.IsSuccess)
                 {
@@ -157,7 +172,9 @@ namespace Management.Presentation.ViewModels.Shop
                         $"Product '{productName}' deleted.",
                         undoAction: async () => 
                         {
-                            await _productService.RestoreProductAsync(facilityId, productId);
+                            using var undoScope = _scopeFactory.CreateScope();
+                            var undoService = undoScope.ServiceProvider.GetRequiredService<IProductService>();
+                            await undoService.RestoreProductAsync(facilityId, productId);
                             WeakReferenceMessenger.Default.Send(new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(facilityId));
                         });
                     

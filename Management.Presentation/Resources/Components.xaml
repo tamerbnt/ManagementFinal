@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors">
 
     <ResourceDictionary.MergedDictionaries>
         <!-- No local merges needed as they are handled in App.xaml or via DynamicResource resolution -->
@@ -617,10 +618,36 @@
                              </Border.RenderTransform>
                         </Border>
 
-                        <!-- Content -->
-                        <ScrollViewer x:Name="PART_ContentHost" Margin="0,0,24,4" VerticalAlignment="Center"/>
+                        <!-- Content (Password) -->
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="0,0,32,4" VerticalAlignment="Center"
+                                      Visibility="{Binding IsChecked, ElementName=PART_Toggle, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+
+                        <!-- Content (Revealed Text) -->
+                        <TextBox x:Name="PART_RevealTextBox"
+                                 Text="{Binding Path=(behaviors:PasswordBoxHelper.BoundPassword), RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource GhostTextBox}"
+                                 Margin="0,0,32,4"
+                                 VerticalAlignment="Center"
+                                 FontSize="17"
+                                 Visibility="{Binding IsChecked, ElementName=PART_Toggle, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <!-- Eye Toggle -->
+                        <ToggleButton x:Name="PART_Toggle"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,0,4"
+                                      Style="{StaticResource IconToggleButtonStyle}"
+                                      IsTabStop="False">
+                            <Path x:Name="PART_EyeIcon"
+                                  Data="{StaticResource IconEye}"
+                                  Style="{StaticResource Style.Icon.Micro}"
+                                  Fill="{DynamicResource Brush.Text.Secondary}"/>
+                        </ToggleButton>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <Trigger SourceName="PART_Toggle" Property="IsChecked" Value="True">
+                            <Setter TargetName="PART_EyeIcon" Property="Data" Value="{StaticResource IconEyeOff}"/>
+                        </Trigger>
                         <!-- Focus State Animation -->
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Trigger.EnterActions>

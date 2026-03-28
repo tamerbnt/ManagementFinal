@@ -154,6 +154,7 @@
     <StaticResource x:Key="IconApparatus" ResourceKey="Icon.Sliders"/>
     <StreamGeometry x:Key="IconCopy">M9 15H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v1M12 5h11a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z</StreamGeometry>
     <StreamGeometry x:Key="IconEye">M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z</StreamGeometry>
+    <StreamGeometry x:Key="IconEyeOff">M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22</StreamGeometry>
     <StreamGeometry x:Key="IconLogout">M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9</StreamGeometry>
     <StreamGeometry x:Key="IconBuilding">M3 21h18M9 8h1m-1 4h1m-1 4h1m5-12v16M15 8h1m-1 4h1m-1 4h1</StreamGeometry>
     <StreamGeometry x:Key="IconUpload">M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12</StreamGeometry>

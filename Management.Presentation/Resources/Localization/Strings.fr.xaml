@@ -15,6 +15,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Global.Close">Fermer</sys:String>
     <sys:String x:Key="Terminology.Global.Cancel">Annuler</sys:String>
     <sys:String x:Key="Terminology.Global.Confirm">Confirmer</sys:String>
+    <sys:String x:Key="Terminology.Global.Save">Enregistrer les modifications</sys:String>
     <sys:String x:Key="Terminology.Global.Date">Date</sys:String>
     <sys:String x:Key="Terminology.Global.Time">Heure</sys:String>
     <sys:String x:Key="Terminology.Global.Currency">DA</sys:String>
@@ -766,8 +767,9 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.SessionExpired">Session expirée</sys:String>
     <sys:String x:Key="Strings.Auth.LogOut">Déconnexion</sys:String>
     <sys:String x:Key="Strings.Auth.LogIn1">Connexion</sys:String>
-    <sys:String x:Key="Strings.Auth.Error.SelectFacility">Select Facility</sys:String>
-    <sys:String x:Key="Strings.Auth.Error.SelectFacilityToContinue">Please select a facility to continue</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.SelectFacility">Sélectionner un établissement</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.SelectFacilityToContinue">Veuillez sélectionner un établissement pour continuer</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.FacilityMismatch">Accès refusé : Votre compte n'est pas autorisé pour cet établissement.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceLimitReached">Device Limit Reached. This workspace is already active on 3 machines.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.RegistrationFailed">Registration Failed</sys:String>
     <sys:String x:Key="Strings.Auth.Error.UnexpectedError">An unexpected error occurred: {0}</sys:String>

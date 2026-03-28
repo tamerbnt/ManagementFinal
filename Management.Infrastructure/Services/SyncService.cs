@@ -41,6 +41,7 @@ namespace Management.Infrastructure.Services
         private const string LAST_SYNC_KEY = "LastSyncTimestamp";
         private readonly IFacilityContextService _facilityContext;
         private readonly IEnumerable<IFacilitySyncStrategy> _strategies;
+        private readonly Management.Application.Interfaces.ICurrentUserService _currentUserService;
 
         // JIT Context for repairing poisoned outbox messages
         private Guid? _currentFacilityId;
@@ -64,7 +65,8 @@ namespace Management.Infrastructure.Services
             Management.Domain.Services.ISessionStorageService sessionStorage,
             IToastService toastService,
             IFacilityContextService facilityContext,
-            IEnumerable<IFacilitySyncStrategy> strategies)
+            IEnumerable<IFacilitySyncStrategy> strategies,
+            Management.Application.Interfaces.ICurrentUserService currentUserService)
         {
             _supabase = supabase;
             _secureStorage = secureStorage;
@@ -75,6 +77,7 @@ namespace Management.Infrastructure.Services
             _toastService = toastService;
             _facilityContext = facilityContext;
             _strategies = strategies;
+            _currentUserService = currentUserService;
         }
 
         private void UpdateStatus(SyncStatus newStatus)
@@ -587,14 +590,55 @@ namespace Management.Infrastructure.Services
                 var tenantId = _tenantService.GetTenantId();
                 if (tenantId == null || tenantId == Guid.Empty) return;
 
-                // SECURITY FIX 1: Filter by both tenant_id AND facility_id.
-                // Previously only filtered by tenant_id — pulling ALL tenant staff into every PC.
-                // This caused Gym staff to appear in Salon PC's local SQLite, enabling cross-facility login.
-                var remoteData = await _supabase.From<SupabaseStaffMember>()
-                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
-                    .Filter("facility_id", Supabase.Postgrest.Constants.Operator.Equals, facilityId.ToString())
-                    .Where(x => x.UpdatedAt > lastSync.UtcDateTime)
-                    .Get();
+                var role = _tenantService.GetRole();
+                bool isOwner = role == Management.Domain.Enums.StaffRole.Owner.ToString();
+
+                // ROLE-AWARE REFINEMENT: Identity-based sync scoping.
+                // 1. Regular staff are strictly siloed (only see their own facility).
+                // 2. Owners are global (pull all tenant staff for management visibility).
+                
+                var query = _supabase.From<SupabaseStaffMember>()
+                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString());
+
+                if (!isOwner)
+                {
+                    query = query.Filter("facility_id", Supabase.Postgrest.Constants.Operator.Equals, facilityId.ToString());
+                    _logger.LogInformation("[Sync] Scoping staff sync to facility: {FacilityId}", facilityId);
+                }
+                else 
+                {
+                    _logger.LogInformation("[Sync] Performing global staff sync for Owner account.");
+                }
+
+                // SELF-REPAIR & MANAGEMENT PROTECTION:
+                // 1. If local staff list is empty for this facility, perform full pull.
+                // 2. If user is an Owner and their OWN profile is missing locally (but we are logged in), the cache is damaged.
+                //    Force a full pull to restore the management layer (Tamer, Luxurya, etc.)
+                var localStaffExists = await context.StaffMembers.IgnoreQueryFilters().AnyAsync(s => s.FacilityId == facilityId && !s.IsDeleted, ct);
+                bool shouldForceFullPull = !localStaffExists;
+
+                if (isOwner && localStaffExists)
+                {
+                    // Check if the current owner is actually in the local DB. If not, the cache was likely purged by a regular staff login.
+                    var currentStaffId = _currentUserService.UserId;
+                    if (currentStaffId.HasValue && !await context.StaffMembers.IgnoreQueryFilters().AnyAsync(s => s.Id == currentStaffId.Value, ct))
+                    {
+                        Serilog.Log.Warning("[Sync] Owner profile missing from local DB. Triggering Management Layer Restoration.");
+                        shouldForceFullPull = true;
+                    }
+                }
+                
+                var remoteQuery = query;
+                if (!shouldForceFullPull)
+                {
+                    remoteQuery = remoteQuery.Where(x => x.UpdatedAt > lastSync.UtcDateTime);
+                }
+                else
+                {
+                    _logger.LogInformation("[Sync] Cache repair triggered for {FacilityId}. Full pull initiated.", facilityId);
+                }
+
+                var remoteData = await remoteQuery.Get();
 
                 if (!remoteData.Models.Any()) return;
 

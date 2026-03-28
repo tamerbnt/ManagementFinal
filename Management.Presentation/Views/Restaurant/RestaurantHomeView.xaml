@@ -61,26 +61,53 @@
 
                     <!-- METRIC 1: ACTIVE TABLES -->
                     <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.ActiveTables}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.8"/>
-                            <TextBlock Text="{Binding ActiveTablesCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.ActiveTables}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.8"/>
+                                <TextBlock Text="{Binding ActiveTablesCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="#15FFFFFF" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconRestaurant}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
 
                     <!-- METRIC 2: DAILY REVENUE -->
-                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:N0} DA}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:N0} DA}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
 
                     <!-- METRIC 3: OPEN ORDERS -->
-                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.PendingOrders}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding OpenOrdersCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.PendingOrders}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding OpenOrdersCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconRegistrations}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -93,7 +120,7 @@
                         </Grid.RowDefinitions>
                         
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,20">
-                            <Border Width="1" Height="20" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,12,0"/>
+                            <Path Data="{StaticResource IconHistory}" Fill="{DynamicResource FacilityAccentBrush}" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <TextBlock Text="{DynamicResource Terminology.Home.RecentActivity}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                         </StackPanel>
                         
@@ -167,42 +194,54 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- New Table -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding NewTableCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding NewTableCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,0,8">
-                                        <Path Data="{StaticResource Icon.Plus}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconDashboard}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.NewTable}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.NewTable}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Takeout -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding TakeoutCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding TakeoutCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="{StaticResource Icon.Storefront}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconShop}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.Takeout}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.Takeout}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Pay Bill -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding PayBillCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding PayBillCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="{StaticResource Icon.CheckCircle}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconCheckCircle}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.PayBill}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.PayBill}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Menu Status -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding MenuStatusCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding MenuStatusCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="{StaticResource Icon.Sliders}" Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconApparatus}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.MenuStatus}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.MenuStatus}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -212,6 +251,7 @@
                 <!-- TIME/DATE -->
                 <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
                     <StackPanel>
+                        <Path Data="{StaticResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                         <TextBlock Text="{Binding CurrentTime}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         <TextBlock Text="{Binding CurrentDate}" FontSize="12" Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                     </StackPanel>

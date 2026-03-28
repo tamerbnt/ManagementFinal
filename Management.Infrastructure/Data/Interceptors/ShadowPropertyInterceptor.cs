@@ -74,15 +74,60 @@ namespace Management.Infrastructure.Data.Interceptors
                     // 3. Legacy Shadow Constraints
                     if (entry.Entity is MembershipPlan or Product)
                     {
-                        try { entry.Property("price").CurrentValue = 0m; } catch { }
+                        try 
+                        { 
+                            var amount = entry.Entity switch
+                            {
+                                Product p => p.Price?.Amount ?? 0m,
+                                MembershipPlan m => m.Price?.Amount ?? 0m,
+                                _ => 0m
+                            };
+                            
+                            // Ensure the shadow property exists before setting
+                            var property = entry.Metadata.FindProperty("price");
+                            if (property != null)
+                            {
+                                entry.Property("price").CurrentValue = amount;
+                            }
+                            else
+                            {
+                                _logger.LogWarning("[ShadowPropertyInterceptor] Shadow property 'price' NOT FOUND on entity {Type}. Skipping sync.", entry.Entity.GetType().Name);
+                            }
+                        } 
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "[ShadowPropertyInterceptor] Failed to sync legacy 'price' for {Type}", entry.Entity.GetType().Name);
+                        }
                     }
                 }
 
-                // 4. Timestamp Updates
                 if (entry.State == EntityState.Modified)
                 {
                     if (entry.Entity is BaseEntity baseEntity) baseEntity.UpdateTimestamp();
                     else if (entry.Entity is Management.Domain.Primitives.Entity primitiveEntity) primitiveEntity.UpdateTimestamp();
+
+                    if (entry.Entity is MembershipPlan or Product)
+                    {
+                        try 
+                        { 
+                            var amount = entry.Entity switch
+                            {
+                                Product p => p.Price?.Amount ?? 0m,
+                                MembershipPlan m => m.Price?.Amount ?? 0m,
+                                _ => 0m
+                            };
+                            
+                            var property = entry.Metadata.FindProperty("price");
+                            if (property != null)
+                            {
+                                entry.Property("price").CurrentValue = amount;
+                            }
+                        } 
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "[ShadowPropertyInterceptor] Failed to sync legacy 'price' for {Type} (Modified)", entry.Entity.GetType().Name);
+                        }
+                    }
                 }
 
                 // 5. Special Shadow Property Sync (Payroll)

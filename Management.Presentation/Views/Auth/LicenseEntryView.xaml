@@ -10,6 +10,27 @@
              UseLayoutRounding="True"
              Background="Transparent">
 
+    <UserControl.Resources>
+        <Style x:Key="LicenseInputBorderStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Height" Value="48"/>
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" 
+                                              BlurRadius="12" ShadowDepth="0" Opacity="0.4"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
         <StackPanel VerticalAlignment="Top" Margin="40,32,40,40">
 
@@ -49,11 +70,7 @@
                                FontFamily="Segoe UI Variable Display, Segoe UI"/>
                 </Grid>
 
-                <Border CornerRadius="10"
-                        Background="White"
-                        BorderBrush="#E5E7EB"
-                        BorderThickness="1.5"
-                        Height="48">
+                <Border Style="{StaticResource LicenseInputBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="44"/>

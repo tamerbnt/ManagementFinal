@@ -61,51 +61,70 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/> <!-- Row 0: Dashboard Header -->
+            <RowDefinition Height="Auto"/> <!-- Row 1: Filters & Navigation -->
+            <RowDefinition Height="*"/>    <!-- Row 2: Schedule Grid -->
         </Grid.RowDefinitions>
         
-        <Grid Margin="48,24,48,12">
-        <StackPanel Orientation="Horizontal">
-            <Path Data="{StaticResource IconCalendar}" 
-                  Style="{StaticResource Style.Icon.Large}" 
-                  Stroke="{DynamicResource TextPrimaryBrush}"
-                  Margin="0,0,12,0"
-                  VerticalAlignment="Center"/>
-            <TextBlock Text="{DynamicResource Terminology.Sidebar.Schedule}" Style="{StaticResource SectionHeader}" VerticalAlignment="Center"/>
-            
-            <!-- Date Navigation -->
-            <StackPanel Orientation="Horizontal" Margin="24,0,0,0">
-                <Button Style="{StaticResource GhostButton}" Command="{Binding PrevDayCommand}" Padding="8">
-                    <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
-                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
-                          Width="18" Height="18" Stretch="Uniform"/>
-                </Button>
-                <TextBlock Text="{Binding SelectedDateDisplay}" 
-                           Style="{StaticResource SectionHeader}" VerticalAlignment="Center" Margin="12,0" MinWidth="180" TextAlignment="Center"/>
-                <Button Style="{StaticResource GhostButton}" Command="{Binding NextDayCommand}" Padding="8">
-                    <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
-                          StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
-                          Width="18" Height="18" Stretch="Uniform"/>
-                </Button>
-                <Button Content="{Binding TodayLabel}" Style="{StaticResource SecondaryButton}" Command="{Binding TodayCommand}" Margin="12,0,0,0"/>
-            </StackPanel>
-        </StackPanel>
-        
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Margin="0,0,16,0" Padding="12,6">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Appointments.Count}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding BookingsTodayLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+        <!-- ====================================================================== -->
+        <!-- SECTION 0: DASHBOARD HEADER (Title + Subtitle) -->
+        <!-- ====================================================================== -->
+        <Grid Grid.Row="0" Margin="32,24,0,32">
+            <StackPanel Orientation="Horizontal">
+                <Path Data="{StaticResource IconCalendar}" 
+                      Style="{StaticResource Style.Icon.Large}" 
+                      Stroke="{DynamicResource TextPrimaryBrush}"
+                      Margin="0,0,16,0"
+                      VerticalAlignment="Center"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Terminology.Sidebar.Schedule}" 
+                               FontSize="32" FontWeight="Bold" 
+                               Foreground="{DynamicResource TextPrimaryBrush}" 
+                               FontFamily="Segoe UI Variable Display"/>
+                    <TextBlock Text="Overview of today's appointments and staff availability." 
+                               FontSize="16" Foreground="{DynamicResource TextSecondaryBrush}" 
+                               Margin="0,4,0,0"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
+        </Grid>
 
-
-        </StackPanel>
-    </Grid>
+        <!-- ====================================================================== -->
+        <!-- SECTION 1: FILTERS & NAVIGATION (Date Nav + Counters) -->
+        <!-- ====================================================================== -->
+        <Grid Grid.Row="1" Margin="32,16,0,12">
+            <StackPanel Orientation="Horizontal">
+                <!-- Date Navigation -->
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource GhostButton}" Command="{Binding PrevDayCommand}" Padding="8">
+                        <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
+                              Width="18" Height="18" Stretch="Uniform"/>
+                    </Button>
+                    <TextBlock Text="{Binding SelectedDateDisplay}" 
+                               FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" Margin="12,0" MinWidth="180" TextAlignment="Center"/>
+                    <Button Style="{StaticResource GhostButton}" Command="{Binding NextDayCommand}" Padding="8">
+                        <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" 
+                              StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
+                              Width="18" Height="18" Stretch="Uniform"/>
+                    </Button>
+                    <Button Content="{Binding TodayLabel}" Style="{StaticResource SecondaryButton}" Command="{Binding TodayCommand}" Margin="12,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="12,6">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding Appointments.Count}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding BookingsTodayLabel}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
 
     <!-- Staff Columns Layout (New 2x2 System) -->
-    <Grid Grid.Row="1">
+    <Grid Grid.Row="2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60"/> <!-- Column 0: Time Axis -->
             <ColumnDefinition Width="*"/>  <!-- Column 1: Data Area -->
@@ -160,6 +179,7 @@
         <!-- 4. Bottom-Right: Main Appointment Grid (The "Hub") -->
         <ScrollViewer x:Name="BodyScrollViewer" Grid.Row="1" Grid.Column="1" 
                       HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,8,16"
                       ScrollChanged="BodyScrollViewer_ScrollChanged">
             <Grid x:Name="BodyContentGrid" HorizontalAlignment="Left">
                 
@@ -244,8 +264,10 @@
                         <Style TargetType="ContentPresenter">
                             <Setter Property="Canvas.Top" Value="{Binding TopOffset}"/>
                             <Setter Property="Canvas.Left" Value="{Binding ColumnLeftPosition}"/>
+                            <!-- Width only — no Height constraint so shadow bleed is not clipped.
+                                 Canvas uses Top/Left for positioning, not Height, so this is safe. -->
                             <Setter Property="Width" Value="240"/>
-                            <Setter Property="Height" Value="{Binding Height}"/>
+                            <Setter Property="ClipToBounds" Value="False"/>
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
@@ -259,7 +281,9 @@
                                         <ContentPresenter/>
                                     </ControlTemplate>
                                 </Button.Template>
-                                <Border Height="{Binding Height}" Style="{StaticResource AppointmentCardStyle}">
+                                <Border Height="{Binding Height}" Style="{StaticResource AppointmentCardStyle}"
+                                        Margin="2,0,6,8"
+                                        Effect="{StaticResource Shadow.Level2}">
                                     <Grid>
                                         <Border Style="{StaticResource StatusStripStyle}"/>
                                         <StackPanel Margin="12,8,8,8">

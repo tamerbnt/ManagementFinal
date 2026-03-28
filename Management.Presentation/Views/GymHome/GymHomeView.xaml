@@ -96,9 +96,9 @@
 
                             <!-- Header label -->
                             <StackPanel Orientation="Horizontal">
-                                <Border Width="24" Height="24" CornerRadius="6" Background="#20FFFFFF" Margin="0,0,10,0">
-                                    <Path Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
-                                          Fill="White" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="24" Height="24" CornerRadius="6" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,10,0">
+                                    <Path Data="{StaticResource IconMembers}"
+                                          Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Terminology.Home.PeopleInside}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" VerticalAlignment="Center" Opacity="0.7"/>
                             </StackPanel>
@@ -126,27 +126,54 @@
                     </Border>
 
                     <!-- ACTIVE MEMBERS TOTAL -->
-                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Home.ActiveMembers}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding ActiveMembersTotal}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Home.ActiveMembers}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding ActiveMembersTotal}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconMembers}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
 
                     <!-- EXPIRING SOON -->
-                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Home.ExpiringSoon}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding ExpiringSoonCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Home.ExpiringSoon}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding ExpiringSoonCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
 
                     <!-- REVENUE TODAY -->
-                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:C0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:C0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -165,7 +192,7 @@
                             </Grid.RowDefinitions>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="0,0,0,20">
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="1" Height="20" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,12,0"/>
+                                    <Path Data="{StaticResource IconHistory}" Fill="{DynamicResource FacilityAccentBrush}" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Home.RecentActivity}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                 </StackPanel>
                             </StackPanel>
@@ -246,46 +273,54 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- Row 0, Col 0: Quick Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource Brush.Sidebar.Separator}" Margin="0,0,0,8">
-                                        <Path Data="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" 
-                                              Fill="{DynamicResource Brush.Sidebar.Text.Inactive}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconFinance}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 0, Col 2: Create Member -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource Brush.Sidebar.Separator}" Margin="0,0,0,8">
-                                        <Path Data="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" 
-                                              Fill="{DynamicResource Brush.Sidebar.Text.Inactive}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconPlus}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 2, Col 0: Walk-In Check-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource Brush.Sidebar.Separator}" Margin="0,0,0,8">
-                                        <Path Data="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" 
-                                              Fill="{DynamicResource Brush.Sidebar.Text.Inactive}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconMembers}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 2, Col 2: Multi-Sale Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource Brush.Sidebar.Separator}" Margin="0,0,0,8">
-                                        <Path Data="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" 
-                                              Fill="{DynamicResource Brush.Sidebar.Text.Inactive}" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconCart}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -296,6 +331,7 @@
                 <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
                     <StackPanel>
                         <!-- Time Display -->
+                        <Path Data="{StaticResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                         <TextBlock Text="{Binding CurrentTime}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         
                         <!-- Date Display -->

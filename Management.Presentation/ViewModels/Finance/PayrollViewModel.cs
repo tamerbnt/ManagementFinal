@@ -23,15 +23,17 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using AsyncRelayCommand = CommunityToolkit.Mvvm.Input.AsyncRelayCommand;
+using Microsoft.Extensions.DependencyInjection; // Added for IServiceScopeFactory
 
 namespace Management.Presentation.ViewModels.Finance
 {
     public partial class PayrollViewModel : FacilityAwareViewModelBase
     {
         private readonly IPayrollRepository _payrollRepository;
-        private readonly IStaffService _staffService;
+        private readonly IStaffService _staffService; // Changed from IStaffRepository based on original code
         private readonly IModalNavigationService _modalNavigationService;
         private readonly IMediator _mediator;
+        private readonly IServiceScopeFactory _scopeFactory; // Added
 
         [ObservableProperty]
         private ObservableCollection<StaffMemberPayrollDto> _staffList = new();
@@ -64,13 +66,15 @@ namespace Management.Presentation.ViewModels.Finance
             IMediator mediator,
             IFacilityContextService facilityContext,
             ITerminologyService terminologyService,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IServiceScopeFactory scopeFactory) // Added
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _payrollRepository = payrollRepository;
             _staffService = staffService;
             _modalNavigationService = modalNavigationService;
             _mediator = mediator;
+            _scopeFactory = scopeFactory; // Initialized
 
             PayCommand = new AsyncRelayCommand(ExecutePayAsync, () => SelectedStaff != null && AmountToPay > 0);
             CancelCommand = new AsyncRelayCommand(CloseAsync);
@@ -183,10 +187,26 @@ namespace Management.Presentation.ViewModels.Finance
 
                     var successMsg = string.Format(GetTerm("Terminology.Payroll.Success") ?? "Successfully processed payroll of {0} DA for {1}", AmountToPay.ToString("N2"), SelectedStaff.Name);
                     
+                    var entryId = idResult.Value;
+                    var facilityId = _facilityContext.CurrentFacilityId;
+                    
                     _toastService.ShowSuccess(successMsg, async () =>
                     {
-                        await _payrollRepository.DeleteAsync(idResult.Value);
-                        WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<PayrollEntry>(_facilityContext.CurrentFacilityId));
+                        try 
+                        {
+                            using (var scope = _scopeFactory.CreateScope())
+                            {
+                                var scopedRepo = scope.ServiceProvider.GetRequiredService<IPayrollRepository>();
+                                await scopedRepo.DeleteAsync(entryId);
+                                
+                                var messenger = scope.ServiceProvider.GetRequiredService<CommunityToolkit.Mvvm.Messaging.IMessenger>();
+                                messenger.Send(new RefreshRequiredMessage<PayrollEntry>(facilityId));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Failed to undo payroll payment for entry {EntryId}", entryId);
+                        }
                     }, "Undo");
 
                     // Send refresh message to update Dashboard Expenses card and other observers

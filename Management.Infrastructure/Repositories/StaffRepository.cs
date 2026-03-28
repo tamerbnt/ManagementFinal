@@ -150,5 +150,32 @@ namespace Management.Infrastructure.Repositories
                     .SetProperty(x => x.IsDeleted, false)
                     .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));
         }
+
+        public async Task CleanCrossFacilityStaffAsync(IEnumerable<Guid> authorizedFacilityIds)
+        {
+            try
+            {
+                var authIds = authorizedFacilityIds.ToList();
+                if (!authIds.Any()) return;
+
+                var crossStaff = await _dbSet
+                    .IgnoreQueryFilters()
+                    .Where(s => !authIds.Contains(s.FacilityId) && 
+                                s.Role != Management.Domain.Enums.StaffRole.Owner && // PROTECT OWNERS
+                                !s.IsDeleted)
+                    .ToListAsync();
+
+                if (crossStaff.Any())
+                {
+                    Serilog.Log.Information("[Security] Purging {Count} unauthorized cross-facility staff records.", crossStaff.Count);
+                    _dbSet.RemoveRange(crossStaff);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "[Security] Failed to purge unauthorized staff records.");
+            }
+        }
     }
 }

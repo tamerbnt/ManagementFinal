@@ -13,5 +13,6 @@ namespace Management.Domain.Interfaces
         Task UpdateAsync(T entity, bool saveChanges = true);
         Task DeleteAsync(Guid id, bool saveChanges = true);
         Task RestoreAsync(Guid id, Guid? facilityId = null);
+        Task ReloadAsync(T entity);
     }
 }

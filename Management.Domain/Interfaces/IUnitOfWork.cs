@@ -7,6 +7,9 @@ namespace Management.Domain.Interfaces
     {
         Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        void ClearTracker();
+        string GetChangeTrackerDebugView();
+        void SetShadowProperty<TValue>(object entity, string propertyName, TValue value);
     }
 
     public interface IUnitOfWorkTransaction : System.IDisposable, System.IAsyncDisposable

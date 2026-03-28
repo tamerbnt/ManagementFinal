@@ -7,6 +7,7 @@ using Management.Domain.Primitives;
 using Management.Domain.ValueObjects;
 using MediatR;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,15 +18,18 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
         private readonly IProductRepository _productRepository;
         private readonly Domain.Services.ITenantService _tenantService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public CreateProductCommandHandler(
             IProductRepository productRepository, 
             Domain.Services.ITenantService tenantService,
-            ICurrentUserService currentUserService)
+            ICurrentUserService currentUserService,
+            IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
             _tenantService = tenantService;
             _currentUserService = currentUserService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<Guid>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -59,15 +63,42 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
 
             var product = productResult.Value;
 
-            // Set multi-tenancy IDs
+            // 1. Mandatory Multi-Tenancy IDs
             var tenantId = _tenantService.GetTenantId();
             if (tenantId.HasValue) product.TenantId = tenantId.Value;
 
+            // 2. Strict Facility ID Assignment
+            // We MUST have a facility ID, otherwise the product is invisible in the Shop grid.
             var facilityId = request.FacilityId ?? _currentUserService.CurrentFacilityId;
-            if (facilityId.HasValue && facilityId != Guid.Empty) product.FacilityId = facilityId.Value;
+            if (facilityId.HasValue && facilityId != Guid.Empty)
+            {
+                product.FacilityId = facilityId.Value;
+            }
+            else
+            {
+                // Last ditch effort: if we still have Guid.Empty, this product will be orphaned.
+                // We should log this clearly as a Critical warning.
+                Debug.WriteLine($"[CreateProduct] ❌ CRITICAL: No FacilityId found in request or context! Product will be saved with Guid.Empty.");
+            }
 
-            // Persist to Repository (Supabase via AppDbContext)
-            await _productRepository.AddAsync(product);
+            // 3. Ensure Active State
+            product.Activate();
+
+            // 4. Attach to Repository first
+            await _productRepository.AddAsync(product, saveChanges: false);
+
+            // 5. SYNC Shadow Property (AFTER attachment so EF is tracking it)
+            _unitOfWork.SetShadowProperty(product, "price", product.Price?.Amount ?? 0);
+
+            Debug.WriteLine($"[CreateProduct] ► Prepared: Name='{product.Name}'  Price={product.Price?.Amount}  FacilityId={product.FacilityId}");
+
+            // DIAGNOSTICS: Check ChangeTracker state before saving.
+            Debug.WriteLine("--- CHANGE TRACKER DEBUG VIEW ---");
+            Debug.WriteLine(_unitOfWork.GetChangeTrackerDebugView());
+            
+            int rowsAffected = await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            Debug.WriteLine($"[CreateProduct] ✓ Committed {rowsAffected} row(s) to SQLite. ProductId={product.Id}");
 
             return Result.Success(product.Id);
         }

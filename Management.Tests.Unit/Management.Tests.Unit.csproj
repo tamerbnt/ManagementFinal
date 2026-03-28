@@ -33,6 +33,6 @@
   <ItemGroup>
     <Compile Remove="**\*.cs" />
     <Compile Include="TurnstileTests.cs" />
+    <Compile Include="PayrollTests.cs" />
   </ItemGroup>
-
 </Project>

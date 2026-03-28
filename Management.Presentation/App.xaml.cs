@@ -446,23 +446,10 @@ namespace Management.Presentation
                 var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
                 sessionManager.CurrentFacility = facilityContext.CurrentFacility;
 
-                // SECURITY FIX 1D: One-time cleanup of cross-facility staff records.
-                // Previous versions of PullStaffMembersAsync synced ALL tenant staff (no facility filter),
-                // so local databases may contain staff from other facilities.
-                // This removes them now that the facility context is confirmed.
+                // ROLE-AWARE REFINEMENT: Startup cleanup removed.
+                // Cleanup now happens during the login flow specifically for regular staff,
+                // while bypassing for Owners to preserve their management data.
                 var currentFacilityGuid = facilityContext.CurrentFacilityId;
-                if (currentFacilityGuid != Guid.Empty)
-                {
-                    try
-                    {
-                        var cleanupContext = ServiceProvider.GetRequiredService<Management.Infrastructure.Data.AppDbContext>();
-                        await CleanCrossFacilityStaffAsync(cleanupContext, currentFacilityGuid);
-                    }
-                    catch (Exception cleanupEx)
-                    {
-                        Serilog.Log.Warning(cleanupEx, "[Security] Cross-facility staff cleanup failed — non-critical, will retry next startup.");
-                    }
-                }
 
 
                 // 2. Initial Sync Logic
@@ -729,30 +716,6 @@ namespace Management.Presentation
         /// unfiltered PullStaffMembersAsync query (pre-security fix). Runs once at startup after
         /// facility context is committed.
         /// </summary>
-        private async Task CleanCrossFacilityStaffAsync(Management.Infrastructure.Data.AppDbContext context, Guid currentFacilityId)
-        {
-            if (currentFacilityId == Guid.Empty) return;
-
-            var crossFacilityStaff = await context.StaffMembers
-                .IgnoreQueryFilters()
-                .Where(s => s.FacilityId != currentFacilityId && !s.IsDeleted)
-                .ToListAsync();
-
-            if (crossFacilityStaff.Any())
-            {
-                Serilog.Log.Warning("[Security] CleanCrossFacilityStaffAsync: Removing {Count} cross-facility staff records from local DB. " +
-                    "These were incorrectly synced from other facilities by a previous unfiltered sync.",
-                    crossFacilityStaff.Count);
-                context.StaffMembers.RemoveRange(crossFacilityStaff);
-                await context.SaveChangesAsync();
-                Serilog.Log.Information("[Security] Cross-facility staff cleanup complete.");
-            }
-            else
-            {
-                Serilog.Log.Debug("[Security] CleanCrossFacilityStaffAsync: No cross-facility staff found. Database is clean.");
-            }
-        }
-
         private async Task InitializeResilienceAsync(IServiceProvider services)
         {
             var resilienceService = services.GetRequiredService<IResilienceService>();

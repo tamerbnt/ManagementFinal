@@ -67,6 +67,8 @@
                         <TextBlock Text="{DynamicResource Terminology.Staff.Add.Password}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
                         <PasswordBox x:Name="StaffPasswordBox" 
                                      Style="{DynamicResource UnderlinePasswordBox}"
+                                     behaviors:PasswordBoxHelper.BindPassword="True"
+                                     behaviors:PasswordBoxHelper.BoundPassword="{Binding NewStaff.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      Margin="{DynamicResource MarginSmallBottom}"/>
                     </StackPanel>
 

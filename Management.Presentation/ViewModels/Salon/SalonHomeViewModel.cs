@@ -350,11 +350,11 @@ namespace Management.Presentation.ViewModels.Salon
                 var appointments = _salonService.Appointments.ToList();
                 _logger.LogInformation($"[SalonHome] Appointments Loaded: {appointments.Count}");
 
-                // 1b. Load Past Appointments for Activity Stream (Last 3 days)
-                var pastAppointments = await _appointmentService.GetByRangeAsync(facilityId, today.AddDays(-3), today.AddDays(1));
+                // 1b. Load Completed Appointments for Activity Stream (Today only)
+                var pastAppointments = await _appointmentService.GetByRangeAsync(facilityId, today, today.AddDays(1));
 
-                // 2. Load Sales (Switch to UTC boundaries for DB alignment)
-                var salesResult = await _saleService.GetSalesByRangeAsync(facilityId, utcStart.AddDays(-3), utcEnd);
+                // 2. Load Sales (Today only — UTC boundaries for DB alignment)
+                var salesResult = await _saleService.GetSalesByRangeAsync(facilityId, utcStart, utcEnd);
                 var sales = salesResult.IsSuccess ? salesResult.Value : new List<SaleDto>();
 
                 // 3. Load Revenue Directly (Bypasses truncation for accurate totals)

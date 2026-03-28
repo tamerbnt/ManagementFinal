@@ -15,6 +15,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Global.Close">إغلاق</sys:String>
     <sys:String x:Key="Terminology.Global.Cancel">إلغاء</sys:String>
     <sys:String x:Key="Terminology.Global.Confirm">تأكيد</sys:String>
+    <sys:String x:Key="Terminology.Global.Save">حفظ التغييرات</sys:String>
     <sys:String x:Key="Terminology.Global.Date">التاريخ</sys:String>
     <sys:String x:Key="Terminology.Global.Time">الوقت</sys:String>
     <sys:String x:Key="Terminology.Global.Currency">دا</sys:String>
@@ -773,8 +774,9 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.SessionExpired">انتهت الجلسة</sys:String>
     <sys:String x:Key="Strings.Auth.LogOut">تسجيل الخروج</sys:String>
     <sys:String x:Key="Strings.Auth.LogIn1">تسجيل الدخول</sys:String>
-    <sys:String x:Key="Strings.Auth.Error.SelectFacility">Select Facility</sys:String>
-    <sys:String x:Key="Strings.Auth.Error.SelectFacilityToContinue">Please select a facility to continue</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.SelectFacility">اختر المنشأة</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.SelectFacilityToContinue">يرجى اختيار المنشأة للمتابعة</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.FacilityMismatch">تم رفض الوصول: حسابك غير مخول لهذه المنشأة.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceLimitReached">Device Limit Reached. This workspace is already active on 3 machines.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.RegistrationFailed">Registration Failed</sys:String>
     <sys:String x:Key="Strings.Auth.Error.UnexpectedError">An unexpected error occurred: {0}</sys:String>

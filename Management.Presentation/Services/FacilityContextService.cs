@@ -143,6 +143,11 @@ namespace Management.Presentation.Services
             await SwitchFacility(CurrentFacility);
         }
 
+        public Guid GetFacilityId(FacilityType type)
+        {
+            return _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty);
+        }
+
         public async Task SwitchFacility(FacilityType type)
         {
             CurrentFacility = type;

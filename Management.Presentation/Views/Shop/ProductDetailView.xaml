@@ -64,7 +64,7 @@
             <Border Background="{DynamicResource SurfaceBg}" Padding="12,4" CornerRadius="12" HorizontalAlignment="Center" Margin="0,8,0,0">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{DynamicResource Terminology.Shop.Detail.SkuPrefix}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    <TextBlock Text="{Binding SKU}" Style="{StaticResource Micro}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    <TextBlock Text="{Binding Sku}" Style="{StaticResource Micro}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
             </Border>
         </StackPanel>
@@ -117,7 +117,7 @@
                         <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" Style="{StaticResource Body}"
                                    Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
                         <!-- Edit -->
-                        <TextBox Text="{Binding Price, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                        <TextBox Text="{Binding Price, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UnderlineTextBox}"
                                  Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
 
@@ -127,7 +127,7 @@
                         <TextBlock Text="{Binding StockQuantity}" Style="{StaticResource Body}"
                                    Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
                          <!-- Edit -->
-                        <TextBox Text="{Binding StockQuantity, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                        <TextBox Text="{Binding StockQuantity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UnderlineTextBox}"
                                  Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
 
@@ -138,7 +138,7 @@
                         <TextBlock Text="{Binding Category}" Style="{StaticResource Body}"
                                    Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
                         <!-- Edit -->
-                        <TextBox Text="{Binding Category, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                        <TextBox Text="{Binding Category, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UnderlineTextBox}"
                                  Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
 
@@ -148,7 +148,7 @@
                         <TextBlock Text="{Binding ReorderLevel}" Style="{StaticResource Body}"
                                    Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
                          <!-- Edit -->
-                        <TextBox Text="{Binding ReorderLevel, Mode=TwoWay}" Style="{StaticResource UnderlineTextBox}"
+                        <TextBox Text="{Binding ReorderLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource UnderlineTextBox}"
                                  Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
                 </Grid>
@@ -160,7 +160,7 @@
                         <TextBlock Text="{Binding Description}" Style="{StaticResource Body}" TextWrapping="Wrap"
                                    Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
                         
-                        <TextBox Text="{Binding Description, Mode=TwoWay}" 
+                        <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{StaticResource UnderlineTextBox}" 
                                  MinHeight="80" 
                                  AcceptsReturn="True" 
@@ -195,7 +195,7 @@
                             Style="{StaticResource SecondaryButton}" 
                             Height="44"
                             Margin="6,0,0,0"
-                            Command="{Binding DataContext.EditProductCommand, RelativeSource={RelativeSource AncestorType=local:ShopView}, ConverterParameter=False}"/>
+                            Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=local:ShopView}}"/>
                 </Grid>
             </Grid>
         </Border>

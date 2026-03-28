@@ -424,11 +424,13 @@ namespace Management.Presentation.ViewModels.Finance
         [ObservableProperty] private DateTime _hireDate = DateTime.Now.AddYears(-1);
         [ObservableProperty] private ObservableCollection<StaffPermission> _permissions = new();
         [ObservableProperty] private ObservableCollection<StaffPayment> _paymentHistory = new();
+        [ObservableProperty] private ObservableCollection<string> _allowedModules = new();
         
         public IRelayCommand RegisterPaymentCommand { get; }
 
         public StaffMemberViewModel()
         {
+            AllowedModules = new ObservableCollection<string>();
             RegisterPaymentCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 // Placeholder logic

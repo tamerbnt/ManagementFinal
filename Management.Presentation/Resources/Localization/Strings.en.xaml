@@ -16,6 +16,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Global.Cancel">Cancel</sys:String>
     <sys:String x:Key="Terminology.Global.Confirm">Confirm</sys:String>
     <sys:String x:Key="Terminology.Global.Delete">Delete</sys:String>
+    <sys:String x:Key="Terminology.Global.Save">Save Changes</sys:String>
     <sys:String x:Key="Terminology.Global.Date">Date</sys:String>
 
     <sys:String x:Key="Terminology.Global.Time">Time</sys:String>
@@ -788,6 +789,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.LogIn1">Log In</sys:String>
     <sys:String x:Key="Strings.Auth.Error.SelectFacility">Select Facility</sys:String>
     <sys:String x:Key="Strings.Auth.Error.SelectFacilityToContinue">Please select a facility to continue</sys:String>
+    <sys:String x:Key="Strings.Auth.Error.FacilityMismatch">Access denied: Your account is not authorized for this facility.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceLimitReached">Device Limit Reached. This workspace is already active on 3 machines.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.RegistrationFailed">Registration Failed</sys:String>
     <sys:String x:Key="Strings.Auth.Error.UnexpectedError">An unexpected error occurred: {0}</sys:String>

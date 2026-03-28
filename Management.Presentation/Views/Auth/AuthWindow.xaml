@@ -109,7 +109,7 @@
             <Border x:Name="CardAhmed"
                     Background="White" CornerRadius="12" Padding="10,8"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Margin="0,175,300,0"
+                    Margin="0,175,330,0"
                     Opacity="0" RenderTransformOrigin="0.5,0.5">
                 <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
                 <Border.Effect>
@@ -230,10 +230,13 @@
                     <!-- Fallback skeleton: visible ONLY when CurrentView is null -->
                     <auth:LoginSkeletonView Visibility="{Binding CurrentView, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}"/>
                     
-                    <!-- Main content: fades in/out as views change -->
-                    <ContentControl Content="{Binding CurrentView}"
-                                    HorizontalContentAlignment="Stretch"
-                                    VerticalContentAlignment="Stretch"/>
+                    <!-- Main content: fades in/out as views change, with silent scroll -->
+                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <ContentControl Content="{Binding CurrentView}"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"/>
+                    </ScrollViewer>
                 </Grid>
             </Border>
 

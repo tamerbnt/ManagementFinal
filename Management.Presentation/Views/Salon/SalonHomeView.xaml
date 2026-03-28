@@ -135,43 +135,70 @@
                                            FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7"/>
 
-                                <!-- Next arrow -->
-                                <Button Grid.Column="2" Command="{Binding NextUpcomingCommand}"
-                                        Style="{StaticResource CarouselButtonStyle}">
-                                    <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-                                          Fill="White" Width="14" Height="14" Stretch="Uniform" Opacity="0.8"/>
-                                </Button>
-                            </Grid>
+                            <!-- Next arrow -->
+                            <Button Grid.Column="2" Command="{Binding NextUpcomingCommand}"
+                                    Style="{StaticResource CarouselButtonStyle}">
+                                <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                      Fill="White" Width="14" Height="14" Stretch="Uniform" Opacity="0.8"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                    <!-- APPOINTMENTS COUNT -->
+                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding AppointmentsTodayCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconCalendar}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
                         </Grid>
                     </Border>
 
-                    <!-- APPOINTMENTS COUNT -->
-                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding AppointmentsTodayCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
-                    </Border>
-
                     <!-- REVENUE -->
-                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <TextBlock Text="{Binding TotalRevenueToday}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
+                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <TextBlock Text="{Binding TotalRevenueToday}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
                     
                     <!-- UTILIZATION -->
-                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Salon.Home.ChairUtilization}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <TextBlock Text="{Binding ChairUtilization, StringFormat={}{0:P0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                <Border Background="{DynamicResource Brush.Success}" CornerRadius="6" Padding="6,2" Margin="10,0,0,10" VerticalAlignment="Bottom">
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Optimal}" FontSize="10" FontWeight="Bold" Foreground="White"/>
-                                </Border>
+                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Home.ChairUtilization}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <TextBlock Text="{Binding ChairUtilization, StringFormat={}{0:P0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                    <Border Background="{DynamicResource Brush.Success}" CornerRadius="6" Padding="6,2" Margin="10,0,0,10" VerticalAlignment="Bottom">
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Optimal}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    </Border>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
+                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
+                                <Path Data="{StaticResource IconApparatus}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                     </Border>
                 </Grid>
 
@@ -185,7 +212,7 @@
                         
                         <!-- Header -->
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,20">
-                            <Border Width="1" Height="20" Background="{DynamicResource FacilityAccentBrush}" Margin="0,0,12,0"/>
+                            <Path Data="{StaticResource IconHistory}" Fill="{DynamicResource FacilityAccentBrush}" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <TextBlock Text="{DynamicResource Terminology.Salon.Home.TodayActivity}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                         </StackPanel>
                         
@@ -296,46 +323,54 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- New Retail Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="M19,3H5C3.89,3 3,3.89,3,5V19C3,20.1 3.89,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.89 20.1,3 19,3M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" 
-                                              Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconFinance}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.NewSale}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.NewSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Add Client -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="70">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M6,10V7H4V10H1V12H4V15H6V12H9V10M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12Z" 
-                                              Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconPlus}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.AddClient}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.AddClient}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Walk-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="M13.5,5.5A1,1 0 0,1 14.5,6.5A1,1 0 0,1 13.5,7.5A1,1 0 0,1 12.5,6.5A1,1 0 0,1 13.5,5.5M4.5,14.85L3.5,14.22L6,10.15V4.5H8V9.5L10,11.5L11,10.5V4.5H13V11.5L11,13.5L12,14.5L14,12.5V4.5H16V13.5L14.5,15L15,20H13L12.5,15.22L11,13.72V20H9V13.5L7.5,12L7,12.5V20H5V14.5L6,13.5L4.5,14.85Z" 
-                                              Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconMembers}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.WalkIn}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="70">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,0,8">
-                                        <Path Data="M17,18A2,2 0 0,1 19,20A2,2 0 0,1 17,22C15.89,22 15,21.1 15,20C15,18.89 15.89,18 17,18M1,2H4.27L5.21,4H20A1,1 0 0,1 21,5C21,5.17 20.95,5.34 20.88,5.5L17.3,11.97C16.96,12.58 16.3,13 15.55,13H8.1L7.2,14.63L7.17,14.75A0.25,0.25 0 0,0 7.42,15H19V17H7C5.89,17 5,16.1 5,15C5,14.65 5.09,14.32 5.24,14.04L6.6,11.59L3,4H1V2M7,18A2,2 0 0,1 9,20A2,2 0 0,1 7,22C5.89,22 5,21.1 5,20C5,18.89 5.89,18 7,18M16,11L18.78,6H6.14L8.5,11H16Z" 
-                                              Fill="{DynamicResource Brush.Neutral.White}" Width="16" Height="16" Stretch="Uniform"/>
+                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                        <Path Data="{StaticResource IconCart}" 
+                                              Style="{StaticResource Style.Icon.Standard}"
+                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.OpenCart}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.OpenCart}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -346,6 +381,7 @@
                 <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
                     <StackPanel>
                         <!-- Time Display -->
+                        <Path Data="{StaticResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                         <TextBlock Text="{Binding CurrentTime}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         
                         <!-- Date Display -->

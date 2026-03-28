@@ -25,6 +25,17 @@ namespace Management.Infrastructure.Data
 
         public virtual async Task<T?> GetByIdAsync(Guid id, Guid? facilityId = null)
         {
+            // ISOLATION: In a long-lived WPF DbContext, another instance might already be tracked.
+            // If we fetch without detaching, EF Core returns the stale tracked instance.
+            // Detaching first ensures we get a fresh, clean entity from the database.
+            var tracked = _context.ChangeTracker.Entries<T>()
+                .FirstOrDefault(e => e.Entity.Id == id);
+            
+            if (tracked != null)
+            {
+                tracked.State = EntityState.Detached;
+            }
+
             if (facilityId.HasValue && typeof(IFacilityEntity).IsAssignableFrom(typeof(T)))
             {
                 var query = _dbSet.IgnoreQueryFilters();
@@ -85,6 +96,11 @@ namespace Management.Infrastructure.Data
                 entity.Restore();
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public virtual async Task ReloadAsync(T entity)
+        {
+            await _context.Entry(entity).ReloadAsync();
         }
 
         protected IQueryable<T> Query()

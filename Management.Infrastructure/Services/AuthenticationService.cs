@@ -77,21 +77,46 @@ namespace Management.Infrastructure.Services
 
                 var staffEntity = resolveResult.Value;
 
-                // SECURITY FIX 2: Explicit facility matching for online login.
-                // Ensures staff members can only access their assigned facility.
-                // Owners are exempted as they manage the entire tenant.
-                if (facilityId.HasValue 
-                    && facilityId.Value != Guid.Empty 
-                    && staffEntity.FacilityId != facilityId.Value 
-                    && staffEntity.Role != Management.Domain.Enums.StaffRole.Owner)
+                // ROLE-AWARE REFINEMENT: Identity-based facility matching.
+                // 1. Regular staff are strictly siloed to their assigned facility.
+                // 2. Owners are global and can log into any facility (including unconfigured PCs for discovery).
+
+                bool isMissingFacility = !facilityId.HasValue || facilityId.Value == Guid.Empty;
+                bool isOwner = staffEntity.Role == Management.Domain.Enums.StaffRole.Owner;
+                bool isFacilityMatch = facilityId.HasValue && staffEntity.FacilityId == facilityId.Value;
+
+                if (isMissingFacility)
                 {
-                    await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
-                    Serilog.Log.Warning("[Security] Facility mismatch during login. Staff={StaffId} StaffFacility={StaffFacility} RequestedFacility={RequestedFacility}",
-                        staffEntity.Id, staffEntity.FacilityId, facilityId.Value);
+                    if (!isOwner)
+                    {
+                        await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
+                        Serilog.Log.Warning("[Security] Discovery login blocked for non-owner. User={Email}", email);
+                        return Result.Failure<StaffDto>(new Error(
+                            "Auth.FacilityNotConfigured", 
+                            "This PC is not configured. Please contact your administrator to complete setup."));
+                    }
                     
-                    return Result.Failure<StaffDto>(new Error(
-                        "Auth.FacilityMismatch", 
-                        "Access denied: Your account is not authorized for this facility."));
+                    // Owner is allowed to proceed without facility ID (enters Discovery phase)
+                    Serilog.Log.Information("[Auth] Owner discovery login allowed for {Email}", email);
+                }
+                else if (!isFacilityMatch && !isOwner)
+                {
+                    // SOFT-MATCH FALLBACK: If GUID mismatches but the staff is explicitly allowed for this type (Gym, Salon, etc.)
+                    var currentType = _facilityContext.CurrentFacility.ToString();
+                    bool isAllowedType = staffEntity.AllowedModules != null && staffEntity.AllowedModules.Contains(currentType);
+
+                    if (!isAllowedType)
+                    {
+                        await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
+                        Serilog.Log.Warning("[Security] Facility mismatch and no type-auth for {Email}. StaffFacility={StaffFacility} Requested={Requested}",
+                            email, staffEntity.FacilityId, facilityId.Value);
+                        
+                        return Result.Failure<StaffDto>(new Error(
+                            "Auth.FacilityMismatch", 
+                            "Access denied: Your account is not authorized for this facility."));
+                    }
+
+                    Serilog.Log.Information("[Auth] Soft-match (Type-based) login allowed for {Email} on {Type} module.", email, currentType);
                 }
 
                 if (!staffEntity.IsActive)
@@ -119,24 +144,16 @@ namespace Management.Infrastructure.Services
 
         private async Task<Result<StaffMember>> ResolveStaffProfileAsync(string email, Guid? facilityId, FacilityType? targetType)
         {
-            // SECURITY FIX 3: Stricter lookup requirements.
-            // If no facilityId is provided, this is a misconfigured PC (unless it's the Owner onboarding path).
-            if (!facilityId.HasValue || facilityId.Value == Guid.Empty)
-            {
-                if (!targetType.HasValue)
-                {
-                    Serilog.Log.Warning("[Security] ResolveStaffProfileAsync called with null facilityId and no targetType for {Email}. Blocking.", email);
-                    return Result.Failure<StaffMember>(new Error(
-                        "Auth.FacilityNotConfigured",
-                        "This PC is not configured for any facility. Please complete facility setup first."));
-                }
-            }
-
+            // ROLE-AWARE REFINEMENT: Re-allow resolution for discovery.
+            // Secure validation now happens in LoginAsync after the profile (and role) is resolved.
+            // This ensures Owners can perform initial discovery on unconfigured PCs.
+            
             // 1. Local Lookup
             StaffMember? staffEntity = null;
             if (facilityId.HasValue && facilityId.Value != Guid.Empty)
             {
                 staffEntity = await _staffRepository.GetByEmailAsync(email, facilityId.Value);
+                
                 if (staffEntity != null && staffEntity.FacilityId != facilityId.Value)
                 {
                     Serilog.Log.Information($"[AuthService] Local profile for {email} belongs to different facility {staffEntity.FacilityId}. Forcing cloud recovery.");
@@ -149,7 +166,9 @@ namespace Management.Infrastructure.Services
             }
             else
             {
-                staffEntity = await _staffRepository.GetByEmailAsync(email, facilityId);
+                // Unconfigured PC path (Discovery): Lookup by email only to identify the user's home facility.
+                // Security boundary: The result of this lookup is ONLY allowed if the user is an Owner (verified in LoginAsync).
+                staffEntity = await _staffRepository.GetByEmailAsync(email, null);
             }
 
             if (staffEntity != null) return Result.Success(staffEntity);
@@ -265,9 +284,32 @@ namespace Management.Infrastructure.Services
             _tenantService.SetUserId(staffEntity.Id);
             _tenantService.SetRole(staffEntity.Role.ToString());
 
-            // SECURITY FIX 4: Removed Phase 6 HEALING.
-            // The authentication service should never overwrite the PC's pre-configured facility context.
-            // Facility context is now strictly managed by LoginViewModel from the SelectedFacility.
+            // ROLE-AWARE REFINEMENT: Identity-based data isolation.
+            // 1. Regular staff are strictly siloed to their AUTHORIZED facilities. 
+            //    Purge any remnants from UNAUTHORIZED facilities immediately on login.
+            // 2. Owners are global. Skip cleanup to preserve their management data across the entire tenant.
+            if (staffEntity.Role != Management.Domain.Enums.StaffRole.Owner)
+            {
+                var authorizedIds = new List<Guid> { staffEntity.FacilityId };
+                
+                // Add all Guid equivalents for the AllowedModules list
+                if (staffEntity.AllowedModules != null)
+                {
+                    foreach (var moduleName in staffEntity.AllowedModules)
+                    {
+                        if (Enum.TryParse<Management.Domain.Enums.FacilityType>(moduleName, out var type))
+                        {
+                            var facilityGuid = _facilityContext.GetFacilityId(type);
+                            if (facilityGuid != Guid.Empty && !authorizedIds.Contains(facilityGuid))
+                            {
+                                authorizedIds.Add(facilityGuid);
+                            }
+                        }
+                    }
+                }
+
+                await _staffRepository.CleanCrossFacilityStaffAsync(authorizedIds);
+            }
 
             if (_supabase.Auth.CurrentSession != null)
             {

@@ -13,6 +13,24 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <Style x:Key="OnboardingInputBorderStyle" TargetType="Border">
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="#E5E7EB"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Setter Property="Height" Value="48"/>
+                <Style.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" 
+                                                  BlurRadius="12" ShadowDepth="0" Opacity="0.4"/>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -53,7 +71,7 @@
                            FontSize="12" FontWeight="Medium"
                            Foreground="#374151" Margin="0,0,0,4"
                            FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                <Border CornerRadius="10" Background="White" BorderBrush="#E5E7EB" BorderThickness="1.5" Height="48">
+                <Border Style="{StaticResource OnboardingInputBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="44"/>
@@ -75,7 +93,7 @@
                            FontSize="12" FontWeight="Medium"
                            Foreground="#374151" Margin="0,0,0,4"
                            FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                <Border CornerRadius="10" Background="White" BorderBrush="#E5E7EB" BorderThickness="1.5" Height="48">
+                <Border Style="{StaticResource OnboardingInputBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="44"/>
@@ -96,7 +114,7 @@
                            FontSize="12" FontWeight="Medium"
                            Foreground="#374151" Margin="0,0,0,4"
                            FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                <Border CornerRadius="10" Background="White" BorderBrush="#E5E7EB" BorderThickness="1.5" Height="48">
+                <Border Style="{StaticResource OnboardingInputBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="44"/>
@@ -117,7 +135,7 @@
                            FontSize="12" FontWeight="Medium"
                            Foreground="#374151" Margin="0,0,0,4"
                            FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                <Border CornerRadius="10" Background="White" BorderBrush="#E5E7EB" BorderThickness="1.5" Height="48">
+                <Border Style="{StaticResource OnboardingInputBorderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="44"/>

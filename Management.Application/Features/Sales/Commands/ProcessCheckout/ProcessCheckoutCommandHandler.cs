@@ -50,6 +50,10 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
 
         public async Task<Result<Guid>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
         {
+            // ISOLATION: Clear the ChangeTracker to ensure zero interference from previous shared contexts.
+            // This is the definitive fix for long-lived WPF DbContext state issues.
+            _unitOfWork.ClearTracker();
+
             System.Diagnostics.Debug.WriteLine("[CHECKOUT] Handle started");
             var checkoutRequest = request.Request;
             if (checkoutRequest.Items == null || !checkoutRequest.Items.Any())
@@ -104,7 +108,11 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     
                     productsToUpdate.Add(product);
                     
-                    saleEntity.AddLineItem(product, qty);
+                    var addResult = saleEntity.AddLineItem(product, qty);
+                    if (addResult.IsFailure)
+                    {
+                        return Result.Failure<Guid>(addResult.Error);
+                    }
                 }
 
                 await _saleRepository.AddAsync(saleEntity, saveChanges: false);
@@ -122,7 +130,7 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                         Id = p.Id, 
                         StockQuantity = p.StockQuantity,
                         Name = p.Name,
-                        Price = p.Price.Amount,
+                        Price = p.Price?.Amount ?? 0,
                         SKU = p.SKU
                     });
                 }

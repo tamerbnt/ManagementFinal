@@ -51,15 +51,15 @@ namespace Management.Domain.Models
             return Result.Success(new Sale(Guid.NewGuid(), memberId, DateTime.UtcNow, paymentMethod, transactionType, category, capturedLabel));
         }
 
-        public void AddLineItem(Product product, int quantity)
+        public Result AddLineItem(Product product, int quantity)
         {
              // Pass this.Id as saleId
              var item = SaleItem.Create(this.Id, product.Id, product.Name, product.Price, quantity);
-             if (item.IsSuccess)
-             {
-                _items.Add(item.Value);
-                RecalculateTotals();
-             }
+             if (item.IsFailure) return item;
+
+             _items.Add(item.Value);
+             RecalculateTotals();
+             return Result.Success();
         }
 
         public void AddItem(SaleItem item)

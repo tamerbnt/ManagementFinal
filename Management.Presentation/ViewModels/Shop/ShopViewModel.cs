@@ -45,7 +45,6 @@ namespace Management.Presentation.ViewModels.Shop
         private readonly ProductStore _productStore;
         private readonly ISyncService _syncService;
         private bool _isDirty = true;
-        private bool _isInitializing;
 
         protected override void OnLanguageChanged()
         {
@@ -132,6 +131,7 @@ namespace Management.Presentation.ViewModels.Shop
         public IRelayCommand CloseDetailCommand { get; }
         public IRelayCommand EditProductCommand { get; }
         public IAsyncRelayCommand SaveProductCommand { get; }
+        public IAsyncRelayCommand CancelEditCommand { get; }
         public IRelayCommand ClearCartCommand { get; }
         public IRelayCommand ToggleViewModeCommand { get; }
         public IAsyncRelayCommand OpenAddProductCommand { get; }
@@ -201,26 +201,11 @@ namespace Management.Presentation.ViewModels.Shop
                 _toastService.ShowInfo(GetTerm("Strings.Shop.OpeningAddProductmodal") ?? "Opening product editor...");
                 try
                 {
-                    // CORRECT FIX: Use ShowCustomDialogAsync since AddProductView is a UserControl
-                    var result = await _dialogService.ShowCustomDialogAsync<AddProductViewModel>(null);
-                    
-                    if (result is ProductDto newProduct)
-                    {
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
-                        {
-                            var vm = new ProductItemViewModel(newProduct, this);
-                            Products.Insert(0, vm);
-                            UpdateQuickAddProducts();
-                            
-                            // Update stats
-                            if (newProduct.StockQuantity <= newProduct.ReorderLevel)
-                            {
-                                LowStockCount++;
-                                HasLowStock = true;
-                            }
-                        });
-                        _toastService.ShowSuccess(string.Format(GetTerm("Strings.Shop.AddedToTheList") ?? "Added '{0}' to the list.", newProduct.Name));
-                    }
+                    // Open the modal and wait for it to close.
+                    // AddProductViewModel handles saving + success toast + RefreshRequiredMessage internally.
+                    // We do NOT manually insert into Products here — the DB reload triggered by
+                    // RefreshRequiredMessage will add it correctly, avoiding a duplicate-insert race.
+                    await _dialogService.ShowCustomDialogAsync<AddProductViewModel>(null);
                 }
                 catch (Exception ex)
                 {
@@ -235,24 +220,8 @@ namespace Management.Presentation.ViewModels.Shop
                 _toastService.ShowInfo(GetTerm("Strings.Shop.OpeningProductEditor") ?? "Opening product editor...");
                 var result = await _dialogService.ShowCustomDialogAsync<AddProductViewModel>(product);
                 
-                if (result is ProductDto updatedProduct)
-                {
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
-                    {
-                        var productVm = Products.FirstOrDefault(p => p.Id == updatedProduct.Id);
-                        if (productVm != null)
-                        {
-                            // Update the existing VM properties
-                            productVm.Name = updatedProduct.Name;
-                            productVm.Price = updatedProduct.Price;
-                            productVm.StockQuantity = updatedProduct.StockQuantity;
-                            productVm.Sku = updatedProduct.SKU;
-                            productVm.Category = updatedProduct.Category;
-                            productVm.ReorderLevel = updatedProduct.ReorderLevel;
-                        }
-                    });
-                    _toastService.ShowSuccess(string.Format(GetTerm("Strings.Shop.UpdatedSuccessfully") ?? "Updated '{0}' successfully.", updatedProduct.Name));
-                }
+                // Note: UI logic and toast notifications are handled natively by AddProductViewModel 
+                // and the resulting global StockUpdated/Refresh events to eliminate UI race conditions.
             });
 
             DeleteSelectedCommand = new AsyncRelayCommand(async () => 
@@ -331,9 +300,70 @@ namespace Management.Presentation.ViewModels.Shop
             CurrentCart.Items.CollectionChanged += _cartCollectionChangedHandler;
 
             SaveProductCommand = new AsyncRelayCommand(async () => {
-                _toastService.ShowSuccess(GetTerm("Strings.Shop.Productsavedsuccessfully") ?? "Product saved successfully.");
-                IsEditing = false;
-                await Task.CompletedTask;
+                if (SelectedProduct == null) return;
+
+                await ExecuteSafeAsync(async () =>
+                {
+                    var dto = SelectedProduct.GetType().GetMethod("CreateCurrentDto", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.Invoke(SelectedProduct, null) as ProductDto;
+                    
+                    if (dto == null)
+                    {
+                        _toastService.ShowError("Failed to extract product payload.");
+                        return;
+                    }
+
+                    using var scope = _scopeFactory.CreateScope();
+                    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                    var result = await productService.UpdateProductAsync(_facilityContext.CurrentFacilityId, dto);
+
+                    if (result.IsSuccess)
+                    {
+                        _toastService.ShowSuccess(GetTerm("Strings.Shop.Productsavedsuccessfully") ?? "Product saved successfully.");
+                        IsEditing = false;
+
+                        // OnProductStockUpdated (via ProductStore.StockUpdated) already updates the
+                        // in-memory item instantly. Now do a silent background DB reload to confirm.
+                        _ = Task.Run(async () =>
+                        {
+                            await Task.Delay(150); // brief yield so StockUpdated fires first
+                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                                async () => await LoadProductsAsync());
+                        });
+                    }
+                    else
+                    {
+                        _toastService.ShowError($"Failed to save product: {result.Error}");
+                    }
+                }, "An error occurred while saving the product.");
+            });
+
+            CancelEditCommand = new AsyncRelayCommand(async () => {
+                if (SelectedProduct == null)
+                {
+                    IsEditing = false;
+                    return;
+                }
+                
+                // Revert any unsaved TwoWay binding mutations by fetching the true DB state
+                try 
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                    var result = await productService.GetProductAsync(_facilityContext.CurrentFacilityId, SelectedProduct.Id);
+                    
+                    if (result.IsSuccess && result.Value != null)
+                    {
+                        System.Windows.Application.Current.Dispatcher.Invoke(() => SelectedProduct.UpdateFromDto(result.Value));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to revert product changes.");
+                }
+                finally
+                {
+                    IsEditing = false;
+                }
             });
 
             ClearCartCommand = new RelayCommand(() => {
@@ -352,32 +382,29 @@ namespace Management.Presentation.ViewModels.Shop
         public async Task LoadDeferredAsync()
         {
             IsActive = true;
-            if (!_isDirty && !_isInitializing) return;
-            
-            await ExecuteLoadingAsync(async () =>
-            {
-                if (_isInitializing) return;
-                _isInitializing = true;
-                _isDirty = false;
-                
-                await LoadProductsAsync();
-                
-                _isInitializing = false;
-            });
+            if (!_isDirty) return;
+            _isDirty = false;
+
+            await ExecuteLoadingAsync(() => LoadProductsAsync());
         }
 
         public void Receive(RefreshRequiredMessage<Product> message)
         {
             if (message.Value != _facilityContext.CurrentFacilityId) return;
-            
-            _isDirty = true;
-            _logger?.LogInformation("[Shop] Marked dirty due to Product change.");
-            
-            // Added proactive reload if view is active to ensure immediate visibility
-            if (IsActive)
+
+            _logger?.LogInformation("[Shop] RefreshRequiredMessage received — reloading product list.");
+
+            // Call LoadProductsAsync directly on a background thread.
+            // We deliberately bypass LoadDeferredAsync and ExecuteLoadingAsync here because
+            // this message fires while SaveProductCommand or SaveAsync may already hold
+            // the IsLoading semaphore, causing a silent abort.
+            // LoadProductsAsync is safe to run concurrently — it uses its own scoped DbContext.
+            _ = Task.Run(async () =>
             {
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => await LoadDeferredAsync());
-            }
+                await Task.Delay(300); // brief yield so the DB commit finishes before we read
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                    async () => await LoadProductsAsync());
+            });
         }
 
         private System.Collections.Specialized.NotifyCollectionChangedEventHandler? _productsCollectionChangedHandler;
@@ -423,8 +450,8 @@ namespace Management.Presentation.ViewModels.Shop
                 var productVm = Products.FirstOrDefault(p => p.Id == updatedProduct.Id);
                 if (productVm != null)
                 {
-                    _logger.LogInformation($"[Shop] Updating stock for {updatedProduct.Name}: {updatedProduct.StockQuantity}");
-                    productVm.StockQuantity = updatedProduct.StockQuantity;
+                    _logger.LogInformation($"[Shop] Synchronizing from backend event for {updatedProduct.Name}: {updatedProduct.StockQuantity}");
+                    productVm.UpdateFromDto(updatedProduct);
                     
                     // Update low stock stats
                     LowStockCount = Products.Count(p => p.StockQuantity <= p.ReorderLevel);

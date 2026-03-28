@@ -187,21 +187,11 @@ namespace Management.Presentation.ViewModels
                 // Clear any existing session first
                 await _sessionStorage.ClearSessionAsync();
 
-                // SECURITY FIX 3: Zero-Tolerance for Placeholder Facilities.
-                // If using placeholder ID (e.g. from LoadStaticDefaults), block login entirely.
-                // The PC must be properly configured (facility-config.json) before staff can log in.
-                Guid? facilityContextId = SelectedFacility.Id;
-                if (SelectedFacility.Id == Guid.Empty ||
-                    (AvailableFacilities.Count == 3 && AvailableFacilities.All(f => f.Id == Guid.Empty)))
-                {
-                    ErrorMessage = _localizationService?.GetString("Strings.Auth.Error.PCNotConfigured") ?? "This PC is not configured. Please contact your administrator.";
-                    HasError = true;
-                    IsBusy = false;
-                    Serilog.Log.Warning("[Security] Login blocked — facility not configured on this PC for user {Email}", Email);
-                    LoginCommand.NotifyCanExecuteChanged();
-                    return;
-                }
-
+                // ROLE-AWARE REFINEMENT: Re-allow login with placeholder IDs (discovery path).
+                // The AuthenticationService now handles the guard: regular staff are blocked
+                // if they attempt a discovery-path login, while Owners are allowed through.
+                Guid? facilityContextId = SelectedFacility.Id == Guid.Empty ? null : SelectedFacility.Id;
+                
                 var result = await _authService.LoginAsync(Email, password, facilityContextId);
 
                 if (result.IsSuccess)
@@ -212,7 +202,7 @@ namespace Management.Presentation.ViewModels
                     var loggedInFacilityId = result.Value.FacilityId;
                     var currentPcFacilityId = _facilityContext.CurrentFacilityId;
 
-                    bool isFacilityMatch = loggedInFacilityId == currentPcFacilityId;
+                    bool isFacilityMatch = loggedInFacilityId == SelectedFacility.Id;
                     bool isOwner = result.Value.Role == Management.Domain.Enums.StaffRole.Owner;
 
                     if (!isFacilityMatch && !isOwner)

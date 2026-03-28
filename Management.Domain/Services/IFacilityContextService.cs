@@ -18,5 +18,6 @@ namespace Management.Domain.Services
         void UpdateFacilityId(FacilityType type, Guid actualId);
         void Initialize();
         void CommitFacility();
+        Guid GetFacilityId(FacilityType type);
     }
 }

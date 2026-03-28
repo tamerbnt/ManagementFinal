@@ -34,6 +34,9 @@ namespace Management.Domain.Models
             if (quantity <= 0)
                 return Result.Failure<SaleItem>(new Error("SaleItem.InvalidQuantity", "Quantity must be greater than zero"));
 
+            if (unitPrice == null)
+                return Result.Failure<SaleItem>(new Error("SaleItem.InvalidPrice", "Product price is missing. Try restarting the app if this persists."));
+
             // Ensure a fresh Money instance to avoid EF Core tracking conflicts
             var priceSnapshot = new Money(unitPrice.Amount, unitPrice.Currency);
             return Result.Success(new SaleItem(Guid.NewGuid(), saleId, productId, productName, priceSnapshot, quantity));

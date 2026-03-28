@@ -26,6 +26,21 @@ namespace Management.Infrastructure.Data
         {
             return await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public void ClearTracker()
+        {
+            _context.ChangeTracker.Clear();
+        }
+
+        public string GetChangeTrackerDebugView()
+        {
+            return _context.ChangeTracker.DebugView.LongView;
+        }
+
+        public void SetShadowProperty<TValue>(object entity, string propertyName, TValue value)
+        {
+            _context.Entry(entity).Property(propertyName).CurrentValue = value;
+        }
     }
 
     public class UnitOfWorkTransaction : IUnitOfWorkTransaction

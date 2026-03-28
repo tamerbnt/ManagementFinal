@@ -11,8 +11,8 @@
         FlowDirection="{DynamicResource GlobalFlowDirection}"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         WindowStyle="None" 
-        AllowsTransparency="False"
-        Background="{DynamicResource Brush.Window.Background}"
+        AllowsTransparency="True"
+        Background="Transparent"
         WindowStartupLocation="CenterOwner">
 
     <shell:WindowChrome.WindowChrome>
@@ -24,7 +24,8 @@
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
             Width="450"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center">
+            VerticalAlignment="Center"
+            Margin="0,32,0,64">
 
         <!-- Animation Removed for Debugging -->
 

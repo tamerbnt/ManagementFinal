@@ -72,6 +72,7 @@ namespace Management.Presentation
             public void UpdateFacilityId(Management.Domain.Enums.FacilityType type, Guid actualId) { }
             public void Initialize() { }
             public void CommitFacility() { }
+            public Guid GetFacilityId(Management.Domain.Enums.FacilityType type) => Guid.Empty;
         }
     }
 }
