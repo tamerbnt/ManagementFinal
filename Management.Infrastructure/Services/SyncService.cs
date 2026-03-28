@@ -548,7 +548,7 @@ namespace Management.Infrastructure.Services
                 // Pull Parents before Children
                 // LOCAL-FIRST: Members and Products are managed locally, but we pull updates for cross-device visibility.
                 
-                await PullStaffMembersAsync(context, lastSync, ct);
+                await PullStaffMembersAsync(context, lastSync, targetFacilityId, ct);
                 await PullRegistrationsAsync(context, lastSync, ct);
 
                 // Pull Facility-Specific Data via Strategies
@@ -580,15 +580,19 @@ namespace Management.Infrastructure.Services
         }
 
 
-        private async Task PullStaffMembersAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
+        private async Task PullStaffMembersAsync(AppDbContext context, DateTimeOffset lastSync, Guid facilityId, CancellationToken ct)
         {
             try
             {
                 var tenantId = _tenantService.GetTenantId();
                 if (tenantId == null || tenantId == Guid.Empty) return;
 
+                // SECURITY FIX 1: Filter by both tenant_id AND facility_id.
+                // Previously only filtered by tenant_id — pulling ALL tenant staff into every PC.
+                // This caused Gym staff to appear in Salon PC's local SQLite, enabling cross-facility login.
                 var remoteData = await _supabase.From<SupabaseStaffMember>()
                     .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
+                    .Filter("facility_id", Supabase.Postgrest.Constants.Operator.Equals, facilityId.ToString())
                     .Where(x => x.UpdatedAt > lastSync.UtcDateTime)
                     .Get();
 
