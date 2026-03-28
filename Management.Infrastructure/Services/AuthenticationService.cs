@@ -119,6 +119,19 @@ namespace Management.Infrastructure.Services
 
         private async Task<Result<StaffMember>> ResolveStaffProfileAsync(string email, Guid? facilityId, FacilityType? targetType)
         {
+            // SECURITY FIX 3: Stricter lookup requirements.
+            // If no facilityId is provided, this is a misconfigured PC (unless it's the Owner onboarding path).
+            if (!facilityId.HasValue || facilityId.Value == Guid.Empty)
+            {
+                if (!targetType.HasValue)
+                {
+                    Serilog.Log.Warning("[Security] ResolveStaffProfileAsync called with null facilityId and no targetType for {Email}. Blocking.", email);
+                    return Result.Failure<StaffMember>(new Error(
+                        "Auth.FacilityNotConfigured",
+                        "This PC is not configured for any facility. Please complete facility setup first."));
+                }
+            }
+
             // 1. Local Lookup
             StaffMember? staffEntity = null;
             if (facilityId.HasValue && facilityId.Value != Guid.Empty)

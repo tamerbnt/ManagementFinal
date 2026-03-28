@@ -187,14 +187,19 @@ namespace Management.Presentation.ViewModels
                 // Clear any existing session first
                 await _sessionStorage.ClearSessionAsync();
 
-                // FIX: If using placeholder ID (e.g. from LoadStaticDefaults), pass NULL to LoginAsync
-                // to authenticate first, then let AuthService derive the correct facility.
+                // SECURITY FIX 3: Zero-Tolerance for Placeholder Facilities.
+                // If using placeholder ID (e.g. from LoadStaticDefaults), block login entirely.
+                // The PC must be properly configured (facility-config.json) before staff can log in.
                 Guid? facilityContextId = SelectedFacility.Id;
                 if (SelectedFacility.Id == Guid.Empty ||
                     (AvailableFacilities.Count == 3 && AvailableFacilities.All(f => f.Id == Guid.Empty)))
                 {
-                    Serilog.Log.Information("[Login] Placeholder facility selected. Authenticating without facility context...");
-                    facilityContextId = null;
+                    ErrorMessage = _localizationService?.GetString("Strings.Auth.Error.PCNotConfigured") ?? "This PC is not configured. Please contact your administrator.";
+                    HasError = true;
+                    IsBusy = false;
+                    Serilog.Log.Warning("[Security] Login blocked — facility not configured on this PC for user {Email}", Email);
+                    LoginCommand.NotifyCanExecuteChanged();
+                    return;
                 }
 
                 var result = await _authService.LoginAsync(Email, password, facilityContextId);
