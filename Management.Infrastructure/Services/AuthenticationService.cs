@@ -77,6 +77,23 @@ namespace Management.Infrastructure.Services
 
                 var staffEntity = resolveResult.Value;
 
+                // SECURITY FIX 2: Explicit facility matching for online login.
+                // Ensures staff members can only access their assigned facility.
+                // Owners are exempted as they manage the entire tenant.
+                if (facilityId.HasValue 
+                    && facilityId.Value != Guid.Empty 
+                    && staffEntity.FacilityId != facilityId.Value 
+                    && staffEntity.Role != Management.Domain.Enums.StaffRole.Owner)
+                {
+                    await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
+                    Serilog.Log.Warning("[Security] Facility mismatch during login. Staff={StaffId} StaffFacility={StaffFacility} RequestedFacility={RequestedFacility}",
+                        staffEntity.Id, staffEntity.FacilityId, facilityId.Value);
+                    
+                    return Result.Failure<StaffDto>(new Error(
+                        "Auth.FacilityMismatch", 
+                        "Access denied: Your account is not authorized for this facility."));
+                }
+
                 if (!staffEntity.IsActive)
                 {
                     await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
