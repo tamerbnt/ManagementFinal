@@ -206,6 +206,30 @@ namespace Management.Presentation.ViewModels
 
                 if (result.IsSuccess)
                 {
+                    // SECURITY FIX 5: Final ViewModel Backstop.
+                    // Even if the service layer somehow allows it, block launch if facility IDs don't match.
+                    // Owners are exempt as they manage all facilities.
+                    var loggedInFacilityId = result.Value.FacilityId;
+                    var currentPcFacilityId = _facilityContext.CurrentFacilityId;
+
+                    bool isFacilityMatch = loggedInFacilityId == currentPcFacilityId;
+                    bool isOwner = result.Value.Role == Management.Domain.Enums.StaffRole.Owner;
+
+                    if (!isFacilityMatch && !isOwner)
+                    {
+                        Serilog.Log.Warning("[Security] Login blocked at ViewModel level. StaffFacility={StaffFacility} PCFacility={PCFacility}",
+                            loggedInFacilityId, currentPcFacilityId);
+
+                        ErrorMessage = _localizationService?.GetString("Strings.Auth.Error.FacilityMismatch") ?? "Access denied: Your account is not authorized for this facility.";
+                        HasError = true;
+                        IsBusy = false;
+
+                        // Sign out to clear the session context
+                        await _authService.LogoutAsync();
+                        LoginCommand.NotifyCanExecuteChanged();
+                        return;
+                    }
+
                     _sessionManager.SetUser(result.Value);
 
                     // Change 1 — GUARD: Only update if we have a real GUID.

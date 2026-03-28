@@ -265,20 +265,9 @@ namespace Management.Infrastructure.Services
             _tenantService.SetUserId(staffEntity.Id);
             _tenantService.SetRole(staffEntity.Role.ToString());
 
-            // --- Phase 6 HEALING: Propagate Facility Context ---
-            // Ensures local data scoped by FacilityId (Members, Products) becomes visible in the UI.
-            try
-            {
-                var type = await _staffRepository.GetFacilityTypeByIdAsync(staffEntity.FacilityId);
-                if (type.HasValue)
-                {
-                    _facilityContext.UpdateFacilityId(type.Value, staffEntity.FacilityId);
-                }
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Warning(ex, "[AuthService] Local facility discovery failed during context hydration.");
-            }
+            // SECURITY FIX 4: Removed Phase 6 HEALING.
+            // The authentication service should never overwrite the PC's pre-configured facility context.
+            // Facility context is now strictly managed by LoginViewModel from the SelectedFacility.
 
             if (_supabase.Auth.CurrentSession != null)
             {
