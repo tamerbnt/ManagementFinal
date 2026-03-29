@@ -109,6 +109,8 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_services ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE appointments ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 
+                
+
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
             else if (Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL")
@@ -121,7 +123,6 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("UPDATE membership_plans SET price = 0 WHERE price IS NULL;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("UPDATE products SET price = 0 WHERE price IS NULL;", ct); } catch { }
 
-                // Task 4: Fix Salon Missing Price Column in PostgreSQL (Cloud Fallback)
                 // Use ALTER TABLE to safely add the column if missing on the remote instance
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE appointments ADD COLUMN IF NOT EXISTS price numeric NOT NULL DEFAULT 0;", ct); } catch { }
             }
@@ -645,7 +646,6 @@ namespace Management.Infrastructure.Data
         private void ApplyFacilityFilter<T>(ModelBuilder modelBuilder) where T : class, IFacilityEntity
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
-                _tenantService.GetRole() == "Owner" ||
                 _facilityContext.CurrentFacilityId == Guid.Empty || 
                 e.FacilityId == _facilityContext.CurrentFacilityId);
         }
@@ -654,8 +654,7 @@ namespace Management.Infrastructure.Data
         {
             modelBuilder.Entity<T>().HasQueryFilter(e => 
                 (_tenantService.GetTenantId() == null || e.TenantId == _tenantService.GetTenantId() || e.TenantId == Guid.Empty) &&
-                (_tenantService.GetRole() == "Owner" || 
-                 _facilityContext.CurrentFacilityId == Guid.Empty || 
+                (_facilityContext.CurrentFacilityId == Guid.Empty || 
                  e.FacilityId == _facilityContext.CurrentFacilityId));
         }
 

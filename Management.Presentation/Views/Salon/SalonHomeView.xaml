@@ -148,56 +148,62 @@
                     <!-- APPOINTMENTS COUNT -->
                     <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                <TextBlock Text="{Binding AppointmentsTodayCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconCalendar}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconCalendar}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <TextBlock Grid.Row="1" Text="{Binding AppointmentsTodayCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
                     <!-- REVENUE -->
                     <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                <TextBlock Text="{Binding TotalRevenueToday}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <TextBlock Grid.Row="1" Text="{Binding TotalRevenueToday}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
                     <!-- UTILIZATION -->
                     <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Terminology.Salon.Home.ChairUtilization}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                    <TextBlock Text="{Binding ChairUtilization, StringFormat={}{0:P0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                    <Border Background="{DynamicResource Brush.Success}" CornerRadius="6" Padding="6,2" Margin="10,0,0,10" VerticalAlignment="Bottom">
-                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Optimal}" FontSize="10" FontWeight="Bold" Foreground="White"/>
-                                    </Border>
-                                </StackPanel>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconApparatus}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Home.ChairUtilization}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconApparatus}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,0">
+                                <TextBlock Text="{Binding ChairUtilization, StringFormat={}{0:P0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
+                                <Border Background="{DynamicResource Brush.Success}" CornerRadius="6" Padding="6,2" Margin="10,0,0,10" VerticalAlignment="Bottom">
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Optimal}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                </Border>
+                            </StackPanel>
                         </Grid>
                     </Border>
                 </Grid>

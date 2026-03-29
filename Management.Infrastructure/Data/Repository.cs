@@ -56,6 +56,9 @@ namespace Management.Infrastructure.Data
             if (saveChanges)
             {
                 await _context.SaveChangesAsync();
+                // PERFORMANCE FIX: Clear tracked entities in the WPF singleton context
+                // to prevent bloating memory and colliding primary keys on successive saves.
+                _context.ChangeTracker.Clear();
             }
             return entity;
         }
@@ -66,6 +69,7 @@ namespace Management.Infrastructure.Data
             if (saveChanges)
             {
                 await _context.SaveChangesAsync();
+                _context.ChangeTracker.Clear();
             }
         }
 

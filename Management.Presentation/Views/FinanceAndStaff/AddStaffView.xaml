@@ -74,19 +74,7 @@
 
 
 
-                    <!-- Primary Facility -->
-                    <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.PRIMARYFACILITY}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                    <ComboBox ItemsSource="{Binding AvailableFacilities}"
-                              SelectedItem="{Binding SelectedFacility}"
-                              Style="{StaticResource Input.ComboBox}"
-                              IsEditable="False"
-                              Margin="{DynamicResource MarginSmallBottom}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding DisplayName}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+
 
                     <!-- Role -->
                     <TextBlock Text="{DynamicResource Terminology.Staff.Add.Role}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>

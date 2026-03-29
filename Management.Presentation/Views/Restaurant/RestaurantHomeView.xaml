@@ -62,51 +62,57 @@
                     <!-- METRIC 1: ACTIVE TABLES -->
                     <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="24" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.ActiveTables}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.8"/>
-                                <TextBlock Text="{Binding ActiveTablesCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="#15FFFFFF" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconRestaurant}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.ActiveTables}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="#15FFFFFF" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconRestaurant}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <TextBlock Grid.Row="1" Text="{Binding ActiveTablesCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
                     <!-- METRIC 2: DAILY REVENUE -->
                     <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                <TextBlock Text="{Binding RevenueToday, StringFormat={}{0:N0} DA}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource TerminologyTotalRevenueLabel}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <TextBlock Grid.Row="1" Text="{Binding RevenueToday, StringFormat={}{0:N0} DA}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
                     <!-- METRIC 3: OPEN ORDERS -->
                     <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.PendingOrders}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Secondary}"/>
-                                <TextBlock Text="{Binding OpenOrdersCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <Path Data="{StaticResource IconRegistrations}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Terminology.Restaurant.Metric.PendingOrders}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Top">
-                                <Path Data="{StaticResource IconRegistrations}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <!-- CONTENT -->
+                            <TextBlock Grid.Row="1" Text="{Binding OpenOrdersCount}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                 </Grid>

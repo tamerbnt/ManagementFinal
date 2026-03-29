@@ -16,5 +16,6 @@ namespace Management.Domain.Interfaces
         Task UpdatePinAsync(Guid staffId, string hashedPin);
         Task RestoreAsync(Guid id, Guid? facilityId = null);
         Task CleanCrossFacilityStaffAsync(IEnumerable<Guid> authorizedFacilityIds);
+        Task RescueOrphanedStaffMembersAsync(Guid defaultFacilityId);
     }
 }

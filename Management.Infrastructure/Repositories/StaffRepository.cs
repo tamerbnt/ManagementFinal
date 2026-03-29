@@ -177,5 +177,42 @@ namespace Management.Infrastructure.Repositories
                 Serilog.Log.Error(ex, "[Security] Failed to purge unauthorized staff records.");
             }
         }
+        public async Task RescueOrphanedStaffMembersAsync(Guid defaultFacilityId)
+        {
+            if (defaultFacilityId == Guid.Empty) return;
+
+            try
+            {
+                var orphanedStaff = await _dbSet
+                    .IgnoreQueryFilters()
+                    .Where(s => s.FacilityId == Guid.Empty || s.IsDeleted == true)
+                    .ToListAsync();
+
+                if (!orphanedStaff.Any()) return;
+
+                Serilog.Log.Information("[Security] Rescuing {Count} accidentally deleted staff members...", orphanedStaff.Count);
+
+                foreach (var staff in orphanedStaff)
+                {
+                    if (staff.FacilityId == Guid.Empty) 
+                    {
+                        staff.FacilityId = defaultFacilityId;
+                    }
+                    
+                    if (staff.IsDeleted) 
+                    {
+                        staff.Restore();
+                        // For auditable models, ensure we signal a modification
+                        _context.Entry(staff).State = EntityState.Modified; 
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "[Security] Failed to rescue orphaned staff members.");
+            }
+        }
     }
 }

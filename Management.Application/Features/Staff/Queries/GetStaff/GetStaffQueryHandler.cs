@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Management.Application.Features.Staff.Queries.GetStaff
 {
@@ -36,6 +37,11 @@ namespace Management.Application.Features.Staff.Queries.GetStaff
         {
             var allStaff = await _staffRepository.GetAllAsync();
             var dtos = allStaff.Take(200).Select(MapToDto).ToList();
+
+            // --- DIAGNOSTIC TRACKING FOR OUTPUT WINDOW ---
+            Debug.WriteLine($"[STAFF_DIAGNOSTICS] GetStaffQueryHandler called.");
+            Debug.WriteLine($"[STAFF_DIAGNOSTICS] Filtered staff count returned from Repo: {allStaff.Count()}");
+
             return Result.Success(dtos);
         }
 

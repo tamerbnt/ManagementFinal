@@ -450,7 +450,22 @@ namespace Management.Presentation
                 // Cleanup now happens during the login flow specifically for regular staff,
                 // while bypassing for Owners to preserve their management data.
                 var currentFacilityGuid = facilityContext.CurrentFacilityId;
-
+                
+                // ORPHANED STAFF HEALING (EF CORE DATA RESCUE)
+                // We run this once during startup to properly resurrect staff members accidentally 
+                // purged during the security rollback, ensuring EF tracking triggers the sync outbox.
+                if (currentFacilityGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        var staffRepo = ServiceProvider.GetRequiredService<IStaffRepository>();
+                        await staffRepo.RescueOrphanedStaffMembersAsync(currentFacilityGuid);
+                    }
+                    catch (Exception ex)
+                    {
+                        Serilog.Log.Error(ex, "[App] Failed to rescue orphaned staff members during startup.");
+                    }
+                }
 
                 // 2. Initial Sync Logic
                 var syncService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
@@ -1172,10 +1187,8 @@ namespace Management.Presentation
             services.AddSingleton<FinanceAndStaffViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<FinanceAndStaffViewModel>());
 
-            services.AddSingleton<Management.Presentation.ViewModels.Finance.AddStaffViewModel>();
-            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<Management.Presentation.ViewModels.Finance.AddStaffViewModel>());
-            services.AddSingleton<SalonAddStaffViewModel>();
-            services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SalonAddStaffViewModel>());
+            services.AddTransient<Management.Presentation.ViewModels.Finance.AddStaffViewModel>();
+            services.AddTransient<SalonAddStaffViewModel>();
 
             services.AddSingleton<ShopViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ShopViewModel>());

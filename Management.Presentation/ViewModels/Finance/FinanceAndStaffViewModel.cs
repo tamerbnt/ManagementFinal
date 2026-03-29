@@ -12,10 +12,10 @@ using Management.Application.Interfaces.App;
 using Management.Presentation.Stores;
 using Management.Presentation.Services;
 using Management.Presentation.Services.Localization;
-using Management.Presentation.Models.History;
 using Management.Application.DTOs;
 using System.Linq;
 using Management.Domain.Services;
+using Management.Presentation.Models.History;
 
 namespace Management.Presentation.ViewModels.Finance
 {
@@ -64,6 +64,8 @@ namespace Management.Presentation.ViewModels.Finance
         private void ApplyFilters()
         {
             var filtered = StaffMembers.AsEnumerable();
+            System.Diagnostics.Debug.WriteLine($"[STAFF_DIAGNOSTICS] ApplyFilters Start. StaffMembers count: {StaffMembers.Count}, SelectedFilter: {SelectedFilter}, SearchQuery: {SearchQuery}");
+
 
             // 1. Filter by Status
             if (!string.IsNullOrEmpty(SelectedFilter) && !SelectedFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
@@ -86,6 +88,7 @@ namespace Management.Presentation.ViewModels.Finance
             {
                 FilteredStaffMembers.Add(staff);
             }
+            System.Diagnostics.Debug.WriteLine($"[STAFF_DIAGNOSTICS] ApplyFilters End. FilteredStaffMembers count: {FilteredStaffMembers.Count}");
         }
 
         [ObservableProperty]
@@ -325,6 +328,7 @@ namespace Management.Presentation.ViewModels.Finance
 
                 if (result.IsSuccess)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[STAFF_DIAGNOSTICS] GetAllStaffAsync SUCCESS. Count: {result.Value.Count}");
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
                         var selectedId = SelectedStaff?.Id;

@@ -24,8 +24,7 @@
 		<converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
 	</UserControl.Resources>
 
-	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-		<Grid>
+	<Grid>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<!-- Header -->
@@ -216,6 +215,5 @@
 					</Grid>
 				</Grid>
 			</Border>
-		</Grid>
-	</ScrollViewer>
+	</Grid>
 </UserControl>

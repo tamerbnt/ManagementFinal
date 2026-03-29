@@ -15,12 +15,6 @@ using Management.Domain.Primitives;
 
 namespace Management.Presentation.ViewModels.Finance
 {
-    public class FacilityOption
-    {
-        public string Id { get; set; } = string.Empty;
-        public string DisplayName { get; set; } = string.Empty;
-    }
-
     public partial class AddStaffViewModel : FacilityAwareViewModelBase
     {
         [ObservableProperty]
@@ -39,9 +33,6 @@ namespace Management.Presentation.ViewModels.Finance
         [ObservableProperty] private bool _isGymEnabled = true;
         [ObservableProperty] private bool _isSalonEnabled = false;
         [ObservableProperty] private bool _isRestaurantEnabled = false;
-
-        [ObservableProperty] private ObservableCollection<FacilityOption> _availableFacilities = new();
-        [ObservableProperty] private FacilityOption? _selectedFacility;
         [ObservableProperty] private string _actionButtonText = "Save";
         [ObservableProperty] private bool _isEditing;
 
@@ -71,28 +62,18 @@ namespace Management.Presentation.ViewModels.Finance
             NewStaff.Role = "Staff";
             NewStaff.Permissions = new System.Collections.ObjectModel.ObservableCollection<StaffPermission>
             {
-                new StaffPermission { Name = GetTerm("Strings.Finance.CanCreateMembers") ?? "Can Create Members", IsGranted = false }
             };
 
-            InitializeFacilityOptions();
             ActionButtonText = GetTerm("Terminology.Staff.Add.Action.Create") ?? "Create Staff";
             Title = GetTerm("Strings.FinanceAndStaff.AddNewStaffMember") ?? "Add New Staff Member";
         }
 
-        private void InitializeFacilityOptions()
-        {
-            AvailableFacilities.Clear();
-            AvailableFacilities.Add(new FacilityOption { Id = "Gym", DisplayName = GetTerm("Strings.Global.Gym") ?? "Gym" });
-            AvailableFacilities.Add(new FacilityOption { Id = "Salon", DisplayName = GetTerm("Strings.Global.Salon") ?? "Salon" });
-            AvailableFacilities.Add(new FacilityOption { Id = "Restaurant", DisplayName = GetTerm("Strings.Global.Restaurant") ?? "Restaurant" });
-            SelectedFacility = AvailableFacilities.FirstOrDefault();
-        }
+
 
         protected override void OnLanguageChanged()
         {
             Title = GetTerm("Strings.FinanceAndStaff.AddNewStaffMember") ?? "Add New Staff Member";
             ActionButtonText = GetTerm("Terminology.Staff.Add.Action.Create") ?? "Create Staff";
-            InitializeFacilityOptions();
             
             // Refresh permissions labels if needed
             if (NewStaff.Permissions.Count > 0)
@@ -145,14 +126,6 @@ namespace Management.Presentation.ViewModels.Finance
                 var role = Enum.TryParse<Management.Domain.Enums.StaffRole>(NewStaff.Role, out var r) ? r : Management.Domain.Enums.StaffRole.Staff;
 
                 var targetFacilityId = _facilityContext.CurrentFacilityId;
-                if (SelectedFacility != null && Enum.TryParse<Management.Domain.Enums.FacilityType>(SelectedFacility.Id, out var fType))
-                {
-                    var mappedId = _facilityContext.GetFacilityId(fType);
-                    if (mappedId != Guid.Empty)
-                    {
-                        targetFacilityId = mappedId;
-                    }
-                }
 
                 var dto = new Management.Application.DTOs.StaffDto
                 {
@@ -167,21 +140,8 @@ namespace Management.Presentation.ViewModels.Finance
                     PaymentDay = NewStaff.PaymentDay,
                     HireDate = IsEditing ? NewStaff.HireDate : DateTime.UtcNow,
                     Password = password,
-                    Permissions = new System.Collections.Generic.List<Management.Application.DTOs.PermissionDto>(),
-                    AllowedModules = new System.Collections.Generic.List<string>()
+                    AllowedModules = new System.Collections.Generic.List<string> { _facilityContext.CurrentFacility.ToString() }
                 };
-
-                // Populate Allowed Modules
-                if (SelectedFacility != null)
-                {
-                    dto.AllowedModules.Add(SelectedFacility.Id);
-                }
-                else
-                {
-                    if (IsGymEnabled) dto.AllowedModules.Add("Gym");
-                    if (IsSalonEnabled) dto.AllowedModules.Add("Salon");
-                    if (IsRestaurantEnabled) dto.AllowedModules.Add("Restaurant");
-                }
 
                 // Handle basic permission
                 var canCreateMembers = NewStaff.Permissions.FirstOrDefault(p => p.Name == "Can Create Members")?.IsGranted ?? false;
@@ -235,11 +195,6 @@ namespace Management.Presentation.ViewModels.Finance
                 IsEditing = true;
                 ActionButtonText = GetTerm("Terminology.Global.Save") ?? "Save Changes";
                 Title = GetTerm("Terminology.Staff.Edit.Header") ?? "Edit Staff Member";
-                
-                if (existingStaff.AllowedModules.Any())
-                {
-                    SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == existingStaff.AllowedModules.First());
-                }
             }
 
             return base.OnModalOpenedAsync(parameter, cancellationToken);
