@@ -67,13 +67,11 @@ namespace Management.Application.Features.Products.Commands.UpdateProduct
             // Ensure the product is marked as Active so it appears in Shop filters
             product.Activate();
 
-            Debug.WriteLine($"[UpdateProduct] → Prepared: Name='{product.Name}'  Price={product.Price?.Amount}  Stock={product.StockQuantity}");
-
             // Attach to repository 
             await _productRepository.UpdateAsync(product, saveChanges: false);
 
-            // SYNC Shadow Property (AFTER attachment so EF is tracking it)
-            _unitOfWork.SetShadowProperty(product, "price", product.Price?.Amount ?? 0);
+            // LOGGING: The ShadowPropertyInterceptor handles the legacy "price" sync automatically.
+            Debug.WriteLine($"[UpdateProduct] → Prepared: Name='{product.Name}'  Price={product.Price?.Amount}  Stock={product.StockQuantity}");
 
             // DIAGNOSTICS: Check ChangeTracker state before saving.
             Debug.WriteLine("--- CHANGE TRACKER DEBUG VIEW ---");

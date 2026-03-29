@@ -34,13 +34,13 @@ namespace Management.Domain.Models
             bool isActive) : base(id)
         {
             Name = name;
-            Description = description;
+            Description = description ?? string.Empty;
             Price = price;
             Cost = cost;
             StockQuantity = stockQuantity;
-            SKU = sku;
+            SKU = sku ?? string.Empty;
             Category = category;
-            ImageUrl = imageUrl;
+            ImageUrl = imageUrl ?? string.Empty;
             ReorderLevel = reorderLevel;
             IsActive = isActive;
         }
@@ -77,13 +77,13 @@ namespace Management.Domain.Models
             var product = new Product(
                 Guid.NewGuid(),
                 name,
-                description,
+                description ?? string.Empty,
                 price,
                 cost,
                 stockQuantity,
-                sku,
+                sku ?? string.Empty,
                 category,
-                imageUrl,
+                imageUrl ?? string.Empty,
                 reorderLevel,
                 true);
 
@@ -101,13 +101,13 @@ namespace Management.Domain.Models
             string imageUrl)
         {
             if (!string.IsNullOrWhiteSpace(name)) Name = name;
-            Description = description;
+            Description = description ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(sku)) SKU = sku;
             Price = price;
             Cost = cost;
             ReorderLevel = reorderLevel;
             Category = category;
-            ImageUrl = imageUrl;
+            ImageUrl = imageUrl ?? string.Empty;
             
             UpdateTimestamp();
         }

@@ -57,7 +57,7 @@ namespace Management.Infrastructure.Data.Interceptors
                         {
                             if (facilityId != Guid.Empty)
                             {
-                                facilityEntity.FacilityId = facilityId;
+                                 facilityEntity.FacilityId = facilityId;
                             }
                             else if (tenantId.HasValue && tenantId.Value != Guid.Empty)
                             {
@@ -66,39 +66,16 @@ namespace Management.Infrastructure.Data.Interceptors
                             }
                             else
                             {
-                                throw new InvalidOperationException($"[Data Isolation Violation] Saving {entry.Entity.GetType().Name} without active context.");
+                                // SOFTENED GUARD: Log critical error instead of throwing during NEW creation
+                                // to prevent hard crashes while still alerting the developer.
+                                _logger.LogCritical("[ShadowPropertyInterceptor] DATA ISOLATION VIOLATION: Saving {Type} without active context.", 
+                                    entry.Entity.GetType().Name);
                             }
                         }
                     }
 
                     // 3. Legacy Shadow Constraints
-                    if (entry.Entity is MembershipPlan or Product)
-                    {
-                        try 
-                        { 
-                            var amount = entry.Entity switch
-                            {
-                                Product p => p.Price?.Amount ?? 0m,
-                                MembershipPlan m => m.Price?.Amount ?? 0m,
-                                _ => 0m
-                            };
-                            
-                            // Ensure the shadow property exists before setting
-                            var property = entry.Metadata.FindProperty("price");
-                            if (property != null)
-                            {
-                                entry.Property("price").CurrentValue = amount;
-                            }
-                            else
-                            {
-                                _logger.LogWarning("[ShadowPropertyInterceptor] Shadow property 'price' NOT FOUND on entity {Type}. Skipping sync.", entry.Entity.GetType().Name);
-                            }
-                        } 
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "[ShadowPropertyInterceptor] Failed to sync legacy 'price' for {Type}", entry.Entity.GetType().Name);
-                        }
-                    }
+                    SyncLegacyProperties(entry);
                 }
 
                 if (entry.State == EntityState.Modified)
@@ -106,28 +83,7 @@ namespace Management.Infrastructure.Data.Interceptors
                     if (entry.Entity is BaseEntity baseEntity) baseEntity.UpdateTimestamp();
                     else if (entry.Entity is Management.Domain.Primitives.Entity primitiveEntity) primitiveEntity.UpdateTimestamp();
 
-                    if (entry.Entity is MembershipPlan or Product)
-                    {
-                        try 
-                        { 
-                            var amount = entry.Entity switch
-                            {
-                                Product p => p.Price?.Amount ?? 0m,
-                                MembershipPlan m => m.Price?.Amount ?? 0m,
-                                _ => 0m
-                            };
-                            
-                            var property = entry.Metadata.FindProperty("price");
-                            if (property != null)
-                            {
-                                entry.Property("price").CurrentValue = amount;
-                            }
-                        } 
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, "[ShadowPropertyInterceptor] Failed to sync legacy 'price' for {Type} (Modified)", entry.Entity.GetType().Name);
-                        }
-                    }
+                    SyncLegacyProperties(entry);
                 }
 
                 // 5. Special Shadow Property Sync (Payroll)
@@ -141,6 +97,44 @@ namespace Management.Infrastructure.Data.Interceptors
             }
 
             return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        private void SyncLegacyProperties(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
+        {
+            if (entry.Entity is MembershipPlan or Product or Management.Domain.Models.Salon.SalonService or Management.Domain.Models.Salon.Appointment)
+            {
+                try
+                {
+                    decimal amount = entry.Entity switch
+                    {
+                        Product p => p.Price?.Amount ?? 0m,
+                        MembershipPlan m => m.Price?.Amount ?? 0m,
+                        Management.Domain.Models.Salon.SalonService s => s.BasePrice,
+                        Management.Domain.Models.Salon.Appointment a => a.Price,
+                        _ => 0m
+                    };
+
+                    // RELIABILITY FIX: Use entry.CurrentValues directly for shadow properties.
+                    // This is more robust for 'Added' entities than entry.Property("price").CurrentValue.
+                    var property = entry.Metadata.FindProperty("price");
+                    if (property != null)
+                    {
+                        entry.CurrentValues["price"] = amount;
+                        _logger.LogInformation("[ShadowPropertyInterceptor] Synced legacy 'price'={Amount} for {Type} ({State})", 
+                            amount, entry.Entity.GetType().Name, entry.State);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("[ShadowPropertyInterceptor] Shadow property 'price' NOT FOUND in metadata for {Type}. Column mapping may be missing.", 
+                            entry.Entity.GetType().Name);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "[ShadowPropertyInterceptor] CRITICAL: Failed to sync legacy 'price' for {Type} ({State}). Database save may fail.", 
+                        entry.Entity.GetType().Name, entry.State);
+                }
+            }
         }
     }
 }

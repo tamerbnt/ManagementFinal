@@ -147,7 +147,7 @@ namespace Management.Presentation.ViewModels.Shop
                 {
                     _toastService.ShowError($"{(IsEditMode ? "Failed to update" : "Failed to add")} product: {result.Error}");
                 }
-            }, IsEditMode ? "Updating product..." : "Adding product...");
+            }, null);
         }
 
         [RelayCommand]

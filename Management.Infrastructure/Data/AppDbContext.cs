@@ -21,6 +21,8 @@ using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 using Management.Infrastructure.Integrations.Supabase.Models;
+using System.Text;
+using System.Diagnostics;
 
 namespace Management.Infrastructure.Data
 {
@@ -104,6 +106,8 @@ namespace Management.Infrastructure.Data
                 // the column already exists (SQLite does not support ADD COLUMN IF NOT EXISTS).
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE products ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_services ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE appointments ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
@@ -306,6 +310,18 @@ namespace Management.Infrastructure.Data
                 entity.Ignore(e => e.Metadata);
             });
 
+            modelBuilder.Entity<SalonService>(entity =>
+            {
+                entity.ToTable("salon_services");
+                entity.HasKey(e => e.Id);
+                
+                // Shadow property to satisfy legacy NOT NULL constraint on 'price' column if it exists
+                entity.Property<decimal>("price")
+                    .HasColumnName("price")
+                    .ValueGeneratedNever()
+                    .IsRequired();
+            });
+
             modelBuilder.Entity<Appointment>(entity =>
             {
                 entity.ToTable("appointments");
@@ -323,7 +339,6 @@ namespace Management.Infrastructure.Data
                 entity.ToTable("registrations");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.InterestPayloadJson).HasColumnName("interest_payload_json");
-                entity.Ignore(e => e.Metadata);
             });
 
             // Product configuration
@@ -706,16 +721,24 @@ namespace Management.Infrastructure.Data
         {
             try
             {
-
                 return await base.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateException ex)
             {
-                // CRITICAL: Clear the ChangeTracker on failure
-                // Without this, failed entities poison all subsequent operations until the app is restarted
-                _logger.LogError(ex, "[DbContext] SaveChangesAsync failed (DbUpdateException) — clearing ChangeTracker to prevent poisoning");
+                // CRITICAL DIAGNOSTIC: Log the entire exception tree to the Debug console.
+                // SQLite errors like 'NOT NULL constraint failed' are usually in the InnerException.
+                var errorMessage = new StringBuilder($"[DbContext] DB UPDATE FAILURE: {ex.Message}");
+                var inner = ex.InnerException;
+                while (inner != null)
+                {
+                    errorMessage.AppendLine($"  ↳ Inner: {inner.Message}");
+                    inner = inner.InnerException;
+                }
 
-                // Detach all tracked entities so next SaveChangesAsync starts clean
+                _logger.LogError(ex, "{Message}", errorMessage.ToString());
+                Debug.WriteLine(errorMessage.ToString());
+
+                // Clear ChangeTracker to prevent "poisoning" subsequent attempts in the same scope.
                 foreach (var entry in ChangeTracker.Entries().ToList())
                 {
                     entry.State = EntityState.Detached;
@@ -725,7 +748,8 @@ namespace Management.Infrastructure.Data
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[DbContext] SaveChangesAsync unexpected exception — clearing ChangeTracker");
+                _logger.LogError(ex, "[DbContext] Unexpected SaveChangesAsync error — clearing ChangeTracker");
+                Debug.WriteLine($"[DbContext] UNEXPECTED FAILURE: {ex.Message}\n{ex.StackTrace}");
 
                 foreach (var entry in ChangeTracker.Entries().ToList())
                 {

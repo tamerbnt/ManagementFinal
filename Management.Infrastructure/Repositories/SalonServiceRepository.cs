@@ -32,17 +32,24 @@ namespace Management.Infrastructure.Repositories
 
         public override async Task RestoreAsync(Guid id, Guid? facilityId = null)
         {
-            var query = _dbSet.IgnoreQueryFilters();
+            // Direct SQL UPDATE to bypass change tracker conflicts
+            var query = _dbSet.IgnoreQueryFilters().Where(p => p.Id == id);
             if (facilityId.HasValue)
                 query = query.Where(p => p.FacilityId == facilityId.Value);
 
-            var service = await query.FirstOrDefaultAsync(p => p.Id == id);
-            if (service != null)
+            await query.ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.IsDeleted, false)
+                .SetProperty(p => p.UpdatedAt, DateTime.UtcNow));
+
+            // Sync Tracker: Prevent stale 'Deleted' state from overwriting DB on next SaveChanges
+            var tracked = _context.ChangeTracker.Entries<SalonService>()
+                .FirstOrDefault(e => e.Entity.Id == id);
+
+            if (tracked != null)
             {
-                service.Restore();
-                // SalonService doesn't have IsActive, but we follow the pattern for consistency
-                // if it's ever added or if we want to ensure any other flags are reset.
-                await _context.SaveChangesAsync();
+                tracked.Entity.Restore();
+                tracked.State = EntityState.Unchanged;
+                Serilog.Log.Information("[SalonServiceRepository] Balanced tracker for restored service: {Id}", id);
             }
         }
     }

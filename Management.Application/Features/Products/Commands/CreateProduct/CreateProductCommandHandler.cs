@@ -46,14 +46,14 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
             var cost = new Money(dto.Cost, dto.Currency ?? "DA");
 
             var productResult = Product.Create(
-                dto.Name,
-                dto.Description,
+                dto.Name ?? "Unnamed Product",
+                dto.Description ?? string.Empty,
                 price,
                 cost,
                 dto.StockQuantity,
-                dto.SKU,
+                dto.SKU ?? string.Empty,
                 category,
-                dto.ImageUrl,
+                dto.ImageUrl ?? string.Empty,
                 dto.ReorderLevel);
 
             if (productResult.IsFailure)
@@ -87,20 +87,32 @@ namespace Management.Application.Features.Products.Commands.CreateProduct
             // 4. Attach to Repository first
             await _productRepository.AddAsync(product, saveChanges: false);
 
-            // 5. SYNC Shadow Property (AFTER attachment so EF is tracking it)
-            _unitOfWork.SetShadowProperty(product, "price", product.Price?.Amount ?? 0);
+            try
+            {
+                // DIAGNOSTIC LOGGING: State before save
+                Debug.WriteLine($"[CreateProduct] PRE-SAVE: Name='{product.Name}' SKU='{product.SKU}' FacilityId='{product.FacilityId}'");
 
-            Debug.WriteLine($"[CreateProduct] ► Prepared: Name='{product.Name}'  Price={product.Price?.Amount}  FacilityId={product.FacilityId}");
+                int rowsAffected = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // DIAGNOSTICS: Check ChangeTracker state before saving.
-            Debug.WriteLine("--- CHANGE TRACKER DEBUG VIEW ---");
-            Debug.WriteLine(_unitOfWork.GetChangeTrackerDebugView());
-            
-            int rowsAffected = await _unitOfWork.SaveChangesAsync(cancellationToken);
+                Debug.WriteLine($"[CreateProduct] SUCCESS: {rowsAffected} row(s) saved.");
+                return Result.Success(product.Id);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[CreateProduct] CRITICAL FAILURE: {ex.GetType().Name} - {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"  ↳ Inner: {ex.InnerException.Message}");
+                }
+                
+                // MediatR pipeline might throw ValidationException from behaviors
+                if (ex.Message.Contains("Validation failed"))
+                {
+                    return Result.Failure<Guid>(new Error("Product.Validation", ex.Message));
+                }
 
-            Debug.WriteLine($"[CreateProduct] ✓ Committed {rowsAffected} row(s) to SQLite. ProductId={product.Id}");
-
-            return Result.Success(product.Id);
+                throw;
+            }
         }
     }
 }
