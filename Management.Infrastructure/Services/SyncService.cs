@@ -986,15 +986,25 @@ namespace Management.Infrastructure.Services
                     {
                         _logger.LogInformation("Sync: Supabase session restored successfully for {Email}", storedSession.Email);
                         
-                        // Populate context services for this background worker thread/instance
+                    // FIX: Context Poisoning Guard. 
+                    // Only populate the global singleton if it's currently empty.
+                    // If the user is already logged in (UI active), we MUST NOT 
+                    // overwrite their session with a background storage read.
+                    if (_tenantService.GetTenantId() == null || _tenantService.GetTenantId() == Guid.Empty)
+                    {
                         _tenantService.SetTenantId(storedSession.TenantId);
                         _tenantService.SetUserId(storedSession.StaffId);
                         _tenantService.SetRole(storedSession.Role);
-                        
-                        // Cache for JIT Repair
-                        _currentFacilityId = storedSession.FacilityId;
-                        
-                        return true;
+                    }
+                    else 
+                    {
+                        _logger.LogDebug("Sync: UI already has an active tenant context. Skipping global state overwrite.");
+                    }
+                    
+                    // Cache for JIT Repair (Localized to this sync session)
+                    _currentFacilityId = storedSession.FacilityId;
+                    
+                    return true;
                     }
 
                     _logger.LogWarning("Sync: SetSession returned null user for {Email}", storedSession.Email);

@@ -140,7 +140,43 @@ namespace Management.Infrastructure.Services
                 .ToList();
         }
 
+        public async Task<List<int>> GetWeeklyMemberGrowthAsync(Guid facilityId, int year, int month)
+        {
+            var startOfMonth = new DateTime(year, month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
+
+            // UTC boundaries for the month
+            var utcStart = startOfMonth.ToUniversalTime();
+            var utcEnd = startOfMonth.AddMonths(1).ToUniversalTime();
+
+            _logger.LogInformation("[Dashboard] Fetching weekly growth for {FacilityId} at {Year}-{Month}", facilityId, year, month);
+
+            var registrationDays = await _dbContext.Members
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .Where(m => m.FacilityId == facilityId && 
+                            m.CreatedAt >= utcStart && 
+                            m.CreatedAt < utcEnd && 
+                            !m.IsDeleted)
+                .Select(m => m.CreatedAt)
+                .ToListAsync();
+
+            var counts = new List<int>();
+            
+            // Segment 1: Day 1-7
+            counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 1 && d.ToLocalTime().Day <= 7));
+            // Segment 2: Day 8-14
+            counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 8 && d.ToLocalTime().Day <= 14));
+            // Segment 3: Day 15-21
+            counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 15 && d.ToLocalTime().Day <= 21));
+            // Segment 4: Day 22 onwards
+            counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 22));
+
+            return counts;
+        }
+
         public async Task<List<PlanRevenueDto>> GetRevenueByMenuItemAsync(Guid facilityId, DateTime start, DateTime end)
+
         {
             var utcStart = start.Kind == DateTimeKind.Utc ? start : start.ToUniversalTime();
             var utcEnd = end.Kind == DateTimeKind.Utc ? end : end.ToUniversalTime();
@@ -190,6 +226,49 @@ namespace Management.Infrastructure.Services
                 .ToList();
         }
 
+        public async Task<List<DateTimePoint>> GetRevenueTrendAsync(Guid facilityId, DateTime monthStart, DateTime monthEnd)
+        {
+            var utcStart = monthStart.Kind == DateTimeKind.Utc ? monthStart : monthStart.ToUniversalTime();
+            var utcEnd = monthEnd.Kind == DateTimeKind.Utc ? monthEnd : monthEnd.ToUniversalTime();
+
+            // Fetch from Sales table (Memberships, Products, Walk-ins)
+            var salesData = await _dbContext.Sales
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= utcStart && s.Timestamp < utcEnd)
+                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
+                .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
+                .ToListAsync();
+
+            // Fetch from RestaurantOrders (for Restaurant facilities)
+            var restaurantData = await _dbContext.RestaurantOrders
+                .AsNoTracking()
+                .Where(o => o.FacilityId == facilityId &&
+                            o.CompletedAt >= utcStart && o.CompletedAt < utcEnd &&
+                            (o.Status == Management.Domain.Models.Restaurant.OrderStatus.Completed ||
+                             o.Status == Management.Domain.Models.Restaurant.OrderStatus.Paid))
+                .GroupBy(o => o.CompletedAt!.Value.ToLocalTime().Date)
+                .Select(g => new { Date = g.Key, Total = g.Sum(o => (double)(o.Subtotal + o.Tax)) })
+                .ToListAsync();
+
+            var salesMap = salesData.ToDictionary(x => x.Date, x => x.Total);
+            var restaurantMap = restaurantData.ToDictionary(x => x.Date, x => x.Total);
+
+            var trend = new List<DateTimePoint>();
+            var totalDays = (monthEnd.Date - monthStart.Date).Days;
+
+            for (int i = 0; i < totalDays; i++)
+            {
+                var date = monthStart.Date.AddDays(i);
+                double total = 0;
+                if (salesMap.TryGetValue(date, out var saleTotal)) total += saleTotal;
+                if (restaurantMap.TryGetValue(date, out var restTotal)) total += restTotal;
+                trend.Add(new DateTimePoint(date, total));
+            }
+
+            return trend;
+        }
+
         // NEW: Salon specific trend for Occupancy Chart (Active Appointments per Hour)
         public async Task<List<DateTimePoint>> GetSalonOccupancyTrendAsync(Guid facilityId)
         {
@@ -213,22 +292,25 @@ namespace Management.Infrastructure.Services
              return trend;
         }
 
-        // NEW: Gym hourly check-in trend for the Occupancy Chart (check-ins per hour for today)
-        public async Task<List<DateTimePoint>> GetGymOccupancyTrendAsync(Guid facilityId)
+        // NEW: Gym hourly check-in trend for the Occupancy Chart (check-ins per hour for a specific date)
+        public async Task<List<DateTimePoint>> GetGymOccupancyTrendAsync(Guid facilityId, DateTime? date = null)
         {
-            var today = DateTime.Today;
-            var utcStart = today.ToUniversalTime();
-            var utcEnd = today.AddDays(1).ToUniversalTime();
-
+            var targetDate = (date ?? DateTime.Today).Date;
+            var utcStart = targetDate.ToUniversalTime();
+            var utcEnd = targetDate.AddDays(1).ToUniversalTime();
+ 
+            // Composite Index: { FacilityId, Timestamp }
             var events = await _accessEventRepository.GetByDateRangeAsync(facilityId, utcStart, utcEnd);
             var granted = events.Where(e => e.IsAccessGranted).ToList();
-
+ 
             var trend = new List<DateTimePoint>();
             for (int h = 0; h <= 23; h++)
             {
-                var hourSlot = today.AddHours(h);
+                var hourSlot = targetDate.AddHours(h);
                 var utcHourSlot = hourSlot.ToUniversalTime();
                 var utcHourEnd = utcHourSlot.AddHours(1);
+ 
+                // Grouping by local hour for visual display
                 int count = granted.Count(e => e.Timestamp >= utcHourSlot && e.Timestamp < utcHourEnd);
                 trend.Add(new DateTimePoint(hourSlot, count));
             }

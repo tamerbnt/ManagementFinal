@@ -211,14 +211,26 @@ namespace Management.Presentation
 
 
 
+        private void LogTrace(string message)
+        {
+            try
+            {
+                File.AppendAllText("boot-trace.txt", $"{DateTime.Now:HH:mm:ss.fff} [TRACE] {message}{Environment.NewLine}");
+            }
+            catch { }
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            LogTrace("--- APP STARTUP ---");
 
-
-            if (!EnsureSingleInstance()) return;
+            if (!EnsureSingleInstance())
+            {
+                LogTrace("SingleInstance check failed. Shutting down.");
+                return;
+            }
             
-            // Execute startup logic on a separate task to avoid blocking UI thread 
-            // but with robust error handling and proper synchronization.
+            LogTrace("Initializing App...");
             InitializeApp();
 
             try
@@ -268,17 +280,20 @@ namespace Management.Presentation
 
             try 
             {
+                LogTrace("Registering crash handlers...");
                 // 1. Global Exception Handling (Register EARLY)
                 this.DispatcherUnhandledException += OnDispatcherUnhandledException;
                 TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
                 AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
 
+                LogTrace("Initializing Serilog...");
                 // 2. Setup Logging (Serilog)
                 Serilog.Log.Logger = new LoggerConfiguration()
                     .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
                     .CreateLogger();
 
                 Serilog.Log.Information("APPLICATION STARTUP BEGIN ==========================================");
+                LogTrace("Serilog initialized. Building Host...");
 
                 // 3. Setup Generic Host
                 _host = Host.CreateDefaultBuilder()

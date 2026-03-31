@@ -98,6 +98,35 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private ISeries[] _occupancySeries = Array.Empty<ISeries>();
 
+        // ── Revenue Trend Chart ──────────────────────────────────────────────
+        [ObservableProperty]
+        private ISeries[] _revenueSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _revenueXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _revenueYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private DateTime _selectedRevenueTrendMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+        [ObservableProperty]
+        private string _formattedRevenueTrendMonth = DateTime.Now.ToString("MMMM yyyy").ToUpper();
+
+        [ObservableProperty]
+        private string _revenueTrendTotal = "0.00 DA";
+
+        [ObservableProperty]
+        private string _revenueTrendDailyAvg = "0.00 DA";
+
+        [ObservableProperty]
+        private string _revenueTrendBestDay = "–";
+
+        [ObservableProperty]
+        private bool _isRevenueTrendLoading;
+        // ────────────────────────────────────────────────────────────────────
+
         [ObservableProperty]
         private Axis[] _xAxes = Array.Empty<Axis>();
 
@@ -111,13 +140,41 @@ namespace Management.Presentation.ViewModels.Shell
         private Axis[] _occupancyYAxes = Array.Empty<Axis>();
 
         [ObservableProperty]
+        private DateTime _selectedOccupancyDate = DateTime.Today;
+
+        [ObservableProperty]
+        private string _formattedOccupancyDate = "TODAY";
+
+        [ObservableProperty]
+        private bool _isOccupancyLoading;
+
+        [ObservableProperty]
+        private DateTime _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+
+        [ObservableProperty]
+        private string _formattedSelectedMonth = "THIS MONTH";
+
+        [ObservableProperty]
+        private ISeries[] _memberSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _memberXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _memberYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
         private bool _isBusinessMode;
 
         [ObservableProperty]
         private bool _isSalonMode;
 
+        private int _currentRevenueMode = 0; // 0: Plan, 1: Product, 2: Menu Item
+
         [ObservableProperty]
         private bool _isRestaurantMode;
+
+        public bool IsGymMode => !IsSalonMode && !IsRestaurantMode;
 
         [ObservableProperty]
         private int _activeTablesCount;
@@ -149,8 +206,6 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private double _revenueProgress;
 
-        [ObservableProperty]
-        private ISeries[] _revenueSeries = Array.Empty<ISeries>();
 
         [ObservableProperty]
         private ObservableRangeCollection<TransactionDto> _recentTransactions = new();
@@ -198,6 +253,7 @@ namespace Management.Presentation.ViewModels.Shell
             _refreshDebounceCts = new System.Threading.CancellationTokenSource();
             _dashboardService = dashboardService;
             _modalNavigationService = modalNavigationService;
+            UpdateFormattedMonth();
             _serviceProvider = serviceProvider;
             _reportingService = reportingService;
             _syncService = syncService;
@@ -215,9 +271,12 @@ namespace Management.Presentation.ViewModels.Shell
 
             InitializeStrings();
             
-            // Initialize axes with default elements to prevent LiveCharts crashes
-            XAxes = new Axis[] { new Axis { TextSize = 12 } };
-            YAxes = new Axis[] { new Axis { TextSize = 12 } };
+            // Initialize all chart axes to empty arrays to prevent startup deadlocks during DI
+            XAxes = Array.Empty<Axis>();
+            YAxes = Array.Empty<Axis>();
+            
+            OccupancyXAxes = Array.Empty<Axis>();
+            OccupancyYAxes = Array.Empty<Axis>();
 
             RegisterMessages();
         }
@@ -252,10 +311,12 @@ namespace Management.Presentation.ViewModels.Shell
             
             if (IsRestaurantMode)
             {
+                _currentRevenueMode = 2; // Menu Item
                 RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Revenue by Menu Item";
             }
             else
             {
+                _currentRevenueMode = 0; // Plan
                 RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdown") ?? "Revenue by Plan";
             }
         }
@@ -272,14 +333,17 @@ namespace Management.Presentation.ViewModels.Shell
 
             if (mode == "Plan")
             {
+                _currentRevenueMode = 0;
                 RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdown") ?? "Revenue by Plan";
             }
             else if (mode == "Product")
             {
+                _currentRevenueMode = 1;
                 RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownProduct") ?? "Revenue by Product";
             }
             else if (mode == "MenuItem")
             {
+                _currentRevenueMode = 2;
                 RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Revenue by Menu Item";
             }
             
@@ -332,11 +396,11 @@ namespace Management.Presentation.ViewModels.Shell
             {
                 var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
                 
-                if (IsRestaurantMode && RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Menu"))
+                if (IsRestaurantMode && _currentRevenueMode == 2)
                 {
                     data = await scopedDashboardService.GetRevenueByMenuItemAsync(facilityId, start, end);
                 }
-                else if (RevenueBreakdownTitle.Contains(_terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownProduct") ?? "Product"))
+                else if (_currentRevenueMode == 1)
                 {
                     data = await scopedDashboardService.GetRevenueByProductAsync(facilityId, start, end);
                 }
@@ -367,9 +431,165 @@ namespace Management.Presentation.ViewModels.Shell
         }
 
         [RelayCommand]
-        private void ToggleDashboardMode()
+        private async Task CycleRevenueMode()
+        {
+            // Cycle: Plan (0) -> Product (1) -> [MenuItem (2) if Restaurant] -> Plan (0)
+            if (_currentRevenueMode == 0) // From Plan to Product
+            {
+                _currentRevenueMode = 1;
+                RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownProduct") ?? "Revenue by Product";
+            }
+            else if (_currentRevenueMode == 1 && IsRestaurantMode) // From Product to Menu
+            {
+                _currentRevenueMode = 2;
+                RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdownMenuItem") ?? "Revenue by Menu Item";
+            }
+            else // Back to Plan
+            {
+                _currentRevenueMode = 0;
+                RevenueBreakdownTitle = _terminologyService.GetTerm("Terminology.Dashboard.Chart.RevenueBreakdown") ?? "Revenue by Plan";
+            }
+
+            await RefreshRevenueBreakdown();
+        }
+
+        [RelayCommand]
+        private async Task PreviousRevenueTrendMonth()
+        {
+            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(-1);
+            FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
+            await RefreshRevenueTrendAsync();
+        }
+
+        [RelayCommand]
+        private async Task NextRevenueTrendMonth()
+        {
+            var next = SelectedRevenueTrendMonth.AddMonths(1);
+            if (next > new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)) return; // Don't go into the future
+            SelectedRevenueTrendMonth = next;
+            FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
+            await RefreshRevenueTrendAsync();
+        }
+
+        private async Task RefreshRevenueTrendAsync()
+        {
+            if (CurrentFacilityId == Guid.Empty) return;
+
+            try
+            {
+                IsRevenueTrendLoading = true;
+                _logger?.LogInformation("[Dashboard] Refreshing Revenue Trend for Facility: {FacilityId}", CurrentFacilityId);
+
+                // 1. Calculate Month Range - Use the SPECIFIC Revenue Month
+                var monthStart = new DateTime(SelectedRevenueTrendMonth.Year, SelectedRevenueTrendMonth.Month, 1);
+                var monthEnd = monthStart.AddMonths(1);
+                int daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
+
+                // 2. Fetch Data
+                List<DateTimePoint> trend;
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var svc = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                    trend = await svc.GetRevenueTrendAsync(CurrentFacilityId, monthStart, monthEnd);
+                    _logger?.LogInformation("[Dashboard] Fetched {Count} points for Revenue Trend", trend?.Count ?? 0);
+                }
+
+                if (trend == null) trend = new List<DateTimePoint>();
+
+                // 3. Generate Dynamic Daily Labels (1 to 28/30/31)
+                var labels = Enumerable.Range(1, daysInMonth).Select(d => d.ToString()).ToArray();
+                
+                // 4. Map Data to all days (ensuring every day is represented even if 0)
+                var values = new double[daysInMonth];
+                foreach (var point in trend)
+                {
+                    int dayIndex = point.DateTime.Day - 1;
+                    if (dayIndex >= 0 && dayIndex < daysInMonth)
+                    {
+                        values[dayIndex] = point.Value ?? 0;
+                    }
+                }
+
+                double maxVal = values.Any() ? values.Max() : 0;
+                double yMax = Math.Max(maxVal * 1.2, 100); // Dynamic headspace, min 100 DA
+
+                // 5. Build Smooth Area Chart
+                var areaPoints = new ObservableCollection<ObservablePoint>();
+                for (int i = 0; i < values.Length; i++)
+                {
+                    areaPoints.Add(new ObservablePoint(i, values[i]));
+                }
+
+                RevenueSeries = new ISeries[]
+                {
+                    new LineSeries<ObservablePoint>
+                    {
+                        Values = areaPoints,
+                        Name = "Daily Revenue",
+                        YToolTipLabelFormatter = (chartPoint) => $"Day {chartPoint.Model.X + 1}: {chartPoint.Model.Y:N2} DA",
+                        Fill = new LinearGradientPaint(
+                            new SKColor[] { SKColor.Parse("#06B6D4").WithAlpha(40), SKColors.Transparent },
+                            new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
+                        Stroke = new SolidColorPaint(SKColor.Parse("#06B6D4")) { StrokeThickness = 3 },
+                        GeometrySize = 8,
+                        GeometryStroke = new SolidColorPaint(SKColors.White) { StrokeThickness = 2 },
+                        GeometryFill = new SolidColorPaint(SKColor.Parse("#06B6D4")),
+                        LineSmoothness = 0.5
+                    }
+                };
+                
+                RevenueXAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = labels, // Using all dynamic days
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                        TextSize = 10,
+                        MinStep = 1, // Force every label to dynamically display
+                        SeparatorsPaint = new SolidColorPaint(SKColors.Transparent),
+                        Padding = new LiveChartsCore.Drawing.Padding(0, 5, 0, 0)
+                    }
+                };
+
+                RevenueYAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labeler = value => value >= 1000 ? $"{value / 1000:N0}k" : $"{value:N0}",
+                        MinLimit = 0, // Strict zero baseline
+                        MaxLimit = yMax,
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                        SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F1F5F9")) { StrokeThickness = 1 }
+                    }
+                };
+
+                // Updating UI helper properties
+                FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
+                RevenueTrendTotal = $"{values.Sum():N0} DA";
+                RevenueTrendDailyAvg = $"{(values.Sum() / daysInMonth):N0} DA / day";
+                
+                var topDayIdx = Array.IndexOf(values, maxVal);
+                RevenueTrendBestDay = maxVal > 0 ? $"Day {topDayIdx + 1} ({maxVal:N0} DA)" : "–";
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "[Dashboard] Failed to refresh Revenue Trend chart");
+            }
+            finally
+            {
+                IsRevenueTrendLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task ToggleDashboardMode()
         {
             IsBusinessMode = !IsBusinessMode;
+            if (IsBusinessMode)
+            {
+                await RefreshRevenueTrendAsync();
+                await RefreshRevenueBreakdown();
+            }
         }
 
         [RelayCommand]
@@ -472,7 +692,7 @@ namespace Management.Presentation.ViewModels.Shell
                         summary = await scopedDashboardService.GetSummaryAsync();
                     }
                     
-                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
                     {
                         ActivePeopleCount = summary.CheckInsToday;
                         TotalActiveMembers = summary.ActiveMembers; 
@@ -521,24 +741,7 @@ namespace Management.Presentation.ViewModels.Shell
                         RecentTransactions.ReplaceRange(summary.RecentTransactions);
                         StaffPerformance.ReplaceRange(summary.TopPerformingStaff);
 
-                        // Map Revenue Trend
-                        if (summary.RevenueTrend?.Any() == true)
-                        {
-                             RevenueSeries = new ISeries[]
-                            {
-                                new LineSeries<double>
-                                {
-                                    Values = new ObservableCollection<double>(summary.RevenueTrend.Select(p => p.Value ?? 0)),
-                                    Name = "Revenue",
-                                    Fill = new LinearGradientPaint(new SKColor[] { SKColor.Parse("#3B82F6").WithAlpha(50), SKColors.Transparent }, new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
-                                    Stroke = new SolidColorPaint(SKColor.Parse("#3B82F6")) { StrokeThickness = 3 },
-                                    GeometrySize = 8,
-                                    GeometryStroke = new SolidColorPaint(SKColors.White) { StrokeThickness = 2 },
-                                    GeometryFill = new SolidColorPaint(SKColor.Parse("#3B82F6")),
-                                    LineSmoothness = 1
-                                }
-                            };
-                        }
+                        // Revenue Trend is now managed by RefreshRevenueTrendAsync() — see below.
 
                         // Map Occupancy/Member Trend
                         if (summary.MemberTrend?.Any() == true)
@@ -579,8 +782,14 @@ namespace Management.Presentation.ViewModels.Shell
                         }
                         
                         LoadFinancialData(summary);
-                        _ = RefreshRevenueBreakdown();
-                        _ = RefreshStaffPerformance();
+                        
+                        // 3. Charts - Prioritize Business Revenue for early visibility
+                        if (IsBusinessMode) await RefreshRevenueTrendAsync();
+                        if (IsBusinessMode || IsRestaurantMode) await RefreshRevenueBreakdown();
+                        if (IsBusinessMode || IsSalonMode) await RefreshStaffPerformance();
+                        
+                        await RefreshMemberDevelopmentAsync();
+                        await RefreshOccupancyTrendAsync();
                     });
                 }
                 finally
@@ -872,9 +1081,216 @@ namespace Management.Presentation.ViewModels.Shell
                  if (newFacilityId != Guid.Empty)
                  {
                      _logger?.LogInformation("[Dashboard] FacilityId resolved to {Id}. Triggering data load.", newFacilityId);
+                     
+                     // RESET Month to current upon facility change
+                     SelectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+                     UpdateFormattedMonth();
+                     
                      await LoadDeferredAsync();
                  }
              });
+        }
+
+        [RelayCommand]
+        private async Task PreviousMonthAsync()
+        {
+            SelectedMonth = SelectedMonth.AddMonths(-1);
+            await RefreshMemberDevelopmentAsync();
+            if (IsBusinessMode) await RefreshRevenueTrendAsync();
+        }
+
+        [RelayCommand]
+        private async Task NextMonthAsync()
+        {
+            var now = DateTime.Now;
+            if (SelectedMonth.Month == now.Month && SelectedMonth.Year == now.Year)
+                return;
+
+            SelectedMonth = SelectedMonth.AddMonths(1);
+            await RefreshMemberDevelopmentAsync();
+            if (IsBusinessMode) await RefreshRevenueTrendAsync();
+        }
+
+        partial void OnSelectedMonthChanged(DateTime value) => UpdateFormattedMonth();
+
+        private void UpdateFormattedMonth()
+        {
+            var now = DateTime.Now;
+            if (SelectedMonth.Month == now.Month && SelectedMonth.Year == now.Year)
+                FormattedSelectedMonth = "THIS MONTH";
+            else
+                FormattedSelectedMonth = SelectedMonth.ToString("MMMM yyyy").ToUpper();
+        }
+
+        private async Task RefreshMemberDevelopmentAsync()
+        {
+             if (CurrentFacilityId == Guid.Empty) return;
+
+             try 
+             {
+                 var counts = await _dashboardService.GetWeeklyMemberGrowthAsync(CurrentFacilityId, SelectedMonth.Year, SelectedMonth.Month);
+                 
+                 // High-performance track height logic
+                 double maxVal = counts.Any() ? counts.Max() : 0;
+                 double trackVal = maxVal > 10 ? maxVal * 1.15 : 10; 
+
+                 // 1. Unified Track Series (Background)
+                 var trackSeries = new ColumnSeries<double>
+                 {
+                     Values = new[] { trackVal, trackVal, trackVal, trackVal },
+                     Fill = new SolidColorPaint(SKColor.Parse("#F1F5F9")), // Light Gray Track
+                     Rx = 80, Ry = 80,
+                     MaxBarWidth = 40,
+                     IgnoresBarPosition = true,
+                     ZIndex = -1,
+                     IsHoverable = false,
+                     DataLabelsPaint = null
+                 };
+
+
+                 // 2. Multi-color Weekly Fill Series
+                 // Colors: Cyan, Indigo, Emerald, Violet
+                 var colors = new[] { "#06B6D4", "#6366F1", "#10B981", "#8B5CF6" };
+                 var seriesList = new List<ISeries> { trackSeries };
+
+                 for (int i = 0; i < 4; i++)
+                 {
+                     double[] values = new double[4];
+                     values[i] = counts[i];
+
+                     seriesList.Add(new ColumnSeries<double>
+                     {
+                         Name = $"Week {i + 1}",
+                         Values = values,
+                         Fill = new SolidColorPaint(SKColor.Parse(colors[i])),
+                         Rx = 80, Ry = 80,
+                         MaxBarWidth = 40,
+                         IgnoresBarPosition = true,
+                         Padding = 0,
+                         ZIndex = 100 // Data always on top
+                     });
+                 }
+
+                 MemberSeries = seriesList.ToArray();
+
+                 MemberXAxes = new[] {
+                     new Axis { 
+                         Labels = new[] { "week 1", "week 2", "week 3", "week 4" },
+                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                         TextSize = 12,
+                         Padding = new LiveChartsCore.Drawing.Padding(0, 15, 0, 0)
+                     }
+                 };
+                 MemberYAxes = new[] {
+                     new Axis { 
+                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                         MinLimit = 0, // Strictly enforce zero start
+                         MaxLimit = trackVal > 0 ? trackVal : 10,
+                         MinStep = 1.0, 
+                         IsVisible = true,
+                         TextSize = 12,
+                         Padding = new LiveChartsCore.Drawing.Padding(10, 0, 10, 0)
+                     }
+                 };
+             }
+             catch (Exception ex)
+             {
+                 _logger?.LogError(ex, "[Dashboard] Failed to refresh Weekly Member Development chart");
+             }
+        }
+
+        private void UpdateFormattedOccupancyDate()
+        {
+            if (SelectedOccupancyDate.Date == DateTime.Today)
+                FormattedOccupancyDate = "TODAY";
+            else if (SelectedOccupancyDate.Date == DateTime.Today.AddDays(-1))
+                FormattedOccupancyDate = "YESTERDAY";
+            else
+                FormattedOccupancyDate = SelectedOccupancyDate.ToString("ddd, MMM dd").ToUpper();
+        }
+
+        // Called automatically by CommunityToolkit.Mvvm whenever SelectedOccupancyDate changes.
+        // This covers the DatePicker binding path, which bypasses the command methods.
+        partial void OnSelectedOccupancyDateChanged(DateTime value)
+        {
+            UpdateFormattedOccupancyDate();
+            _ = RefreshOccupancyTrendAsync();
+        }
+
+        [RelayCommand]
+        private void SetOccupancyFilter(string filter)
+        {
+            // Setting SelectedOccupancyDate triggers OnSelectedOccupancyDateChanged automatically.
+            if (filter == "Today") SelectedOccupancyDate = DateTime.Today;
+            else if (filter == "Yesterday") SelectedOccupancyDate = DateTime.Today.AddDays(-1);
+        }
+
+        [RelayCommand]
+        private void SelectCustomOccupancyDate(DateTime date)
+        {
+            // Setting SelectedOccupancyDate triggers OnSelectedOccupancyDateChanged automatically.
+            SelectedOccupancyDate = date;
+        }
+
+        private async Task RefreshOccupancyTrendAsync()
+        {
+            if (CurrentFacilityId == Guid.Empty || !IsGymMode) return;
+
+            try
+            {
+                IsOccupancyLoading = true;
+                var trend = await _dashboardService.GetGymOccupancyTrendAsync(CurrentFacilityId, SelectedOccupancyDate);
+                
+                if (trend != null && (trend.Any() || SelectedOccupancyDate != DateTime.Today))
+                {
+                    OccupancySeries = new ISeries[]
+                    {
+                        new LineSeries<double>
+                        {
+                            Values = new ObservableCollection<double>(trend.Select(p => p.Value ?? 0)),
+                            Name = "Live Capacity",
+                            Fill = new LinearGradientPaint(
+                                new SKColor[] { SKColor.Parse("#10B981").WithAlpha(40), SKColors.Transparent }, 
+                                new SKPoint(0.5f, 0), 
+                                new SKPoint(0.5f, 1)),
+                            Stroke = new SolidColorPaint(SKColor.Parse("#10B981")) { StrokeThickness = 3 },
+                            GeometrySize = 0,
+                            LineSmoothness = 0.5,
+                            EnableNullSplitting = false
+                        }
+                    };
+
+                    OccupancyXAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = trend.Select(p => p.DateTime.ToString("HH:mm")).ToArray(),
+                            LabelsRotation = 0,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                            SeparatorsPaint = new SolidColorPaint(SKColors.Transparent)
+                        }
+                    };
+
+                    OccupancyYAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labeler = value => value.ToString("N0"),
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#E5E7EB")) { StrokeThickness = 1 },
+                            MinLimit = 0
+                        }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error refreshing occupancy trend");
+            }
+            finally
+            {
+                IsOccupancyLoading = false;
+            }
         }
     }
 }

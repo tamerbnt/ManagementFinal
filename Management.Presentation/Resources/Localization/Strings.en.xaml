@@ -457,7 +457,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Dashboard.Business.Revenue">Revenue</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Business.Expenses">Expenses</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.Title">Revenue Trend</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.Subtitle">30-Day performance analysis</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.Subtitle">Monthly performance analysis</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.Total">TOTAL</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.DailyAvg">DAILY AVG</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Revenue.BestDay">BEST DAY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.SelectDate">Select a specific date</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Transactions.Title">Recent Transactions</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Business.QuickActions">Quick Actions</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Action.RunPayroll">Run Payroll</sys:String>

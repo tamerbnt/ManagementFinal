@@ -23,32 +23,38 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 
-                <Grid Width="40" Height="40" HorizontalAlignment="Left" Margin="0,0,0,12">
-                    <Ellipse Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.1" />
-                    <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                          Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                          Stretch="Uniform" 
-                          Width="18" Height="18" 
-                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Grid>
+                <!-- HEADER: Icon + Label -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
+                    <Border Width="24" Height="24" CornerRadius="8" Background="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
+                        <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                              Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                              Stroke="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              StrokeThickness="1.5"
+                              StrokeLineJoin="Round"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Stretch="Uniform" 
+                              Width="12" Height="12" 
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                               FontSize="13" 
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
                 
+                <!-- CONTENT: Value -->
                 <TextBlock Grid.Row="1" 
                            Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}, FallbackValue='--', TargetNullValue='--'}" 
                            FontSize="32" 
-                           FontWeight="SemiBold" 
+                           FontWeight="Bold" 
                            VerticalAlignment="Center"
-                           Foreground="#0F172A"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            TextTrimming="CharacterEllipsis"
                            ToolTip="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" />
-                
-                <TextBlock Grid.Row="2" 
-                           Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                           FontSize="13" 
-                           FontWeight="Medium"
-                           Foreground="#64748B" />
             </Grid>
 
             <!-- Skeleton Layer -->

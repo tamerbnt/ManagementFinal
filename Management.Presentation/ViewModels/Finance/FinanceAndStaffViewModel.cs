@@ -133,6 +133,7 @@ namespace Management.Presentation.ViewModels.Finance
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly IStaffService _staffService;
         private readonly ISyncService _syncService;
+        private readonly ITenantService _tenantService;
 
         public FinanceAndStaffViewModel(
             ILogger<FinanceAndStaffViewModel> logger,
@@ -143,12 +144,14 @@ namespace Management.Presentation.ViewModels.Finance
             IFacilityContextService facilityContext,
             IStaffService staffService,
             ISyncService syncService,
+            ITenantService tenantService,
             ILocalizationService localizationService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _dialogService = dialogService;
             _staffService = staffService;
             _syncService = syncService;
+            _tenantService = tenantService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
             Title = GetTerm("Terminology.Staff.Header") ?? "Staff";
@@ -320,6 +323,13 @@ namespace Management.Presentation.ViewModels.Finance
         private async Task LoadStaffAsync(bool force = false)
         {
             if (IsLoading && !force) return;
+            
+            // --- CONTEXT DIAGNOSTICS ---
+            var currentTenant = _tenantService.GetTenantId();
+            var currentFacility = _facilityContext.CurrentFacilityId;
+            _logger.LogInformation("[Staff] Loading staff list. Context - Tenant: {TenantId}, Facility: {FacilityId}, IsActive: {IsActive}", currentTenant, currentFacility, IsActive);
+            System.Diagnostics.Debug.WriteLine($"[STAFF_DIAGNOSTICS] Context before load - Tenant: {currentTenant}, Facility: {currentFacility}");
+
             IsLoading = true;
 
             try

@@ -306,7 +306,9 @@ namespace Management.Infrastructure.Data
                 entity.HasIndex(e => e.Gender).HasDatabaseName("idx_member_gender");
                 entity.HasIndex(e => e.StartDate).HasDatabaseName("idx_member_start_date");
                 entity.HasIndex(e => e.ExpirationDate).HasDatabaseName("idx_member_expiration_date");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("idx_member_created_at");
                 entity.HasIndex(m => new { m.FacilityId, m.Status, m.ExpirationDate }).HasDatabaseName("idx_member_performance_composite");
+
 
                 entity.Ignore(e => e.Metadata);
             });
