@@ -89,6 +89,8 @@ using Management.Presentation.ViewModels.AccessControl;
 using Management.Presentation.Views.Restaurant;
 using Management.Presentation.Views.Dashboard;
 using Management.Presentation.Views.Shared;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
 
 namespace Management.Presentation
 {
@@ -109,6 +111,13 @@ namespace Management.Presentation
 
         public App()
         {
+            // Initialize LiveCharts Global Configuration
+            LiveChartsCore.LiveCharts.Configure(config => 
+                config
+                    .AddSkiaSharp()
+                    .AddDefaultMappers()
+            );
+
             // PostgreSQL Timestamp Fix (Critical for EF Core + Npgsql legacy compatibility)
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }

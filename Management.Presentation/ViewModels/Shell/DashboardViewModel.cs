@@ -128,9 +128,6 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private bool _isRevenueTrendLoading;
-
-        [ObservableProperty]
-        private ObservableCollection<MonthFilterViewModel> _monthFilters = new();
         // ────────────────────────────────────────────────────────────────────
 
         [ObservableProperty]
@@ -171,6 +168,15 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private bool _isBusinessMode;
+
+        partial void OnIsBusinessModeChanged(bool value)
+        {
+            if (value)
+            {
+                _ = RefreshRevenueTrendAsync();
+                _ = RefreshRevenueBreakdown();
+            }
+        }
 
         [ObservableProperty]
         private bool _isSalonMode;
@@ -461,23 +467,6 @@ namespace Management.Presentation.ViewModels.Shell
             await RefreshRevenueBreakdown();
         }
 
-        [RelayCommand]
-        private async Task PreviousRevenueTrendMonth()
-        {
-            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(-1);
-            FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
-            await RefreshRevenueTrendAsync();
-        }
-
-        [RelayCommand]
-        private async Task NextRevenueTrendMonth()
-        {
-            var next = SelectedRevenueTrendMonth.AddMonths(1);
-            if (next > new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)) return; // Don't go into the future
-            SelectedRevenueTrendMonth = next;
-            FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
-            await RefreshRevenueTrendAsync();
-        }
 
         private async Task RefreshRevenueTrendAsync()
         {
@@ -492,9 +481,6 @@ namespace Management.Presentation.ViewModels.Shell
                 var monthStart = new DateTime(SelectedRevenueTrendMonth.Year, SelectedRevenueTrendMonth.Month, 1);
                 var monthEnd = monthStart.AddMonths(1);
                 int daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
-
-                // Initialize Month Filters if empty
-                if (MonthFilters.Count == 0) PopulateMonthFilters();
 
                 // 2. Fetch Data
                 List<DateTimePoint> trend;
@@ -619,31 +605,21 @@ namespace Management.Presentation.ViewModels.Shell
             }
         }
 
-        private void PopulateMonthFilters()
+        [RelayCommand]
+        private async Task PreviousRevenueTrendMonthAsync()
         {
-            MonthFilters.Clear();
-            var today = DateTime.Today;
-            for (int i = 5; i >= 0; i--)
-            {
-                var date = new DateTime(today.Year, today.Month, 1).AddMonths(-i);
-                MonthFilters.Add(new MonthFilterViewModel
-                {
-                    Name = date.ToString("MMM"),
-                    Date = date,
-                    IsSelected = date.Month == SelectedRevenueTrendMonth.Month && date.Year == SelectedRevenueTrendMonth.Year
-                });
-            }
+            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(-1);
+            await RefreshRevenueTrendAsync();
         }
 
         [RelayCommand]
-        private async Task SelectMonthFilter(MonthFilterViewModel filter)
+        private async Task NextRevenueTrendMonthAsync()
         {
-            if (filter == null) return;
-            
-            foreach (var f in MonthFilters) f.IsSelected = false;
-            filter.IsSelected = true;
-            
-            SelectedRevenueTrendMonth = filter.Date;
+            var now = DateTime.Now;
+            if (SelectedRevenueTrendMonth.Month == now.Month && SelectedRevenueTrendMonth.Year == now.Year)
+                return;
+
+            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(1);
             await RefreshRevenueTrendAsync();
         }
 

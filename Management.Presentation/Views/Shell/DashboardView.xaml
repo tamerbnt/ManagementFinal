@@ -17,6 +17,127 @@
     <UserControl.Resources>
         <controls:BindingProxy x:Key="Proxy" Data="{Binding}" />
         <converters:TerminologyConverter x:Key="TerminologyConverter"/>
+        
+        <!-- Premium Dashboard Mode Toggle Style -->
+        <Style x:Key="Style.DashboardModeToggle" TargetType="ToggleButton">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Width" Value="250" /> <!-- Slightly wider to accommodate track arrows -->
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <!-- Outer Track (Grey/Dark Pill) -->
+                            <Border x:Name="Track" 
+                                    Background="#F1F5F9" 
+                                    CornerRadius="22" 
+                                    BorderBrush="#CBD5E1" 
+                                    BorderThickness="1.5">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusinessMode}" Value="True">
+                                                <Setter Property="Background" Value="#1E293B"/>
+                                                <Setter Property="BorderBrush" Value="#475569"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+
+                            <!-- Stationary Arrows (In the Track Area) -->
+                            <Grid Margin="16,0">
+                                <!-- Back Arrow (Visible on the left when thumb is on the right) -->
+                                <Path x:Name="BackArrow" 
+                                      Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" 
+                                      Fill="White" 
+                                      Width="14" Height="14" Stretch="Uniform" 
+                                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                                      Opacity="0" Visibility="Visible"/>
+                                      
+                                <!-- Forward Arrow (Visible on the right when thumb is on the left) -->
+                                <Path x:Name="ForwardArrow" 
+                                      Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" 
+                                      Fill="{DynamicResource FacilityAccentBrush}" 
+                                      Width="14" Height="14" Stretch="Uniform" 
+                                      HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      Opacity="1" Visibility="Visible"/>
+                            </Grid>
+
+                            <!-- Animated Thumb (The Moving Pill) -->
+                            <Border x:Name="Thumb" 
+                                    Background="White" 
+                                    CornerRadius="19" 
+                                    Margin="3" 
+                                    HorizontalAlignment="Left"
+                                    Width="184"
+                                    Effect="{StaticResource Shadow.Level2}">
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="ThumbTransform" X="0" />
+                                </Border.RenderTransform>
+                                <TextBlock x:Name="ThumbText" 
+                                           Text="Switch to Business View" 
+                                           FontWeight="Bold" 
+                                           FontSize="11" 
+                                           Foreground="#1E293B" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                 <Setter TargetName="ThumbText" Property="Text" Value="Switch to Operations View" />
+                                 <Setter TargetName="ThumbText" Property="Foreground" Value="White" />
+                                 <Setter TargetName="Thumb" Property="Background" Value="{DynamicResource FacilityAccentBrush}" />
+                                 <Trigger.EnterActions>
+                                     <BeginStoryboard>
+                                         <Storyboard>
+                                             <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                              Storyboard.TargetProperty="X" 
+                                                              To="60" Duration="0:0:0.35">
+                                                 <DoubleAnimation.EasingFunction>
+                                                     <QuarticEase EasingMode="EaseInOut" />
+                                                 </DoubleAnimation.EasingFunction>
+                                             </DoubleAnimation>
+                                             <DoubleAnimation Storyboard.TargetName="ForwardArrow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15" />
+                                             <DoubleAnimation Storyboard.TargetName="BackArrow" Storyboard.TargetProperty="Opacity" To="1" BeginTime="0:0:0.2" Duration="0:0:0.15" />
+                                         </Storyboard>
+                                     </BeginStoryboard>
+                                 </Trigger.EnterActions>
+                                 <Trigger.ExitActions>
+                                     <BeginStoryboard>
+                                         <Storyboard>
+                                             <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                              Storyboard.TargetProperty="X" 
+                                                              To="0" Duration="0:0:0.35">
+                                                 <DoubleAnimation.EasingFunction>
+                                                     <QuarticEase EasingMode="EaseInOut" />
+                                                 </DoubleAnimation.EasingFunction>
+                                             </DoubleAnimation>
+                                             <DoubleAnimation Storyboard.TargetName="BackArrow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15" />
+                                             <DoubleAnimation Storyboard.TargetName="ForwardArrow" Storyboard.TargetProperty="Opacity" To="1" BeginTime="0:0:0.2" Duration="0:0:0.15" />
+                                         </Storyboard>
+                                     </BeginStoryboard>
+                                 </Trigger.ExitActions>
+                            </Trigger>
+                            
+                            <Trigger Property="IsMouseOver" Value="True">
+                                 <Setter TargetName="Thumb" Property="Effect" Value="{StaticResource Shadow.Level3}" />
+                            </Trigger>
+
+                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="0" VerticalAlignment="Stretch">
@@ -62,60 +183,10 @@
                 <StackPanel Orientation="Horizontal">
                     
                     <!-- Switch View Button -->
-                    <Button Command="{Binding ToggleDashboardModeCommand}" Width="160" Height="44" Margin="0,0,12,0" Cursor="Hand">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                                    BorderThickness="{TemplateBinding BorderThickness}" 
-                                                    CornerRadius="12">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                                                    <Setter Property="Effect" Value="{StaticResource Shadow.Level2}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <Path x:Name="ActionIcon" Fill="{DynamicResource TextPrimaryBrush}" Width="14" Height="14" Margin="0,0,10,0" Stretch="Uniform">
-                                <Path.Style>
-                                    <Style TargetType="Path">
-                                        <Setter Property="Data" Value="{DynamicResource IconFinance}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsBusinessMode}" Value="True">
-                                                <Setter Property="Data" Value="{DynamicResource IconRunner}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Path.Style>
-                            </Path>
-                            <TextBlock FontSize="13" FontWeight="SemiBold">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="{DynamicResource Terminology.Dashboard.Action.BusinessView}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsBusinessMode}" Value="True">
-                                                <Setter Property="Text" Value="{DynamicResource Terminology.Dashboard.Action.OperationsView}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Button>
+                    <!-- Premium View Switcher Toggle -->
+                    <ToggleButton IsChecked="{Binding IsBusinessMode}"
+                                  Style="{StaticResource Style.DashboardModeToggle}"
+                                  Margin="0,0,12,0"/>
 
 
                 </StackPanel>
@@ -788,44 +859,31 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Right: Month Navigation Pills -->
-                            <ItemsControl Grid.Column="1" ItemsSource="{Binding MonthFilters}" VerticalAlignment="Center">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding DataContext.SelectMonthFilterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"
-                                                Cursor="Hand"
-                                                Margin="4,0"
-                                                VerticalAlignment="Center">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
-                                                    <Setter Property="Padding" Value="14,4"/>
-                                                    <Setter Property="Height" Value="26"/>
-                                                    <Setter Property="FontSize" Value="11"/>
-                                                    <Setter Property="Background" Value="Transparent"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-                                                    <Setter Property="BorderThickness" Value="1"/>
-                                                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
-                                                            <Setter Property="Foreground" Value="White"/>
-                                                            <Setter Property="FontWeight" Value="SemiBold"/>
-                                                            <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                            <TextBlock Text="{Binding Name}"/>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <!-- Right: Month Navigation (Chevron Pattern) -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Command="{Binding PreviousRevenueTrendMonthCommand}" 
+                                        Cursor="Hand" 
+                                        Style="{StaticResource IconButtonStyle}" 
+                                        Padding="6,4">
+                                    <Path Data="{StaticResource IconChevronLeft}" 
+                                          Fill="{DynamicResource TextSecondaryBrush}" 
+                                          Width="8" Height="12" Stretch="Uniform"/>
+                                </Button>
+                                
+                                <TextBlock Text="{Binding FormattedRevenueTrendMonth}" 
+                                           FontWeight="SemiBold" FontSize="12" 
+                                           Margin="12,0" VerticalAlignment="Center" 
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                
+                                <Button Command="{Binding NextRevenueTrendMonthCommand}" 
+                                        Cursor="Hand" 
+                                        Style="{StaticResource IconButtonStyle}" 
+                                        Padding="6,4">
+                                    <Path Data="{StaticResource IconChevronRight}" 
+                                          Fill="{DynamicResource TextSecondaryBrush}" 
+                                          Width="8" Height="12" Stretch="Uniform"/>
+                                </Button>
+                            </StackPanel>
                         </Grid>
 
                         <!-- Chart Content -->

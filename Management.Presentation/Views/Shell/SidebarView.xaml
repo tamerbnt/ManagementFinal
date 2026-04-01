@@ -131,9 +131,9 @@
                         </Border>
  
                          <TextBlock Text="luxurya" 
-                                    FontWeight="Bold" 
+                                    FontWeight="ExtraBold" 
                                     Foreground="{DynamicResource Brush.Neutral.White}" 
-                                    FontSize="18"
+                                    FontSize="20"
                                     HorizontalAlignment="Center" 
                                     Margin="0,4,0,0"
                                     FontFamily="Segoe UI Variable Display, Segoe UI"/>
@@ -469,7 +469,7 @@
                     </TextBlock>
                     <TextBlock Text="from scratch" 
                                FontSize="16" 
-                               FontWeight="Bold" 
+                               FontWeight="ExtraBold" 
                                Foreground="{DynamicResource Brush.Neutral.White}" 
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
