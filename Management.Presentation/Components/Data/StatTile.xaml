@@ -29,7 +29,6 @@
                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
                     <Border Width="24" Height="24" CornerRadius="8" Background="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
                         <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                              Fill="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                               Stroke="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
                               StrokeThickness="1.5"
                               StrokeLineJoin="Round"

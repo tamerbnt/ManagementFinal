@@ -188,6 +188,9 @@ namespace Management.Presentation.ViewModels.GymHome
 
             // Initial load - Clock only, stats deferred to Loaded event
             StartClock();
+
+            // Guard the initial visual state for immediate Skeleton display
+            IsLoading = true;
         }
 
 

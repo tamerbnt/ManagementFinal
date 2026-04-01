@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Restaurant"
              xmlns:shared="clr-namespace:Management.Presentation.ViewModels.Shared"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Restaurant"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1440">
 
@@ -15,7 +16,11 @@
                 <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <Grid Margin="0">
+        <!-- THE SKELETON LOADER -->
+        <local:RestaurantHomeSkeleton Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!-- THE ACTUAL CONTENT -->
+        <Grid Margin="0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="32"/>

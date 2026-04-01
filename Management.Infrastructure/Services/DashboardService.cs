@@ -68,7 +68,7 @@ namespace Management.Infrastructure.Services
             var facilityId = overrideFacilityId ?? _facilityContext.CurrentFacilityId;
             var localToday = DateTime.Now.Date;
 
-            var context = new Dashboard.DashboardContext
+            var context = new Management.Infrastructure.Services.Dashboard.DashboardContext
             {
                 FacilityId = facilityId,
                 TenantId = _tenantService.GetTenantId(),
@@ -86,8 +86,6 @@ namespace Management.Infrastructure.Services
 
             var dto = new DashboardSummaryDto();
 
-            // Run all applicable aggregators concurrently. Thread-safety is guaranteed because
-            // each aggregator writes to a distinct, non-overlapping set of DTO properties.
             var tasks = _aggregators
                 .Where(a => a.CanHandle(context))
                 .Select(a => RunAggregatorSafeAsync(a, dto, context));
@@ -111,16 +109,10 @@ namespace Management.Infrastructure.Services
 
         public async Task<List<PlanRevenueDto>> GetRevenueByPlanAsync(Guid facilityId, DateTime start, DateTime end)
         {
-            // Fix: UI passes Local Time. Convert to UTC for DB query.
             var utcStart = start.Kind == DateTimeKind.Utc ? start : start.ToUniversalTime();
             var utcEnd = end.Kind == DateTimeKind.Utc ? end : end.ToUniversalTime();
 
             var sales = await _saleRepository.GetByDateRangeAsync(facilityId, utcStart, utcEnd);
-            
-            // Category-based routing: the SaleCategory is set authoritatively at point-of-sale.
-            // Membership = scheduled plan / POS plan purchase
-            // WalkIn = walk-in entry
-            // Service = salon appointment completion (included in "Plan" revenue for Salons)
             var isSalon = (await GetFacilityTypeByIdAsync(facilityId)) == Management.Domain.Enums.FacilityType.Salon;
             var planSales = sales
                 .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Membership || 
@@ -143,13 +135,8 @@ namespace Management.Infrastructure.Services
         public async Task<List<int>> GetWeeklyMemberGrowthAsync(Guid facilityId, int year, int month)
         {
             var startOfMonth = new DateTime(year, month, 1);
-            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1);
-
-            // UTC boundaries for the month
             var utcStart = startOfMonth.ToUniversalTime();
             var utcEnd = startOfMonth.AddMonths(1).ToUniversalTime();
-
-            _logger.LogInformation("[Dashboard] Fetching weekly growth for {FacilityId} at {Year}-{Month}", facilityId, year, month);
 
             var registrationDays = await _dbContext.Members
                 .AsNoTracking()
@@ -162,26 +149,19 @@ namespace Management.Infrastructure.Services
                 .ToListAsync();
 
             var counts = new List<int>();
-            
-            // Segment 1: Day 1-7
             counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 1 && d.ToLocalTime().Day <= 7));
-            // Segment 2: Day 8-14
             counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 8 && d.ToLocalTime().Day <= 14));
-            // Segment 3: Day 15-21
             counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 15 && d.ToLocalTime().Day <= 21));
-            // Segment 4: Day 22 onwards
             counts.Add(registrationDays.Count(d => d.ToLocalTime().Day >= 22));
 
             return counts;
         }
 
         public async Task<List<PlanRevenueDto>> GetRevenueByMenuItemAsync(Guid facilityId, DateTime start, DateTime end)
-
         {
             var utcStart = start.Kind == DateTimeKind.Utc ? start : start.ToUniversalTime();
             var utcEnd = end.Kind == DateTimeKind.Utc ? end : end.ToUniversalTime();
 
-            // Aggregating quantity and revenue per menu item from completed orders
             var orderItems = await _dbContext.RestaurantOrders
                 .AsNoTracking()
                 .Where(o => o.FacilityId == facilityId && 
@@ -198,7 +178,7 @@ namespace Management.Infrastructure.Services
                 {
                     PlanName = g.Key,
                     Revenue = g.Sum(i => (decimal)i.Price * i.Quantity),
-                    Count = g.Sum(i => i.Quantity) // Treat "Count" as number of items sold
+                    Count = g.Sum(i => i.Quantity)
                 })
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
@@ -207,8 +187,6 @@ namespace Management.Infrastructure.Services
         public async Task<List<PlanRevenueDto>> GetRevenueByProductAsync(Guid facilityId, DateTime start, DateTime end)
         {
             var sales = await _saleRepository.GetByDateRangeAsync(facilityId, start, end);
-            
-            // Category-based routing: Product = retail checkout; Service = non-plan salon work
             var productSales = sales
                 .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Product || 
                             s.Category == Management.Domain.Enums.SaleCategory.Service)
@@ -231,7 +209,6 @@ namespace Management.Infrastructure.Services
             var utcStart = monthStart.Kind == DateTimeKind.Utc ? monthStart : monthStart.ToUniversalTime();
             var utcEnd = monthEnd.Kind == DateTimeKind.Utc ? monthEnd : monthEnd.ToUniversalTime();
 
-            // Fetch from Sales table (Memberships, Products, Walk-ins)
             var salesData = await _dbContext.Sales
                 .AsNoTracking()
                 .IgnoreQueryFilters()
@@ -240,7 +217,6 @@ namespace Management.Infrastructure.Services
                 .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
                 .ToListAsync();
 
-            // Fetch from RestaurantOrders (for Restaurant facilities)
             var restaurantData = await _dbContext.RestaurantOrders
                 .AsNoTracking()
                 .Where(o => o.FacilityId == facilityId &&
@@ -269,37 +245,31 @@ namespace Management.Infrastructure.Services
             return trend;
         }
 
-        // NEW: Salon specific trend for Occupancy Chart (Active Appointments per Hour)
         public async Task<List<DateTimePoint>> GetSalonOccupancyTrendAsync(Guid facilityId)
         {
              var today = DateTime.Today;
              var utcStart = today.ToUniversalTime();
              var utcEnd = today.AddDays(1).ToUniversalTime();
 
-             // Use Reservations
              var reservations = await _reservationRepository.GetByDateRangeAsync(utcStart, utcEnd, facilityId);
              var trend = new List<DateTimePoint>();
 
-             // Calculate active reservations for each hour of the day (0-23)
-             for (int i = 8; i <= 22; i++) // Shop hours 8am-10pm typically
+             for (int i = 8; i <= 22; i++)
              {
                  var timeSlot = today.AddHours(i);
                  var utcTimeSlot = timeSlot.ToUniversalTime();
-                 // Count reservations that overlap with this hour
                  int count = reservations.Count(a => a.StartTime <= utcTimeSlot && a.EndTime > utcTimeSlot && a.Status != "Cancelled");
                  trend.Add(new DateTimePoint(timeSlot, count));
              }
              return trend;
         }
 
-        // NEW: Gym hourly check-in trend for the Occupancy Chart (check-ins per hour for a specific date)
         public async Task<List<DateTimePoint>> GetGymOccupancyTrendAsync(Guid facilityId, DateTime? date = null)
         {
             var targetDate = (date ?? DateTime.Today).Date;
             var utcStart = targetDate.ToUniversalTime();
             var utcEnd = targetDate.AddDays(1).ToUniversalTime();
  
-            // Composite Index: { FacilityId, Timestamp }
             var events = await _accessEventRepository.GetByDateRangeAsync(facilityId, utcStart, utcEnd);
             var granted = events.Where(e => e.IsAccessGranted).ToList();
  
@@ -310,14 +280,12 @@ namespace Management.Infrastructure.Services
                 var utcHourSlot = hourSlot.ToUniversalTime();
                 var utcHourEnd = utcHourSlot.AddHours(1);
  
-                // Grouping by local hour for visual display
                 int count = granted.Count(e => e.Timestamp >= utcHourSlot && e.Timestamp < utcHourEnd);
                 trend.Add(new DateTimePoint(hourSlot, count));
             }
             return trend;
         }
         
-        // NEW: Restaurant occupancy trend (Covers/PartySize per hour for today)
         public async Task<List<DateTimePoint>> GetRestaurantOccupancyTrendAsync(Guid facilityId)
         {
             var today = DateTime.Today;
@@ -336,7 +304,6 @@ namespace Management.Infrastructure.Services
                 var utcHourSlot = hourSlot.ToUniversalTime();
                 var utcHourEnd = utcHourSlot.AddHours(1);
 
-                // For restaurants, "Occupancy" is sum of party sizes in orders created/active this hour
                 int count = orders
                     .Where(o => o.CreatedAt >= utcHourSlot && o.CreatedAt < utcHourEnd)
                     .Sum(o => o.PartySize);
@@ -346,12 +313,8 @@ namespace Management.Infrastructure.Services
             return trend;
         }
 
-
         public async Task<List<StaffPerformanceDto>> GetStaffPerformanceAsync(Guid facilityId, DateTime start, DateTime end)
         {
-            // Use Appointments for Staff Performance (confirmed as source of truth for Salon)
-            // Senior Fix: We use the times as provided (Local for Salon, UTC for others).
-            // We also add IgnoreQueryFilters() to the direct DB join to ensure data matches even if context is shifting.
             var completed = await _dbContext.Appointments
                 .AsNoTracking()
                 .IgnoreQueryFilters()
@@ -361,7 +324,7 @@ namespace Management.Infrastructure.Services
                             a.StartTime >= start && a.StartTime < end && 
                             a.Status == AppointmentStatus.Completed && 
                             a.StaffId != Guid.Empty)
-                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId && (s.TenantId == _tenantService.GetTenantId() || s.TenantId == Guid.Empty)), 
+                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId), 
                       a => a.StaffId, 
                       s => s.Id, 
                       (a, s) => new { StaffId = a.StaffId, StaffName = s.FullName, ServiceId = a.ServiceId })
@@ -370,7 +333,6 @@ namespace Management.Infrastructure.Services
             if (!completed.Any())
                 return new List<StaffPerformanceDto>();
 
-            // Calculate revenue from SalonServices price
             var staffPerformance = new List<StaffPerformanceDto>();
             var groupedByStaff = completed.GroupBy(x => x.StaffName);
 
@@ -383,7 +345,7 @@ namespace Management.Infrastructure.Services
                     {
                         var service = await _dbContext.SalonServices
                             .IgnoreQueryFilters()
-                            .FirstOrDefaultAsync(s => s.Id == item.ServiceId && (s.TenantId == _tenantService.GetTenantId() || s.TenantId == Guid.Empty));
+                            .FirstOrDefaultAsync(s => s.Id == item.ServiceId);
                         if (service != null) totalRevenue += service.BasePrice;
                     }
                 }
@@ -404,7 +366,6 @@ namespace Management.Infrastructure.Services
 
         private async Task<Management.Domain.Enums.FacilityType> GetFacilityTypeByIdAsync(Guid facilityId)
         {
-            // Fallback for aggregators when override is used
             if (_facilityContext.CurrentFacilityId == facilityId) return _facilityContext.CurrentFacility;
             
             try
@@ -412,20 +373,206 @@ namespace Management.Infrastructure.Services
                 var facility = await _dbContext.Facilities
                     .AsNoTracking()
                     .IgnoreQueryFilters()
-                    .FirstOrDefaultAsync(f => f.Id == facilityId && (f.TenantId == _tenantService.GetTenantId() || f.TenantId == Guid.Empty));
+                    .FirstOrDefaultAsync(f => f.Id == facilityId);
                 
-                if (facility != null)
-                {
-                    return facility.Type;
-                }
+                if (facility != null) return facility.Type;
             }
             catch (Exception ex)
             {
                 _logger?.LogWarning(ex, "[DashboardService] Failed to resolve facility type for {Id}", facilityId);
             }
-
-            // Default to General if we can't be sure
             return Management.Domain.Enums.FacilityType.General;
+        }
+
+        public async Task<RevenueHistoryDto> GetRevenueHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var result = new RevenueHistoryDto();
+            var facilityType = await GetFacilityTypeByIdAsync(facilityId);
+            var isSalon = facilityType == Management.Domain.Enums.FacilityType.Salon;
+
+            // Senior Refactor: Use LEFT JOIN logic (Select into a shape with nullable Member)
+            // This ensures products bought by guests are included.
+            var baseQuery = _dbContext.Sales
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .Where(s => s.FacilityId == facilityId && !s.IsDeleted);
+
+            if (startDate.HasValue) baseQuery = baseQuery.Where(s => s.Timestamp >= startDate.Value);
+            if (endDate.HasValue) baseQuery = baseQuery.Where(s => s.Timestamp <= endDate.Value);
+
+            var revenueData = await (from s in baseQuery
+                                    join m in _dbContext.Members.AsNoTracking().IgnoreQueryFilters() on s.MemberId equals m.Id into sm
+                                    from m in sm.DefaultIfEmpty()
+                                    select new 
+                                    { 
+                                        Amount = s.TotalAmount.Amount, 
+                                        s.CapturedLabel, 
+                                        s.Category, 
+                                        Gender = (Management.Domain.Enums.Gender?)m.Gender, 
+                                        s.Timestamp 
+                                    })
+                                    .ToListAsync();
+
+            result.AnalysisPeriod = GetPeriodLabel(startDate, endDate);
+            
+            // 1. Calculate Monthly Highlights (Always for current calendar month)
+            var utcNow = DateTime.UtcNow;
+            var monthStart = new DateTime(utcNow.Year, utcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            
+            var monthData = await (from s in _dbContext.Sales.AsNoTracking().IgnoreQueryFilters()
+                                  where s.FacilityId == facilityId && !s.IsDeleted && s.Timestamp >= monthStart
+                                  select new { Amount = s.TotalAmount.Amount, s.CapturedLabel, s.Category })
+                                  .ToListAsync();
+
+            result.BestPlanOfMonth = monthData
+                .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Membership || 
+                            s.Category == Management.Domain.Enums.SaleCategory.WalkIn ||
+                            (isSalon && s.Category == Management.Domain.Enums.SaleCategory.Service))
+                .GroupBy(s => string.IsNullOrEmpty(s.CapturedLabel) ? "Unknown Plan" : s.CapturedLabel)
+                .Select(g => new PlanRevenueDto { PlanName = g.Key, Revenue = g.Sum(s => s.Amount), Count = g.Count() })
+                .OrderByDescending(x => x.Revenue)
+                .FirstOrDefault() ?? new PlanRevenueDto { PlanName = "No plans sold yet" };
+
+            result.BestProductOfMonth = monthData
+                .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Product)
+                .GroupBy(s => string.IsNullOrEmpty(s.CapturedLabel) ? "Retail Product" : s.CapturedLabel)
+                .Select(g => new PopularItemDto { ItemName = g.Key, Revenue = g.Sum(s => s.Amount), Quantity = g.Count() })
+                .OrderByDescending(x => x.Revenue)
+                .FirstOrDefault() ?? new PopularItemDto { ItemName = "No products sold yet" };
+
+            // 2. Demographic Metadata (Filtered by Selected Period)
+            result.GenderSplit = new GenderSplitDto
+            {
+                MaleRevenue = revenueData.Where(x => x.Gender == Management.Domain.Enums.Gender.Male).Sum(x => x.Amount),
+                FemaleRevenue = revenueData.Where(x => x.Gender == Management.Domain.Enums.Gender.Female).Sum(x => x.Amount),
+                MaleCount = revenueData.Where(x => x.Gender == Management.Domain.Enums.Gender.Male).Count(),
+                FemaleCount = revenueData.Where(x => x.Gender == Management.Domain.Enums.Gender.Female).Count()
+            };
+
+            result.TopPlans = revenueData
+                .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Membership || 
+                            s.Category == Management.Domain.Enums.SaleCategory.WalkIn ||
+                            (isSalon && s.Category == Management.Domain.Enums.SaleCategory.Service))
+                .GroupBy(s => string.IsNullOrEmpty(s.CapturedLabel) ? "Unknown Plan/Service" : s.CapturedLabel)
+                .Select(g => new PlanRevenueDto
+                {
+                    PlanName = g.Key,
+                    Revenue = g.Sum(s => s.Amount),
+                    Count = g.Count()
+                })
+                .OrderByDescending(x => x.Revenue)
+                .Take(10)
+                .ToList();
+
+            result.TopProducts = revenueData
+                .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Product)
+                .GroupBy(s => string.IsNullOrEmpty(s.CapturedLabel) ? "Retail Product" : s.CapturedLabel)
+                .Select(g => new PopularItemDto
+                {
+                    ItemName = g.Key,
+                    Revenue = g.Sum(s => s.Amount),
+                    Quantity = g.Count()
+                })
+                .OrderByDescending(x => x.Revenue)
+                .Take(10)
+                .ToList();
+
+            // Total Days calculation for the analyzed period
+            var minDate = revenueData.Any() ? revenueData.Min(x => x.Timestamp) : monthStart;
+            var maxDate = revenueData.Any() ? revenueData.Max(x => x.Timestamp) : DateTime.UtcNow;
+            result.TotalDaysAnalyzed = (int)Math.Max(1, (maxDate - minDate).TotalDays);
+
+            return result;
+        }
+
+        public async Task<OccupancyHistoryDto> GetOccupancyHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var result = new OccupancyHistoryDto();
+            var type = await GetFacilityTypeByIdAsync(facilityId);
+            
+            var hourlyCounts = new Dictionary<int, List<int>>();
+            for (int i = 0; i < 24; i++) hourlyCounts[i] = new List<int>();
+
+            DateTime? firstDataPoint = null;
+
+            if (type == Management.Domain.Enums.FacilityType.Gym)
+            {
+                var query = _dbContext.AccessEvents.AsNoTracking().IgnoreQueryFilters().Where(e => e.FacilityId == facilityId && e.IsAccessGranted && !e.IsDeleted);
+                if (startDate.HasValue) query = query.Where(e => e.Timestamp >= startDate.Value);
+                if (endDate.HasValue) query = query.Where(e => e.Timestamp <= endDate.Value);
+
+                var events = await query.Select(e => e.Timestamp).ToListAsync();
+                if (events.Any()) firstDataPoint = events.Min();
+
+                foreach (var ts in events)
+                {
+                    hourlyCounts[ts.ToLocalTime().Hour].Add(1);
+                }
+            }
+            else if (type == Management.Domain.Enums.FacilityType.Salon)
+            {
+                var query = _dbContext.Reservations.AsNoTracking().IgnoreQueryFilters().Where(r => r.FacilityId == facilityId && r.Status != "Cancelled" && !r.IsDeleted);
+                if (startDate.HasValue) query = query.Where(r => r.StartTime >= startDate.Value);
+                if (endDate.HasValue) query = query.Where(r => r.StartTime <= endDate.Value);
+
+                var reservations = await query.Select(r => new { r.StartTime, r.EndTime }).ToListAsync();
+                if (reservations.Any()) firstDataPoint = reservations.Min(x => x.StartTime);
+
+                foreach (var res in reservations)
+                {
+                    var start = res.StartTime.ToLocalTime();
+                    var end = res.EndTime.ToLocalTime();
+                    for (int h = start.Hour; h <= end.Hour && h < 24; h++)
+                    {
+                        hourlyCounts[h].Add(1);
+                    }
+                }
+            }
+            else if (type == Management.Domain.Enums.FacilityType.Restaurant)
+            {
+                var query = _dbContext.RestaurantOrders.AsNoTracking().IgnoreQueryFilters().Where(o => o.FacilityId == facilityId && !o.IsDeleted);
+                if (startDate.HasValue) query = query.Where(o => o.CreatedAt >= startDate.Value);
+                if (endDate.HasValue) query = query.Where(o => o.CreatedAt <= endDate.Value);
+
+                var orders = await query.Select(o => new { o.CreatedAt, o.PartySize }).ToListAsync();
+                if (orders.Any()) firstDataPoint = orders.Min(x => x.CreatedAt);
+
+                foreach (var order in orders)
+                {
+                    hourlyCounts[order.CreatedAt.ToLocalTime().Hour].Add(order.PartySize);
+                }
+            }
+
+            // Senior Refactor: Facility-Aware Total Days detection
+            double totalDays = 1;
+            if (firstDataPoint.HasValue)
+            {
+                var end = endDate ?? DateTime.UtcNow;
+                totalDays = Math.Max(1, (end - firstDataPoint.Value).TotalDays);
+            }
+            
+            result.TotalDaysAnalyzed = (int)Math.Max(1, totalDays);
+            result.AnalysisPeriod = GetPeriodLabel(startDate, endDate);
+
+            result.HourlyAverages = hourlyCounts
+                .Select(kvp => new HourlyOccupancyDto
+                {
+                    Hour = kvp.Key,
+                    AverageOccupancy = Math.Round(kvp.Value.Count / totalDays, 1)
+                })
+                .OrderBy(x => x.Hour)
+                .ToList();
+
+            result.PeakHour = result.HourlyAverages.OrderByDescending(x => x.AverageOccupancy).FirstOrDefault()?.Hour ?? 0;
+            return result;
+        }
+
+        private string GetPeriodLabel(DateTime? start, DateTime? end)
+        {
+            if (!start.HasValue && !end.HasValue) return "Lifetime Analysis";
+            if (start.HasValue && !end.HasValue) return $"Since {start.Value:MMM dd, yyyy}";
+            if (!start.HasValue && end.HasValue) return $"Up to {end.Value:MMM dd, yyyy}";
+            return $"{start.Value:MMM dd} - {end.Value:MMM dd, yyyy}";
         }
     }
 }

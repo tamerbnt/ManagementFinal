@@ -19,5 +19,8 @@ namespace Management.Presentation.Services
 
         // Return to Login (special case alias for NavigateToAsync<LoginViewModel>)
         Task NavigateToLoginAsync();
+        
+        // Splash/Onboarding
+        Task NavigateToSplashAsync();
     }
 }

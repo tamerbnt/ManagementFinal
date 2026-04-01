@@ -25,6 +25,9 @@ namespace Management.Presentation.Views.Auth
             }
             if (e.NewValue is INotifyPropertyChanged newVm)
             {
+                Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new System.Uri("../../Resources/Converters.xaml", System.UriKind.Relative) });
+                Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new System.Uri("../../Resources/Branding.Gym.xaml", System.UriKind.Relative) });
+                
                 newVm.PropertyChanged += ViewModel_PropertyChanged;
                 UpdateCardProportions();
             }
@@ -46,15 +49,51 @@ namespace Management.Presentation.Views.Auth
             if (propInfo != null)
             {
                 var currentView = propInfo.GetValue(DataContext);
-                if (currentView is LicenseEntryViewModel)
+                
+                if (currentView is ViewModels.Auth.SplashOnboardingViewModel)
+                {
+                    // Ensure full screen for splash
+                    CardBorder.Width = 980;
+                    CardBorder.Margin = new Thickness(0);
+                    CardBorder.HorizontalAlignment = HorizontalAlignment.Stretch;
+                }
+                else if (currentView is LoginViewModel)
+                {
+                    // Animate transition to Login card
+                    AnimateToLogin();
+                }
+                else if (currentView is LicenseEntryViewModel)
                 {
                     CardBorder.VerticalAlignment = VerticalAlignment.Center;
+                    CardBorder.Width = 450;
+                    CardBorder.HorizontalAlignment = HorizontalAlignment.Left;
+                    CardBorder.Margin = new Thickness(50, 50, 0, 50);
                 }
                 else
                 {
                     CardBorder.VerticalAlignment = VerticalAlignment.Stretch;
+                    CardBorder.Width = 450;
+                    CardBorder.HorizontalAlignment = HorizontalAlignment.Left;
+                    CardBorder.Margin = new Thickness(50, 50, 0, 50);
                 }
             }
+        }
+
+        private void AnimateToLogin()
+        {
+            if (CardBorder.Width == 450) return; // Already there
+
+            var duration = new Duration(System.TimeSpan.FromSeconds(0.8));
+            var easing = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
+
+            var widthAnim = new System.Windows.Media.Animation.DoubleAnimation(450, duration) { EasingFunction = easing };
+            var marginAnim = new System.Windows.Media.Animation.ThicknessAnimation(new Thickness(50, 50, 0, 50), duration) { EasingFunction = easing };
+            
+            // Lock alignment to Left before animating width down from full
+            CardBorder.HorizontalAlignment = HorizontalAlignment.Left;
+            
+            CardBorder.BeginAnimation(WidthProperty, widthAnim);
+            CardBorder.BeginAnimation(MarginProperty, marginAnim);
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

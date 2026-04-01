@@ -11,6 +11,7 @@
     <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
     <converters:EqualityConverter x:Key="EqualityConverter"/>
     <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
+    <converters:IsGreaterThanConverter x:Key="IsGreaterThanConverter"/>
     <converters:StringMatchToVisibilityConverter x:Key="StringMatchToVisibilityConverter"/>
     <converters:StringMatchMultiToVisibilityConverter x:Key="StringMatchMultiToVisibilityConverter"/>
     <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
@@ -76,5 +77,8 @@
     <!-- Group 6: Floor Plan -->
     <converters:TableStatusToBrushConverter x:Key="TableStatusToBrushConverter"/>
     <converters:TableStatusToForegroundConverter x:Key="TableStatusToForegroundConverter"/>
+
+    <!-- Group 7: Analytics -->
+    <converters:GridStarConverter x:Key="GridStarConverter"/>
 
 </ResourceDictionary>

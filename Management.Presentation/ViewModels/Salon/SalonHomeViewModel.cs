@@ -234,6 +234,9 @@ namespace Management.Presentation.ViewModels.Salon
             _salonService.AppointmentStatusChanged += OnAppointmentStatusChanged;
 
             StartClock();
+
+            // Guard for immediate shimmer visibility
+            IsLoading = true;
         }
 
         private void OnAppointmentStatusChanged(object? sender, (Guid AppointmentId, AppointmentStatus NewStatus) e)

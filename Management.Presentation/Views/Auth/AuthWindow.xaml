@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:authvm="clr-namespace:Management.Presentation.ViewModels.Auth"
         xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
         xmlns:sharedVm="clr-namespace:Management.Presentation.ViewModels.Shared"
         xmlns:sharedView="clr-namespace:Management.Presentation.Views.Shared"
@@ -34,11 +35,8 @@
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
                 <auth:LoginView/>
             </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:FacilityOnboardingViewModel}">
-                <auth:FacilityOnboardingView/>
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type viewmodels:EmailConfirmationViewModel}">
-                <auth:EmailConfirmationView/>
+            <DataTemplate DataType="{x:Type authvm:SplashOnboardingViewModel}">
+                <auth:SplashOnboardingView/>
             </DataTemplate>
             <DataTemplate DataType="{x:Type sharedVm:ConfirmationModalViewModel}">
                 <sharedView:ConfirmationModal/>
@@ -213,15 +211,16 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
-                 LAYER 3 — FLOATING WHITE FORM CARD (LEFT)
+                 LAYER 3 — MAIN CONTENT CARD
+                 Starts full-screen for Splash, animates to 450px for Login.
                  ══════════════════════════════════════════════════════ -->
             <Border x:Name="CardBorder"
-                    Width="450"
-                    HorizontalAlignment="Left"
+                    Width="980"
+                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    Background="{StaticResource SurfaceBg}"
-                    CornerRadius="20"
-                    Margin="50,50,0,50">
+                    Background="White"
+                    CornerRadius="24"
+                    Margin="0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="60" ShadowDepth="10" Opacity="0.13"
                                       Direction="270" Color="#000000"/>

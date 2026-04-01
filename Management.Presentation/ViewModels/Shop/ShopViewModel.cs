@@ -517,6 +517,48 @@ namespace Management.Presentation.ViewModels.Shop
             return null; // If _filterAll is true or no specific filter is selected
         }
 
+        // ─── Filter change handlers ──────────────────────────────────────────────
+        // WPF RadioButton groups fire PropertyChanged TWICE per click:
+        //   (1) the previously-selected button flips to false  → guard returns early
+        //   (2) the newly-selected button flips to true        → we fire the reload
+        //
+        // IMPORTANT: We call LoadProductsAsync directly via the Dispatcher (the same
+        // pattern used by Receive()) instead of ExecuteLoadingAsync.
+        // ExecuteLoadingAsync uses a 0-ms semaphore that SILENTLY DROPS the call if
+        // the initial page load is still in-flight, making filter clicks unreliable.
+
+        partial void OnFilterAllChanged(bool value)
+        {
+            if (!value) return;
+            CurrentPage = 1;
+            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                async () => await LoadProductsAsync());
+        }
+
+        partial void OnFilterSupplementsChanged(bool value)
+        {
+            if (!value) return;
+            CurrentPage = 1;
+            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                async () => await LoadProductsAsync());
+        }
+
+        partial void OnFilterApparelChanged(bool value)
+        {
+            if (!value) return;
+            CurrentPage = 1;
+            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                async () => await LoadProductsAsync());
+        }
+
+        partial void OnFilterEquipmentChanged(bool value)
+        {
+            if (!value) return;
+            CurrentPage = 1;
+            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(
+                async () => await LoadProductsAsync());
+        }
+
         private async Task LoadProductsAsync()
         {
             await LoadProductsAsync(false);

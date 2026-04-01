@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Management.Domain.Services;
+using Management.Application.Interfaces.App;
 using Management.Infrastructure.Integrations.Supabase.Models;
 
 namespace Management.Infrastructure.Services

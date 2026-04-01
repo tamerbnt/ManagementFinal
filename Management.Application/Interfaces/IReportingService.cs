@@ -14,5 +14,7 @@ namespace Management.Application.Interfaces
         // Compatibility for Dashboard
         Task<DailyReportDto> GetDailyReportDataAsync(Guid facilityId, DateTime date);
         Task<string> GenerateDailyPdfReportAsync(DailyReportDto data);
+        Task<byte[]> GenerateRevenueHistoryPdfAsync(RevenueHistoryDto data, string facilityName);
+        Task<byte[]> GenerateOccupancyHistoryPdfAsync(OccupancyHistoryDto data, string facilityName);
     }
 }

@@ -335,6 +335,128 @@ namespace Management.Infrastructure.Services
             
             return filePath;
         }
+
+        public async Task<byte[]> GenerateRevenueHistoryPdfAsync(RevenueHistoryDto data, string facilityName)
+        {
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.Header().Text("Revenue History Analysis").FontSize(20).Bold().FontColor("#EC4899");
+                    
+                    page.Content().PaddingVertical(10).Column(col =>
+                    {
+                        col.Spacing(20);
+                        col.Item().Text($"Facility: {facilityName} | Generated: {DateTime.Now:g}").FontSize(10);
+
+                        // Gender Split Summary
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(c => {
+                                c.Item().Text("MALE REVENUE").FontSize(8).SemiBold();
+                                c.Item().Text($"{data.GenderSplit.MaleRevenue:N2} DA ({data.GenderSplit.MalePercentage:F1}%)").FontSize(12).Bold().FontColor("#3B82F6");
+                            });
+                            row.RelativeItem().Column(c => {
+                                c.Item().Text("FEMALE REVENUE").FontSize(8).SemiBold();
+                                c.Item().Text($"{data.GenderSplit.FemaleRevenue:N2} DA ({data.GenderSplit.FemalePercentage:F1}%)").FontSize(12).Bold().FontColor("#EC4899");
+                            });
+                        });
+
+                        // Best of Month Highlights
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Background(Colors.Grey.Lighten4).Padding(10).Column(c => {
+                                c.Item().Text("TOP PLAN (MONTH)").FontSize(8).SemiBold();
+                                c.Item().Text($"{data.BestPlanOfMonth.PlanName} - {data.BestPlanOfMonth.Revenue:N2} DA").FontSize(12).Bold();
+                            });
+                            row.Spacing(10);
+                            row.RelativeItem().Background(Colors.Grey.Lighten4).Padding(10).Column(c => {
+                                c.Item().Text("TOP PRODUCT (MONTH)").FontSize(8).SemiBold();
+                                c.Item().Text($"{data.BestProductOfMonth.ItemName} - {data.BestProductOfMonth.Revenue:N2} DA").FontSize(12).Bold();
+                            });
+                        });
+                        col.Item().Text("TOP PERFORMING PLANS").FontSize(12).Bold();
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(c => {
+                                c.RelativeColumn();
+                                c.ConstantColumn(80);
+                                c.ConstantColumn(100);
+                            });
+                            table.Header(h => {
+                                h.Cell().Text("Plan Name").Bold();
+                                h.Cell().AlignRight().Text("Sales").Bold();
+                                h.Cell().AlignRight().Text("Revenue").Bold();
+                            });
+                            foreach (var plan in data.TopPlans)
+                            {
+                                table.Cell().Text(plan.PlanName);
+                                table.Cell().AlignRight().Text(plan.Count.ToString());
+                                table.Cell().AlignRight().Text(plan.Revenue.ToString("N2"));
+                            }
+                        });
+                    });
+                });
+            });
+
+            using var stream = new MemoryStream();
+            document.GeneratePdf(stream);
+            return await Task.FromResult(stream.ToArray());
+        }
+
+        public async Task<byte[]> GenerateOccupancyHistoryPdfAsync(OccupancyHistoryDto data, string facilityName)
+        {
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1, Unit.Centimetre);
+                    page.Header().Text("Occupancy History Analysis").FontSize(20).Bold().FontColor("#3B82F6");
+
+                    page.Content().PaddingVertical(10).Column(col =>
+                    {
+                        col.Spacing(20);
+                        col.Item().Text($"Facility: {facilityName} | Peak Hour: {data.PeakHourFormatted}").FontSize(12).Bold();
+
+                        // Intervals
+                        col.Item().Text("OPTIMAL OPERATION INTERVALS").FontSize(10).SemiBold();
+                        foreach (var interval in data.BestIntervals)
+                        {
+                            col.Item().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).Row(row => {
+                                row.RelativeItem().Text(interval.Name).Bold();
+                                row.RelativeItem().AlignRight().Text($"{interval.StartHour:D2}:00 - {interval.EndHour:D2}:00");
+                            });
+                        }
+
+                        // Hourly Averages List
+                        col.Item().PaddingTop(10).Text("HOURLY AVERAGE OCCUPANCY").FontSize(12).Bold();
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(c => {
+                                c.ConstantColumn(60);
+                                c.RelativeColumn();
+                            });
+                            foreach (var hour in data.HourlyAverages.Where(x => x.AverageOccupancy > 0))
+                            {
+                                table.Cell().Text($"{hour.Hour:D2}:00");
+                                table.Cell().Row(r => {
+                                    r.RelativeItem( (float)hour.AverageOccupancy).Background("#3B82F6").Height(10);
+                                    r.RelativeItem( (float)(20 - hour.AverageOccupancy)); // Simple bar chart spacing
+                                    r.ConstantColumn(40).AlignRight().Text(hour.AverageOccupancy.ToString("F1"));
+                                });
+                            }
+                        });
+                    });
+                });
+            });
+
+            using var stream = new MemoryStream();
+            document.GeneratePdf(stream);
+            return await Task.FromResult(stream.ToArray());
+        }
     }
 
     internal class MetricCard : IComponent

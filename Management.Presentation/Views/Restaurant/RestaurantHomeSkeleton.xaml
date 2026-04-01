@@ -1,0 +1,227 @@
+<UserControl x:Class="Management.Presentation.Views.Restaurant.RestaurantHomeSkeleton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="850" d:DesignWidth="1440">
+    
+    <UserControl.Resources>
+        <!-- Reusable Shimmer Container -->
+        <Style x:Key="ShimmerBlockStyle" TargetType="ContentControl">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid ClipToBounds="True">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="16" />
+                            <Border CornerRadius="16" ClipToBounds="True">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                        <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+                                        <GradientStop Color="#15FFFFFF" Offset="0.5"/>
+                                        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="ShimmerTransform" X="-800"/>
+                                </Border.RenderTransform>
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation Storyboard.TargetName="ShimmerTransform" 
+                                                                 Storyboard.TargetProperty="X" 
+                                                                 From="-800" To="1600" Duration="0:0:1.5" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+                            </Border>
+                            <ContentPresenter />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ShimmerRect" TargetType="Border">
+            <Setter Property="Background" Value="#15FFFFFF"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid VerticalAlignment="Stretch">
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- HEADER -->
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                    <Border Style="{StaticResource ShimmerRect}" Width="48" Height="48" CornerRadius="12" Margin="0,0,16,0"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <Border Style="{StaticResource ShimmerRect}" Width="250" Height="32" Margin="0,0,0,8" HorizontalAlignment="Left"/>
+                        <Border Style="{StaticResource ShimmerRect}" Width="400" Height="16" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- ZONE 1: CORE -->
+            <Grid Grid.Row="1" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- METRICS STRIP -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ContentControl Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                        <StackPanel Margin="24" VerticalAlignment="Top">
+                            <Border Style="{StaticResource ShimmerRect}" Width="100" Height="24" HorizontalAlignment="Left"/>
+                            <Border Style="{StaticResource ShimmerRect}" Width="60" Height="50" Margin="0,16,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </ContentControl>
+
+                    <ContentControl Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                        <StackPanel Margin="24,20" VerticalAlignment="Top">
+                            <Border Style="{StaticResource ShimmerRect}" Width="90" Height="24" HorizontalAlignment="Left"/>
+                            <Border Style="{StaticResource ShimmerRect}" Width="150" Height="50" Margin="0,16,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </ContentControl>
+
+                    <ContentControl Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                        <StackPanel Margin="24,20" VerticalAlignment="Top">
+                            <Border Style="{StaticResource ShimmerRect}" Width="110" Height="24" HorizontalAlignment="Left"/>
+                            <Border Style="{StaticResource ShimmerRect}" Width="60" Height="50" Margin="0,16,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </ContentControl>
+                </Grid>
+
+                <!-- RECENT ACTIVITY CORE -->
+                <ContentControl Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                    <Grid>
+                        <StackPanel Margin="20">
+                            <!-- Title -->
+                            <Border Style="{StaticResource ShimmerRect}" Width="150" Height="20" HorizontalAlignment="Left" Margin="0,0,0,24"/>
+                            
+                            <!-- Fake List Items -->
+                            <Border Background="#08FFFFFF" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="40" Height="40" CornerRadius="8" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                                    <StackPanel Margin="56,0,0,0" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource ShimmerRect}" Width="200" Height="16" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                        <Border Style="{StaticResource ShimmerRect}" Width="120" Height="12" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="50" Height="20" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="#08FFFFFF" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="40" Height="40" CornerRadius="8" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                                    <StackPanel Margin="56,0,0,0" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource ShimmerRect}" Width="180" Height="16" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                        <Border Style="{StaticResource ShimmerRect}" Width="100" Height="12" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="50" Height="20" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="#08FFFFFF" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="40" Height="40" CornerRadius="8" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                                    <StackPanel Margin="56,0,0,0" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource ShimmerRect}" Width="220" Height="16" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                        <Border Style="{StaticResource ShimmerRect}" Width="150" Height="12" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="50" Height="20" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="#08FFFFFF" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="40" Height="40" CornerRadius="8" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                                    <StackPanel Margin="56,0,0,0" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource ShimmerRect}" Width="160" Height="16" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                        <Border Style="{StaticResource ShimmerRect}" Width="110" Height="12" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="50" Height="20" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="#08FFFFFF" CornerRadius="12" Padding="14,12" Margin="0,0,0,10">
+                                <Grid>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="40" Height="40" CornerRadius="8" HorizontalAlignment="Left" Margin="0,0,16,0"/>
+                                    <StackPanel Margin="56,0,0,0" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource ShimmerRect}" Width="200" Height="16" HorizontalAlignment="Left" Margin="0,0,0,6"/>
+                                        <Border Style="{StaticResource ShimmerRect}" Width="100" Height="12" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                    <Border Style="{StaticResource ShimmerRect}" Width="50" Height="20" CornerRadius="8" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </ContentControl>
+            </Grid>
+
+            <!-- ZONE 2: RIGHT SIDEBAR -->
+            <Grid Grid.Row="1" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- QUICK ACTIONS -->
+                <ContentControl Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                    <Grid Margin="20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <!-- Header -->
+                        <Border Style="{StaticResource ShimmerRect}" Width="90" Height="14" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <!-- Grid 2x2 placeholders -->
+                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/> 
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/> 
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Row="0" Grid.Column="0" Height="110" Style="{StaticResource ShimmerRect}" Background="#08FFFFFF"/>
+                            <Border Grid.Row="0" Grid.Column="2" Height="110" Style="{StaticResource ShimmerRect}" Background="#08FFFFFF"/>
+                            <Border Grid.Row="2" Grid.Column="0" Height="110" Style="{StaticResource ShimmerRect}" Background="#08FFFFFF"/>
+                            <Border Grid.Row="2" Grid.Column="2" Height="110" Style="{StaticResource ShimmerRect}" Background="#08FFFFFF"/>
+                        </Grid>
+                    </Grid>
+                </ContentControl>
+                
+                <!-- TIME/DATE -->
+                <ContentControl Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" Style="{StaticResource ShimmerBlockStyle}">
+                    <StackPanel Margin="20">
+                        <Border Style="{StaticResource ShimmerRect}" Width="28" Height="28" CornerRadius="14" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <Border Style="{StaticResource ShimmerRect}" Width="120" Height="38" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <Border Style="{StaticResource ShimmerRect}" Width="160" Height="14" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                    </StackPanel>
+                </ContentControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

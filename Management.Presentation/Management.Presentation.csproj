@@ -24,6 +24,16 @@
     <Resource Include="Assets\from_scratch_logo.png" />
     <Resource Include="Assets\luxurya_header_logo.png" />
     <Resource Include="Resources\Images\login_illustration.png" />
+    <Resource Include="Resources\Images\onboarding_chaos.png" />
+    <Resource Include="Resources\Images\onboarding_access_control.png" />
+    <Resource Include="Resources\Images\onboarding_scheduling.png" />
+    <Resource Include="Resources\Images\onboarding_growth.png" />
+    <Resource Include="Resources\Images\onboarding_offline_sync.png" />
+    <Resource Include="Resources\Images\onboarding_chaos_v2.png" />
+    <Resource Include="Resources\Images\onboarding_access_v2.png" />
+    <Resource Include="Resources\Images\onboarding_sched_v2.png" />
+    <Resource Include="Resources\Images\onboarding_growth_v2.png" />
+    <Resource Include="Resources\Images\onboarding_sync_v2.png" />
   </ItemGroup>
 
   <ItemGroup>

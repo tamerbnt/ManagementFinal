@@ -1,5 +1,8 @@
 using MediatR;
 using System.Threading.Tasks;
+using Management.Application.Interfaces.App;
+using Management.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Management.Application.Features.Sync.Commands.ProcessSyncEvent;
 
 namespace Management.Infrastructure.Services

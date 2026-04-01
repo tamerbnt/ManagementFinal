@@ -17,6 +17,9 @@ using Management.Presentation.ViewModels.Shop;
 using Management.Presentation.ViewModels.Settings;
 using Management.Presentation.ViewModels.GymHome;
 using Management.Application.Interfaces.ViewModels;
+using Management.Application.Interfaces.App;
+using Management.Presentation.ViewModels.Auth;
+using Management.Presentation.ViewModels.Auth; // Fixed: Missing namespace for SplashOnboardingViewModel
 
 using Management.Presentation.Services.Navigation;
 using System.Linq;
@@ -95,9 +98,21 @@ namespace Management.Presentation.Services
              await NavigateInternalAsync(typeof(LoginViewModel));
         }
 
+        public async Task NavigateToSplashAsync()
+        {
+            await NavigateInternalAsync(typeof(SplashOnboardingViewModel));
+        }
+
         private async Task NavigateInternalAsync(Type viewModelType, object? parameter = null)
         {
-            await _dispatcher.InvokeAsync(async () => await ExecuteNavigation(viewModelType, parameter));
+            if (_dispatcher.CheckAccess())
+            {
+                await ExecuteNavigation(viewModelType, parameter);
+            }
+            else
+            {
+                await _dispatcher.InvokeAsync(async () => await ExecuteNavigation(viewModelType, parameter));
+            }
         }
 
         private readonly Dictionary<Type, object> _viewCache = new();

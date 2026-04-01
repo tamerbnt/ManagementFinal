@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Management.Application.DTOs
 {
@@ -56,5 +57,50 @@ namespace Management.Application.DTOs
         public int Quantity { get; set; }
         public decimal Revenue { get; set; }
         public double Percentage { get; set; }
+    }
+
+    public class RevenueHistoryDto
+    {
+        public List<PlanRevenueDto> TopPlans { get; set; } = new();
+        public List<PopularItemDto> TopProducts { get; set; } = new();
+        public GenderSplitDto GenderSplit { get; set; } = new();
+        public PlanRevenueDto BestPlanOfMonth { get; set; } = new();
+        public PopularItemDto BestProductOfMonth { get; set; } = new();
+        public string AnalysisPeriod { get; set; } = string.Empty; // e.g. "Lifetime" or "Last 30 Days"
+        public int TotalDaysAnalyzed { get; set; }
+    }
+
+    public class GenderSplitDto
+    {
+        public decimal MaleRevenue { get; set; }
+        public decimal FemaleRevenue { get; set; }
+        public int MaleCount { get; set; }
+        public int FemaleCount { get; set; }
+        public double MalePercentage => (double)(MaleRevenue + FemaleRevenue == 0 ? 0 : MaleRevenue / (MaleRevenue + FemaleRevenue) * 100);
+        public double FemalePercentage => 100 - MalePercentage;
+    }
+
+    public class OccupancyHistoryDto
+    {
+        public int PeakHour { get; set; }
+        public string PeakHourFormatted => $"{PeakHour:D2}:00";
+        public List<HourlyOccupancyDto> HourlyAverages { get; set; } = new();
+        public List<OccupancyIntervalDto> BestIntervals { get; set; } = new();
+        public string AnalysisPeriod { get; set; } = string.Empty;
+        public int TotalDaysAnalyzed { get; set; }
+    }
+
+    public class HourlyOccupancyDto
+    {
+        public int Hour { get; set; }
+        public double AverageOccupancy { get; set; }
+    }
+
+    public class OccupancyIntervalDto
+    {
+        public string Name { get; set; } = string.Empty; // e.g., "Morning Peak"
+        public int StartHour { get; set; }
+        public int EndHour { get; set; }
+        public double MaxOccupancy { get; set; }
     }
 }

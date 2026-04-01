@@ -140,7 +140,8 @@ namespace Management.Application.ViewModels.Base
         /// </summary>
         protected async Task ExecuteLoadingAsync(Func<Task> action, string? errorMsg = null)
         {
-            if (IsLoading) return; // Quick synchronous check
+            // Removed IsLoading check to allow manual 'instant shimmer' initialization
+            // in constructors. Concurrency is still handled by _loadingLock.WaitAsync(0).
 
             // If we can't get the lock immediately (0ms), it means another load is actively happening.
             // We just return instead of waiting. This prevents the "double load" when Navigation 

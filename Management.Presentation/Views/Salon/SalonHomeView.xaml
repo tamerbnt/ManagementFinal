@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Salon"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Salon"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1440">
     
@@ -31,7 +33,16 @@
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch">
-        <Grid Margin="0">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <i:InvokeCommandAction Command="{Binding InitializeAsyncCommand}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <!-- THE SKELETON LOADER -->
+        <local:SalonHomeSkeleton Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!-- THE ACTUAL CONTENT -->
+        <Grid Margin="0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="32"/>

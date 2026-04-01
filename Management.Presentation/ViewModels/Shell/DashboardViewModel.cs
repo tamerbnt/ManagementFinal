@@ -28,6 +28,8 @@ using CommunityToolkit.Mvvm.Messaging;
 using Management.Presentation.Messages;
 using Management.Domain.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Management.Presentation.ViewModels.Dashboard;
+using Management.Presentation.ViewModels.Finance;
 
 namespace Management.Presentation.ViewModels.Shell
 {
@@ -44,6 +46,7 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly ISyncService _syncService;
         private readonly IServiceScopeFactory _scopeFactory;
         private System.Threading.CancellationTokenSource? _refreshDebounceCts;
+        private readonly IDispatcher _dispatcher;
         private CancellationTokenSource? _initCts;
         
         [ObservableProperty]
@@ -125,6 +128,9 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private bool _isRevenueTrendLoading;
+
+        [ObservableProperty]
+        private ObservableCollection<MonthFilterViewModel> _monthFilters = new();
         // ────────────────────────────────────────────────────────────────────
 
         [ObservableProperty]
@@ -247,7 +253,8 @@ namespace Management.Presentation.ViewModels.Shell
             IReportingService reportingService,
             ILocalizationService localizationService,
             ISyncService syncService,
-            IServiceScopeFactory scopeFactory) 
+            IServiceScopeFactory scopeFactory,
+            IDispatcher dispatcher) 
             : base(terminologyService, facilityContextService, logger, diagnosticService, toastService, localizationService)
         {
             _refreshDebounceCts = new System.Threading.CancellationTokenSource();
@@ -258,6 +265,7 @@ namespace Management.Presentation.ViewModels.Shell
             _reportingService = reportingService;
             _syncService = syncService;
             _scopeFactory = scopeFactory;
+            _dispatcher = dispatcher;
             
             // Register for Messenger updates
             WeakReferenceMessenger.Default.RegisterAll(this);
@@ -480,10 +488,13 @@ namespace Management.Presentation.ViewModels.Shell
                 IsRevenueTrendLoading = true;
                 _logger?.LogInformation("[Dashboard] Refreshing Revenue Trend for Facility: {FacilityId}", CurrentFacilityId);
 
-                // 1. Calculate Month Range - Use the SPECIFIC Revenue Month
+                // 1. Calculate Month Range
                 var monthStart = new DateTime(SelectedRevenueTrendMonth.Year, SelectedRevenueTrendMonth.Month, 1);
                 var monthEnd = monthStart.AddMonths(1);
                 int daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
+
+                // Initialize Month Filters if empty
+                if (MonthFilters.Count == 0) PopulateMonthFilters();
 
                 // 2. Fetch Data
                 List<DateTimePoint> trend;
@@ -491,85 +502,112 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     var svc = scope.ServiceProvider.GetRequiredService<IDashboardService>();
                     trend = await svc.GetRevenueTrendAsync(CurrentFacilityId, monthStart, monthEnd);
-                    _logger?.LogInformation("[Dashboard] Fetched {Count} points for Revenue Trend", trend?.Count ?? 0);
                 }
 
                 if (trend == null) trend = new List<DateTimePoint>();
 
-                // 3. Generate Dynamic Daily Labels (1 to 28/30/31)
-                var labels = Enumerable.Range(1, daysInMonth).Select(d => d.ToString()).ToArray();
-                
-                // 4. Map Data to all days (ensuring every day is represented even if 0)
+                // 3. Map Data to all days
                 var values = new double[daysInMonth];
-                foreach (var point in trend)
+                var labels = new string[daysInMonth];
+                for (int i = 0; i < daysInMonth; i++)
                 {
-                    int dayIndex = point.DateTime.Day - 1;
-                    if (dayIndex >= 0 && dayIndex < daysInMonth)
-                    {
-                        values[dayIndex] = point.Value ?? 0;
-                    }
+                    labels[i] = (i + 1).ToString();
+                    var point = trend.FirstOrDefault(p => p.DateTime.Day == (i + 1));
+                    values[i] = point?.Value ?? 0;
                 }
 
                 double maxVal = values.Any() ? values.Max() : 0;
-                double yMax = Math.Max(maxVal * 1.2, 100); // Dynamic headspace, min 100 DA
+                double trackVal = maxVal > 100 ? maxVal * 1.15 : 500; 
 
-                // 5. Build Smooth Area Chart
-                var areaPoints = new ObservableCollection<ObservablePoint>();
-                for (int i = 0; i < values.Length; i++)
+                // 4. Unified Track Series (Background Gray Pills)
+                var trackValues = Enumerable.Repeat(trackVal, daysInMonth).ToArray();
+                var trackSeries = new ColumnSeries<double>
                 {
-                    areaPoints.Add(new ObservablePoint(i, values[i]));
+                    Values = trackValues,
+                    Fill = new SolidColorPaint(SKColor.Parse("#F1F5F9")), // Light Gray Track
+                    Rx = 80, Ry = 80,
+                    MaxBarWidth = 14,
+                    IgnoresBarPosition = true,
+                    ZIndex = -1,
+                    IsHoverable = false,
+                    DataLabelsPaint = null
+                };
+
+                // 5. Multi-color Fill Series (Revenue Pills)
+                // We use 4 groups (roughly weeks) to alternate colors like Member Development
+                var colors = new[] { "#06B6D4", "#6366F1", "#10B981", "#8B5CF6" };
+                var seriesList = new List<ISeries> { trackSeries };
+
+                for (int colorIdx = 0; colorIdx < 4; colorIdx++)
+                {
+                    double[] colorValues = new double[daysInMonth];
+                    bool hasData = false;
+                    for (int day = 0; day < daysInMonth; day++)
+                    {
+                        // Cycle through colors every 1 day for a vibrant "rainbow" look across the month
+                        // or every 7 days for a "weekly" look. User said "beautiful color", so let's cycle.
+                        if (day % 4 == colorIdx) 
+                        {
+                            colorValues[day] = values[day];
+                            if (values[day] > 0) hasData = true;
+                        }
+                        else
+                        {
+                            colorValues[day] = 0;
+                        }
+                    }
+
+                    seriesList.Add(new ColumnSeries<double>
+                    {
+                        Name = $"Revenue Group {colorIdx + 1}",
+                        Values = colorValues,
+                        Fill = new SolidColorPaint(SKColor.Parse(colors[colorIdx])),
+                        Rx = 80, Ry = 80,
+                        MaxBarWidth = 14,
+                        IgnoresBarPosition = true,
+                        Padding = 0,
+                        ZIndex = 100,
+                        YToolTipLabelFormatter = (point) => $"{point.Model:N2} DA"
+                    });
                 }
 
-                RevenueSeries = new ISeries[]
+                // FIX: Marshal to UI thread to ensure SkiaSharp rendering context attaches correctly
+                await _dispatcher.InvokeAsync(() =>
                 {
-                    new LineSeries<ObservablePoint>
+                    RevenueSeries = seriesList.ToArray();
+                    
+                    RevenueXAxes = new Axis[]
                     {
-                        Values = areaPoints,
-                        Name = "Daily Revenue",
-                        YToolTipLabelFormatter = (chartPoint) => $"Day {chartPoint.Model.X + 1}: {chartPoint.Model.Y:N2} DA",
-                        Fill = new LinearGradientPaint(
-                            new SKColor[] { SKColor.Parse("#06B6D4").WithAlpha(40), SKColors.Transparent },
-                            new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
-                        Stroke = new SolidColorPaint(SKColor.Parse("#06B6D4")) { StrokeThickness = 3 },
-                        GeometrySize = 8,
-                        GeometryStroke = new SolidColorPaint(SKColors.White) { StrokeThickness = 2 },
-                        GeometryFill = new SolidColorPaint(SKColor.Parse("#06B6D4")),
-                        LineSmoothness = 0.5
-                    }
-                };
-                
-                RevenueXAxes = new Axis[]
-                {
-                    new Axis
-                    {
-                        Labels = labels, // Using all dynamic days
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
-                        TextSize = 10,
-                        MinStep = 1, // Force every label to dynamically display
-                        SeparatorsPaint = new SolidColorPaint(SKColors.Transparent),
-                        Padding = new LiveChartsCore.Drawing.Padding(0, 5, 0, 0)
-                    }
-                };
+                        new Axis
+                        {
+                            Labels = labels,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            TextSize = 10,
+                            MinStep = 1,
+                            SeparatorsPaint = null,
+                            Padding = new LiveChartsCore.Drawing.Padding(0, 10, 0, 0)
+                        }
+                    };
 
-                RevenueYAxes = new Axis[]
-                {
-                    new Axis
+                    RevenueYAxes = new Axis[]
                     {
-                        Labeler = value => value >= 1000 ? $"{value / 1000:N0}k" : $"{value:N0}",
-                        MinLimit = 0, // Strict zero baseline
-                        MaxLimit = yMax,
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
-                        SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F1F5F9")) { StrokeThickness = 1 }
-                    }
-                };
+                        new Axis
+                        {
+                            Labeler = value => value >= 1000 ? $"{value / 1000:N0}k" : $"{value:N0}",
+                            MinLimit = 0,
+                            MaxLimit = trackVal,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F8FAFC")) { StrokeThickness = 1 },
+                            TextSize = 10
+                        }
+                    };
 
-                // Updating UI helper properties
-                FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
-                RevenueTrendTotal = $"{values.Sum():N0} DA";
-                RevenueTrendDailyAvg = $"{(values.Sum() / daysInMonth):N0} DA / day";
-                
-                var topDayIdx = Array.IndexOf(values, maxVal);
-                RevenueTrendBestDay = maxVal > 0 ? $"Day {topDayIdx + 1} ({maxVal:N0} DA)" : "–";
+                    FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
+                    RevenueTrendTotal = $"{values.Sum():N0} DA";
+                    RevenueTrendDailyAvg = $"{(values.Sum() / (double)daysInMonth):N0} DA / day";
+                    var topDayIdx = Array.IndexOf(values, maxVal);
+                    RevenueTrendBestDay = maxVal > 0 ? $"Day {topDayIdx + 1} ({maxVal:N0} DA)" : "–";
+                });
             }
             catch (Exception ex)
             {
@@ -579,6 +617,34 @@ namespace Management.Presentation.ViewModels.Shell
             {
                 IsRevenueTrendLoading = false;
             }
+        }
+
+        private void PopulateMonthFilters()
+        {
+            MonthFilters.Clear();
+            var today = DateTime.Today;
+            for (int i = 5; i >= 0; i--)
+            {
+                var date = new DateTime(today.Year, today.Month, 1).AddMonths(-i);
+                MonthFilters.Add(new MonthFilterViewModel
+                {
+                    Name = date.ToString("MMM"),
+                    Date = date,
+                    IsSelected = date.Month == SelectedRevenueTrendMonth.Month && date.Year == SelectedRevenueTrendMonth.Year
+                });
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectMonthFilter(MonthFilterViewModel filter)
+        {
+            if (filter == null) return;
+            
+            foreach (var f in MonthFilters) f.IsSelected = false;
+            filter.IsSelected = true;
+            
+            SelectedRevenueTrendMonth = filter.Date;
+            await RefreshRevenueTrendAsync();
         }
 
         [RelayCommand]
@@ -601,7 +667,19 @@ namespace Management.Presentation.ViewModels.Shell
         [RelayCommand]
         private void OpenPayrollHistory()
         {
-            _ = _modalNavigationService.OpenModalAsync<Management.Presentation.ViewModels.Finance.PayrollHistoryViewModel>();
+            _ = _modalNavigationService.OpenModalAsync<PayrollHistoryViewModel>();
+        }
+
+        [RelayCommand]
+        private void OpenRevenueHistory()
+        {
+            _ = _modalNavigationService.OpenModalAsync<RevenueHistoryViewModel>();
+        }
+
+        [RelayCommand]
+        private void OpenOccupancyHistory()
+        {
+            _ = _modalNavigationService.OpenModalAsync<OccupancyHistoryViewModel>();
         }
 
         [RelayCommand]
@@ -1062,7 +1140,7 @@ namespace Management.Presentation.ViewModels.Shell
         private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
         {
              // Run on UI thread to ensure properties update correctly
-             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+             _dispatcher.InvokeAsync(async () => 
              {
                  var newFacilityId = _facilityContext.CurrentFacilityId;
                  _logger?.LogInformation("[Dashboard] FacilityChanged to {Type} (ID: {Id}). Resetting state.", type, newFacilityId);
@@ -1086,6 +1164,8 @@ namespace Management.Presentation.ViewModels.Shell
                      SelectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
                      UpdateFormattedMonth();
                      
+                     // Optimization: If we're already on UI thread and this is initial load, 
+                     // consider if we should fire-and-forget to avoid blocking the transition.
                      await LoadDeferredAsync();
                  }
              });
@@ -1292,5 +1372,17 @@ namespace Management.Presentation.ViewModels.Shell
                 IsOccupancyLoading = false;
             }
         }
+    }
+
+    public partial class MonthFilterViewModel : ObservableObject
+    {
+        [ObservableProperty]
+        private string _name = string.Empty;
+
+        [ObservableProperty]
+        private DateTime _date;
+
+        [ObservableProperty]
+        private bool _isSelected;
     }
 }

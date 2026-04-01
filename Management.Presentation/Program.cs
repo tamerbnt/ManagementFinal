@@ -3,6 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using Serilog;
+using LiveChartsCore;
+using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.WPF;
 
 namespace Management.Presentation
 {
@@ -11,6 +14,13 @@ namespace Management.Presentation
         [STAThread]
         public static void Main(string[] args)
         {
+            // Initialize LiveCharts Global Configuration as early as possible
+            LiveChartsCore.LiveCharts.Configure(config => 
+                config
+                    .AddSkiaSharp()
+                    .AddDefaultMappers()
+            );
+
             try
             {
                 // Basic console logging for immediate feedback

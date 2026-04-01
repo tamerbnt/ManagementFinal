@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using Management.Application.Interfaces;
+using Management.Application.Interfaces.App;
+using Management.Presentation.ViewModels.Auth; // Fixed: Missing namespace for SplashOnboardingViewModel
 using Management.Infrastructure.Services.Dashboard;
 using Management.Infrastructure.Services.Dashboard.Aggregators;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +49,7 @@ using Management.Infrastructure.Services.Audio;
 using Management.Presentation.Services;
 using Management.Presentation.Services.State;
 using Management.Presentation.Services.Application;
+using Management.Presentation.ViewModels.Auth; // Fixed: Missing namespace for SplashOnboardingViewModel
 // using Management.Presentation.Services.Restaurant; // Removed to avoid ambiguity with Application services
 using Management.Presentation.Views.Salon; // Added
 using Management.Presentation.Views.Auth; // Added for LoginView
@@ -62,6 +65,7 @@ using Management.Presentation.ViewModels.Members;
 using Management.Presentation.ViewModels.Registrations;
 using Management.Presentation.ViewModels.Finance;
 using Management.Presentation.ViewModels.Shop;
+using Management.Presentation.ViewModels.Dashboard;
 using Management.Presentation.ViewModels.Base;
 using Management.Presentation.ViewModels.Settings;
 using Management.Presentation.ViewModels.Shared;
@@ -83,6 +87,7 @@ using Management.Presentation.ViewModels.Onboarding;
 using Management.Application.DTOs;
 using Management.Presentation.ViewModels.AccessControl;
 using Management.Presentation.Views.Restaurant;
+using Management.Presentation.Views.Dashboard;
 using Management.Presentation.Views.Shared;
 
 namespace Management.Presentation
@@ -224,6 +229,8 @@ namespace Management.Presentation
         {
             LogTrace("--- APP STARTUP ---");
 
+
+
             if (!EnsureSingleInstance())
             {
                 LogTrace("SingleInstance check failed. Shutting down.");
@@ -292,7 +299,6 @@ namespace Management.Presentation
                     .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
                     .CreateLogger();
 
-                Serilog.Log.Information("APPLICATION STARTUP BEGIN ==========================================");
                 LogTrace("Serilog initialized. Building Host...");
 
                 // 3. Setup Generic Host
@@ -362,14 +368,16 @@ namespace Management.Presentation
 
                 Serilog.Log.Information("Starting initialization sequence...");
                 
-                // FIX 12: Check Clock Drift before anything else
+                // FIX 12: Check Clock Drift before anything else (NON-BLOCKING)
                 UpdateStartupStatus("Checking system clock...");
-                await CheckClockDriftAsync();
+                _ = CheckClockDriftAsync();
 
                 // 1. Initialize Contexts (Must happen before Sync)
-                Serilog.Log.Information("Initializing Facility Context and Resilience...");
+                Serilog.Log.Information("[INIT] Initializing Facility Context...");
+                UpdateStartupStatus("Determining last facility...");
                 var facilityContext = ServiceProvider.GetRequiredService<IFacilityContextService>();
                 await Task.Run(() => facilityContext.Initialize());
+                Serilog.Log.Information("[INIT] Facility Context Ready.");
 
                 // 2. Initialize Localization (Load saved preference) EARLY
                 // This ensures UI strings are loaded before the window is Shown.
@@ -385,36 +393,45 @@ namespace Management.Presentation
                 localizationService.SetLanguage(languageToLoad);
 
                 // 3. SHOW WINDOW
+                Serilog.Log.Information("[INIT] Sending StartWindow command to Dispatcher...");
+                UpdateStartupStatus("Launching UI...");
                 await Current.Dispatcher.InvokeAsync(async () => {
                     try 
                     {
-                        var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
-                        var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
+                        Serilog.Log.Information("[UI] Resolving navigation service...");
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
 
+                        // Initial Navigation to Splash BEFORE showing window to avoid flicker
+                        Serilog.Log.Information("[UI] Navigating to initial SplashOnboardingView...");
+                        await navService.NavigateToSplashAsync();
+
+                        Serilog.Log.Information("[UI] Resolving AuthWindow and ViewModel...");
+                        var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
+                        var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
+
+                        Serilog.Log.Information("[UI] Configuring MainWindow context...");
                         authWindow.DataContext = authVm;
                         Current.MainWindow = authWindow;
+                        
+                        Serilog.Log.Information("[UI] Executing Window.Show()...");
                         authWindow.Show();
+                        Serilog.Log.Information("[UI] Window shown successfully. Initializing onboarding...");
                         
-                        // Default to Login view
-                        await navService.NavigateToLoginAsync();
-                        
-                        var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
-                        if (navStore.CurrentViewModel is LoginViewModel loginVm)
-                        {
-                            loginVm.SetInitializingState(true);
-                            loginVm.AppInitializationStatus = "Starting application services...";
-                        }
+                        var tracker = ServiceProvider.GetRequiredService<IAppInitializationTracker>();
+                        tracker.UpdateStatus("Starting application services...", 0.1);
                     }
                     catch (Exception ex)
                     {
-                        Serilog.Log.Error(ex, "Failed to show initial AuthWindow");
+                        Serilog.Log.Fatal(ex, "CRITICAL UI ERROR: Failed to show initial AuthWindow");
+                        HandleFatalStartupError(ex);
                     }
                 });
 
                 // 4. Background Database Initialization
                 Serilog.Log.Information("[App] Initializing database schema in background...");
-                UpdateStartupStatus("Initializing database...");
+                var trackerService = ServiceProvider.GetRequiredService<IAppInitializationTracker>();
+                trackerService.UpdateStatus("Initializing database...", 0.3);
+                
                 var dbInitTask = InitializeDatabaseAsync(ct);
                 await dbInitTask; 
 
@@ -499,6 +516,8 @@ namespace Management.Presentation
                 mappingService.Register<AppointmentDetailViewModel, AppointmentDetailModal>();
                 mappingService.Register<PayrollViewModel, PayrollView>();
                 mappingService.Register<PayrollHistoryViewModel, PayrollHistoryView>();
+                mappingService.Register<RevenueHistoryViewModel, RevenueHistoryView>();
+                mappingService.Register<OccupancyHistoryViewModel, OccupancyHistoryView>();
                 mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 // SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
@@ -616,11 +635,13 @@ namespace Management.Presentation
                     }
                     catch (Exception ex)
                     {
-                        Serilog.Log.Error(ex, "Error during final navigation routing");
                     }
                 });
-                
                 Serilog.Log.Information("Startup Sequence Complete.");
+                
+                // Finalize Initialization Tracker
+                var tracker = ServiceProvider.GetRequiredService<IAppInitializationTracker>();
+                tracker.SetComplete();
             }
             catch (OperationCanceledException)
             {
@@ -1088,7 +1109,7 @@ namespace Management.Presentation
 
             // Sync Engine
             services.AddSingleton<Management.Application.Interfaces.App.ISyncService, SyncService>();
-            services.AddSingleton<ISyncEventDispatcher, SyncEventDispatcher>();
+            services.AddSingleton<Management.Application.Interfaces.App.ISyncEventDispatcher, Management.Infrastructure.Services.SyncEventDispatcher>();
             services.AddHostedService<SyncWorker>();
             
             services.AddSingleton<SupabaseRealtimeService>();
@@ -1114,6 +1135,7 @@ namespace Management.Presentation
             services.AddSingleton<INotificationService, NotificationService>();
             services.AddSingleton<Management.Application.Interfaces.App.IToastService>(s => s.GetRequiredService<INotificationService>() as NotificationService ?? throw new InvalidOperationException("NotificationService not registered"));
             services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            services.AddSingleton<Management.Application.Interfaces.App.IAppInitializationTracker, Management.Presentation.Services.Application.AppInitializationTracker>();
             
             services.AddTransient<ISearchService, SearchService>();
             services.AddSingleton<IBreadcrumbService, Management.Presentation.Services.Application.BreadcrumbService>();
@@ -1158,6 +1180,7 @@ namespace Management.Presentation
             services.AddTransient<TopBarViewModel>();
             services.AddTransient<CommandPaletteViewModel>();
             services.AddTransient<LoginViewModel>();
+            services.AddTransient<SplashOnboardingViewModel>();
             services.AddTransient<LicenseEntryViewModel>();
             services.AddTransient<FacilityOnboardingViewModel>();
             services.AddSingleton<OnboardingOwnerViewModel>();
@@ -1247,6 +1270,8 @@ namespace Management.Presentation
             services.AddTransient<AppointmentDetailViewModel>();
             services.AddTransient<PayrollViewModel>();
             services.AddTransient<PayrollHistoryViewModel>();
+            services.AddTransient<RevenueHistoryViewModel>();
+            services.AddTransient<OccupancyHistoryViewModel>();
             services.AddTransient<AppExitViewModel>();
 
             // --- VIEWS ---
@@ -1254,9 +1279,12 @@ namespace Management.Presentation
             services.AddTransient<Management.Presentation.Views.Shell.MainWindow>(s => new Management.Presentation.Views.Shell.MainWindow(s.GetRequiredService<MainViewModel>()));
             services.AddTransient<ConflictResolutionView>();
             services.AddTransient<Views.Auth.LoginView>();
+            services.AddTransient<Views.Auth.SplashOnboardingView>();
             services.AddTransient<BookingModal>();
             services.AddTransient<CompletionModal>();
             services.AddTransient<AppointmentDetailModal>();
+            services.AddTransient<RevenueHistoryView>();
+            services.AddTransient<OccupancyHistoryView>();
         }
 
         private async System.Threading.Tasks.Task InitializeDatabaseAsync(CancellationToken ct = default)

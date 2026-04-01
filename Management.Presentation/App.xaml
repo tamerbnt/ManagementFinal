@@ -11,6 +11,7 @@
              xmlns:shop="clr-namespace:Management.Presentation.Views.Shop" 
              xmlns:settings="clr-namespace:Management.Presentation.Views.Settings" 
              xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+             xmlns:authvm="clr-namespace:Management.Presentation.ViewModels.Auth"
              xmlns:salon="clr-namespace:Management.Presentation.Views.Salon"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
               xmlns:shell="clr-namespace:Management.Presentation.ViewModels.Shell"
@@ -225,6 +226,10 @@
 
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
                 <auth:LoginView/>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type authvm:SplashOnboardingViewModel}">
+                <auth:SplashOnboardingView/>
             </DataTemplate>
 
 

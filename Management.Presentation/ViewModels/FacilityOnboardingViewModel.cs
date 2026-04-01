@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using AsyncRelayCommand = CommunityToolkit.Mvvm.Input.AsyncRelayCommand;
@@ -7,21 +7,16 @@ using Management.Presentation.Services;
 using Management.Presentation.Services.Localization;
 using Management.Domain.Services;
 using Management.Infrastructure.Services;
+using Management.Domain.Enums;
 using Management.Application.Services;
+using Management.Application.Interfaces.ViewModels;
 using Management.Presentation.ViewModels.Base;
 using Microsoft.Extensions.Logging;
 
+using Management.Presentation.ViewModels.Auth;
+
 namespace Management.Presentation.ViewModels
 {
-    public class FacilityTypeOption
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string IconKey { get; set; } = string.Empty;
-        public string GradientStart { get; set; } = "#0EA5E9";
-        public string GradientEnd { get; set; } = "#2563EB";
-    }
-
     public class FacilityOnboardingViewModel : FacilityAwareViewModelBase
     {
         private readonly INavigationService _navigationService;
@@ -99,6 +94,7 @@ namespace Management.Presentation.ViewModels
                 new FacilityTypeOption 
                 { 
                     Name = "Gym", 
+                    Type = FacilityType.Gym,
                     Description = _localizationService?.GetString("Strings.Auth.Facility.GymDesc") ?? "Fitness centers, CrossFit boxes, and Personal Training studios.",
                     IconKey = "Icon.Dumbbell",
                     GradientStart = "#0EA5E9",
@@ -107,6 +103,7 @@ namespace Management.Presentation.ViewModels
                 new FacilityTypeOption 
                 { 
                     Name = "Salon", 
+                    Type = FacilityType.Salon,
                     Description = _localizationService?.GetString("Strings.Auth.Facility.SalonDesc") ?? "Hair salons, Spas, and Wellness centers.",
                     IconKey = "Icon.Sparkles",
                     GradientStart = "#EC4899",
@@ -115,6 +112,7 @@ namespace Management.Presentation.ViewModels
                 new FacilityTypeOption 
                 { 
                     Name = "Restaurant", 
+                    Type = FacilityType.Restaurant,
                     Description = _localizationService?.GetString("Strings.Auth.Facility.RestaurantDesc") ?? "Cafes, Fine dining, and Quick service restaurants.",
                     IconKey = "Icon.Utensils",
                     GradientStart = "#F59E0B",

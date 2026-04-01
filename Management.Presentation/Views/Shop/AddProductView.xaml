@@ -66,9 +66,9 @@
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Category}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="{DynamicResource Terminology.Shop.AddProduct.CategoryHint}"/>
+                        <ComboBox ItemsSource="{x:Static shopvm:AddProductViewModel.AvailableCategories}"
+                                  SelectedItem="{Binding Category, Mode=TwoWay}"
+                                  Style="{StaticResource ComboBox.Apple}"/>
                     </StackPanel>
                 </Grid>
 

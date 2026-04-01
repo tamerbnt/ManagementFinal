@@ -32,7 +32,20 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty] private decimal _cost;
         [ObservableProperty] private int _stockQuantity;
         [ObservableProperty] private int _reorderLevel = 10;
-        
+
+        /// <summary>
+        /// Valid category names matching the <see cref="Management.Domain.Enums.ProductCategory"/> enum.
+        /// Used as the ItemsSource for the Category ComboBox in AddProductView.
+        /// Strings are used (not enum values) because <see cref="ProductDto.Category"/> is a string
+        /// and <see cref="CreateProductCommandHandler"/> does Enum.TryParse internally.</summary>
+        public static IReadOnlyList<string> AvailableCategories { get; } = new[]
+        {
+            "Supplements",
+            "Apparel",
+            "Equipment",
+            "Other"
+        };
+
         [ObservableProperty] private bool _isEditMode;
         private Guid _productId;
 

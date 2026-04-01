@@ -23,31 +23,33 @@
         <!-- DataContext Proxy for InputBindings to bypass inheritance issues -->
         <controls:BindingProxy x:Key="MainProxy" Data="{Binding}"/>
 
-        <!-- Sidebar Panel Animation Style -->
+        <!-- Sidebar Panel Animation Style (Material Fast-Out Slow-In) -->
         <Style x:Key="SidebarPanelStyle" TargetType="Border">
             <Setter Property="Width" Value="260"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                    <!-- Collapsing Animation: Lightning fast start, smooth landing to trick the eye during layout recalculation -->
                     <DataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Width" 
-                                                  To="72" Duration="0:0:0.35">
+                                                  To="72" Duration="0:0:0.20">
                                     <DoubleAnimation.EasingFunction>
-                                        <CubicEase EasingMode="EaseInOut"/>
+                                        <QuarticEase EasingMode="EaseOut"/>
                                     </DoubleAnimation.EasingFunction>
                                 </DoubleAnimation>
                             </Storyboard>
                         </BeginStoryboard>
                     </DataTrigger.EnterActions>
+                    <!-- Expanding Animation: Slightly more deliberate than collapse to show intention -->
                     <DataTrigger.ExitActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Width" 
-                                                  To="260" Duration="0:0:0.35">
+                                                  To="260" Duration="0:0:0.25">
                                     <DoubleAnimation.EasingFunction>
-                                        <CubicEase EasingMode="EaseInOut"/>
+                                        <QuarticEase EasingMode="EaseOut"/>
                                     </DoubleAnimation.EasingFunction>
                                 </DoubleAnimation>
                             </Storyboard>
@@ -148,7 +150,7 @@
                     Style="{StaticResource SidebarPanelStyle}"
                     CornerRadius="16"
                     Background="{DynamicResource FacilitySidebarBrush}"
-                    ClipToBounds="True"
+                    ClipToBounds="False"
                     shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Border.Effect>
                     <StaticResource ResourceKey="Shadow.Level3" />

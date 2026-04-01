@@ -102,6 +102,9 @@ namespace Management.Presentation.ViewModels.Restaurant
             ScanCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
 
             WeakReferenceMessenger.Default.RegisterAll(this);
+
+            // Immediate skeleton state
+            IsLoading = true;
         }
 
         private void OnSyncCompleted(object? sender, EventArgs e)

@@ -153,7 +153,7 @@
                 <!-- 1. Hero Card: People Inside (Gym) / Today's Appointments (Salon) -->
                 <Grid Grid.Column="0" Margin="0,0,16,0">
                     <!-- Gym: People Inside -->
-                    <Border CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}">
+                    <Border CornerRadius="16" Background="{DynamicResource FacilitySidebarBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -218,7 +218,7 @@
                         </Grid>
                     </Border>
                     <!-- Salon: Today's Appointments -->
-                    <Border CornerRadius="16" Height="170" Background="{DynamicResource FacilitySidebarBrush}">
+                    <Border CornerRadius="16" Background="{DynamicResource FacilitySidebarBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -265,7 +265,7 @@
                                Value="{Binding TotalActiveMembers}" 
                                IconData="{StaticResource IconMembers}" 
                                IconBrush="{DynamicResource StatusSuccessBrush}" 
-                               IsLoading="{Binding IsLoading}" Height="170">
+                               IsLoading="{Binding IsLoading}">
                     <data:StatTile.Style>
                         <Style TargetType="data:StatTile">
                             <Setter Property="Label" Value="{DynamicResource Terminology.Dashboard.Stat.ActiveMembers}"/>
@@ -287,9 +287,9 @@
                 <!-- 3. Split Column (Expiring / Pending) -->
                 <Grid Grid.Column="2" Margin="0,0,16,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="16" /> <!-- Spacer -->
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     
                     <!-- Expiring -->
@@ -382,7 +382,7 @@
                 </Grid>
 
                 <!-- 4. Revenue Snapshot (Replaces Quick Actions) -->
-                 <Border Grid.Column="3" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Height="170">
+                 <Border Grid.Column="3" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16">
                     <Border.Effect>
                         <StaticResource ResourceKey="Shadow.Level2"/>
                     </Border.Effect>
@@ -502,7 +502,7 @@
                                                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             <Button Style="{StaticResource Button.Ghost}" Padding="8,4" IsHitTestVisible="False"
                                                     ToolTip="{DynamicResource Terminology.Dashboard.Action.SelectDate}">
-                                                <Path Data="{StaticResource Icon.Calendar}" Fill="White" Stroke="White" StrokeThickness="0.5" Width="14" Height="14" Stretch="Uniform"/>
+                                                <Path Data="{StaticResource IconCalendar}" Stroke="White" StrokeThickness="1.5" Width="14" Height="12" Stretch="Uniform"/>
                                             </Button>
                                         </Grid>
                                     </StackPanel>
@@ -756,8 +756,8 @@
             <!-- Row 2: Charts & Lists -->
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" /> <!-- Optimized to Auto for compact layout -->
-                    <RowDefinition Height="1*" />   <!-- Lists -->
+                    <RowDefinition Height="1*" /> <!-- Allocated space for charts to prevent collapse -->
+                    <RowDefinition Height="1*" /> <!-- Lists -->
                 </Grid.RowDefinitions>
 
                 <!-- Revenue Chart Area -->
@@ -788,16 +788,44 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <!-- Right: Month Navigation -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button Command="{Binding PreviousRevenueTrendMonthCommand}" Cursor="Hand" Style="{StaticResource IconButtonStyle}" Padding="6,4">
-                                    <Path Data="{StaticResource IconChevronLeft}" Fill="{DynamicResource TextSecondaryBrush}" Width="8" Height="12" Stretch="Uniform"/>
-                                </Button>
-                                <TextBlock Text="{Binding FormattedRevenueTrendMonth}" FontWeight="SemiBold" FontSize="12" Margin="8,0" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <Button Command="{Binding NextRevenueTrendMonthCommand}" Cursor="Hand" Style="{StaticResource IconButtonStyle}" Padding="6,4">
-                                    <Path Data="{StaticResource IconChevronRight}" Fill="{DynamicResource TextSecondaryBrush}" Width="8" Height="12" Stretch="Uniform"/>
-                                </Button>
-                            </StackPanel>
+                            <!-- Right: Month Navigation Pills -->
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding MonthFilters}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.SelectMonthFilterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                Cursor="Hand"
+                                                Margin="4,0"
+                                                VerticalAlignment="Center">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                                    <Setter Property="Padding" Value="14,4"/>
+                                                    <Setter Property="Height" Value="26"/>
+                                                    <Setter Property="FontSize" Value="11"/>
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                    <Setter Property="BorderThickness" Value="1"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </Grid>
 
                         <!-- Chart Content -->
@@ -993,25 +1021,47 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
-                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,8">
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
                                 <Border Width="24" Height="24" CornerRadius="8" Background="#20FFFFFF" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconDashboard}" Fill="White" Stroke="White" StrokeThickness="1.2" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Path Data="{StaticResource IconDashboard}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.QuickActions}" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                             
-                            <StackPanel Grid.Row="1" Margin="0,4,0,0">
-                                <Button Content="{DynamicResource Terminology.Dashboard.Action.RunPayroll}" 
+                            <Grid Grid.Row="1" Margin="0,2,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" Content="{DynamicResource Terminology.Dashboard.Action.RunPayroll}" 
                                         Command="{Binding RunPayrollCommand}"
                                         Style="{DynamicResource Button.Primary}" 
-                                        Margin="0,0,0,2" Height="32"/>
-                                <Button Content="{DynamicResource Terminology.Dashboard.QuickActions.PayrollHistory}" 
+                                        Height="36" FontSize="11" FontWeight="SemiBold"/>
+                                
+                                <Button Grid.Row="2" Content="Revenue History" 
+                                        Command="{Binding OpenRevenueHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <Button Grid.Row="4" Content="Occupancy History" 
+                                        Command="{Binding OpenOccupancyHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <Button Grid.Row="6" Content="{DynamicResource Terminology.Dashboard.QuickActions.PayrollHistory}" 
                                         Command="{Binding OpenPayrollHistoryCommand}"
-                                        Style="{DynamicResource Button.Ghost}" Margin="0,0,0,2" Height="32" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
-                                <Button Content="{DynamicResource Terminology.Dashboard.Action.ExportReport}" 
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <Button Grid.Row="8" Content="{DynamicResource Terminology.Dashboard.Action.ExportReport}" 
                                         Command="{Binding ExportReportCommand}"
-                                        Style="{DynamicResource Button.Ghost}" Height="32" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
-                            </StackPanel>
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>

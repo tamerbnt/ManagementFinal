@@ -99,6 +99,11 @@ namespace Management.Infrastructure.Data
                 // EMERGENCY SYNC RESET: Reset error count for stalled messages
                 try { await Database.ExecuteSqlRawAsync("UPDATE outbox_messages SET error_count = 0 WHERE is_processed = 0;", ct); } catch { }
 
+                // DATA HEAL: Products with Category=0 (ProductCategory.None) are invisible under all
+                // specific filters (Supplements/Apparel/Equipment) because the EF WHERE clause never
+                // matches 0. Silently promote them to Other (4) so they at least appear somewhere.
+                try { await Database.ExecuteSqlRawAsync("UPDATE products SET category = 4 WHERE category = 0 AND is_deleted = 0;", ct); } catch { }
+
                 // SCHEMA HEAL: Add legacy 'price' shadow column if missing.
                 // EF Core maps a shadow property "price" to satisfy old NOT NULL constraints.
                 // If the DB was created before this column was introduced, every product INSERT
@@ -445,6 +450,7 @@ namespace Management.Infrastructure.Data
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
                 entity.HasIndex(s => new { s.FacilityId, s.CreatedAt }).HasDatabaseName("idx_sale_performance_composite");
+                entity.HasIndex(s => s.MemberId).HasDatabaseName("idx_sale_member_id");
             });
 
             modelBuilder.Entity<SaleItem>(entity =>

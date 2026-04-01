@@ -17,5 +17,7 @@ namespace Management.Application.Interfaces
         Task<List<LiveChartsCore.Defaults.DateTimePoint>> GetGymOccupancyTrendAsync(Guid facilityId, DateTime? date = null);
         Task<List<PlanRevenueDto>> GetRevenueByMenuItemAsync(Guid facilityId, DateTime start, DateTime end);
         Task<List<LiveChartsCore.Defaults.DateTimePoint>> GetRevenueTrendAsync(Guid facilityId, DateTime monthStart, DateTime monthEnd);
+        Task<RevenueHistoryDto> GetRevenueHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null);
+        Task<OccupancyHistoryDto> GetOccupancyHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null);
     }
 }

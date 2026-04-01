@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:local="clr-namespace:Management.Presentation.Views.GymHome"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1440">
     
@@ -29,12 +30,16 @@
     </UserControl.Resources>
 
     <Grid VerticalAlignment="Stretch">
-        <Grid Margin="0">
         <i:Interaction.Triggers>
-                <i:EventTrigger EventName="Loaded">
-                    <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
+            <i:EventTrigger EventName="Loaded">
+                <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <!-- THE SKELETON LOADER -->
+        <local:GymHomeSkeleton Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!-- THE ACTUAL CONTENT -->
+        <Grid Margin="0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="32"/> <!-- Lateral Gap -->

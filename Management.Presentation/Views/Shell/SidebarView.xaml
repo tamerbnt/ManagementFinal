@@ -130,12 +130,13 @@
                             </Path>
                         </Border>
  
-                         <TextBlock Text="LUXURYA" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" FontSize="16"
-                                    HorizontalAlignment="Center" Margin="0,8,0,0">
-                              <TextBlock.Effect>
-                                 <StaticResource ResourceKey="Shadow.Level1"/>
-                              </TextBlock.Effect>
-                         </TextBlock>
+                         <TextBlock Text="luxurya" 
+                                    FontWeight="Bold" 
+                                    Foreground="{DynamicResource Brush.Neutral.White}" 
+                                    FontSize="18"
+                                    HorizontalAlignment="Center" 
+                                    Margin="0,4,0,0"
+                                    FontFamily="Segoe UI Variable Display, Segoe UI"/>
                     </StackPanel>
  
                      <!-- Collapsed State -->
@@ -164,6 +165,78 @@
                          </Path>
                      </Border>
                 </Grid>
+            </Button>
+
+            <!-- FLOATING TOGGLE (Integrated "Ear" Design) -->
+            <Button Grid.Row="1" 
+                    Command="{Binding ToggleSidebarCommand}"
+                    Width="24" Height="24" 
+                    HorizontalAlignment="Right" 
+                    VerticalAlignment="Center" 
+                    Margin="0,0,-12,0"
+                    Panel.ZIndex="10"
+                    Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Background="Transparent">
+                            <!-- Outer Shell (Matches Sidebar Color for Seamless Integration) -->
+                            <Border x:Name="OuterShell" 
+                                    Background="{DynamicResource FacilitySidebarBrush}" 
+                                    CornerRadius="12">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="4" Opacity="0.1" ShadowDepth="1" Color="Black"/>
+                                </Border.Effect>
+                                
+                                <!-- Inner Accent Circle (The "Fill") -->
+                                <Border x:Name="AccentFill" 
+                                        Background="{DynamicResource FacilityAccentBrush}" 
+                                        Margin="2"
+                                        CornerRadius="10">
+                                    <Path Data="{StaticResource IconChevronLeft}"
+                                          Fill="{DynamicResource Brush.Neutral.White}"
+                                          Width="8" Height="8" 
+                                          Stretch="Uniform" 
+                                          HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center"
+                                          RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <RotateTransform x:Name="IconRotate" Angle="0"/>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Border>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="AccentFill" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IconRotate" Storyboard.TargetProperty="Angle" To="180" Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IconRotate" Storyboard.TargetProperty="Angle" To="0" Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- NAVIGATION (COINEST Floating Pillars) -->
@@ -394,29 +467,16 @@
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
-                    <TextBlock Text="From Scratch" 
+                    <TextBlock Text="from scratch" 
                                FontSize="16" 
                                FontWeight="Bold" 
-                               Foreground="{DynamicResource FacilityAccentBrush}" 
+                               Foreground="{DynamicResource Brush.Neutral.White}" 
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                TextWrapping="Wrap"
-                               Margin="0,2,0,0"
+                               Margin="0,0,0,0"
                                MaxWidth="200"
                                FontFamily="Segoe UI Variable Display, Segoe UI">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
-                                        <Setter Property="FontSize" Value="9"/>
-                                        <Setter Property="MaxWidth" Value="40"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                         <TextBlock.Effect>
-                            <StaticResource ResourceKey="Shadow.Level1"/>
-                         </TextBlock.Effect>
                     </TextBlock>
                 </StackPanel>
             </Grid>
