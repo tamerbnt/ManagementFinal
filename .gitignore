@@ -367,3 +367,4 @@ Management.Presentation/appsettings.json
 
 # Build results
 installer-output/
+installer_output/
