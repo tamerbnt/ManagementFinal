@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Environment specific settings
 Management.Presentation/appsettings.json
+
+# Build results
+installer-output/
