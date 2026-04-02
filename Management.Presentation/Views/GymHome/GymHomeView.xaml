@@ -235,9 +235,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
-                            <Button Grid.Row="2" Style="{StaticResource Button.Ghost}" HorizontalAlignment="Center" Margin="0,8,0,0">
-                                <TextBlock Text="{DynamicResource Terminology.Home.SeeAll}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}"/>
-                            </Button>
+
                             <!-- Background Scan Listener (TextBox) - Moved inside to ensure focus behavior works -->
                             <TextBox Width="1" Height="1" Opacity="0" Text="{Binding ScanInput, UpdateSourceTrigger=PropertyChanged}" behaviors:FocusBehavior.FocusOnVisible="True">
                                 <TextBox.InputBindings>
@@ -251,16 +249,14 @@
             </Grid>
 
             <!-- ====================================================================== -->
-            <!-- ZONE 2: RIGHT SIDEBAR (Quick Actions + Time) -->
-            <!-- ====================================================================== -->
             <Grid Grid.Row="1" Grid.Column="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>    <!-- Quick Actions (Expanded) -->
+                    <RowDefinition Height="*"/>    <!-- Quick Actions (Fluid Height) -->
                     <RowDefinition Height="16"/>   <!-- Gap -->
                     <RowDefinition Height="Auto"/> <!-- Time/Date (Anchored Bottom) -->
                 </Grid.RowDefinitions>
                 
-                <!-- QUICK ACTIONS CARD (Full Vertical Stretch) -->
+                <!-- QUICK ACTIONS CARD -->
                 <Border Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -284,7 +280,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- Row 0, Col 0: Quick Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="110">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="110" MinHeight="80">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconFinance}" 
@@ -297,7 +293,7 @@
                             </Button>
                             
                             <!-- Row 0, Col 2: Create Member -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="110">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="110" MinHeight="80">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconPlus}" 
@@ -310,7 +306,7 @@
                             </Button>
                             
                             <!-- Row 2, Col 0: Walk-In Check-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="110">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="110" MinHeight="80">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconMembers}" 
@@ -323,7 +319,7 @@
                             </Button>
                             
                             <!-- Row 2, Col 2: Multi-Sale Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="110">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="110" MinHeight="80">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconCart}" 

@@ -156,6 +156,42 @@ namespace Management.Infrastructure.Hardware
             _logger.LogInformation("Real-time monitoring enabled via STA thread.");
         }
 
+        public async Task SyncOfflineLogsAsync()
+        {
+            if (!IsSdkAvailable || !IsConnected || _zk == null) return;
+
+            try
+            {
+                await _sta.RunAsync(() =>
+                {
+                    _logger.LogInformation("Attempting to sync offline logs from turnstile...");
+                    
+                    if ((bool)_zk!.ReadGeneralLogData(DevicePort))
+                    {
+                        string enrollNumber = "";
+                        int verifyMode = 0, inOutMode = 0, year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, workCode = 0;
+                        
+                        int count = 0;
+                        while ((bool)_zk!.SSR_GetGeneralLogData(DevicePort, out enrollNumber, out verifyMode, out inOutMode, out year, out month, out day, out hour, out minute, out second, ref workCode))
+                        {
+                            // In real prod, compare timestamp against last db entry. Here we rely on DB Deduplication.
+                            Zk_OnAttTransactionEx(enrollNumber, 1, inOutMode, verifyMode, year, month, day, hour, minute, second, workCode);
+                            count++;
+                        }
+                        
+                        if (count > 0)
+                        {
+                            _logger.LogInformation("Successfully synced {Count} offline logs via EventReplay.", count);
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to sync offline logs");
+            }
+        }
+
         public async Task<bool> OpenGateAsync()
         {
             if (!IsSdkAvailable || !IsConnected || _zk == null) return false;

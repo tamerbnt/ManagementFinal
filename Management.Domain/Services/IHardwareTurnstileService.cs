@@ -19,5 +19,6 @@ namespace Management.Domain.Services
         Task<bool> OpenGateAsync();
         Task<bool> PingAsync();
         void StartMonitoring();
+        Task SyncOfflineLogsAsync();
     }
 }

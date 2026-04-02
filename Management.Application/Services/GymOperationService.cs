@@ -50,7 +50,13 @@ namespace Management.Application.Services
         public async Task<ScanResult> ProcessScanAsync(string input, Guid facilityId)
         {
             // Delegate to domain access service
-            var result = await _accessService.ProcessScanAsync(input);
+            var result = await _accessService.ValidateAccessAsync(input, null, ScanDirection.Enter);
+            
+            if (result.Status == AccessResult.Granted || result.Status == AccessResult.Warning)
+            {
+                 var commitResult = await _accessService.CommitAccessAsync(input, facilityId, ScanDirection.Enter, $"UI-{DateTime.UtcNow.Ticks}");
+                 result = commitResult;
+            }
             
             // Log the access event to the database for the History tab
             bool granted = result.Status == AccessResult.Granted || result.Status == AccessResult.Warning;

@@ -117,12 +117,12 @@ namespace Management.Presentation.ViewModels.Auth
             Slides.Clear();
             Slides.Add(new OnboardingSlide 
             { 
-                EmotionalHeadline = "Ditch the chaos.", 
-                TechnicalSubtitle = "Automate your daily operations and focus on what matters most.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_chaos_v2.png",
-                TitleColor = "#FACC15",
-                SubtitleColor = "#FFFFFF",
-                BackgroundColor = "#000000"
+                EmotionalHeadline = "Master your schedule.", 
+                TechnicalSubtitle = "Drag-and-drop bookings with real-time availability and automatic reminders.",
+                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_sched_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#06B6D4"
             });
             Slides.Add(new OnboardingSlide 
             { 
@@ -135,12 +135,12 @@ namespace Management.Presentation.ViewModels.Auth
             });
             Slides.Add(new OnboardingSlide 
             { 
-                EmotionalHeadline = "Master your schedule.", 
-                TechnicalSubtitle = "Drag-and-drop bookings with real-time availability and automatic reminders.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_sched_v2.png",
-                TitleColor = "#FFFFFF",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#06B6D4"
+                EmotionalHeadline = "Ditch the chaos.", 
+                TechnicalSubtitle = "Automate your daily operations and focus on what matters most.",
+                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_chaos_v2.png",
+                TitleColor = "#FACC15",
+                SubtitleColor = "#FFFFFF",
+                BackgroundColor = "#000000"
             });
             Slides.Add(new OnboardingSlide 
             { 

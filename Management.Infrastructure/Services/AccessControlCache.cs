@@ -74,9 +74,28 @@ namespace Management.Infrastructure.Services
             }
         }
 
+        private readonly ConcurrentDictionary<string, DateTime> _membersInside = new();
+
+        public bool TryMarkMemberInside(string cardId)
+        {
+            var now = DateTime.UtcNow;
+            if (_membersInside.TryGetValue(cardId, out var enterTime))
+            {
+                if ((now - enterTime).TotalHours < 12) return false;
+            }
+            _membersInside[cardId] = now;
+            return true;
+        }
+
+        public void MarkMemberExited(string cardId)
+        {
+            _membersInside.TryRemove(cardId, out _);
+        }
+
         public void Clear()
         {
             _planSchedules.Clear();
+            _membersInside.Clear();
             lock (_facilityLock)
             {
                 _facilitySchedules.Clear();

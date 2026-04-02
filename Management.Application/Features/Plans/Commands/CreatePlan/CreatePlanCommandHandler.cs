@@ -37,6 +37,7 @@ namespace Management.Application.Features.Plans.Commands.CreatePlan
                 dto.Description,
                 dto.DurationDays,
                 price,
+                0, // BaseSessionCount
                 dto.IsWalkIn);
 
             if (planResult.IsFailure) return Result.Failure<Guid>(planResult.Error);

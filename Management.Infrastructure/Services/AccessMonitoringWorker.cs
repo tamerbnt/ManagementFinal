@@ -17,6 +17,7 @@ using Management.Application.Interfaces;
 using Management.Application.Services;
 using Management.Domain.Services;
 using Management.Domain.Events;
+using Management.Domain.Primitives;
 
 namespace Management.Infrastructure.Services
 {
@@ -65,7 +66,8 @@ namespace Management.Infrastructure.Services
                     {
                         if (!_turnstileService.IsConnected && _turnstileService.IsSdkAvailable)
                         {
-                            await _turnstileService.ConnectAsync(_config.IpAddress, _config.Port);
+                            var connected = await _turnstileService.ConnectAsync(_config.IpAddress, _config.Port);
+                            if (connected) await _turnstileService.SyncOfflineLogsAsync();
                         }
                         else if (_turnstileService.IsConnected)
                         {
@@ -120,8 +122,8 @@ namespace Management.Infrastructure.Services
                 var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                // 1. Core Logic (Validation & Event Logging)
-                var accessResult = await accessEventService.ProcessAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
+                // 1. Validate Access
+                var validationResult = await accessEventService.ValidateAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
 
                 // 2. Resolve Member Details for the UI Popup
                 MemberDto? member = null;
@@ -131,12 +133,31 @@ namespace Management.Infrastructure.Services
                     member = memberSearch.Value.Items.First();
                 }
 
-                // 3. Trigger Hardware Relay on Success
-                if (accessResult.IsSuccess && (accessResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Granted.ToString() || 
-                                              accessResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Warning.ToString()))
+                bool gateOpened = false;
+                Result<AccessEventDto> accessResult = validationResult;
+
+                // 3. Trigger Hardware Relay & Commit on Success
+                if (validationResult.IsSuccess && (validationResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Granted.ToString() || 
+                                                   validationResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Warning.ToString()))
                 {
                     var hardwareService = (IHardwareTurnstileService)_turnstileService;
-                    await hardwareService.OpenGateAsync();
+                    gateOpened = await hardwareService.OpenGateAsync();
+
+                    if (gateOpened)
+                    {
+                        accessResult = await accessEventService.CommitAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
+                    }
+                    else 
+                    {
+                        _logger.LogWarning("Turnstile hardware failed to open gate. Cancelling session commit for {CardId}", e.CardId);
+                        // If it fails to open, do NOT commit to database, avoid session loss.
+                        accessResult = Result.Failure<AccessEventDto>(new Error("Gate.HardwareFailure", "Hardware failed to open. Session not deducted."));
+                    }
+                }
+                else 
+                {
+                   // Fallback logic for Denials, we MUST log the failure to database.
+                   accessResult = await accessEventService.CommitAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
                 }
 
                 // 4. Publish Notification for UI/Audio Feedback

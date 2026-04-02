@@ -143,7 +143,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-001");
+            var result = await svc.ValidateAccessAsync("CARD-001", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Granted);
@@ -176,7 +176,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-EXP");
+            var result = await svc.ValidateAccessAsync("CARD-EXP", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
@@ -196,7 +196,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-BAN");
+            var result = await svc.ValidateAccessAsync("CARD-BAN", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
@@ -215,7 +215,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("GHOST-999");
+            var result = await svc.ValidateAccessAsync("GHOST-999", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
@@ -236,7 +236,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("STAFF-001");
+            var result = await svc.ValidateAccessAsync("STAFF-001", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Granted);
@@ -260,7 +260,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("STAFF-002");
+            var result = await svc.ValidateAccessAsync("STAFF-002", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
@@ -288,7 +288,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo, planRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-S1");
+            var result = await svc.ValidateAccessAsync("CARD-S1", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Granted);
@@ -316,7 +316,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo, planRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-S2");
+            var result = await svc.ValidateAccessAsync("CARD-S2", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
@@ -349,7 +349,7 @@ namespace Management.Tests.Unit.Turnstile
             var svc = BuildService(memberRepo, staffRepo);
 
             // Act
-            var result = await svc.ProcessScanAsync("CARD-WARN");
+            var result = await svc.ValidateAccessAsync("CARD-WARN", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Warning);

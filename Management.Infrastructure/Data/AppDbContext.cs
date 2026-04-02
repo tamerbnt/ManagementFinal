@@ -226,6 +226,8 @@ namespace Management.Infrastructure.Data
             // MembershipPlan configuration
             modelBuilder.Entity<MembershipPlan>(entity =>
             {
+                entity.Property(e => e.BaseSessionCount).HasColumnName("base_session_count");
+
                 entity.OwnsOne(e => e.Price, p => 
                 {
                     p.Property(m => m.Amount).HasColumnName("price_amount");

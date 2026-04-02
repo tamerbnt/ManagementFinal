@@ -57,18 +57,37 @@ namespace Management.Infrastructure.Services
             return Result.Success();
         }
 
-        /// <summary>
-        /// Processes a scan event from the hardware. Validates the member and logs the result.
-        /// </summary>
-        public async Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null)
+        public async Task<Result<AccessEventDto>> ValidateAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null)
         {
-            // 1. Run the access validation
-            var validationResult = await _accessControl.ProcessScanAsync(cardId, transactionId);
+            var validationResult = await _accessControl.ValidateAccessAsync(cardId, transactionId, direction);
             
             bool granted = validationResult.Status == AccessResult.Granted || validationResult.Status == AccessResult.Warning;
             string status = validationResult.Status.ToString();
             string reason = validationResult.Message;
             string memberName = validationResult.Member?.FullName ?? "Unknown";
+
+            var dto = new AccessEventDto
+            {
+                Id = Guid.Empty,
+                MemberName = memberName,
+                CardId = cardId,
+                AccessStatus = status,
+                IsAccessGranted = granted,
+                FailureReason = reason,
+                Timestamp = DateTime.UtcNow,
+                FacilityName = "Reception"
+            };
+
+            return Result.Success(dto);
+        }
+
+        public async Task<Result<AccessEventDto>> CommitAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null)
+        {
+            var commitResult = await _accessControl.CommitAccessAsync(cardId, facilityId, direction, transactionId);
+
+            string status = commitResult.Status.ToString();
+            string reason = commitResult.Message;
+            bool granted = commitResult.Status == AccessResult.Granted || commitResult.Status == AccessResult.Warning;
 
             var logCommand = new LogAccessEventCommand(
                 FacilityId: facilityId,
@@ -91,7 +110,7 @@ namespace Management.Infrastructure.Services
             var dto = new AccessEventDto
             {
                 Id = logResult.Value,
-                MemberName = memberName,
+                MemberName = commitResult.Member?.FullName ?? "Unknown",
                 CardId = cardId,
                 AccessStatus = status,
                 IsAccessGranted = granted,

@@ -56,6 +56,9 @@ namespace Management.Presentation.Views.Shell
         [DllImport("user32.dll")]
         private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
+        [DllImport("user32.dll")]
+        private static extern uint GetDpiForWindow(IntPtr hwnd);
+
         private const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
 
         // ── Constructor ──────────────────────────────────────────────────────
@@ -132,6 +135,15 @@ namespace Management.Presentation.Views.Shell
                     mmi.ptMaxPosition.Y = workArea.Top    - monitorArea.Top;
                     mmi.ptMaxSize.X     = workArea.Right  - workArea.Left;
                     mmi.ptMaxSize.Y     = workArea.Bottom - workArea.Top;
+
+                    // Convert WPF logical MinWidth/MinHeight to physical pixels using
+                    // the current monitor's DPI — so Windows enforces the minimum
+                    // when the user drags the window border (bypassed previously because
+                    // handled=true skipped WPF's own ptMinTrackSize update).
+                    uint dpi = GetDpiForWindow(hwnd);
+                    double scale = dpi > 0 ? dpi / 96.0 : 1.0;
+                    mmi.ptMinTrackSize.X = (int)(1280 * scale);
+                    mmi.ptMinTrackSize.Y = (int)(720  * scale);
                 }
 
                 Marshal.StructureToPtr(mmi, lParam, true);

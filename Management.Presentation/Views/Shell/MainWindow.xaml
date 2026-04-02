@@ -13,6 +13,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Shell.GymOS}"
+        Width="1440" Height="900"
         MinWidth="1280" MinHeight="720"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
@@ -130,11 +131,12 @@
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <Setter Property="Margin" Value="32"/>
+                    <!-- Adaptive Margin: Shrunk from 32 down to 16 to reclaim spatial budget -->
+                    <Setter Property="Margin" Value="16"/>
                     <Style.Triggers>
-                        <!-- When maximized, we increase margin to 40px to offset the ~8px OS overflow -->
                         <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
-                            <Setter Property="Margin" Value="40"/>
+                            <!-- Maximized Margin: Shrunk from 40 down to 24 (Includes 8px for OS overflow) -->
+                            <Setter Property="Margin" Value="24"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>

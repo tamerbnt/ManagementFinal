@@ -42,14 +42,8 @@ namespace Management.Infrastructure.Services
             _logger = logger;
         }
 
-        public Task<ScanResult> ProcessScanAsync(string barcode)
+        public async Task<ScanResult> ValidateAccessAsync(string barcode, string? transactionId, ScanDirection direction)
         {
-            return ProcessScanAsync(barcode, null);
-        }
-
-        public async Task<ScanResult> ProcessScanAsync(string barcode, string? transactionId)
-        {
-            // 0. Persistent De-duplication (Hardware & Network retries)
             if (!string.IsNullOrEmpty(transactionId))
             {
                 var fiveMinutesAgo = DateTime.UtcNow.AddMinutes(-5);
@@ -59,13 +53,11 @@ namespace Management.Infrastructure.Services
                 if (isDuplicate)
                 {
                     _logger.LogInformation("Rejected duplicate scan: TransactionId {Id} already processed in the last 5 minutes.", transactionId);
-                    // Return OK but skip processing (session deduction happened on first scan)
                     return ScanResult.Granted("Access Restored (Duplicate)", null);
                 }
             }
             else 
             {
-                // Fallback de-duplication for UI-triggered scans without TransactionId (prevent double-clicks)
                 var tenSecondsAgo = DateTime.UtcNow.AddSeconds(-5);
                 var recentScan = await _context.AccessEvents
                     .AnyAsync(e => e.CardId == barcode && e.IsAccessGranted && e.Timestamp >= tenSecondsAgo);
@@ -77,98 +69,95 @@ namespace Management.Infrastructure.Services
                 }
             }
 
-            // 0. Staff Override (Staff ignore all behavioral rules)
+            if (direction == ScanDirection.Enter)
+            {
+                if (!_cache.TryMarkMemberInside(barcode))
+                    return ScanResult.Denied("Anti-Passback Violation: Already inside", null);
+            }
+            else if (direction == ScanDirection.Exit)
+            {
+                _cache.MarkMemberExited(barcode);
+            }
+
             var staff = await _staffRepository.GetByCardIdAsync(barcode);
             if (staff != null)
             {
-                if (!staff.IsActive)
-                    return ScanResult.Denied("Staff Inactive", null);
-
+                if (!staff.IsActive) return ScanResult.Denied("Staff Inactive", null);
                 return ScanResult.Granted($"Staff: {staff.FullName}", null);
             }
 
-            // 1. Identity
             var member = await _memberRepository.GetByCardIdAsync(barcode);
-            if (member == null)
-            {
-                return ScanResult.Denied("Unknown ID");
-            }
+            if (member == null) return ScanResult.Denied("Unknown ID");
 
-            // 2. Subscription Status
             if (!member.IsActive)
             {
-                if (member.Status == MemberStatus.Banned)
-                    return ScanResult.Denied("Member Banned", member);
-                
+                if (member.Status == MemberStatus.Banned) return ScanResult.Denied("Member Banned", member);
                 return ScanResult.Denied("Membership Expired", member);
             }
+            
+            // Note: Surgical fix decouples UTC using local boundaries. Fallback to UtcNow here for exact time checks.
+            var localNow = DateTime.UtcNow; 
+            if (member.ExpirationDate <= localNow) return ScanResult.Denied("Membership Expired", member);
 
-            // [QA CHECK] Facility Context & Shared Access
             var currentFacilityId = _facilityService.CurrentFacilityId;
             var currentFacilityType = _facilityService.CurrentFacility;
             
-            // Get Plan for detailed checks
             MembershipPlan? plan = null;
-            if (member.MembershipPlanId.HasValue)
-            {
-                plan = await _planRepository.GetByIdAsync(member.MembershipPlanId.Value);
-            }
+            if (member.MembershipPlanId.HasValue) plan = await _planRepository.GetByIdAsync(member.MembershipPlanId.Value);
 
-            // 3. Cross-Facility Validation
             if (plan != null)
             {
-                // ALLOW if:
-                // A. The plan explicitely lists this facility
-                // B. The plan belongs to this facility (Home Gym Rule)
                 var isHomeFacility = plan.FacilityId == currentFacilityId;
                 var isRoamingAllowed = plan.AccessibleFacilities.Any(f => f.Id == currentFacilityId);
-
-                if (!isHomeFacility && !isRoamingAllowed)
-                {
-                    return ScanResult.Denied("Plan not valid for this Facility", member);
-                }
+                if (!isHomeFacility && !isRoamingAllowed) return ScanResult.Denied("Plan not valid for this Facility", member);
             }
             else if (currentFacilityType != FacilityType.General)
             {
                 return ScanResult.Denied("Premium Access Required", member);
             }
 
-            // 4. Behavioral Access Rules (Gender & Scheduling)
-            
-            // A. Gender Rule (Plan Level)
-            if (plan != null && plan.GenderRule != 0) // 0: Both
+            if (plan != null && plan.GenderRule != 0)
             {
-                var memberGenderInt = (int)member.Gender; // Assuming Enum mapping matches
-                // Rule 1: MaleOnly (1), Rule 2: FemaleOnly (2)
-                if (plan.GenderRule == 1 && member.Gender != Gender.Male)
-                    return ScanResult.Denied("Plan is Male-Only", member);
-                if (plan.GenderRule == 2 && member.Gender != Gender.Female)
-                    return ScanResult.Denied("Plan is Female-Only", member);
+                if (plan.GenderRule == 1 && member.Gender != Gender.Male) return ScanResult.Denied("Plan is Male-Only", member);
+                if (plan.GenderRule == 2 && member.Gender != Gender.Female) return ScanResult.Denied("Plan is Female-Only", member);
             }
 
-            // B. Scheduling (Facility Level)
             var facilityWindows = await GetFacilitySchedulesAsync(currentFacilityId);
             var (facilityOk, _, facReason) = ScheduleValidator.ValidateAccess(facilityWindows, DateTime.Now);
-            if (!facilityOk)
-            {
-                return ScanResult.Denied(facReason ?? "Facility is Closed", member);
-            }
+            if (!facilityOk) return ScanResult.Denied(facReason ?? "Facility is Closed", member);
 
-            // C. Scheduling (Plan Level)
             if (plan != null && !string.IsNullOrEmpty(plan.ScheduleJson))
             {
                 var planWindows = GetPlanSchedules(plan);
                 var (planOk, _, planReason) = ScheduleValidator.ValidateAccess(planWindows, DateTime.Now);
-                if (!planOk)
-                {
-                    return ScanResult.Denied(planReason ?? "Plan Outside Active Hours", member);
-                }
+                if (!planOk) return ScanResult.Denied(planReason ?? "Plan Outside Active Hours", member);
             }
 
-            // 5. Session Deduction
             if (plan != null && plan.IsSessionPack)
             {
-                // ATOMIC — no race condition possible
+                if (member.RemainingSessions <= 0) return ScanResult.Denied("No Sessions Left", member);
+            }
+
+            var daysLeft = (member.ExpirationDate - DateTime.UtcNow).TotalDays;
+            if (daysLeft < 3 && daysLeft > 0)
+            {
+                return ScanResult.Warning($"Expires in {Math.Ceiling(daysLeft)} days", member);
+            }
+
+            return ScanResult.Granted("Welcome", member);
+        }
+
+        public async Task<ScanResult> CommitAccessAsync(string barcode, System.Guid facilityId, ScanDirection direction, string? transactionId)
+        {
+            var member = await _memberRepository.GetByCardIdAsync(barcode);
+            if (member == null) return ScanResult.Denied("Unknown ID");
+
+            MembershipPlan? plan = null;
+            if (member.MembershipPlanId.HasValue) plan = await _planRepository.GetByIdAsync(member.MembershipPlanId.Value);
+
+            // Exit Penalty Fix
+            if (direction == ScanDirection.Enter && plan != null && plan.IsSessionPack)
+            {
                 var rowsAffected = await _context.Database.ExecuteSqlRawAsync(
                     @"UPDATE members 
                       SET remaining_sessions = remaining_sessions - 1, 
@@ -177,23 +166,12 @@ namespace Management.Infrastructure.Services
                       WHERE id = {0} 
                         AND remaining_sessions > 0 
                         AND facility_id = {1}",
-                    member.Id, currentFacilityId);
+                    member.Id, facilityId);
 
-                if (rowsAffected == 0)
-                {
-                    // Sessions ran out between our check and the update
-                    return ScanResult.Denied("No Sessions Left", member);
-                }
+                if (rowsAffected == 0) return ScanResult.Denied("No Sessions Left", member);
             }
 
-            // 6. Grant with Warning
-            var daysLeft = (member.ExpirationDate - DateTime.UtcNow).TotalDays;
-            if (daysLeft < 3 && daysLeft > 0)
-            {
-                return ScanResult.Warning($"Expires in {Math.Ceiling(daysLeft)} days", member);
-            }
-
-            return ScanResult.Granted("Welcome", member);
+            return ScanResult.Granted("Commit Success", member);
         }
 
         private async Task<List<ScheduleWindow>> GetFacilitySchedulesAsync(Guid facilityId)

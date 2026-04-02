@@ -12,6 +12,8 @@ namespace Management.Application.Services
         List<ScheduleWindow> GetFacilitySchedules();
         void InvalidatePlanSchedule(Guid planId);
         void InvalidateFacilitySchedules();
+        bool TryMarkMemberInside(string cardId);
+        void MarkMemberExited(string cardId);
         void Clear();
     }
 }

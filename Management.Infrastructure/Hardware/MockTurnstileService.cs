@@ -64,6 +64,11 @@ namespace Management.Infrastructure.Hardware
             // Do nothing, mock doesn't need to start background loops
         }
 
+        public Task SyncOfflineLogsAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         public void SimulatePhysicalScan(string cardId)
         {
             CardScanned?.Invoke(this, new TurnstileScanEventArgs(cardId, "MockDevice", "MockTransaction", true, 1, DateTime.UtcNow));

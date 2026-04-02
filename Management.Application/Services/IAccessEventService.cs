@@ -32,13 +32,7 @@ namespace Management.Application.Services
         /// <param name="turnstileId">Optional specific turnstile ID to simulate.</param>
         Task<Result> SimulateScanAsync(Guid facilityId, Guid? turnstileId = null);
 
-        /// <summary>
-        /// Processes an access request (either from hardware scan or manual check-in).
-        /// </summary>
-        /// <param name="cardId">The card or member identifier.</param>
-        /// <param name="facilityId">The facility context.</param>
-        /// <param name="transactionId">Optional hardware-generated transaction ID.</param>
-        /// <param name="direction">Scan direction from hardware.</param>
-        Task<Result<AccessEventDto>> ProcessAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null);
+        Task<Result<AccessEventDto>> ValidateAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null);
+        Task<Result<AccessEventDto>> CommitAccessRequestAsync(string cardId, Guid facilityId, ScanDirection direction, string? transactionId = null);
     }
 }

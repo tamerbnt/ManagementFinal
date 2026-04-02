@@ -36,6 +36,7 @@ namespace Management.Application.Features.Plans.Commands.UpdatePlan
                 dto.Description,
                 dto.DurationDays,
                 price,
+                null, // BaseSessionCount
                 dto.IsWalkIn);
 
             plan.GenderRule = dto.GenderRule;

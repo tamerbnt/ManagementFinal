@@ -727,7 +727,8 @@
             <Rectangle Width="2.5" Height="24" Fill="{DynamicResource BorderBrush}" Margin="8,0,16,0"/>
             
             <!-- Minimize -->
-            <Button Click="OnMinimize" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Minimize}">
+            <Button Click="OnMinimize" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Minimize}"
+                    shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="Transparent"/>
@@ -753,24 +754,29 @@
                 </Button.Style>
             </Button>
 
-            <!-- Maximize (Fixed Square) -->
-            <Button Click="OnMaximize" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Maximize}">
+            <!-- Maximize / Restore -->
+            <Button Click="OnMaximize" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Maximize}"
+                    shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="Button">
                                     <Border Background="{TemplateBinding Background}">
-                                        <!-- Full square outline, no clipping -->
-                                        <Path Data="M0,0 L10,0 L10,10 L0,10 Z" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.5" 
+                                        <Path x:Name="IconPath" Data="M0,0 L7,0 L7,7 L0,7 Z M3,3 L10,3 L10,10 L3,10 Z" Stroke="{TemplateBinding Foreground}" StrokeThickness="1.2" 
                                               Width="10" Height="10" Stretch="None" 
-                                              VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                              VerticalAlignment="Center" HorizontalAlignment="Center" SnapsToDevicePixels="True"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
+                                            <Setter TargetName="IconPath" Property="Data" Value="M0,0 L10,0 L10,10 L0,10 Z"/>
+                                        </DataTrigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
-                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
@@ -782,7 +788,8 @@
             </Button>
 
             <!-- Close -->
-            <Button Click="OnClose" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Close}">
+            <Button Click="OnClose" Width="46" Height="32" Cursor="Hand" ToolTip="{DynamicResource Terminology.Global.Close}"
+                    shell:WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="Transparent"/>

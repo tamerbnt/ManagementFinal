@@ -16,13 +16,18 @@ namespace Management.Presentation.Views.Shell
             
             WeakReferenceMessenger.Default.Register<FocusSearchMessage>(this, (r, m) => 
             {
-                GlobalSearchBox.Focus();
                 Keyboard.Focus(GlobalSearchBox);
             });
         }
 
         private void OnHeaderMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // GUARD — Do not intercept clicks on window control buttons
+            if (e.OriginalSource is Button || FindAncestor<Button>(e.OriginalSource as DependencyObject) != null)
+            {
+                return;
+            }
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 Window.GetWindow(this)?.DragMove();
@@ -110,6 +115,16 @@ namespace Management.Presentation.Views.Shell
             {
                 ProfileToggle.IsChecked = false;
             }
+        }
+
+        private static T? FindAncestor<T>(DependencyObject? element) where T : DependencyObject
+        {
+            while (element != null)
+            {
+                if (element is T target) return target;
+                element = VisualTreeHelper.GetParent(element);
+            }
+            return null;
         }
     }
 }
