@@ -92,6 +92,16 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                         planName = salonService.Name;
                         planPrice = salonService.BasePrice;
                     }
+                    else
+                    {
+                        var plan = await _planRepository.GetByIdAsync(dto.MembershipPlanId.Value);
+                        if (plan != null)
+                        {
+                            durationDays = plan.DurationDays;
+                            planName = plan.Name;
+                            planPrice = plan.Price.Amount;
+                        }
+                    }
                 }
                 else
                 {
