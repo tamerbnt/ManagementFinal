@@ -236,8 +236,13 @@ namespace Management.Presentation.ViewModels.Members
                     PhoneNumber = PhoneNumber,
                     CardId = CardId,
                     Gender = Gender,
-                    MembershipPlanId = selectedPlanId,
-                    MembershipPlanName = SelectedPlan?.Id == Guid.Empty ? (SelectedSalonService?.Id != Guid.Empty ? "Service Only" : "Walk-In") : SelectedPlan?.Name,
+                    // FIX: In Salon mode the handler uses dto.MembershipPlanId to look up a SalonService
+                    // (via ISalonServiceRepository). We must supply the SalonService ID, not a MembershipPlan ID.
+                    // For Gym mode, selectedServiceId is always null, so selectedPlanId is used as before.
+                    MembershipPlanId = IsSalonFacility ? (selectedServiceId ?? selectedPlanId) : selectedPlanId,
+                    MembershipPlanName = IsSalonFacility
+                        ? (SelectedSalonService?.Id != Guid.Empty ? SelectedSalonService?.Name : SelectedPlan?.Name)
+                        : (SelectedPlan?.Id == Guid.Empty ? "Walk-In" : SelectedPlan?.Name),
                     Status = MemberStatus.Active,
                     StartDate = DateTime.UtcNow,
                     ExpirationDate = (IsRenewMode && SelectedPlan?.Id == _originalPlanId && _originalExpirationDate > DateTime.UtcNow) 

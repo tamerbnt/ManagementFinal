@@ -161,27 +161,31 @@ namespace Management.Application.Features.Members.Commands.CreateMember
             {
                 await _memberRepository.AddAsync(member, saveChanges: false);
 
-                // AUTO-REVENUE: If a plan was selected, record the sale immediately.
-                if (planName != null && planPrice > 0)
-                {
-                    // Create Sale
-                    // Note: We use the plan name for both TransactionType and CapturedLabel for clarity
-                    var saleSuccess = await _gymService.SellItemAsync(
-                        member.Id.ToString(),
-                        planPrice,
-                        planName,                              // Product Name
-                        member.FacilityId,                     // Facility Id (scoped)
-                        planName,                             // Transaction Type
-                        _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
-                        planName                              // Captured Label
-                    );
-
-                    if (!saleSuccess)
+                    // AUTO-REVENUE: If a plan was selected, record the sale immediately.
+                    if (planName != null && planPrice > 0)
                     {
-                        await transaction.RollbackAsync(cancellationToken);
-                        return Result.Failure<Guid>(new Error("Member.SaleFailed", "Failed to record membership sale."));
+                        // Create Sale
+                        // publishNotification: false — the "Registration" notification published after CommitAsync
+                        // is the authoritative signal. Allowing SellItemAsync to publish a "QuickSale" notification
+                        // here would fire BEFORE the transaction commits, show a wrong undo toast, and cause a
+                        // duplicate dashboard refresh.
+                        var saleSuccess = await _gymService.SellItemAsync(
+                            member.Id.ToString(),
+                            planPrice,
+                            planName,                              // Product Name
+                            member.FacilityId,                     // Facility Id (scoped)
+                            planName,                             // Transaction Type
+                            _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
+                            planName,                             // Captured Label
+                            publishNotification: false            // FIX: suppress duplicate pre-commit notification
+                        );
+
+                        if (!saleSuccess)
+                        {
+                            await transaction.RollbackAsync(cancellationToken);
+                            return Result.Failure<Guid>(new Error("Member.SaleFailed", "Failed to record membership sale."));
+                        }
                     }
-                }
 
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

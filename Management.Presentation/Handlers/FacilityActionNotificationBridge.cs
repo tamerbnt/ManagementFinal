@@ -134,6 +134,7 @@ namespace Management.Presentation.Handlers
                 notification.ActionType == "QuickSale" || 
                 notification.ActionType == "Walk-In" || 
                 notification.ActionType == "Checkout" || 
+                notification.ActionType == "Registration" ||    // FIX: Registration creates a sale — dashboard revenue cards must refresh
                 notification.ActionType.Contains("Service"))
             {
                 _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
