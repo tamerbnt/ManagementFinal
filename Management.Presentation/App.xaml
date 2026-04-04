@@ -208,6 +208,9 @@
             <DataTemplate DataType="{x:Type shopvm:CheckoutViewModel}">
                 <shop:CheckoutView/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type shopvm:LogRestockViewModel}">
+                <shop:LogRestockView/>
+            </DataTemplate>
 
             <DataTemplate DataType="{x:Type salon:AppointmentsViewModel}">
                 <salon:AppointmentsView/>

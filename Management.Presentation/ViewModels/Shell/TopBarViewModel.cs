@@ -110,6 +110,7 @@ namespace Management.Presentation.ViewModels.Shell
         public IRelayCommand CloseSettingsCommand { get; set; }
         public IRelayCommand MarkAllAsReadCommand { get; set; }
         public IRelayCommand<BreadcrumbItem> NavigateToBreadcrumbCommand { get; }
+        public IRelayCommand SubmitSearchCommand { get; }
         public CommunityToolkit.Mvvm.Input.AsyncRelayCommand ManualSyncCommand { get; }
 
         public TopBarViewModel(
@@ -211,6 +212,14 @@ namespace Management.Presentation.ViewModels.Shell
 
             ToggleCommandPaletteCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => { }); // Keeping for compatibility but search bar is primary
             ExecuteSearchItemCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<SearchResultDto>(ExecuteSearchItem);
+            
+            SubmitSearchCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
+            {
+                if (SearchResults.Count > 0)
+                {
+                    ExecuteSearchItem(SearchResults[0]);
+                }
+            });
         }
 
         public IRelayCommand<SearchResultDto> ExecuteSearchItemCommand { get; }
@@ -245,25 +254,29 @@ namespace Management.Presentation.ViewModels.Shell
             IsSearchLoading = true;
             try
             {
-                var results = await _searchService.SearchAsync(query, _facilityContext.CurrentFacility);
+                var resultsList = (await _searchService.SearchAsync(query, _facilityContext.CurrentFacility, token)).ToList();
+                
                 if (token.IsCancellationRequested) return;
 
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
+                    // Check token one last time inside UI context
+                    if (token.IsCancellationRequested) return;
+
                     SearchResults.Clear();
-                    foreach (var result in results)
+                    foreach (var result in resultsList)
                     {
                         SearchResults.Add(result);
                     }
                     
-                    // Only open if there are results and the query isn't null
-                    IsSearchPopupOpen = SearchResults.Any();
+                    // Only open if there are results and the query isn't empty/whitespace
+                    IsSearchPopupOpen = SearchResults.Any() && !string.IsNullOrWhiteSpace(query);
                 });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Global Search Execution Error: {ex.Message}");
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                _logger.LogError(ex, "Global Search Execution Error: {Message}", ex.Message);
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     SearchResults.Clear();
                     IsSearchPopupOpen = false;
@@ -271,7 +284,10 @@ namespace Management.Presentation.ViewModels.Shell
             }
             finally
             {
-                IsSearchLoading = false;
+                if (!token.IsCancellationRequested)
+                {
+                    IsSearchLoading = false;
+                }
             }
         }
 

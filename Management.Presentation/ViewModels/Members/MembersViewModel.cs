@@ -57,21 +57,42 @@ namespace Management.Presentation.ViewModels.Members
                 }
                 else if (Guid.TryParse(param, out Guid memberId))
                 {
-                    // Ensure data is loaded
+                    // Ensure data is loaded (initial page)
                     if (FilteredMembers.Count == 0 && !IsLoading)
                     {
                         await LoadMembersAsync();
                     }
 
                     var member = FilteredMembers.FirstOrDefault(m => m.Id == memberId);
+                    
+                    // IF NOT FOUND: The member might be on a later page (page 2+) of a large dataset.
+                    // We fetch them specifically to ensure they are available for selection and highlighting.
+                    if (member == null)
+                    {
+                        var result = await _memberService.GetMemberAsync(_facilityContext.CurrentFacilityId, memberId);
+                        if (result.IsSuccess && result.Value != null)
+                        {
+                            // Reset filters to ensure the member is visible in the "All" view context
+                            SelectedFilter = MemberFilterStatus.All;
+                            SearchText = string.Empty;
+                            
+                            // Inject at the top of the collection for immediate visibility
+                            FilteredMembers.Insert(0, result.Value);
+                            member = result.Value;
+                        }
+                    }
+
                     if (member != null)
                     {
                         SelectedMember = member;
                         IsDetailPanelOpen = true;
                         
-                        // Highlighting (optional but recommended)
+                        // Highlighting logic (sets IsActive which triggers XAML DataTriggers)
                         foreach (var m in FilteredMembers) m.IsActive = false;
                         member.IsActive = true;
+                        
+                        // Refresh selection binding to trigger UI scroll events in code-behind
+                        OnPropertyChanged(nameof(SelectedMember));
                     }
                 }
                 else
@@ -152,15 +173,18 @@ namespace Management.Presentation.ViewModels.Members
             _searchCts = new CancellationTokenSource();
             var token = _searchCts.Token;
 
-            Task.Run(async () =>
+            // Debounce on the UI thread to maintain synchronization context
+            _ = DebounceSearchAsync(token);
+        }
+
+        private async Task DebounceSearchAsync(CancellationToken ct)
+        {
+            try
             {
-                try
-                {
-                    await Task.Delay(400, token);
-                    await RefreshFiltersAsync();
-                }
-                catch (OperationCanceledException) { }
-            }, token);
+                await Task.Delay(400, ct);
+                await RefreshFiltersAsync();
+            }
+            catch (OperationCanceledException) { }
         }
 
         private async Task RefreshFiltersAsync()
@@ -553,28 +577,31 @@ namespace Management.Presentation.ViewModels.Members
 
                 if (result.IsSuccess)
                 {
-                    var selectedId = SelectedMember?.Id;
-                    
-                    if (isLoadMore)
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => 
                     {
-                        FilteredMembers.AddRange(result.Value.Items);
-                    }
-                    else
-                    {
-                        FilteredMembers.ReplaceRange(result.Value.Items);
-                    }
-
-                    TotalCount = result.Value.TotalCount;
-                    HasMoreItems = FilteredMembers.Count < TotalCount;
-                    
-                    if (selectedId != null)
-                    {
-                        var newSelected = FilteredMembers.FirstOrDefault(m => m.Id == selectedId);
-                        if (newSelected != null)
+                        var selectedId = SelectedMember?.Id;
+                        
+                        if (isLoadMore)
                         {
-                            SelectedMember = newSelected;
+                            FilteredMembers.AddRange(result.Value.Items);
                         }
-                    }
+                        else
+                        {
+                            FilteredMembers.ReplaceRange(result.Value.Items);
+                        }
+
+                        TotalCount = result.Value.TotalCount;
+                        HasMoreItems = FilteredMembers.Count < TotalCount;
+                        
+                        if (selectedId != null)
+                        {
+                            var newSelected = FilteredMembers.FirstOrDefault(m => m.Id == selectedId);
+                            if (newSelected != null)
+                            {
+                                SelectedMember = newSelected;
+                            }
+                        }
+                    });
                 }
                 else
                 {
@@ -584,7 +611,7 @@ namespace Management.Presentation.ViewModels.Members
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading members");
-                _toastService.ShowError("An unexpected error occurred while loading members.");
+                _toastService.ShowError("An unexpected error occurred while loading members. Please try again.");
             }
             finally
             {

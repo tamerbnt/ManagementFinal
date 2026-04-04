@@ -111,6 +111,18 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                 var expirationDate = dto.ExpirationDate != default ? dto.ExpirationDate : startDate.AddDays(durationDays);
                 member.ActivateMembership(startDate, expirationDate);
             }
+
+            // --- CRITICAL FIX: Explicit Industry Tagging ---
+            // If we don't set this, the member defaults to "Gym" in the model, 
+            // causing them to be invisible in Salon search results.
+            if (_facilityContext.CurrentFacility == FacilityType.Salon)
+            {
+                member.SetMetadata(new SalonMemberMetadata());
+            }
+            else if (_facilityContext.CurrentFacility == FacilityType.Gym)
+            {
+                member.SetMetadata(new GymMemberMetadata());
+            }
             
             var tenantId = _tenantService.GetTenantId();
             if (tenantId.HasValue)

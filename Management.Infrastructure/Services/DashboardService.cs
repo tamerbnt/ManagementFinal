@@ -207,37 +207,46 @@ namespace Management.Infrastructure.Services
         public async Task<List<DateTimePoint>> GetRevenueTrendAsync(Guid facilityId, DateTime monthStart, DateTime monthEnd)
         {
             var utcStart = monthStart.Kind == DateTimeKind.Utc ? monthStart : monthStart.ToUniversalTime();
-            var utcEnd = monthEnd.Kind == DateTimeKind.Utc ? monthEnd : monthEnd.ToUniversalTime();
+            var utcEnd   = monthEnd.Kind   == DateTimeKind.Utc ? monthEnd   : monthEnd.ToUniversalTime();
 
-            var salesData = await _dbContext.Sales
+            // FIX: Materialize raw UTC timestamps first, THEN group in-memory.
+            // EF Core / PostgreSQL cannot translate .ToLocalTime() inside LINQ-to-SQL GroupBy.
+            var rawSales = await _dbContext.Sales
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId && s.Timestamp >= utcStart && s.Timestamp < utcEnd)
-                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
-                .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
+                .Where(s => s.FacilityId == facilityId &&
+                            s.Timestamp >= utcStart && s.Timestamp < utcEnd)
+                .Select(s => new { s.Timestamp, Amount = s.TotalAmount.Amount })
                 .ToListAsync();
 
-            var restaurantData = await _dbContext.RestaurantOrders
+            var rawOrders = await _dbContext.RestaurantOrders
                 .AsNoTracking()
+                .IgnoreQueryFilters()  // Added for consistency with Sales query
                 .Where(o => o.FacilityId == facilityId &&
                             o.CompletedAt >= utcStart && o.CompletedAt < utcEnd &&
                             (o.Status == Management.Domain.Models.Restaurant.OrderStatus.Completed ||
                              o.Status == Management.Domain.Models.Restaurant.OrderStatus.Paid))
-                .GroupBy(o => o.CompletedAt!.Value.ToLocalTime().Date)
-                .Select(g => new { Date = g.Key, Total = g.Sum(o => (double)(o.Subtotal + o.Tax)) })
+                .Select(o => new { Date = o.CompletedAt!.Value, Amount = o.Subtotal + o.Tax })
                 .ToListAsync();
 
-            var salesMap = salesData.ToDictionary(x => x.Date, x => x.Total);
-            var restaurantMap = restaurantData.ToDictionary(x => x.Date, x => x.Total);
+            // Group in-memory using local time (safe — data is already materialized)
+            var salesMap = rawSales
+                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
+                .ToDictionary(g => g.Key, g => g.Sum(s => (double)s.Amount));
 
+            var restaurantMap = rawOrders
+                .GroupBy(o => o.Date.ToLocalTime().Date)
+                .ToDictionary(g => g.Key, g => g.Sum(o => (double)o.Amount));
+
+            // Build a dense point per calendar day (zero-padded for missing days)
             var trend = new List<DateTimePoint>();
-            var totalDays = (monthEnd.Date - monthStart.Date).Days;
+            int totalDays = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
 
             for (int i = 0; i < totalDays; i++)
             {
-                var date = monthStart.Date.AddDays(i);
+                var date  = monthStart.Date.AddDays(i);
                 double total = 0;
-                if (salesMap.TryGetValue(date, out var saleTotal)) total += saleTotal;
+                if (salesMap.TryGetValue(date, out var saleTotal))  total += saleTotal;
                 if (restaurantMap.TryGetValue(date, out var restTotal)) total += restTotal;
                 trend.Add(new DateTimePoint(date, total));
             }
@@ -481,6 +490,25 @@ namespace Management.Infrastructure.Services
             var minDate = revenueData.Any() ? revenueData.Min(x => x.Timestamp) : monthStart;
             var maxDate = revenueData.Any() ? revenueData.Max(x => x.Timestamp) : DateTime.UtcNow;
             result.TotalDaysAnalyzed = (int)Math.Max(1, (maxDate - minDate).TotalDays);
+
+            // 3. Goal Pacing Engine (Trend Continuation)
+            decimal totalHistorical = revenueData.Sum(x => x.Amount);
+            decimal fixedMrr = revenueData.Where(x => x.Category == Management.Domain.Enums.SaleCategory.Membership).Sum(x => x.Amount);
+            decimal variablePos = totalHistorical - fixedMrr;
+
+            int projectionDays = result.TotalDaysAnalyzed;
+            decimal dailyVariableVelocity = variablePos / projectionDays;
+            decimal projectedAdditional = dailyVariableVelocity * projectionDays;
+            decimal targetGoal = totalHistorical * 1.3m; // Base goal is 30% higher than historical for presentation
+
+            result.Prediction = new RevenuePredictionDto
+            {
+                HistoricalRevenue = totalHistorical,
+                PredictedAdditionalRevenue = projectedAdditional,
+                TargetGoal = targetGoal > 0 ? targetGoal : 10000,
+                Title = $"PROJECTION (NEXT {projectionDays} DAYS)",
+                Subtext = $"Based on {dailyVariableVelocity:N0} DA daily average (excluding fixed memberships)"
+            };
 
             return result;
         }

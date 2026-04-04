@@ -53,19 +53,34 @@
             <!-- ====================================================================== -->
             <!-- SECTION 0: DASHBOARD HEADER (Greeting + Primary Action) -->
             <!-- ====================================================================== -->
-            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32">
-                <!-- Time-based Greeting -->
-                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32" HorizontalAlignment="Left">
+                <Grid.ColumnDefinitions>
+                    <!-- Auto-sized Left Column for Text (pushes the image against it) -->
+                    <ColumnDefinition Width="Auto" /> 
+                    <!-- Rigid Right Column for Illustration -->
+                    <ColumnDefinition Width="Auto" /> 
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,24,0,24">
                     <Path Data="{StaticResource IconGym}" 
                           Style="{StaticResource Style.Icon.Large}" 
                           Stroke="{DynamicResource TextPrimaryBrush}"
                           Margin="0,0,16,0"
                           VerticalAlignment="Center"/>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{Binding GreetingText}" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}" FontFamily="Segoe UI Variable Display"/>
-                        <TextBlock Text="{DynamicResource Terminology.Home.Subtitle}" FontSize="15" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding GreetingText}" MaxWidth="600" TextTrimming="CharacterEllipsis" FontSize="28" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}" FontFamily="Segoe UI Variable Display"/>
+                        <TextBlock Text="{DynamicResource Terminology.Home.Subtitle}" MaxWidth="600" TextTrimming="CharacterEllipsis" FontSize="15" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </StackPanel>
+
+                <!-- Right Column: Anchored Illustration Zone directly right of the text -->
+                <Image Grid.Column="1" 
+                       HorizontalAlignment="Left" 
+                       VerticalAlignment="Bottom"
+                       Height="130" 
+                       Margin="32,0,0,0"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Source="/Resources/Images/Welcome_Gym.png" />
             </Grid>
 
             <!-- ====================================================================== -->

@@ -35,6 +35,9 @@ namespace Management.Presentation.ViewModels.Shop
         public IRelayCommand AddToCartCommand { get; }
         public IRelayCommand ViewDetailsCommand { get; }
         public IAsyncRelayCommand ModifyProductCommand { get; }
+        public IAsyncRelayCommand OpenRestockCommand { get; }
+
+        public bool IsRestockVisible => _parent.CurrentFacilityType is Management.Domain.Enums.FacilityType.Gym or Management.Domain.Enums.FacilityType.Salon;
 
         public ProductItemViewModel(ProductDto product, ShopViewModel parent)
         {
@@ -60,6 +63,11 @@ namespace Management.Presentation.ViewModels.Shop
 
             ModifyProductCommand = new AsyncRelayCommand(async () => {
                 await parent.OpenEditProductCommand.ExecuteAsync(CreateCurrentDto());
+            });
+
+            OpenRestockCommand = new AsyncRelayCommand(async () => {
+                // We'll implement this bridge in ShopViewModel
+                await parent.OpenRestockProductCommand.ExecuteAsync(CreateCurrentDto());
             });
         }
 

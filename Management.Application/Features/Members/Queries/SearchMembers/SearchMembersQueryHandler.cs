@@ -77,8 +77,8 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
             {
                 Id = entity.Id,
                 FullName = entity.FullName,
-                Email = entity.Email.Value,
-                PhoneNumber = entity.PhoneNumber.Value,
+                Email = entity.Email?.Value ?? string.Empty,
+                PhoneNumber = entity.PhoneNumber?.Value ?? string.Empty,
                 CardId = entity.CardId,
                 Status = entity.Status,
                 StartDate = entity.StartDate,
@@ -118,8 +118,8 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
             {
                 Id = entity.Id,
                 FullName = entity.FullName,
-                Email = entity.Email.Value,
-                PhoneNumber = entity.PhoneNumber.Value,
+                Email = entity.Email?.Value ?? string.Empty,
+                PhoneNumber = entity.PhoneNumber?.Value ?? string.Empty,
                 CardId = entity.CardId,
                 Status = entity.Status,
                 StartDate = entity.StartDate,

@@ -30,6 +30,8 @@ namespace Management.Application.DTOs
     public class ChurnRiskDto
     {
         public string MemberName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public int DaysSinceLastVisit { get; set; }
         public string RiskLevel { get; set; } = "Low"; // "High", "Medium", "Low"
         public string Reason { get; set; } = string.Empty; // "Low Attendance", "Payment Failure"
@@ -59,6 +61,17 @@ namespace Management.Application.DTOs
         public double Percentage { get; set; }
     }
 
+    public class RevenuePredictionDto
+    {
+        public decimal HistoricalRevenue { get; set; }
+        public decimal PredictedAdditionalRevenue { get; set; }
+        public decimal TotalPredictedRevenue => HistoricalRevenue + PredictedAdditionalRevenue;
+        public decimal TargetGoal { get; set; }
+        public double PercentageOfGoal => TargetGoal > 0 ? (double)(TotalPredictedRevenue / TargetGoal) * 100 : 0;
+        public string Title { get; set; } = string.Empty;
+        public string Subtext { get; set; } = string.Empty;
+    }
+
     public class RevenueHistoryDto
     {
         public List<PlanRevenueDto> TopPlans { get; set; } = new();
@@ -68,6 +81,7 @@ namespace Management.Application.DTOs
         public PopularItemDto BestProductOfMonth { get; set; } = new();
         public string AnalysisPeriod { get; set; } = string.Empty; // e.g. "Lifetime" or "Last 30 Days"
         public int TotalDaysAnalyzed { get; set; }
+        public RevenuePredictionDto Prediction { get; set; }
     }
 
     public class GenderSplitDto

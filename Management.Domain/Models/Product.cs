@@ -144,5 +144,39 @@ namespace Management.Domain.Models
         {
             IsActive = true;
         }
+
+        public Result ReceiveStock(int quantityAdded, Money unitCost, Money? newSalePrice = null)
+        {
+            if (quantityAdded < 0)
+                return Result.Failure(new Error("Product.InvalidQuantity", "Received quantity cannot be negative."));
+
+            // Calculate Weighted Average Cost (WAC)
+            // If current stock is 0 or negative, the new unit cost simply becomes the latest purchase price
+            if (StockQuantity <= 0)
+            {
+                Cost = unitCost;
+            }
+            else
+            {
+                decimal currentTotalValue = StockQuantity * Cost.Amount;
+                decimal newPurchaseValue = quantityAdded * unitCost.Amount;
+                decimal newTotalQuantity = StockQuantity + quantityAdded;
+                
+                decimal newAverageCost = (currentTotalValue + newPurchaseValue) / newTotalQuantity;
+                Cost = new Money(newAverageCost, Cost.Currency);
+            }
+
+            // Update Stock
+            StockQuantity += quantityAdded;
+
+            // Update Sale Price if provided
+            if (newSalePrice != null)
+            {
+                Price = newSalePrice;
+            }
+
+            UpdateTimestamp();
+            return Result.Success();
+        }
     }
 }

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Management.Presentation.Extensions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Management.Application.Interfaces.ViewModels;
+using Management.Presentation.Services;
+using Management.Presentation.ViewModels.Base;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Management.Presentation.Stores
 {
@@ -113,6 +115,20 @@ namespace Management.Presentation.Stores
                     OpenedAt = DateTime.UtcNow,
                     CompletionSource = new TaskCompletionSource<ModalResult>()
                 };
+
+                // PHASED INITIALIZATION (Mirroring ModalNavigationService)
+                if (parameter != null)
+                {
+                    if (viewModel is IParameterReceiver parameterReceiver)
+                    {
+                        await parameterReceiver.SetParameterAsync(parameter);
+                    }
+
+                    if (viewModel is IInitializable<object?> initializable)
+                    {
+                        await initializable.InitializeAsync(parameter, token);
+                    }
+                }
 
                 if (viewModel is IModalAware modalAware)
                 {

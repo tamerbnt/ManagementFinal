@@ -81,6 +81,11 @@ namespace Management.Infrastructure.Repositories
             bool? isActiveFilter,
             DateTime? expiringBefore = null)
         {
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] --- BuildSearchQuery Start ---");
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] SearchTerm: '{searchTerm}'");
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] FacilityId Filter: {facilityId?.ToString() ?? "NULL"}");
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] Status Filter: {status?.ToString() ?? "NULL"}");
+
             var query = _dbSet.AsNoTracking().Where(m => !m.IsDeleted);
             if (facilityId.HasValue)
             {
@@ -130,14 +135,16 @@ namespace Management.Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 string pattern = $"%{searchTerm}%";
+                System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] Applying Search Pattern: {pattern}");
                 query = query.Where(m => 
                     EF.Functions.Like(m.FullName, pattern) ||
-                    (m.Email != null && EF.Functions.Like(m.Email.Value, pattern)) ||
-                    (m.PhoneNumber != null && EF.Functions.Like(m.PhoneNumber.Value, pattern)) ||
+                    (m.Email != null && EF.Functions.Like((string)(object)m.Email, pattern)) ||
+                    (m.PhoneNumber != null && EF.Functions.Like((string)(object)m.PhoneNumber, pattern)) ||
                     (m.CardId != null && EF.Functions.Like(m.CardId, pattern))
                 );
             }
 
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] --- BuildSearchQuery End ---");
             return query;
         }
 

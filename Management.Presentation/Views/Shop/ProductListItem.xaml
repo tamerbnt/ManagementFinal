@@ -119,43 +119,62 @@
                     </TextBlock.Style>
                 </TextBlock>
 
-                <!-- Stock & Actions -->
-                <Grid Margin="0,12,0,0">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
-                                Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
-                        <Ellipse Width="8" Height="8" Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding StockStatusText}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
-                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                            <Setter Property="Foreground" Value="White"/>
-                                            <Setter Property="Opacity" Value="0.8"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
+                    <!-- Stock & Actions -->
+                    <Grid Margin="0,12,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" 
+                                    Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                            <Ellipse Width="8" Height="8" Fill="{Binding StockLevel, Converter={StaticResource StockToBrushConverter}}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding StockStatusText}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="Opacity" Value="0.8"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
 
-                    <!-- Quick Add Button (Visible on Hover) -->
-                    <Button Command="{Binding ModifyProductCommand}" 
-                            Content="{DynamicResource Terminology.Shop.Action.Modify}" 
-                            Height="32"
-                            Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
-                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                </Grid>
+                        <!-- Actions (Visible on Hover) -->
+                        <UniformGrid Columns="2" 
+                                     Visibility="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Button Command="{Binding ModifyProductCommand}" 
+                                    Content="{DynamicResource Terminology.Shop.Action.Modify}" 
+                                    Height="32" Margin="0,0,4,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <Button Command="{Binding OpenRestockCommand}" 
+                                    Content="Restock" 
+                                    Height="32" Margin="4,0,0,0"
+                                    Visibility="{Binding IsRestockVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="BorderBrush" Value="White"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </UniformGrid>
+                    </Grid>
             </StackPanel>
         </Grid>
     </Border>

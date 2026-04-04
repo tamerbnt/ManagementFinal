@@ -190,6 +190,7 @@ namespace Management.Infrastructure.Data
         public DbSet<FacilitySchedule> FacilitySchedules { get; set; }
         public DbSet<OutboxMessage> OutboxMessages { get; set; }
         public DbSet<OfflineAction> OfflineActions { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
 
         private static string UnescapeOverSerializedJson(string val)
         {
@@ -527,6 +528,33 @@ namespace Management.Infrastructure.Data
                 entity.HasIndex(s => new { s.FacilityId, s.TenantId }).HasDatabaseName("idx_staff_performance_composite");
             });
 
+            // InventoryTransaction configuration
+            modelBuilder.Entity<InventoryTransaction>(entity =>
+            {
+                entity.ToTable("inventory_transactions");
+                entity.HasKey(e => e.Id);
+
+                entity.OwnsOne(e => e.UnitCost, b =>
+                {
+                    b.Property(p => p.Amount).HasColumnName("unit_cost_amount");
+                    b.Property(p => p.Currency).HasColumnName("unit_cost_currency");
+                });
+
+                entity.OwnsOne(e => e.TotalCost, b =>
+                {
+                    b.Property(p => p.Amount).HasColumnName("total_cost_amount");
+                    b.Property(p => p.Currency).HasColumnName("total_cost_currency");
+                });
+
+                entity.OwnsOne(e => e.NewSalePrice, b =>
+                {
+                    b.Property(p => p.Amount).HasColumnName("new_sale_price_amount");
+                    b.Property(p => p.Currency).HasColumnName("new_sale_price_currency");
+                });
+
+                entity.HasIndex(e => new { e.FacilityId, e.ProductId, e.Timestamp }).HasDatabaseName("idx_inventory_performance_composite");
+            });
+
             // --- GLOBAL QUERY FILTERS (Multi-Tenancy) ---
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
@@ -718,6 +746,10 @@ namespace Management.Infrastructure.Data
                 optionsBuilder.UseSqlite($"Data Source={dbPath};Mode=ReadWriteCreate;Foreign Keys=True;Pooling=True;");
             }
             
+            // DIAGNOSTICS: Capture SQL in Debug for Search Hardening
+            // optionsBuilder.LogTo(s => System.Diagnostics.Debug.WriteLine(s), Microsoft.Extensions.Logging.LogLevel.Information)
+            //               .EnableSensitiveDataLogging();
+
             // Add Interceptors if they were provided (avoids resolution loop in App.xaml.cs delegate)
             if (_shadowInterceptor != null) optionsBuilder.AddInterceptors(_shadowInterceptor);
             if (_outboxInterceptor != null) optionsBuilder.AddInterceptors(_outboxInterceptor);

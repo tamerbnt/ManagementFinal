@@ -529,7 +529,8 @@ namespace Management.Presentation
                 mappingService.Register<OccupancyHistoryViewModel, OccupancyHistoryView>();
                 mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
-                // SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
+                mappingService.Register<InventoryHistoryViewModel, InventoryHistoryView>();
+                // LogRestockViewModel, SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
                 // so it doesn't need to be registered in the Modal ViewMappingService.
@@ -1003,6 +1004,7 @@ namespace Management.Presentation
             
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IRepository<Product>>(s => s.GetRequiredService<IProductRepository>());
+            services.AddScoped<IInventoryRepository, InventoryRepository>();
             
             services.AddScoped<ITurnstileRepository, TurnstileRepository>();
             
@@ -1066,7 +1068,7 @@ namespace Management.Presentation
             services.AddTransient<IReservationService, ReservationService>();
             services.AddTransient<IMembershipPlanService, MembershipPlanService>();
             services.AddTransient<ISessionMonitorService, SessionMonitorService>();
-            services.AddSingleton<Management.Domain.Services.IEmailService, Management.Infrastructure.Services.NullEmailService>();
+            services.AddHttpClient<Management.Domain.Services.IEmailService, Management.Infrastructure.Services.BrevoEmailService>();
             // Added Missing Domain Services
             services.AddTransient<Management.Application.Interfaces.App.IGymOperationService, Management.Application.Services.GymOperationService>();
             services.AddSingleton<Management.Application.Interfaces.App.IAudioService, Management.Infrastructure.Services.Audio.AudioService>();
@@ -1102,6 +1104,7 @@ namespace Management.Presentation
             services.AddTransient<IDashboardAggregator, StaffAggregator>();
             services.AddTransient<IDashboardAggregator, TrendAggregator>();
             services.AddTransient<IDashboardAggregator, ActivityAggregator>();
+            services.AddTransient<IDashboardAggregator, RetentionAggregator>();
 
             services.AddTransient<IDashboardService, DashboardService>();
             services.AddTransient<ITransactionService, TransactionService>();
@@ -1109,6 +1112,7 @@ namespace Management.Presentation
             services.AddSingleton<IConfigurationService, ConfigurationService>();
             services.AddTransient<IReportingService, ReportingService>();
             services.AddSingleton<Management.Application.Services.ISecureStorageService, Management.Presentation.Services.Infrastructure.SecureStorageService>();
+            services.AddTransient<IProductInventoryService, ProductInventoryService>();
 
             // --- DIAGNOSTIC SYSTEM ---
             services.AddSingleton<Management.Application.Services.IDiagnosticService, Management.Presentation.Services.DiagnosticService>();
@@ -1281,6 +1285,8 @@ namespace Management.Presentation
             services.AddTransient<PayrollHistoryViewModel>();
             services.AddTransient<RevenueHistoryViewModel>();
             services.AddTransient<OccupancyHistoryViewModel>();
+            services.AddTransient<InventoryHistoryViewModel>();
+            services.AddTransient<LogRestockViewModel>();
             services.AddTransient<AppExitViewModel>();
 
             // --- VIEWS ---
@@ -1294,6 +1300,8 @@ namespace Management.Presentation
             services.AddTransient<AppointmentDetailModal>();
             services.AddTransient<RevenueHistoryView>();
             services.AddTransient<OccupancyHistoryView>();
+            services.AddTransient<InventoryHistoryView>();
+            services.AddTransient<LogRestockView>();
         }
 
         private async System.Threading.Tasks.Task InitializeDatabaseAsync(CancellationToken ct = default)

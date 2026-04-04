@@ -27,6 +27,7 @@ using Management.Presentation.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 using Management.Presentation.Messages;
 using Management.Domain.Models;
+using Management.Presentation.ViewModels.History;
 using Microsoft.Extensions.DependencyInjection;
 using Management.Presentation.ViewModels.Dashboard;
 using Management.Presentation.ViewModels.Finance;
@@ -101,7 +102,7 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private ISeries[] _occupancySeries = Array.Empty<ISeries>();
 
-        // ── Revenue Trend Chart ──────────────────────────────────────────────
+        // ── Modern Revenue Trend Chart ──────────────────────────────────────
         [ObservableProperty]
         private ISeries[] _revenueSeries = Array.Empty<ISeries>();
 
@@ -118,15 +119,6 @@ namespace Management.Presentation.ViewModels.Shell
         private string _formattedRevenueTrendMonth = DateTime.Now.ToString("MMMM yyyy").ToUpper();
 
         [ObservableProperty]
-        private string _revenueTrendTotal = "0.00 DA";
-
-        [ObservableProperty]
-        private string _revenueTrendDailyAvg = "0.00 DA";
-
-        [ObservableProperty]
-        private string _revenueTrendBestDay = "–";
-
-        [ObservableProperty]
         private bool _isRevenueTrendLoading;
         // ────────────────────────────────────────────────────────────────────
 
@@ -141,6 +133,23 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private Axis[] _occupancyYAxes = Array.Empty<Axis>();
+
+        // ── Retention Guardian (Churn Risk) ──────────────────────────────────
+        [ObservableProperty]
+        private bool _isRetentionDetailVisible;
+
+        [ObservableProperty]
+        private ISeries[] _retentionSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _retentionXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _retentionYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private string _retentionSummaryText = "Check your community health";
+        // ────────────────────────────────────────────────────────────────────
 
         [ObservableProperty]
         private DateTime _selectedOccupancyDate = DateTime.Today;
@@ -246,6 +255,8 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly IModalNavigationService _modalNavigationService;
         private readonly IServiceProvider _serviceProvider;
         private readonly IReportingService _reportingService;
+        private readonly IEmailService _emailService;
+        private readonly ISecureStorageService _secureStorage;
 
         public DashboardViewModel(
             IDashboardService dashboardService, 
@@ -260,7 +271,9 @@ namespace Management.Presentation.ViewModels.Shell
             ILocalizationService localizationService,
             ISyncService syncService,
             IServiceScopeFactory scopeFactory,
-            IDispatcher dispatcher) 
+            IDispatcher dispatcher,
+            IEmailService emailService,
+            ISecureStorageService secureStorage) 
             : base(terminologyService, facilityContextService, logger, diagnosticService, toastService, localizationService)
         {
             _refreshDebounceCts = new System.Threading.CancellationTokenSource();
@@ -272,6 +285,8 @@ namespace Management.Presentation.ViewModels.Shell
             _syncService = syncService;
             _scopeFactory = scopeFactory;
             _dispatcher = dispatcher;
+            _emailService = emailService;
+            _secureStorage = secureStorage;
             
             // Register for Messenger updates
             WeakReferenceMessenger.Default.RegisterAll(this);
@@ -399,9 +414,201 @@ namespace Management.Presentation.ViewModels.Shell
             }
         }
 
+        [RelayCommand]
+        private void ToggleRetentionView()
+        {
+            IsRetentionDetailVisible = !IsRetentionDetailVisible;
+        }
+       
+
+        private async Task RefreshRetentionDataAsync(DashboardSummaryDto summary)
+        {
+            if (summary?.ChurnRisks == null) return;
+
+            await _dispatcher.InvokeAsync(() =>
+            {
+                ChurnRisks.ReplaceRange(summary.ChurnRisks);
+
+                // Update Summary Text
+                var highRiskCount = summary.ChurnRisks.Count(r => r.RiskLevel == "High");
+                if (highRiskCount > 0)
+                    RetentionSummaryText = $"{highRiskCount} members are at high risk of churning.";
+                else
+                    RetentionSummaryText = summary.ChurnRisks.Any() 
+                        ? $"{summary.ChurnRisks.Count} members need re-engagement."
+                        : "Your community health looks great!";
+
+                // Build simple distribution chart for the "Graph" tab
+                var highCount = summary.ChurnRisks.Count(r => r.RiskLevel == "High");
+                var medCount = summary.ChurnRisks.Count(r => r.RiskLevel == "Medium");
+
+                if (highCount == 0 && medCount == 0)
+                {
+                    // "All Clear" Solid Teal Chart
+                    RetentionSeries = new ISeries[]
+                    {
+                        new PieSeries<int>
+                        {
+                            Name = "Healthy",
+                            Values = new[] { 100 },
+                            Fill = new SolidColorPaint(SKColor.Parse("#10B981")), // Emerald/Teal
+                            InnerRadius = 60,
+                            DataLabelsPaint = null
+                        }
+                    };
+                }
+                else
+                {
+                    RetentionSeries = new ISeries[]
+                    {
+                        new PieSeries<int>
+                        {
+                            Name = "High Risk",
+                            Values = new[] { highCount },
+                            Fill = new SolidColorPaint(SKColor.Parse("#EF4444")), // Red
+                            InnerRadius = 60
+                        },
+                        new PieSeries<int>
+                        {
+                            Name = "Medium Risk",
+                            Values = new[] { medCount },
+                            Fill = new SolidColorPaint(SKColor.Parse("#F59E0B")), // Amber
+                            InnerRadius = 60
+                        }
+                    };
+                }
+            });
+        }
+        private async Task RefreshRevenueTrendAsync()
+        {
+            if (CurrentFacilityId == Guid.Empty) return;
+
+            try
+            {
+                IsRevenueTrendLoading = true;
+                _logger?.LogInformation("[Dashboard] Refreshing High-Fidelity Revenue Trend for Facility: {FacilityId}", CurrentFacilityId);
+
+                // 1. Precise Month Calculation
+                var monthStart = new DateTime(SelectedRevenueTrendMonth.Year, SelectedRevenueTrendMonth.Month, 1);
+                var monthEnd = monthStart.AddMonths(1);
+                int daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
+
+                // 2. Surgical Data Fetching (Facility Aware)
+                List<DateTimePoint> trend;
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var svc = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                    // Check mode to decide which table to aggregate from
+                    if (IsRestaurantMode)
+                    {
+                        // Custom logic for restaurant orders (Menu + Tax)
+                        trend = await svc.GetRevenueTrendAsync(CurrentFacilityId, monthStart, monthEnd); 
+                        // Note: Internal DashboardService already branched for Restaurant if implemented correctly, 
+                        // but we ensure context is passed.
+                    }
+                    else
+                    {
+                        // Default logic for Gym/Salon (Sales Table)
+                        trend = await svc.GetRevenueTrendAsync(CurrentFacilityId, monthStart, monthEnd);
+                    }
+                }
+
+                if (trend == null) trend = new List<DateTimePoint>();
+
+                // 3. Dense Data Mapping (Zero-Gap)
+                var values = new double[daysInMonth];
+                var labels = new string[daysInMonth];
+                for (int i = 0; i < daysInMonth; i++)
+                {
+                    int day = i + 1;
+                    labels[i] = day.ToString();
+                    
+                    // Match by Day with safety for month-end overlaps
+                    var point = trend.FirstOrDefault(p => p.DateTime.Date == monthStart.AddDays(i).Date);
+                    values[i] = point?.Value ?? 0;
+                }
+
+                // 4. Premium Visual Styling
+                await _dispatcher.InvokeAsync(() =>
+                {
+                    RevenueSeries = new ISeries[]
+                    {
+                        new LineSeries<double>
+                        {
+                            Name = "Revenue",
+                            Values = new System.Collections.ObjectModel.ObservableCollection<double>(values),
+                            Stroke = new SolidColorPaint(SKColor.Parse("#8B5CF6")) { StrokeThickness = 4 },
+                            Fill = new LinearGradientPaint(
+                                new[] { SKColor.Parse("#8B5CF6").WithAlpha(60), SKColors.Transparent },
+                                new SKPoint(0.5f, 0), new SKPoint(0.5f, 1)),
+                            GeometrySize = 10,
+                            GeometryStroke = new SolidColorPaint(SKColor.Parse("#8B5CF6")) { StrokeThickness = 2 },
+                            GeometryFill = new SolidColorPaint(SKColors.White),
+                            LineSmoothness = 0.5,
+                            YToolTipLabelFormatter = point => $"{point.Model:N2} DA"
+                        }
+                    };
+
+                    RevenueXAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = labels,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            TextSize = 11,
+                            MinStep = 1,
+                            SeparatorsPaint = null,
+                            Padding = new LiveChartsCore.Drawing.Padding(0, 10, 0, 0)
+                        }
+                    };
+
+                    RevenueYAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labeler = value => $"{value:N0} DA",
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F1F5F9")) { StrokeThickness = 1 },
+                            TextSize = 11,
+                            MinLimit = 0
+                        }
+                    };
+
+                    FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to refresh High-Fidelity Revenue Trend");
+            }
+            finally
+            {
+                IsRevenueTrendLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task PreviousRevenueTrendMonth()
+        {
+            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(-1);
+            await RefreshRevenueTrendAsync();
+        }
+
+        [RelayCommand]
+        private async Task NextRevenueTrendMonth()
+        {
+            var now = DateTime.Now;
+            if (SelectedRevenueTrendMonth.Year >= now.Year && SelectedRevenueTrendMonth.Month >= now.Month)
+                return;
+
+            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(1);
+            await RefreshRevenueTrendAsync();
+        }
+
         private async Task RefreshRevenueBreakdown()
         {
             GetDateRange(SelectedPlanFilter, out var start, out var end);
+
             var facilityId = _facilityContext.CurrentFacilityId;
 
             List<PlanRevenueDto> data;
@@ -468,160 +675,6 @@ namespace Management.Presentation.ViewModels.Shell
         }
 
 
-        private async Task RefreshRevenueTrendAsync()
-        {
-            if (CurrentFacilityId == Guid.Empty) return;
-
-            try
-            {
-                IsRevenueTrendLoading = true;
-                _logger?.LogInformation("[Dashboard] Refreshing Revenue Trend for Facility: {FacilityId}", CurrentFacilityId);
-
-                // 1. Calculate Month Range
-                var monthStart = new DateTime(SelectedRevenueTrendMonth.Year, SelectedRevenueTrendMonth.Month, 1);
-                var monthEnd = monthStart.AddMonths(1);
-                int daysInMonth = DateTime.DaysInMonth(monthStart.Year, monthStart.Month);
-
-                // 2. Fetch Data
-                List<DateTimePoint> trend;
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var svc = scope.ServiceProvider.GetRequiredService<IDashboardService>();
-                    trend = await svc.GetRevenueTrendAsync(CurrentFacilityId, monthStart, monthEnd);
-                }
-
-                if (trend == null) trend = new List<DateTimePoint>();
-
-                // 3. Map Data to all days
-                var values = new double[daysInMonth];
-                var labels = new string[daysInMonth];
-                for (int i = 0; i < daysInMonth; i++)
-                {
-                    labels[i] = (i + 1).ToString();
-                    var point = trend.FirstOrDefault(p => p.DateTime.Day == (i + 1));
-                    values[i] = point?.Value ?? 0;
-                }
-
-                double maxVal = values.Any() ? values.Max() : 0;
-                double trackVal = maxVal > 100 ? maxVal * 1.15 : 500; 
-
-                // 4. Unified Track Series (Background Gray Pills)
-                var trackValues = Enumerable.Repeat(trackVal, daysInMonth).ToArray();
-                var trackSeries = new ColumnSeries<double>
-                {
-                    Values = trackValues,
-                    Fill = new SolidColorPaint(SKColor.Parse("#F1F5F9")), // Light Gray Track
-                    Rx = 80, Ry = 80,
-                    MaxBarWidth = 14,
-                    IgnoresBarPosition = true,
-                    ZIndex = -1,
-                    IsHoverable = false,
-                    DataLabelsPaint = null
-                };
-
-                // 5. Multi-color Fill Series (Revenue Pills)
-                // We use 4 groups (roughly weeks) to alternate colors like Member Development
-                var colors = new[] { "#06B6D4", "#6366F1", "#10B981", "#8B5CF6" };
-                var seriesList = new List<ISeries> { trackSeries };
-
-                for (int colorIdx = 0; colorIdx < 4; colorIdx++)
-                {
-                    double[] colorValues = new double[daysInMonth];
-                    bool hasData = false;
-                    for (int day = 0; day < daysInMonth; day++)
-                    {
-                        // Cycle through colors every 1 day for a vibrant "rainbow" look across the month
-                        // or every 7 days for a "weekly" look. User said "beautiful color", so let's cycle.
-                        if (day % 4 == colorIdx) 
-                        {
-                            colorValues[day] = values[day];
-                            if (values[day] > 0) hasData = true;
-                        }
-                        else
-                        {
-                            colorValues[day] = 0;
-                        }
-                    }
-
-                    seriesList.Add(new ColumnSeries<double>
-                    {
-                        Name = $"Revenue Group {colorIdx + 1}",
-                        Values = colorValues,
-                        Fill = new SolidColorPaint(SKColor.Parse(colors[colorIdx])),
-                        Rx = 80, Ry = 80,
-                        MaxBarWidth = 14,
-                        IgnoresBarPosition = true,
-                        Padding = 0,
-                        ZIndex = 100,
-                        YToolTipLabelFormatter = (point) => $"{point.Model:N2} DA"
-                    });
-                }
-
-                // FIX: Marshal to UI thread to ensure SkiaSharp rendering context attaches correctly
-                await _dispatcher.InvokeAsync(() =>
-                {
-                    RevenueSeries = seriesList.ToArray();
-                    
-                    RevenueXAxes = new Axis[]
-                    {
-                        new Axis
-                        {
-                            Labels = labels,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                            TextSize = 10,
-                            MinStep = 1,
-                            SeparatorsPaint = null,
-                            Padding = new LiveChartsCore.Drawing.Padding(0, 10, 0, 0)
-                        }
-                    };
-
-                    RevenueYAxes = new Axis[]
-                    {
-                        new Axis
-                        {
-                            Labeler = value => value >= 1000 ? $"{value / 1000:N0}k" : $"{value:N0}",
-                            MinLimit = 0,
-                            MaxLimit = trackVal,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F8FAFC")) { StrokeThickness = 1 },
-                            TextSize = 10
-                        }
-                    };
-
-                    FormattedRevenueTrendMonth = SelectedRevenueTrendMonth.ToString("MMMM yyyy").ToUpper();
-                    RevenueTrendTotal = $"{values.Sum():N0} DA";
-                    RevenueTrendDailyAvg = $"{(values.Sum() / (double)daysInMonth):N0} DA / day";
-                    var topDayIdx = Array.IndexOf(values, maxVal);
-                    RevenueTrendBestDay = maxVal > 0 ? $"Day {topDayIdx + 1} ({maxVal:N0} DA)" : "–";
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger?.LogError(ex, "[Dashboard] Failed to refresh Revenue Trend chart");
-            }
-            finally
-            {
-                IsRevenueTrendLoading = false;
-            }
-        }
-
-        [RelayCommand]
-        private async Task PreviousRevenueTrendMonthAsync()
-        {
-            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(-1);
-            await RefreshRevenueTrendAsync();
-        }
-
-        [RelayCommand]
-        private async Task NextRevenueTrendMonthAsync()
-        {
-            var now = DateTime.Now;
-            if (SelectedRevenueTrendMonth.Month == now.Month && SelectedRevenueTrendMonth.Year == now.Year)
-                return;
-
-            SelectedRevenueTrendMonth = SelectedRevenueTrendMonth.AddMonths(1);
-            await RefreshRevenueTrendAsync();
-        }
 
         [RelayCommand]
         private async Task ToggleDashboardMode()
@@ -650,6 +703,20 @@ namespace Management.Presentation.ViewModels.Shell
         private void OpenRevenueHistory()
         {
             _ = _modalNavigationService.OpenModalAsync<RevenueHistoryViewModel>();
+        }
+
+        [RelayCommand]
+        private void OpenInventoryHistory()
+        {
+            // Only for Gym and Salon
+            if (_facilityContext.CurrentFacility is Management.Domain.Enums.FacilityType.Gym or Management.Domain.Enums.FacilityType.Salon)
+            {
+                _ = _modalNavigationService.OpenModalAsync<InventoryHistoryViewModel>();
+            }
+            else
+            {
+                _toastService.ShowInfo("Inventory history is available for Retail environments.");
+            }
         }
 
         [RelayCommand]
@@ -795,6 +862,11 @@ namespace Management.Presentation.ViewModels.Shell
                         RecentTransactions.ReplaceRange(summary.RecentTransactions);
                         StaffPerformance.ReplaceRange(summary.TopPerformingStaff);
 
+                        
+                        
+                        // Milestone 1: Refresh Retention Data from Summary
+                        _ = RefreshRetentionDataAsync(summary);
+
                         // Revenue Trend is now managed by RefreshRevenueTrendAsync() — see below.
 
                         // Map Occupancy/Member Trend
@@ -837,14 +909,18 @@ namespace Management.Presentation.ViewModels.Shell
                         
                         LoadFinancialData(summary);
                         
-                        // 3. Charts - Prioritize Business Revenue for early visibility
-                        if (IsBusinessMode) await RefreshRevenueTrendAsync();
+                        // Revenue Trend must run OUTSIDE the dispatcher block
+                        // to avoid a nested-dispatcher deadlock (see RefreshRevenueTrendAsync).
                         if (IsBusinessMode || IsRestaurantMode) await RefreshRevenueBreakdown();
                         if (IsBusinessMode || IsSalonMode) await RefreshStaffPerformance();
                         
                         await RefreshMemberDevelopmentAsync();
                         await RefreshOccupancyTrendAsync();
                     });
+
+                    // Revenue Trend: runs on the calling thread, then marshals UI updates
+                    // through its own _dispatcher.InvokeAsync — safe outside the outer dispatcher block.
+                    if (IsBusinessMode || IsRestaurantMode) await RefreshRevenueTrendAsync();
                 }
                 finally
                 {
@@ -1346,6 +1422,48 @@ namespace Management.Presentation.ViewModels.Shell
             finally
             {
                 IsOccupancyLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task ReEngageMember(ChurnRiskDto member)
+        {
+            if (member == null) return;
+
+            // 1. Check if professional email is configured
+            var senderEmail = _secureStorage.Get("ProfessionalEmailAccount");
+            if (string.IsNullOrEmpty(senderEmail))
+            {
+                _toastService.ShowWarning(
+                    "Professional Email Not Configured", 
+                    "To send re-engagement emails, you must register a professional domain account in Settings > Profile.");
+                return;
+            }
+
+            try
+            {
+                _toastService.ShowInfo($"Preparing re-engagement for {member.MemberName}...", "Retention Guardian");
+
+                var subject = $"We miss you at {CurrentFacility}!";
+                var body = $@"
+                    <div style='font-family: sans-serif; color: #1E293B;'>
+                        <h2 style='color: #10B981;'>Hello {member.MemberName.Split(' ')[0]}!</h2>
+                        <p>We noticed it's been over two weeks since your last visit. We'd love to see you back!</p>
+                        <p>As a valued member, we're holding your spot. Come by this week for a session.</p>
+                        <br/>
+                        <p>Best regards,<br/>The {CurrentFacility} Team</p>
+                    </div>";
+
+                await _emailService.SendEmailAsync(member.Email, subject, body);
+                
+                _toastService.ShowSuccess(
+                    $"Re-engagement email sent successfully to {member.MemberName}.", 
+                    "Retention Guardian");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send re-engagement email");
+                _toastService.ShowError("Failed to send email. Check your API key and domain health in Settings.");
             }
         }
     }

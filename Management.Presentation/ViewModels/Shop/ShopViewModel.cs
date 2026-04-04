@@ -61,6 +61,8 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty] private bool _isCheckoutOpen;
         [ObservableProperty] private Cart _currentCart = new();
 
+        public Management.Domain.Enums.FacilityType CurrentFacilityType => CurrentFacility;
+
         // Modern Management State
         [ObservableProperty] private ProductItemViewModel? _selectedProduct;
 
@@ -135,7 +137,8 @@ namespace Management.Presentation.ViewModels.Shop
         public IRelayCommand ClearCartCommand { get; }
         public IRelayCommand ToggleViewModeCommand { get; }
         public IAsyncRelayCommand OpenAddProductCommand { get; }
-        public IAsyncRelayCommand<ProductDto> OpenEditProductCommand { get; }
+        public IAsyncRelayCommand OpenEditProductCommand { get; }
+        public IAsyncRelayCommand<ProductDto> OpenRestockProductCommand { get; }
         public IAsyncRelayCommand DeleteSelectedCommand { get; }
         public IRelayCommand ClearSelectionCommand { get; }
 
@@ -222,6 +225,14 @@ namespace Management.Presentation.ViewModels.Shop
                 
                 // Note: UI logic and toast notifications are handled natively by AddProductViewModel 
                 // and the resulting global StockUpdated/Refresh events to eliminate UI race conditions.
+            });
+
+            OpenRestockProductCommand = new AsyncRelayCommand<ProductDto>(async (product) => {
+                if (product == null) return;
+                
+                // We'll use the same dialog system for LogRestockViewModel
+                _toastService.ShowInfo("Opening Restock form...");
+                await _dialogService.ShowCustomDialogAsync<LogRestockViewModel>(product);
             });
 
             DeleteSelectedCommand = new AsyncRelayCommand(async () => 
