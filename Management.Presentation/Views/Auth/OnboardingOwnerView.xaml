@@ -34,11 +34,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  Padding="0">
-        <StackPanel VerticalAlignment="Top" Margin="40,32,40,40">
+    <StackPanel VerticalAlignment="Top" Margin="40,32,40,40">
 
             <!-- ROW 1 — TITAN BRAND -->
             <Grid Margin="0,8,0,8">
@@ -53,9 +49,10 @@
 
             <!-- ROW 2 — "Account Setup" H1 TITLE -->
             <TextBlock Text="{DynamicResource Strings.Auth.AccountSetup}"
-                       FontSize="40" FontWeight="ExtraBold"
+                       FontSize="32" FontWeight="ExtraBold"
                        Foreground="#0F172A"
                        Margin="0,0,0,12"
+                       TextWrapping="Wrap"
                        FontFamily="Segoe UI Variable Display, Segoe UI"/>
 
             <!-- ROW 3 — SUBTITLE -->
@@ -258,5 +255,4 @@
             </Grid>
 
         </StackPanel>
-    </ScrollViewer>
 </UserControl>

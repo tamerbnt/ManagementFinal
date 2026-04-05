@@ -1,6 +1,7 @@
 using System.Windows.Input;
 using Management.Presentation.Extensions;
 using Management.Presentation.ViewModels.Shell;
+using Management.Presentation.ViewModels.Auth;
 using Management.Presentation.Services;
 using Management.Domain.Services;
 using System.Threading.Tasks;
@@ -140,7 +141,12 @@ namespace Management.Presentation.ViewModels
                     BusinessName = BusinessName,
                     AdminFullName = AdminFullName
                 };
+                
+                System.Diagnostics.Debug.WriteLine($"[ONBOARDING] Facility provisioning starting for {BusinessName} {DateTime.Now:HH:mm:ss.fff}");
+                var provStopwatch = System.Diagnostics.Stopwatch.StartNew();
                 var result = await _onboardingService.CompleteOnboardingAsync(state);
+                provStopwatch.Stop();
+                System.Diagnostics.Debug.WriteLine($"[ONBOARDING] Provisioning result={result.IsSuccess} Duration={provStopwatch.ElapsedMilliseconds}ms");
                 
                 if (result.IsFailure)
                 {
@@ -171,7 +177,7 @@ namespace Management.Presentation.ViewModels
                 
                 // Final wait for UI to settle
                 await Task.Delay(1000);
-                await _navigationService.NavigateToAsync<DashboardViewModel>();
+                await _navigationService.NavigateToAsync<SplashOnboardingViewModel>();
             }
             catch (Exception ex)
             {

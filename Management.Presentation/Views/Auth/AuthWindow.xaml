@@ -234,7 +234,7 @@
                                   HorizontalScrollBarVisibility="Disabled">
                         <ContentControl Content="{Binding CurrentView}"
                                         HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"/>
+                                        VerticalContentAlignment="Top"/>
                     </ScrollViewer>
                 </Grid>
             </Border>

@@ -44,10 +44,15 @@ namespace Management.Infrastructure.Services
                 };
 
                 // Log the exact parameters being sent
+                System.Diagnostics.Debug.WriteLine($"[LICENSE] Verification started for key {cleanKey} {DateTime.Now:HH:mm:ss.fff}");
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 _logger.LogInformation("[LICENSE_AUDIT] RPC Parameters: p_lookup_key={LicenseKey}, p_hardware_id={HardwareId}", cleanKey, hardwareId);
 
                 // 2. Call the Postgres Function defined in SQL
                 var response = await _supabase.Rpc("verify_license_key", parameters);
+                
+                sw.Stop();
+                System.Diagnostics.Debug.WriteLine($"[LICENSE] Verification finished. Duration={sw.ElapsedMilliseconds}ms");
                 
                 // 3. Log raw response for debugging
                 _logger.LogInformation("[LICENSE_AUDIT] Supabase RPC Raw Response: {Content}", response.Content ?? "<NULL>");

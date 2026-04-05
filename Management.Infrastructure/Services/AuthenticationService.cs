@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Domain.Models;
 using Management.Domain.ValueObjects;
@@ -23,6 +24,7 @@ namespace Management.Infrastructure.Services
     {
         private readonly Supabase.Client _supabase;
         private readonly IStaffRepository _staffRepository;
+        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
 
         // Simple in-memory cache for the current session context
         private StaffDto? _currentUser;
@@ -38,7 +40,8 @@ namespace Management.Infrastructure.Services
             Management.Domain.Services.ISessionStorageService sessionStorage,
             IFacilityContextService facilityContext,
             ITenantService tenantService,
-            IOnboardingService onboardingService)
+            IOnboardingService onboardingService,
+            Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory)
         {
             _supabase = supabase;
             _staffRepository = staffRepository;
@@ -46,6 +49,7 @@ namespace Management.Infrastructure.Services
             _facilityContext = facilityContext;
             _tenantService = tenantService;
             _onboardingService = onboardingService;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<Result<StaffDto>> LoginAsync(string email, string password, Guid? facilityId = null, Management.Domain.Enums.FacilityType? targetType = null)
@@ -673,26 +677,102 @@ namespace Management.Infrastructure.Services
 
         public async Task<bool> TenantHasOwnerAccountAsync(Guid tenantId)
         {
+            if (tenantId == Guid.Empty)
+            {
+                Serilog.Log.Warning("[AccountCheck] TenantId is Guid.Empty — cannot check owner");
+                return false;
+            }
+
+            // TIER 1 — Local SQLite (instant, offline-safe)
             try
             {
-                Serilog.Log.Information($"[AuthService] Checking for existing owner account for tenant {tenantId}...");
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<Management.Infrastructure.Data.AppDbContext>();
 
-                // Query 'profiles' table for role = 1 (Owner) and tenant_id
-                // StaffRole.Owner is usually 1 (verified in StaffMember mapping)
+                var localOwnerExists = await context.StaffMembers
+                    .IgnoreQueryFilters()
+                    .AnyAsync(s =>
+                        s.TenantId == tenantId &&
+                        s.Role == StaffRole.Owner);
+
+                if (localOwnerExists)
+                {
+                    Serilog.Log.Information("[AccountCheck] Owner confirmed in local SQLite");
+                    return true;
+                }
+
+                Serilog.Log.Debug("[AccountCheck] No owner in local SQLite — checking cloud");
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "[AccountCheck] Local check failed — proceeding to cloud");
+            }
+
+            // TIER 2 — Supabase (only when local says no owner)
+            bool cloudOwnerExists = false;
+            try
+            {
                 var result = await _supabase.From<SupabaseStaffMember>()
                     .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
                     .Filter("role", Supabase.Postgrest.Constants.Operator.Equals, (int)StaffRole.Owner)
                     .Get();
 
-                bool hasOwner = result.Models.Any();
-                Serilog.Log.Information($"[AuthService] Existing owner check for {tenantId}: {hasOwner}");
-                return hasOwner;
+                cloudOwnerExists = result.Models.Any();
+                Serilog.Log.Information("[AccountCheck] Cloud check result: {Exists}", cloudOwnerExists);
+
+                if (cloudOwnerExists)
+                {
+                    // Trigger sync via IServiceScopeFactory — NO circular dependency
+                    // Fire-and-forget — do not await — do not block startup
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            using var scope = _scopeFactory.CreateScope();
+                            var syncService = scope.ServiceProvider
+                                .GetRequiredService<Management.Application.Interfaces.App.ISyncService>();
+                            await syncService.PullChangesAsync(System.Threading.CancellationToken.None);
+                            Serilog.Log.Information("[AccountCheck] Background staff sync triggered");
+                        }
+                        catch (Exception syncEx)
+                        {
+                            Serilog.Log.Warning(syncEx, "[AccountCheck] Background sync failed — non-fatal");
+                        }
+                    });
+                }
+
+                return cloudOwnerExists;
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, $"[AuthService] Failed to check for existing owner account for tenant {tenantId}");
-                return false; // Fail safe to account creation if we can't verify balance
+                Serilog.Log.Warning(ex, "[AccountCheck] Cloud check failed");
             }
+
+            // TIER 3 — Safety net (both local and cloud failed)
+            // If any local staff exist at all — assume the tenant is configured
+            // This prevents network outages from sending legitimate owners back to setup
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<Management.Infrastructure.Data.AppDbContext>();
+
+                var anyLocalStaff = await context.StaffMembers
+                    .IgnoreQueryFilters()
+                    .AnyAsync(s => s.TenantId == tenantId);
+
+                if (anyLocalStaff)
+                {
+                    Serilog.Log.Warning("[AccountCheck] Both checks failed but local staff exists — assuming owner present");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "[AccountCheck] Safety net check also failed");
+            }
+
+            // Truly empty — genuine first run
+            return false;
         }
 
         // --- Helper: Seed Local Facilities from Supabase ---

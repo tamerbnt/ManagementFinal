@@ -372,6 +372,11 @@ namespace Management.Presentation
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine($"[STARTUP] ===== APP STARTUP BEGIN ===== {DateTime.Now:HH:mm:ss.fff}");
+                string configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya", "facility-config.json");
+                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 1: Reading facility-config.json");
+                System.Diagnostics.Debug.WriteLine($"[STARTUP] facility-config exists={System.IO.File.Exists(configPath)}");
+
                 // Phase 1: Check for cancellation before starting
                 ct.ThrowIfCancellationRequested();
 
@@ -409,10 +414,6 @@ namespace Management.Presentation
                     {
                         Serilog.Log.Information("[UI] Resolving navigation service...");
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
-
-                        // Initial Navigation to Splash BEFORE showing window to avoid flicker
-                        Serilog.Log.Information("[UI] Navigating to initial SplashOnboardingView...");
-                        await navService.NavigateToSplashAsync();
 
                         Serilog.Log.Information("[UI] Resolving AuthWindow and ViewModel...");
                         var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
@@ -572,18 +573,29 @@ namespace Management.Presentation
                 // FIX 2: Removed duplicate PopulateNavigationRegistry call here — already called at step 4 above.
                 
                 // 6. Startup Security Guard (Hardware/Cloud Check)
-                // This was already moved lower in my previous thought but let's be explicit.
                 ct.ThrowIfCancellationRequested();
                 Serilog.Log.Information("Running Startup Security Guard in background...");
                 UpdateStartupStatus("Verifying license...");
+                
+                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 2: License check starting {DateTime.Now:HH:mm:ss.fff}");
+                var licStopwatch = System.Diagnostics.Stopwatch.StartNew();
+                
                 bool isLicensed = await RunStartupSecurityGuard(ServiceProvider);
+                
+                licStopwatch.Stop();
+                System.Diagnostics.Debug.WriteLine($"[STARTUP] License check result={isLicensed} Duration={licStopwatch.ElapsedMilliseconds}ms");
+
 
                 // 7. FINAL NAVIGATION ROUTING (Based on background task results)
-                await Current.Dispatcher.InvokeAsync(async () => {
+                await Current.Dispatcher.InvokeAsync(async () => 
+                {
                     try 
                     {
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
                         var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+
+                        System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 3: Account existence check starting {DateTime.Now:HH:mm:ss.fff}");
+                        var acctStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                         if (!isLicensed)
                         {
@@ -598,53 +610,62 @@ namespace Management.Presentation
                                 var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
                                 bool hasOwner = await authService.TenantHasOwnerAccountAsync(stateStore.TargetTenantId.Value);
 
+                                acctStopwatch.Stop();
+                                System.Diagnostics.Debug.WriteLine($"[STARTUP] Account exists={hasOwner} Duration={acctStopwatch.ElapsedMilliseconds}ms");
+                                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 4: Onboarding check starting {DateTime.Now:HH:mm:ss.fff}");
+
                                 if (hasOwner)
                                 {
-                                    Serilog.Log.Information("Tenant already has owner. Navigating to Login.");
-                                    await navService.NavigateToLoginAsync();
+                                    Serilog.Log.Information("Tenant already has owner. Navigating to Splash Onboarding...");
+                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] Onboarding complete={false}"); // To log what was requested
+                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to SplashOnboardingViewModel");
+                                    await navService.NavigateToSplashAsync();
                                 }
                                 else
                                 {
-                                    await navService.NavigateToAsync<FacilityOnboardingViewModel>();
+                                    Serilog.Log.Information("Tenant has no owner. Navigating to Account Setup...");
+                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to OnboardingOwnerViewModel");
+                                    await navService.NavigateToAsync<OnboardingOwnerViewModel>();
                                 }
                             }
                             else
                             {
-                                // Natural state: clear initialization flags on Current ViewModel if it's Login
-                                if (navStore.CurrentViewModel is LoginViewModel loginVm)
-                                {
-                                    loginVm.SetInitializingState(false);
-                                    loginVm.AppInitializationStatus = string.Empty;
-                                }
-                                Serilog.Log.Information("Background startup: Initialization complete.");
-
-                                // 8. Background Hardware Check (Offloaded from UI thread)
-                                _ = Task.Run(() => 
-                                {
-                                    try 
-                                    {
-                                        var turnstileService = ServiceProvider.GetRequiredService<IHardwareTurnstileService>();
-                                        if (!turnstileService.IsSdkAvailable)
-                                        {
-                                            Serilog.Log.Warning("ZKTeco SDK not found in background check. Gate control will be disabled.");
-                                            
-                                            Current.Dispatcher.InvokeAsync(() => 
-                                            {
-                                                var toastService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.IToastService>();
-                                                toastService.ShowError("ZKTeco SDK not registered. Gate hardware is disabled.", "Hardware Error");
-                                            });
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Serilog.Log.Error(ex, "Error during background hardware check");
-                                    }
-                                });
+                                acctStopwatch.Stop();
+                                System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to OnboardingOwnerViewModel");
+                                Serilog.Log.Information("Licensed but no tenant linked. Navigating to Account Setup...");
+                                await navService.NavigateToAsync<OnboardingOwnerViewModel>();
                             }
                         }
+                        
+                        System.Diagnostics.Debug.WriteLine($"[STARTUP] ===== NAVIGATION COMPLETE ===== {DateTime.Now:HH:mm:ss.fff}");
+                        Serilog.Log.Information("Background startup: Initialization complete.");
+
+                        // 8. Background Hardware Check (Offloaded from UI thread)
+                        _ = Task.Run(() => 
+                        {
+                            try 
+                            {
+                                var turnstileService = ServiceProvider.GetRequiredService<IHardwareTurnstileService>();
+                                if (!turnstileService.IsSdkAvailable)
+                                {
+                                    Serilog.Log.Warning("ZKTeco SDK not found in background check. Gate control will be disabled.");
+                                    
+                                    Current.Dispatcher.InvokeAsync(() => 
+                                    {
+                                        var toastService = ServiceProvider.GetRequiredService<Management.Application.Interfaces.App.IToastService>();
+                                        toastService.ShowError("ZKTeco SDK not registered. Gate hardware is disabled.", "Hardware Error");
+                                    });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Serilog.Log.Error(ex, "Error during background hardware check");
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
+                        Serilog.Log.Error(ex, "Error during UI-thread startup routing");
                     }
                 });
                 Serilog.Log.Information("Startup Sequence Complete.");
