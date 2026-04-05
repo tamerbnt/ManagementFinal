@@ -372,10 +372,6 @@ namespace Management.Presentation
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"[STARTUP] ===== APP STARTUP BEGIN ===== {DateTime.Now:HH:mm:ss.fff}");
-                string configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya", "facility-config.json");
-                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 1: Reading facility-config.json");
-                System.Diagnostics.Debug.WriteLine($"[STARTUP] facility-config exists={System.IO.File.Exists(configPath)}");
 
                 // Phase 1: Check for cancellation before starting
                 ct.ThrowIfCancellationRequested();
@@ -482,7 +478,12 @@ namespace Management.Presentation
                 // The guard in SwitchFacility will block the event if the GUID is still empty.
                 facilityContext.CommitFacility();
 
-                // (Localization already initialized early)
+                // FIX 4 (CORRECTED PLACEMENT): Launch license check immediately after CommitFacility —
+                // the earliest safe moment. The Supabase RPC now runs in parallel with all the
+                // synchronous setup work below (view mappings, nav registry, diagnostics).
+                UpdateStartupStatus("Verifying license...");
+                Serilog.Log.Information("[App] Launching license check in background (parallel with setup)...");
+                var licenseTask = Task.Run(() => RunStartupSecurityGuard(ServiceProvider), ct);
 
                 // Synchronize SessionManager with the committed facility context
                 var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
@@ -564,43 +565,23 @@ namespace Management.Presentation
                         Serilog.Log.Error(t.Exception.Flatten(), "Diagnostic background task failed.");
                     }
                 }, TaskContinuationOptions.OnlyOnFaulted);
-                
-                // 5. DB Init already completed above (moved before auto-discovery).
-                ct.ThrowIfCancellationRequested();
-                Serilog.Log.Information("[App] Database schema already initialized.");
 
-                // (Localization moved to earlier in sequence)
-                // FIX 2: Removed duplicate PopulateNavigationRegistry call here — already called at step 4 above.
-                
-                // FIX 4: Start license check in parallel — immediately after DB + CommitFacility.
-                // This overlaps the Supabase network round-trip with all the synchronous setup below.
-                // We will 'await licenseTask' just before the navigation decision at the end.
-                ct.ThrowIfCancellationRequested();
-                UpdateStartupStatus("Verifying license...");
-                Serilog.Log.Information("[App] Launching license check in background (parallel with setup)...");
-                var licenseTask = Task.Run(() => RunStartupSecurityGuard(ServiceProvider), ct);
-
-                // 6. FIX 4: Await license result — it has been running in the background while
-                // view mappings and nav registry were being registered above.
+                // Await license result — it has been running in parallel since CommitFacility.
                 Serilog.Log.Information("[App] Awaiting license check result...");
                 ct.ThrowIfCancellationRequested();
                 bool isLicensed = await licenseTask;
                 Serilog.Log.Information("[App] License check resolved: {Result}", isLicensed);
 
-                // 7. FINAL NAVIGATION ROUTING (Based on background task results)
+                // Navigation Routing
                 await Current.Dispatcher.InvokeAsync(async () => 
                 {
                     try 
                     {
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
-                        var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
-
-                        System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 3: Account existence check starting {DateTime.Now:HH:mm:ss.fff}");
-                        var acctStopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                         if (!isLicensed)
                         {
-                            Serilog.Log.Information("Device not licensed. Navigating to Activation...");
+                            Serilog.Log.Information("[App] Device not licensed. Navigating to Activation...");
                             await navService.NavigateToAsync<LicenseEntryViewModel>();
                         }
                         else
@@ -611,35 +592,25 @@ namespace Management.Presentation
                                 var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
                                 bool hasOwner = await authService.TenantHasOwnerAccountAsync(stateStore.TargetTenantId.Value);
 
-                                acctStopwatch.Stop();
-                                System.Diagnostics.Debug.WriteLine($"[STARTUP] Account exists={hasOwner} Duration={acctStopwatch.ElapsedMilliseconds}ms");
-                                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 4: Onboarding check starting {DateTime.Now:HH:mm:ss.fff}");
-
                                 if (hasOwner)
                                 {
-                                    Serilog.Log.Information("Tenant already has owner. Navigating to Splash Onboarding...");
-                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] Onboarding complete={false}"); // To log what was requested
-                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to SplashOnboardingViewModel");
+                                    Serilog.Log.Information("[App] Owner confirmed. Navigating to Splash Onboarding...");
                                     await navService.NavigateToSplashAsync();
                                 }
                                 else
                                 {
-                                    Serilog.Log.Information("Tenant has no owner. Navigating to Account Setup...");
-                                    System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to OnboardingOwnerViewModel");
+                                    Serilog.Log.Information("[App] No owner found. Navigating to Account Setup...");
                                     await navService.NavigateToAsync<OnboardingOwnerViewModel>();
                                 }
                             }
                             else
                             {
-                                acctStopwatch.Stop();
-                                System.Diagnostics.Debug.WriteLine($"[STARTUP] DECISION: navigating to OnboardingOwnerViewModel");
-                                Serilog.Log.Information("Licensed but no tenant linked. Navigating to Account Setup...");
+                                Serilog.Log.Information("[App] Licensed but no tenant linked. Navigating to Account Setup...");
                                 await navService.NavigateToAsync<OnboardingOwnerViewModel>();
                             }
                         }
-                        
-                        System.Diagnostics.Debug.WriteLine($"[STARTUP] ===== NAVIGATION COMPLETE ===== {DateTime.Now:HH:mm:ss.fff}");
-                        Serilog.Log.Information("Background startup: Initialization complete.");
+
+                        Serilog.Log.Information("[App] Navigation routing complete.");
 
                         // 8. Background Hardware Check (Offloaded from UI thread)
                         _ = Task.Run(() => 
