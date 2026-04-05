@@ -270,6 +270,7 @@ namespace Management.Presentation.ViewModels.Members
 
         public IAsyncRelayCommand PrintReportCommand { get; }
         public IAsyncRelayCommand RenewSelectedCommand { get; }
+        public IAsyncRelayCommand<MemberDto> GrantAccessCommand { get; }
         public IRelayCommand<MemberDto> DeleteSingleMemberCommand { get; }
 
         public IRelayCommand DeleteSelectedCommand { get; }
@@ -290,6 +291,7 @@ namespace Management.Presentation.ViewModels.Members
         public IAsyncRelayCommand LoadMoreCommand { get; }
 
         private readonly IMemberService _memberService;
+        private readonly IMemberAccessService _memberAccessService;
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly ISyncService _syncService;
 
@@ -318,6 +320,7 @@ namespace Management.Presentation.ViewModels.Members
             IDiagnosticService diagnosticService,
             IToastService toastService,
             IMemberService memberService,
+            IMemberAccessService memberAccessService,
             Management.Domain.Services.IDialogService dialogService,
             IFacilityContextService facilityContext,
             ISyncService syncService,
@@ -326,6 +329,7 @@ namespace Management.Presentation.ViewModels.Members
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _memberService = memberService;
+            _memberAccessService = memberAccessService;
             _dialogService = dialogService;
             _syncService = syncService;
 
@@ -337,6 +341,28 @@ namespace Management.Presentation.ViewModels.Members
             PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
             RenewSelectedCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
             
+            GrantAccessCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
+            {
+                if (member == null || string.IsNullOrEmpty(member.CardId)) 
+                {
+                    _toastService.ShowError("Member does not have a valid Card ID.");
+                    return;
+                }
+
+                _logger.LogInformation("Manual access grant requested for member {FullName} ({CardId})", member.FullName, member.CardId);
+                
+                var result = await _memberAccessService.ProcessAccessFlowAsync(
+                    member.CardId, 
+                    _facilityContext.CurrentFacilityId, 
+                    ScanDirection.Enter, 
+                    $"MANUAL-{DateTime.UtcNow.Ticks}");
+
+                if (result.IsFailure)
+                {
+                    _toastService.ShowError(result.Error.Message);
+                }
+            });
+
             // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
             DeleteSingleMemberCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
             {

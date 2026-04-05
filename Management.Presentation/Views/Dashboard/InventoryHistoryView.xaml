@@ -34,11 +34,11 @@
 
             <!-- 1. Header -->
             <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                <TextBlock Text="Inventory Audit History" 
+                <TextBlock Text="{DynamicResource Terminology.History.Inventory.Title}" 
                            Style="{DynamicResource Title2}" 
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Detailed tracking of all stock movements." 
+                <TextBlock Text="{DynamicResource Terminology.History.Inventory.Subtitle}" 
                            Style="{DynamicResource Body}" 
                            Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center"
@@ -58,7 +58,7 @@
                 <!-- Top Investment -->
                 <Border Background="{DynamicResource FacilityAccentDimBrush}" CornerRadius="12" Padding="12">
                     <StackPanel>
-                        <TextBlock Text="TOP INVESTMENT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Inventory.TopInvestment}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
                         <TextBlock Text="{Binding TopPurchasedItemName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding TopPurchasedItemCost, StringFormat='{}{0:N0} DA'}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Margin="0,2,0,0"/>
                     </StackPanel>
@@ -67,7 +67,7 @@
                 <!-- High Velocity -->
                 <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}" CornerRadius="12" Padding="12">
                     <StackPanel>
-                        <TextBlock Text="HIGHEST VELOCITY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Opacity="0.8"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Inventory.HighestVelocity}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Opacity="0.8"/>
                         <TextBlock Text="{Binding HighestVelocityItemName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding HighestVelocityItemQty, StringFormat='{}{0} units'}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0"/>
                     </StackPanel>
@@ -86,7 +86,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel>
-                        <TextBlock Text="CRITICAL RUNWAY" FontSize="9" FontWeight="Bold" Opacity="0.8">
+                        <TextBlock Text="{DynamicResource Terminology.History.Inventory.CriticalRunway}" FontSize="9" FontWeight="Bold" Opacity="0.8">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
@@ -127,7 +127,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
-                <TextBlock Text="RECENT MOVEMENTS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                <TextBlock Text="{DynamicResource Terminology.History.Inventory.RecentMovements}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                 
                 <ScrollViewer Grid.Row="1" MaxHeight="400" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding Transactions}">
@@ -176,7 +176,7 @@
                            FontWeight="SemiBold"/>
 
                 <Button Grid.Column="1" 
-                        Content="Close" 
+                        Content="{DynamicResource Terminology.History.Action.Close}" 
                         Command="{Binding CloseCommand}"
                         Style="{DynamicResource Button.Ghost}"
                         Margin="12,0,0,0" Width="80" Height="36"/>

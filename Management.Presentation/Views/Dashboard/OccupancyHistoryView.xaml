@@ -29,7 +29,7 @@
 
             <!-- 1. Header -->
             <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                <TextBlock Text="Occupancy History Analysis" 
+                <TextBlock Text="{DynamicResource Terminology.History.Occupancy.Title}" 
                            Style="{DynamicResource Title2}" 
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            HorizontalAlignment="Center"/>
@@ -55,11 +55,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="PEAK OPERATION HOUR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Occupancy.PeakHour}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
                         <TextBlock Text="{Binding Data.PeakHourFormatted}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                        <TextBlock Text="BEST INTERVALS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{DynamicResource Terminology.History.Occupancy.BestIntervals}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right"/>
                         <ItemsControl ItemsSource="{Binding Data.BestIntervals}" Margin="0,4,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -74,7 +74,7 @@
             <!-- 3. Hourly Bar Chart (Simulated) -->
             <ScrollViewer Grid.Row="2" MaxHeight="400" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <TextBlock Text="AVERAGE HOURLY OCCUPANCY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                    <TextBlock Text="{DynamicResource Terminology.History.Occupancy.AverageHourly}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
                     <ItemsControl ItemsSource="{Binding Data.HourlyAverages}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -107,7 +107,7 @@
                     <!-- Analysis Summary -->
                     <Border Background="{DynamicResource SurfaceSecondaryBrush}" CornerRadius="12" Padding="16" Margin="0,24,0,0">
                         <StackPanel>
-                            <TextBlock Text="PERIOD SUMMARY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.History.Summary}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                             <TextBlock Text="{Binding Data.AnalysisPeriod}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding Data.TotalDaysAnalyzed, StringFormat='{}Data collected over {0} days'}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
@@ -123,13 +123,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <Button Content="Report to PDF" 
+                <Button Content="{DynamicResource Terminology.History.Action.ReportPdf}" 
                         Command="{Binding ExportPdfCommand}"
                         Style="{DynamicResource Button.Primary}"
                         Padding="16,0" Height="36"/>
 
                 <Button Grid.Column="2" 
-                        Content="Close" 
+                        Content="{DynamicResource Terminology.History.Action.Close}" 
                         Command="{Binding CloseCommand}"
                         Style="{DynamicResource Button.Ghost}"
                         Margin="12,0,0,0" Width="80" Height="36"/>

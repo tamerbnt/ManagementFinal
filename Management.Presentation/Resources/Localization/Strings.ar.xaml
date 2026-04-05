@@ -169,6 +169,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Members.Balance">الرصيد</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Title">هل تريد حذف الأعضاء؟</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Message">هل أنت متأكد أنك تريد حذف الأعضاء المحددين؟ لا يمكن التراجع عن هذا الإجراء.</sys:String>
+    <sys:String x:Key="Terminology.Members.GrantAccess">منح دخول يدوي (فتح البوابة)</sys:String>
 
     <!-- Member Details -->
     <sys:String x:Key="Terminology.Members.Detail.Visits">الزيارات</sys:String>
@@ -1169,4 +1170,75 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.History.Inventory.Details">اشترى {0} {1} (ملاحظة: {2})</sys:String>
     <sys:String x:Key="Terminology.Restaurant.Order.Ticket">التذكرة رقم {0}</sys:String>
     <sys:String x:Key="Terminology.Global.Unknown">غير معروف</sys:String>
+    <!-- Orphan Missing Keys -->
+    <sys:String x:Key="Terminology.Dashboard.Action.NextMonth">الشهر القادم</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.PreviousMonth">الشهر السابق</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.DailyView">عرض يومي</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Status.HighRisk">خطر عالي</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.Grid">عرض شبكي</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.List">قائمة</sys:String>
+    <sys:String x:Key="Terminology.Global.Action.LoadMore">تحميل المزيد</sys:String>
+    <sys:String x:Key="Terminology.Members.DeleteMember">حذف العضو</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.ExpirationDate">تاريخ انتهاء الصلاحية</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.MembershipInfo">معلومات العضوية</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Staff">الموظفين</sys:String>
+
+    <!-- History Modals -->
+    <sys:String x:Key="Terminology.History.Revenue.Title">تحليل سجل الإيرادات</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopPlan">أفضل خطة (للشهر)</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopProduct">أفضل منتج (للشهر)</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.Target">الهدف: </sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.GenderSplit">تقسيم الإيرادات حسب الجنس</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.MaleMembers">عملاء ذكور</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.FemaleMembers">عملاء إناث</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopMemberships">أفضل خطط العضوية</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopRetail">أفضل منتجات التجزئة</sys:String>
+    <sys:String x:Key="Terminology.History.Summary">ملخص الفترة</sys:String>
+    <sys:String x:Key="Terminology.History.Action.ReportPdf">التقرير إلى PDF</sys:String>
+    
+    <sys:String x:Key="Terminology.History.Occupancy.Title">تحليل سجل الإشغال</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.PeakHour">ذروة التشغيل</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.BestIntervals">أفضل الفترات</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.AverageHourly">متوسط الإشغال لكل ساعة</sys:String>
+
+    <sys:String x:Key="Terminology.History.Inventory.Subtitle">تتبع مفصل لجميع حركات المخزون.</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.TopInvestment">أكبر استثمار</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.HighestVelocity">أعلى سرعة</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.CriticalRunway">المدرج الحرج</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.RecentMovements">التحركات الأخيرة</sys:String>
+
+    <!-- Shop Restock -->
+    <sys:String x:Key="Terminology.Shop.Restock.Title">إعادة التخزين السريع</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Subtitle">قم بتحديث مستويات مخزونك وتكاليفك بذكاء.</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityPurchased">الكمية المشتراة</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityHint">كم وحدة قمت بشرائها؟</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.UnitCost">تكلفة الوحدة (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.NewSalePrice">سعر البيع الجديد (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TotalInvestment">إجمالي الاستثمار</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TargetMargin">الهدف للربح</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.CurrentHint">الحالي: {0} وحدة</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.PurchaseNotes">ملاحظات الشراء</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.LogPurchase">تسجيل الشراء</sys:String>
+    <sys:String x:Key="Terminology.History.Action.Close">إغلاق</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.Cancel">إلغاء</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Modify">تعديل</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Restock">تخزين</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.RevenueHistory">سجل الإيرادات</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.OccupancyHistory">سجل الإشغال</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.InventoryHistory">سجل المخزون</sys:String>
+
+    <sys:String x:Key="Terminology.Dashboard.Stat.RetentionGuardian">حارس الاحتفاظ</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RevenueTrend">اتجاه الإيرادات</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Range.Yesterday">أمس</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Shortcuts">الاختصارات</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Title">اختصارات لوحة المفاتيح</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Subtitle">مرجع سريع للاختصارات على مستوى النظام والمرفق.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.NavigateTo">الانتقال إلى</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.FocusSearch">التركيز على شريط البحث</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.OpenPalette">فتح لوحة الأوامر</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickCreateMember">إنشاء عضو سريع</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickSale">بيع سريع / دخول</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickWalkIn">دخول سريع</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Confirm">إرسال النموذج / تأكيد الإجراء</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Cancel">إغلاق النافذة / إلغاء</sys:String>
 </ResourceDictionary>

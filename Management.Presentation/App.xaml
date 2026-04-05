@@ -73,6 +73,7 @@
                 <ResourceDictionary Source="Resources/Branding.Restaurant.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Restaurant.xaml"/>
                 <ResourceDictionary Source="Resources/Branding.Salon.xaml"/>
+                <ResourceDictionary Source="Resources/Localization/Strings.en.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Base.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
 

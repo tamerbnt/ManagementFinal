@@ -466,7 +466,7 @@
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
-                                    <TextBlock Text="Shortcuts" 
+                                    <TextBlock Text="{DynamicResource Terminology.Settings.Tab.Shortcuts}" 
                                                Style="{StaticResource BodyMedium}"
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>

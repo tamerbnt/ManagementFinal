@@ -176,6 +176,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Members.Balance">Balance</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Title">Delete Members?</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Message">Are you sure you want to delete the selected members? This action cannot be undone.</sys:String>
+    <sys:String x:Key="Terminology.Members.GrantAccess">Grant Manual Access (Open Turnstile)</sys:String>
+
 
     <!-- Member Details -->
     <sys:String x:Key="Terminology.Members.Detail.Visits">Visits</sys:String>
@@ -343,7 +345,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <!-- Formats -->
     <sys:String x:Key="Terminology.Format.Time">{}{0:h:mm tt}</sys:String>
-    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  â€¢  h:mm tt}</sys:String>
+    <sys:String x:Key="Terminology.Format.Date.Long">{}{0:MMMM dd, yyyy  ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢  h:mm tt}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Medium">{}{0:dddd, MMMM d}</sys:String>
     <sys:String x:Key="Terminology.Format.Date.Short">{}{0:MMM dd}</sys:String>
     <sys:String x:Key="Terminology.Format.Currency">{}{0:N2} DA</sys:String>
@@ -694,7 +696,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Restaurant.Order.SelectBillToPay">Select an active order to process payment</sys:String>
     <!-- Floor Plan keys -->
     <sys:String x:Key="Terminology.FloorPlan.Legend.Title">TABLE STATUS</sys:String>
-    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map — click a table to manage</sys:String>
+    <sys:String x:Key="Terminology.FloorPlan.Subtitle">Interactive floor map Ã¢â‚¬â€ click a table to manage</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Total">Total</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Available">Available</sys:String>
     <sys:String x:Key="Terminology.FloorPlan.Stats.Occupied">Occupied</sys:String>
@@ -983,7 +985,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Settings\Pages.AccessibleFacilities">Accessible Facilities</sys:String>
     <sys:String x:Key="Strings.Settings\Pages.Thisplaniscurrentlyactive">This plan is currently active and available for purchase</sys:String>
     <sys:String x:Key="Strings.Shared.WorkinginLocalMode">Working in Local Mode</sys:String>
-    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">â€¢ Changes will sync when online</sys:String>
+    <sys:String x:Key="Strings.Shared.Changeswillsyncwhenonline">ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Changes will sync when online</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyPlan">Revenue by Plan</sys:String>
     <sys:String x:Key="Strings.Shell.RevenuebyProduct">Revenue by Product</sys:String>
     <sys:String x:Key="Strings.Shell.DA">DA</sys:String>
@@ -1193,5 +1195,77 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Salon.Booking.NoService">No Service</sys:String>
     <sys:String x:Key="TerminologyDeviceManagementLabel">Device Management</sys:String>
     <sys:String x:Key="Terminology.Global.Unknown">Unknown</sys:String>
-</ResourceDictionary>
+    <!-- Orphan Missing Keys -->
+    <sys:String x:Key="Terminology.Dashboard.Action.NextMonth">Next Month</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.PreviousMonth">Previous Month</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.DailyView">Daily View</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Status.HighRisk">High Risk</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.Grid">Grid View</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.List">List View</sys:String>
+    <sys:String x:Key="Terminology.Global.Action.LoadMore">Load More</sys:String>
+    <sys:String x:Key="Terminology.Members.DeleteMember">Delete Member</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.ExpirationDate">Expiration Date</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.MembershipInfo">Membership Info</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Staff">Staff</sys:String>
 
+    <!-- History Modals -->
+    <sys:String x:Key="Terminology.History.Revenue.Title">Revenue History Analysis</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopPlan">TOP PLAN (MONTH)</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopProduct">TOP RETAIL PRODUCT</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.Target">Target: </sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.GenderSplit">GENDER REVENUE SPLIT</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.MaleMembers">Male Members</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.FemaleMembers">Female Members</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopMemberships">TOP MEMBERSHIP PLANS</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopRetail">TOP RETAIL PRODUCTS</sys:String>
+    <sys:String x:Key="Terminology.History.Summary">PERIOD SUMMARY</sys:String>
+    <sys:String x:Key="Terminology.History.Action.ReportPdf">Report to PDF</sys:String>
+    
+    <sys:String x:Key="Terminology.History.Occupancy.Title">Occupancy History Analysis</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.PeakHour">PEAK OPERATION HOUR</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.BestIntervals">BEST INTERVALS</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.AverageHourly">AVERAGE HOURLY OCCUPANCY</sys:String>
+
+    
+    <sys:String x:Key="Terminology.History.Inventory.Subtitle">Detailed tracking of all stock movements.</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.TopInvestment">TOP INVESTMENT</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.HighestVelocity">HIGHEST VELOCITY</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.CriticalRunway">CRITICAL RUNWAY</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.RecentMovements">RECENT MOVEMENTS</sys:String>
+
+    <!-- Shop Restock -->
+    <sys:String x:Key="Terminology.Shop.Restock.Title">Quick Restock</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Subtitle">Update your stock levels and costs intelligently.</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityPurchased">Quantity Purchased</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityHint">How many units did you buy?</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.UnitCost">Unit Cost (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.NewSalePrice">New Sale Price (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TotalInvestment">Total Investment</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TargetMargin">Target Margin</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.CurrentHint">Current: {0} units</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.PurchaseNotes">Purchase Notes</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.LogPurchase">Log Purchase</sys:String>
+    <!-- Final Missing Button Keys -->
+    <sys:String x:Key="Terminology.History.Action.Close">Close</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Restock">Restock</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.RevenueHistory">Revenue History</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.OccupancyHistory">Occupancy History</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.InventoryHistory">Inventory History</sys:String>
+    
+    <!-- Dashboard Cards & Settings Shortcuts -->
+    <sys:String x:Key="Terminology.Dashboard.Stat.RetentionGuardian">Retention Guardian</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RevenueTrend">Revenue Trend</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Range.Yesterday">Yesterday</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Shortcuts">Shortcuts</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Title">Keyboard Shortcuts</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Subtitle">Quick reference for system-wide and facility-specific shortcuts.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.NavigateTo">Navigate to</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.FocusSearch">Focus Search Bar</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.OpenPalette">Open Command Palette</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickCreateMember">Quick Create Member</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickSale">Quick Sale / Walk-In</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickWalkIn">Quick Walk-In</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Confirm">Submit Form / Confirm Action</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Cancel">Close Modal / Cancel</sys:String>
+</ResourceDictionary>

@@ -64,6 +64,34 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyPaymentHistoryName">Payment for {0}</sys:String>
     <sys:String x:Key="TerminologyCopyReceiptLabel">Copy Receipt Details</sys:String>
 
+    <!-- Dashboard Stats & Filters -->
+    <sys:String x:Key="Terminology.Dashboard.Stat.Occupancy">FACILITY OCCUPANCY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RevenueTrend">REVENUE TREND</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RetentionGuardian">RETENTION GUARDIAN</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Filter.Today">TODAY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Filter.Yesterday">YESTERDAY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.View.SwitchToBusiness">Switch to Business View</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.View.SwitchToOperations">Switch to Operations View</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.RevenueHistory">REVENUE HISTORY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.OccupancyHistory">OCCUPANCY HISTORY</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.InventoryHistory">INVENTORY HISTORY</sys:String>
+
+    <!-- History Periods & Status -->
+    <sys:String x:Key="Terminology.History.Period.Last30Days">Last 30 Days</sys:String>
+    <sys:String x:Key="Terminology.History.Period.Last90Days">Last 90 Days</sys:String>
+    <sys:String x:Key="Terminology.History.Period.LastYear">Last Year</sys:String>
+    <sys:String x:Key="Terminology.History.Period.Lifetime">Lifetime</sys:String>
+    <sys:String x:Key="Terminology.History.Label.LifetimeAnalysis">Lifetime Analysis</sys:String>
+    <sys:String x:Key="Terminology.History.Status.AllHealthy">All Healthy</sys:String>
+    <sys:String x:Key="Terminology.History.Status.NA">N/A</sys:String>
+
+    <!-- History Loading & Messages -->
+    <sys:String x:Key="Terminology.Dashboard.History.LoadingRevenue">Loading lifetime revenue analytics...</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.History.LoadingOccupancy">Loading historical occupancy analytics...</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.History.LoadingInventory">Loading inventory history...</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.History.ExportSuccess">Report exported successfully to Documents.</sys:String>
+
+
     <!-- Settings -->
     <sys:String x:Key="TerminologySettingsLabel">Settings</sys:String>
     <sys:String x:Key="TerminologyGeneralLabel">General</sys:String>

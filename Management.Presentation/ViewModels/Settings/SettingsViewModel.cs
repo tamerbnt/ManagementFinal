@@ -20,6 +20,7 @@ using Management.Presentation.Stores;
 using Management.Presentation.Services.State;
 using Management.Application.Interfaces.ViewModels;
 using Management.Application.Interfaces.App;
+using Management.Presentation.Services.Navigation;
 
 namespace Management.Presentation.ViewModels.Settings
 {
@@ -41,6 +42,8 @@ namespace Management.Presentation.ViewModels.Settings
         private readonly IHardwareService _hardwareService;
         private readonly ISecureStorageService _secureStorage;
         private readonly IToastService _toastService;
+        private readonly INavigationRegistry _navigationRegistry;
+        private readonly ITerminologyService _terminologyService;
 
         // Tab Navigation
         [ObservableProperty]
@@ -156,6 +159,8 @@ namespace Management.Presentation.ViewModels.Settings
             ModalNavigationStore modalNavigationStore,
             System.Lazy<DeviceManagementViewModel> deviceManagement,
             IToastService toastService,
+            INavigationRegistry navigationRegistry,
+            ITerminologyService terminologyService,
             ISecureStorageService secureStorage) : base(null, null, toastService)
         {
             _serviceProvider = serviceProvider;
@@ -171,6 +176,8 @@ namespace Management.Presentation.ViewModels.Settings
             _hardwareService = hardwareService;
             _secureStorage = secureStorage;
             _toastService = toastService;
+            _navigationRegistry = navigationRegistry;
+            _terminologyService = terminologyService;
             
             _modalNavigationStore = modalNavigationStore;
 
@@ -229,24 +236,42 @@ namespace Management.Presentation.ViewModels.Settings
         {
             Shortcuts.Clear();
             
-            // Navigation
-            Shortcuts.Add(new ShortcutItem("Ctrl + 1", "Navigate to Home", "Navigation"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + 2", "Navigate to Members", "Navigation"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + 3", "Navigate to Sales", "Navigation"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + 4", "Navigate to Staff", "Navigation"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + 6", "Navigate to Settings", "Navigation"));
+            // Navigation - Dynamic discovery from Registry
+            var navItems = _navigationRegistry.GetItems(_facilityContext.CurrentFacility).ToList();
+            
+            for (int i = 0; i < 5; i++)
+            {
+                string combo = $"Ctrl + {i + 1}";
+                string description = "---";
+                
+                if (i < navItems.Count)
+                {
+                    var item = navItems[i];
+                    string term = _terminologyService.GetTerm(item.ResourceKey);
+                    description = $"{_localizationService.GetString("Terminology.Settings.Shortcuts.NavigateTo")} {term}";
+                }
+                
+                Shortcuts.Add(new ShortcutItem(combo, description, "Navigation"));
+            }
+            
+            Shortcuts.Add(new ShortcutItem("Ctrl + 6", $"{_localizationService.GetString("Terminology.Settings.Shortcuts.NavigateTo")} {_localizationService.GetString("Terminology.Sidebar.Settings")}", "Navigation"));
 
             // Search & Tools
-            Shortcuts.Add(new ShortcutItem("Ctrl + F / Ctrl + K", "Focus Search Bar", "Tools"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + P", "Open Command Palette", "Tools"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + F / Ctrl + K", _localizationService.GetString("Terminology.Settings.Shortcuts.FocusSearch"), "Tools"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + P", _localizationService.GetString("Terminology.Settings.Shortcuts.OpenPalette"), "Tools"));
 
             // Quick Actions
-            Shortcuts.Add(new ShortcutItem("Ctrl + N", "Quick Create Member", "Actions"));
-            Shortcuts.Add(new ShortcutItem("Ctrl + Q", "Quick Sale / Walk-In", "Actions"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + N", _localizationService.GetString("Terminology.Settings.Shortcuts.QuickCreateMember"), "Actions"));
+            Shortcuts.Add(new ShortcutItem("Ctrl + Q", _localizationService.GetString("Terminology.Settings.Shortcuts.QuickSale"), "Actions"));
+            
+            if (IsGymFacility)
+            {
+                Shortcuts.Add(new ShortcutItem("Ctrl + W", _localizationService.GetString("Terminology.Settings.Shortcuts.QuickWalkIn"), "Actions"));
+            }
 
             // General
-            Shortcuts.Add(new ShortcutItem("Enter", "Submit Form / Confirm Action", "General"));
-            Shortcuts.Add(new ShortcutItem("Escape", "Close Modal / Cancel", "General"));
+            Shortcuts.Add(new ShortcutItem("Enter", _localizationService.GetString("Terminology.Settings.Shortcuts.Confirm"), "General"));
+            Shortcuts.Add(new ShortcutItem("Escape", _localizationService.GetString("Terminology.Settings.Shortcuts.Cancel"), "General"));
         }
 
         public Task PreInitializeAsync()

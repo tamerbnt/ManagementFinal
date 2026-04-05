@@ -530,6 +530,13 @@
                                     <Path x:Name="TrashIcon" Data="{StaticResource IconDelete}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource StatusErrorBrush}"/>
                                 </Button>
                                 <Button Style="{StaticResource IconButtonStyle}" 
+                                        Command="{Binding DataContext.GrantAccessCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
+                                        CommandParameter="{Binding}"
+                                        Margin="0,0,8,0"
+                                        ToolTip="{DynamicResource Terminology.Members.GrantAccess}">
+                                    <Path Data="{StaticResource Icon.UserCheck}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource FacilityAccentBrush}"/>
+                                </Button>
+                                <Button Style="{StaticResource IconButtonStyle}" 
                                         Command="{Binding DataContext.EditMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
                                         CommandParameter="{Binding}">
                                     <Path x:Name="EditIcon" Data="{StaticResource IconEdit}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}"/>
@@ -696,6 +703,13 @@
                                 </StackPanel>
                                 
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                    <Button Style="{StaticResource IconButtonStyle}" 
+                                            Command="{Binding DataContext.GrantAccessCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
+                                            CommandParameter="{Binding}"
+                                            Margin="0,0,8,0"
+                                            ToolTip="{DynamicResource Terminology.Members.GrantAccess}">
+                                        <Path Data="{StaticResource Icon.UserCheck}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource FacilityAccentBrush}"/>
+                                    </Button>
                                     <Button Style="{StaticResource IconButtonStyle}" 
                                             Command="{Binding DataContext.EditMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
                                             CommandParameter="{Binding}">

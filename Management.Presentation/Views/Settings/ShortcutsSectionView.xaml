@@ -20,11 +20,9 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock Text="Keyboard Shortcuts" 
-                       Style="{StaticResource Title2}" 
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       Margin="0,0,0,8"/>
-            <TextBlock Text="Quick reference for system-wide and facility-specific shortcuts." 
+            <TextBlock Text="{DynamicResource Terminology.Settings.Shortcuts.Title}" 
+                       Style="{StaticResource Title2}"/>
+            <TextBlock Text="{DynamicResource Terminology.Settings.Shortcuts.Subtitle}" 
                        Style="{StaticResource BodyMedium}" 
                        Foreground="{DynamicResource TextSecondaryBrush}"/>
         </StackPanel>

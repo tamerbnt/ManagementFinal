@@ -158,7 +158,7 @@
                             </Button>
 
                             <Button Command="{Binding OpenRestockCommand}" 
-                                    Content="Restock" 
+                                    Content="{DynamicResource Terminology.Shop.Action.Restock}" 
                                     Height="32" Margin="4,0,0,0"
                                     Visibility="{Binding IsRestockVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Button.Style>

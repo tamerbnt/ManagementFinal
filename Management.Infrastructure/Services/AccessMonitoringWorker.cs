@@ -114,71 +114,22 @@ namespace Management.Infrastructure.Services
         {
             try
             {
-                _logger.LogInformation("Processing scan: {CardId}", e.CardId);
+                _logger.LogInformation("Processing hardware scan: {CardId}", e.CardId);
 
                 // Resolve Scoped Services
                 using var scope = _scopeFactory.CreateScope();
-                var accessEventService = scope.ServiceProvider.GetRequiredService<IAccessEventService>();
-                var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var memberAccessService = scope.ServiceProvider.GetRequiredService<IMemberAccessService>();
 
-                // 1. Validate Access
-                var validationResult = await accessEventService.ValidateAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
-
-                // 2. Resolve Member Details for the UI Popup
-                MemberDto? member = null;
-                var memberSearch = await memberService.SearchMembersAsync(_config.FacilityId, new MemberSearchRequest(e.CardId));
-                if (memberSearch.IsSuccess && memberSearch.Value.Items.Any())
-                {
-                    member = memberSearch.Value.Items.First();
-                }
-
-                bool gateOpened = false;
-                Result<AccessEventDto> accessResult = validationResult;
-
-                // 3. Trigger Hardware Relay & Commit on Success
-                if (validationResult.IsSuccess && (validationResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Granted.ToString() || 
-                                                   validationResult.Value.AccessStatus == Management.Domain.Enums.AccessStatus.Warning.ToString()))
-                {
-                    var hardwareService = (IHardwareTurnstileService)_turnstileService;
-                    gateOpened = await hardwareService.OpenGateAsync();
-
-                    if (gateOpened)
-                    {
-                        accessResult = await accessEventService.CommitAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
-                    }
-                    else 
-                    {
-                        _logger.LogWarning("Turnstile hardware failed to open gate. Cancelling session commit for {CardId}", e.CardId);
-                        // If it fails to open, do NOT commit to database, avoid session loss.
-                        accessResult = Result.Failure<AccessEventDto>(new Error("Gate.HardwareFailure", "Hardware failed to open. Session not deducted."));
-                    }
-                }
-                else 
-                {
-                   // Fallback logic for Denials, we MUST log the failure to database.
-                   accessResult = await accessEventService.CommitAccessRequestAsync(e.CardId, _config.FacilityId, e.Direction, e.TransactionId);
-                }
-
-                // 4. Publish Notification for UI/Audio Feedback
-                var status = Management.Domain.Enums.AccessStatus.Denied;
-                if (accessResult.IsSuccess)
-                {
-                    Enum.TryParse<Management.Domain.Enums.AccessStatus>(accessResult.Value.AccessStatus, out status);
-                }
-
-                await mediator.Publish(new MemberScannedNotification(
-                    _config.FacilityId,
-                    member,
-                    e.CardId,
-                    accessResult.IsSuccess && (status == Management.Domain.Enums.AccessStatus.Granted || status == Management.Domain.Enums.AccessStatus.Warning),
-                    status,
-                    accessResult.IsFailure ? accessResult.Error.Message : (accessResult.Value.IsAccessGranted ? null : accessResult.Value.FailureReason)
-                ), ct);
+                // Delegate to the unified service to ensure 1:1 parity with manual UI buttons
+                await memberAccessService.ProcessAccessFlowAsync(
+                    e.CardId, 
+                    _config.FacilityId, 
+                    e.Direction, 
+                    e.TransactionId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to process turnstile scan for {CardId}", e.CardId);
+                _logger.LogError(ex, "Failed to process turnstile scan via unified service for {CardId}", e.CardId);
             }
         }
 

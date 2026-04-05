@@ -174,6 +174,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Members.Balance">Solde</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Title">Supprimer des membres ?</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Message">Êtes-vous sûr de vouloir supprimer les membres sélectionnés ? Cette action ne peut pas être annulée.</sys:String>
+    <sys:String x:Key="Terminology.Members.GrantAccess">Accorder l'accès manuel (Ouvrir le tourniquet)</sys:String>
 
     <!-- Member Details -->
     <sys:String x:Key="Terminology.Members.Detail.Visits">Visites</sys:String>
@@ -1178,4 +1179,75 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Restaurant.Order.Ticket">Billet n°{0}</sys:String>
     <sys:String x:Key="TerminologyDeviceManagementLabel">[Device Management]</sys:String>
     <sys:String x:Key="Terminology.Global.Unknown">Inconnu</sys:String>
+    <!-- Orphan Missing Keys -->
+    <sys:String x:Key="Terminology.Dashboard.Action.NextMonth">Mois suivant</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.PreviousMonth">Mois précédent</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.DailyView">Vue quotidienne</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Status.HighRisk">Risque élevé</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.Grid">Grille</sys:String>
+    <sys:String x:Key="Terminology.FinanceAndStaff.View.List">Liste</sys:String>
+    <sys:String x:Key="Terminology.Global.Action.LoadMore">Charger plus</sys:String>
+    <sys:String x:Key="Terminology.Members.DeleteMember">Supprimer le membre</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.ExpirationDate">Date d'expiration</sys:String>
+    <sys:String x:Key="Terminology.Members.Detail.MembershipInfo">Infos d'adhésion</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Staff">Personnel</sys:String>
+
+    <!-- History Modals -->
+    <sys:String x:Key="Terminology.History.Revenue.Title">Analyse des revenus</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopPlan">MEILLEUR PLAN (MOIS)</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopProduct">MEILLEUR PRODUIT</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.Target">Cible: </sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.GenderSplit">RÉPARTITION PAR SEXE</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.MaleMembers">Hommes</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.FemaleMembers">Femmes</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopMemberships">MEILLEURS ABONNEMENTS</sys:String>
+    <sys:String x:Key="Terminology.History.Revenue.TopRetail">MEILLEURS PRODUITS</sys:String>
+    <sys:String x:Key="Terminology.History.Summary">RÉSUMÉ DE LA PÉRIODE</sys:String>
+    <sys:String x:Key="Terminology.History.Action.ReportPdf">Rapport PDF</sys:String>
+    
+    <sys:String x:Key="Terminology.History.Occupancy.Title">Analyse de l'occupation</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.PeakHour">HEURE DE POINTE</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.BestIntervals">MEILLEURS INTERVALLES</sys:String>
+    <sys:String x:Key="Terminology.History.Occupancy.AverageHourly">OCCUPATION HORAIRE</sys:String>
+
+    <sys:String x:Key="Terminology.History.Inventory.Subtitle">Suivi détaillé des mouvements de stock.</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.TopInvestment">MEILLEUR INVESTISSEMENT</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.HighestVelocity">PLUS HAUTE VÉLOCITÉ</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.CriticalRunway">PISTE CRITIQUE</sys:String>
+    <sys:String x:Key="Terminology.History.Inventory.RecentMovements">MOUVEMENTS RÉCENTS</sys:String>
+
+    <!-- Shop Restock -->
+    <sys:String x:Key="Terminology.Shop.Restock.Title">Réassort rapide</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Subtitle">Mettez à jour vos niveaux de stock intelligemment.</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityPurchased">Quantité achetée</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.QuantityHint">Combien d'unités ?</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.UnitCost">Coût unitaire (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.NewSalePrice">Nouveau prix (DA)</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TotalInvestment">Investissement total</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.TargetMargin">Marge cible</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.CurrentHint">Actuel: {0} unités</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.PurchaseNotes">Notes d'achat</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.LogPurchase">Enregistrer</sys:String>
+    <sys:String x:Key="Terminology.History.Action.Close">Fermer</sys:String>
+    <sys:String x:Key="Terminology.Shop.Restock.Action.Cancel">Annuler</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Modify">Modifier</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Restock">Réassort</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.RevenueHistory">Hist. des Revenus</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.OccupancyHistory">Hist. d'Occupation</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Action.InventoryHistory">Hist. des stocks</sys:String>
+
+    <sys:String x:Key="Terminology.Dashboard.Stat.RetentionGuardian">Gardien de Rétention</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RevenueTrend">Tendance des Revenus</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Range.Yesterday">Hier</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Shortcuts">Raccourcis</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Title">Raccourcis Clavier</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Subtitle">Référence rapide pour les raccourcis système et établissement.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.NavigateTo">S'orienter vers</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.FocusSearch">Focus sur la barre de recherche</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.OpenPalette">Ouvrir la palette de commandes</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickCreateMember">Création rapide de membre</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickSale">Vente rapide / Entrée libre</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.QuickWalkIn">Entrée libre rapide</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Confirm">Soumettre le formulaire / Confirmer</sys:String>
+    <sys:String x:Key="Terminology.Settings.Shortcuts.Cancel">Fermer le modal / Annuler</sys:String>
 </ResourceDictionary>

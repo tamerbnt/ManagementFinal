@@ -138,7 +138,7 @@
                                     <TranslateTransform x:Name="ThumbTransform" X="0" />
                                 </Border.RenderTransform>
                                 <TextBlock x:Name="ThumbText" 
-                                           Text="Switch to Business View" 
+                                           Text="{DynamicResource Terminology.Dashboard.View.SwitchToBusiness}" 
                                            FontWeight="Bold" 
                                            FontSize="11" 
                                            Foreground="#1E293B" 
@@ -150,7 +150,7 @@
                         
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                 <Setter TargetName="ThumbText" Property="Text" Value="Switch to Operations View" />
+                                 <Setter TargetName="ThumbText" Property="Text" Value="{DynamicResource Terminology.Dashboard.View.SwitchToOperations}" />
                                  <Setter TargetName="ThumbText" Property="Foreground" Value="White" />
                                  <Setter TargetName="Thumb" Property="Background" Value="{DynamicResource FacilityAccentBrush}" />
                                  <Trigger.EnterActions>
@@ -601,7 +601,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
-                                            <TextBlock Text="TODAY"/>
+                                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Range.Today}"/>
                                         </Button>
                                         
                                         <!-- Yesterday Button -->
@@ -621,7 +621,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Button.Style>
-                                            <TextBlock Text="YESTERDAY"/>
+                                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Range.Yesterday}"/>
                                         </Button>
                                         
                                         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,2"/>
@@ -911,19 +911,19 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel>
-                                <TextBlock Text="REVENUE TREND" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RevenueTrend}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 <TextBlock Text="{Binding FormattedRevenueTrendMonth}" FontWeight="Bold" FontSize="20" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
 
                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Command="{Binding PreviousRevenueTrendMonthCommand}" 
                                         Style="{StaticResource Button.Ghost}" Width="32" Height="32" Padding="0" Margin="0,0,8,0"
-                                        ToolTip="Previous Month">
+                                        ToolTip="{DynamicResource Terminology.Dashboard.Action.PreviousMonth}">
                                     <Path Data="{StaticResource IconChevronLeft}" Fill="{DynamicResource TextSecondaryBrush}" Width="8" Height="12" Stretch="Uniform"/>
                                 </Button>
                                 <Button Command="{Binding NextRevenueTrendMonthCommand}" 
                                         Style="{StaticResource Button.Ghost}" Width="32" Height="32" Padding="0"
-                                        ToolTip="Next Month">
+                                        ToolTip="{DynamicResource Terminology.Dashboard.Action.NextMonth}">
                                     <Path Data="{StaticResource IconChevronRight}" Fill="{DynamicResource TextSecondaryBrush}" Width="8" Height="12" Stretch="Uniform"/>
                                 </Button>
                             </StackPanel>
@@ -953,7 +953,7 @@
                                     <Border Background="{DynamicResource FacilityAccentDimBrush}" CornerRadius="8" Padding="12,6">
                                         <StackPanel Orientation="Horizontal">
                                             <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Daily View" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.DailyView}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
@@ -962,7 +962,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" 
                                               Fill="{DynamicResource TextSecondaryBrush}" Width="12" Height="12" Stretch="Uniform" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Export" FontSize="11" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Dashboard.Action.Export}" FontSize="11" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Button>
                             </Grid>
@@ -1006,7 +1006,7 @@
                                     <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusErrorBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
                                         <Path Data="{StaticResource IconMembers}" Fill="{DynamicResource StatusErrorBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="RETENTION GUARDIAN" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Opacity="0.8"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RetentionGuardian}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Opacity="0.8"/>
                                 </StackPanel>
                                 
                                 <ToggleButton Grid.Column="1" Style="{StaticResource Style.MiniModeToggle}" IsChecked="{Binding IsRetentionDetailVisible, Mode=TwoWay}"/>
@@ -1038,7 +1038,7 @@
                                                                 <TextBlock Text="{Binding MemberName}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                                 <Border Background="{DynamicResource StatusErrorBrush}" CornerRadius="4" Padding="4,1" Margin="8,0,0,0" 
                                                                         Visibility="{Binding RiskLevel, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter='High'}">
-                                                                    <TextBlock Text="HIGH RISK" FontSize="8" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Status.HighRisk}" FontSize="8" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                                                                 </Border>
                                                             </StackPanel>
                                                             <TextBlock Text="{Binding Status}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
@@ -1218,15 +1218,15 @@
                                         Style="{DynamicResource Button.Primary}" 
                                         Height="36" FontSize="11" FontWeight="SemiBold"/>
                                 
-                                <Button Grid.Row="2" Content="Revenue History" 
+                                <Button Grid.Row="2" Content="{DynamicResource Terminology.Dashboard.Action.RevenueHistory}" 
                                         Command="{Binding OpenRevenueHistoryCommand}"
                                         Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
                                 
-                                <Button Grid.Row="4" Content="Occupancy History" 
+                                <Button Grid.Row="4" Content="{DynamicResource Terminology.Dashboard.Action.OccupancyHistory}" 
                                         Command="{Binding OpenOccupancyHistoryCommand}"
                                         Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
 
-                                <Button Grid.Row="6" Content="Inventory History" 
+                                <Button Grid.Row="6" Content="{DynamicResource Terminology.Dashboard.Action.InventoryHistory}" 
                                         Command="{Binding OpenInventoryHistoryCommand}"
                                         Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
                                 

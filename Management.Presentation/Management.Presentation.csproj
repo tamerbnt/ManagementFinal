@@ -36,6 +36,8 @@
     <Resource Include="Resources\Images\onboarding_sync_v2.png" />
     <Resource Include="Resources\Images\Welcome_Gym.png" />
     <Resource Include="Resources\Images\Welcome_Salon.png" />
+    <Resource Include="Resources\Images\access_granted_illustration.png" />
+    <Resource Include="Resources\Images\access_denied_illustration.png" />
   </ItemGroup>
 
   <ItemGroup>

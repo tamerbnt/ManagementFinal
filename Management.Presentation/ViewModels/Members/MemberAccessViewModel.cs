@@ -42,7 +42,7 @@ namespace Management.Presentation.ViewModels.Members
             Title = "Access Control";
         }
 
-        public override Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default)
+        public override async Task OnModalOpenedAsync(object parameter, CancellationToken cancellationToken = default)
         {
             if (parameter is MemberScannedNotification notification)
             {
@@ -65,12 +65,30 @@ namespace Management.Presentation.ViewModels.Members
                     _ => IsAccessGranted ? "Access Granted" : "Access Denied"
                 };
 
-                // Auto-close after 4 seconds
-                _ = Task.Delay(4000, cancellationToken).ContinueWith(_ => CloseCommand.Execute(null), cancellationToken);
+                // Auto-close after 4 seconds without blocking the initial open call
+                _ = AutoCloseAfterDelayAsync(4000, cancellationToken);
             }
 
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
+
+        private async Task AutoCloseAfterDelayAsync(int millisecondsDelay, CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(millisecondsDelay, token);
+                if (!token.IsCancellationRequested && IsOpen)
+                {
+                    await CloseAsync();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Task was cancelled, which is fine
+            }
+        }
+
+        public bool IsOpen => _modalNavigationStore.CurrentModalViewModel == this;
 
         [RelayCommand]
         private async Task CloseAsync()

@@ -28,8 +28,8 @@
 
             <!-- 1. Header -->
             <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                <TextBlock Text="Quick Restock" Style="{StaticResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Text="Update your stock levels and costs intelligently." Style="{StaticResource BodyMedium}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{DynamicResource Terminology.Shop.Restock.Title}" Style="{StaticResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource Terminology.Shop.Restock.Subtitle}" Style="{StaticResource BodyMedium}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
             </StackPanel>
 
             <!-- 2. Product Summary Card -->
@@ -47,7 +47,7 @@
 
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                         <TextBlock Text="{Binding CurrentStock, StringFormat='{}Current: {0} units'}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
-                        <TextBlock Text="{Binding CurrentPrice, StringFormat='{}Price: {0:N2} DA'}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding CurrentPrice, StringFormat='{}Price: {0:N2}'}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -56,10 +56,10 @@
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" MaxHeight="400">
                 <StackPanel>
                     <!-- Quantity -->
-                    <TextBlock Text="Quantity Purchased" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBlock Text="{DynamicResource Terminology.Shop.Restock.QuantityPurchased}" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{DynamicResource UnderlineTextBox}" 
-                             Tag="How many units did you buy?" 
+                             Tag="{DynamicResource Terminology.Shop.Restock.QuantityHint}" 
                              FontSize="16" Height="48" Margin="0,0,0,20"/>
 
                     <!-- Cost & Margin Row -->
@@ -71,7 +71,7 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Unit Cost (DA)" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.Restock.UnitCost}" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding UnitCost, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{DynamicResource UnderlineTextBox}" 
                                      Tag="0.00" 
@@ -79,7 +79,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="New Sale Price (DA)" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.Restock.NewSalePrice}" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding NewSalePrice, UpdateSourceTrigger=PropertyChanged}" 
                                      Style="{DynamicResource UnderlineTextBox}" 
                                      Tag="0.00" 
@@ -91,11 +91,11 @@
                     <Border Background="{DynamicResource SurfaceBgTertiary}" CornerRadius="12" Padding="16" Margin="0,0,0,20">
                         <StackPanel>
                             <Grid Margin="0,0,0,8">
-                                <TextBlock Text="Total Investment" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Terminology.Shop.Restock.TotalInvestment}" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <TextBlock Text="{Binding TotalCost, StringFormat='{}{0:N2} DA'}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <TextBlock Text="Target Margin" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Terminology.Shop.Restock.TargetMargin}" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <TextBlock Text="{Binding Margin, StringFormat='{}{0:F1}%'}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Foreground="{Binding MarginColor}"/>
                                 </StackPanel>
@@ -104,7 +104,7 @@
                     </Border>
 
                     <!-- Notes -->
-                    <TextBlock Text="Purchase Notes" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <TextBlock Text="{DynamicResource Terminology.Shop.Restock.PurchaseNotes}" Style="{DynamicResource BodyMedium}" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{DynamicResource UnderlineTextBox}" 
                              Tag="Supplier, Batch Number, etc." 
@@ -120,8 +120,8 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Content="Cancel" Command="{Binding CancelCommand}" Style="{DynamicResource GhostButton}" Height="48" Margin="0,0,8,0"/>
-                <Button Grid.Column="1" Content="Log Purchase" Command="{Binding SubmitCommand}" Style="{DynamicResource PrimaryButton}" Height="48" Margin="8,0,0,0"/>
+                <Button Grid.Column="0" Content="{DynamicResource Terminology.Shop.Restock.Action.Cancel}" Command="{Binding CancelCommand}" Style="{DynamicResource GhostButton}" Height="48" Margin="0,0,8,0"/>
+                <Button Grid.Column="1" Content="{DynamicResource Terminology.Shop.Restock.Action.LogPurchase}" Command="{Binding SubmitCommand}" Style="{DynamicResource PrimaryButton}" Height="48" Margin="8,0,0,0"/>
             </Grid>
         </Grid>
     </Border>

@@ -127,6 +127,10 @@
                         Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
             <KeyBinding Key="K" Modifiers="Ctrl"
                         Command="{Binding Data.FocusSearchCommand, Source={StaticResource MainProxy}}"/>
+            
+            <!-- Command Palette: Ctrl+P -->
+            <KeyBinding Key="P" Modifiers="Ctrl"
+                        Command="{Binding Data.OpenCommandPaletteCommand, Source={StaticResource MainProxy}}"/>
         </Grid.InputBindings>
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>

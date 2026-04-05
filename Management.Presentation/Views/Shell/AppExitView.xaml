@@ -8,7 +8,8 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d" 
         Title="Quit Luxurya"
-        Height="500" Width="700"
+        MinWidth="640" MaxWidth="850"
+        SizeToContent="WidthAndHeight"
         WindowStyle="None" 
         AllowsTransparency="True"
         Background="Transparent"
@@ -28,7 +29,7 @@
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
-            Margin="50"
+            Margin="24"
             Padding="{DynamicResource PaddingModal}">
 
         <i:Interaction.Behaviors>
@@ -59,33 +60,36 @@
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
+                       MaxWidth="580"
                        Margin="{DynamicResource MarginSectionBottom}"/>
 
             <!-- 4. Action Buttons -->
-            <StackPanel Orientation="Horizontal" 
-                        HorizontalAlignment="Center">
+            <WrapPanel HorizontalAlignment="Center"
+                       Orientation="Horizontal">
 
                 <!-- Skip & Exit (Ghost) -->
                 <Button Content="{DynamicResource Terminology.Shell.Exit.Close}"
                         Command="{Binding ExitCommand}"
                         Style="{DynamicResource GhostButton}"
-                        Margin="{DynamicResource Space.MD.Right}"
+                        Margin="8"
                         IsEnabled="{Binding IsGeneratingReport, Converter={StaticResource InverseBooleanConverter}}"/>
 
                 <!-- Cancel / Stay (Secondary) -->
                 <Button Content="{DynamicResource Terminology.Shell.Exit.Cancel}"
                         Command="{Binding StayCommand}"
                         Style="{DynamicResource Button.Secondary}"
-                        Margin="{DynamicResource Space.MD.Right}"
+                        Margin="8"
                         IsEnabled="{Binding IsGeneratingReport, Converter={StaticResource InverseBooleanConverter}}"/>
 
                 <!-- Close Day & Exit (Primary) -->
                 <Button Content="{DynamicResource Terminology.Shell.Exit.CloseAndReport}"
                         Command="{Binding CloseAndReportCommand}"
                         Style="{DynamicResource PrimaryButton}"
+                        Margin="8"
                         MinWidth="200">
                 </Button>
-            </StackPanel>
+            </WrapPanel>
         </StackPanel>
     </Border>
 </Window>
+

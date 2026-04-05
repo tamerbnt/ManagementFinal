@@ -22,15 +22,15 @@ namespace Management.Presentation.ViewModels.Dashboard
         private readonly IModalNavigationService _modalNavigationService;
 
         [ObservableProperty]
-        private string _analyzedPeriodLabel = "Lifetime Analysis";
+        private string _analyzedPeriodLabel = string.Empty;
 
         [ObservableProperty]
-        private string _selectedPeriod = "Lifetime";
+        private string _selectedPeriod = string.Empty;
 
         [ObservableProperty]
         private OccupancyHistoryDto _data = new();
 
-        public ObservableCollection<string> AvailablePeriods { get; } = new() { "Last 30 Days", "Last 90 Days", "Last Year", "Lifetime" };
+        public ObservableCollection<string> AvailablePeriods { get; } = new();
 
         public IAsyncRelayCommand CloseCommand { get; }
         public IAsyncRelayCommand ExportPdfCommand { get; }
@@ -53,6 +53,20 @@ namespace Management.Presentation.ViewModels.Dashboard
 
             CloseCommand = new AsyncRelayCommand(CloseAsync);
             ExportPdfCommand = new AsyncRelayCommand(ExecuteExportPdfAsync);
+
+            InitializeLocalizedLabels();
+        }
+
+        private void InitializeLocalizedLabels()
+        {
+            AvailablePeriods.Clear();
+            AvailablePeriods.Add(GetTerm("Terminology.History.Period.Last30Days") ?? "Last 30 Days");
+            AvailablePeriods.Add(GetTerm("Terminology.History.Period.Last90Days") ?? "Last 90 Days");
+            AvailablePeriods.Add(GetTerm("Terminology.History.Period.LastYear") ?? "Last Year");
+            AvailablePeriods.Add(GetTerm("Terminology.History.Period.Lifetime") ?? "Lifetime");
+
+            SelectedPeriod = GetTerm("Terminology.History.Period.Lifetime") ?? "Lifetime";
+            AnalyzedPeriodLabel = GetTerm("Terminology.History.Label.LifetimeAnalysis") ?? "Lifetime Analysis";
         }
 
         partial void OnSelectedPeriodChanged(string value)
