@@ -12,6 +12,8 @@ using Serilog;
 using Management.Application.Interfaces;
 using Management.Application.Services;
 using Management.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Management.Application.DTOs;
 
 namespace Management.Infrastructure.Services
@@ -50,12 +52,14 @@ namespace Management.Infrastructure.Services
         private readonly Supabase.Client _supabase;
         private readonly ITenantService _tenantService;
         private readonly IConfigurationService _configService;
+        private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
 
-        public OnboardingService(Supabase.Client supabase, ITenantService tenantService, IConfigurationService configService)
+        public OnboardingService(Supabase.Client supabase, ITenantService tenantService, IConfigurationService configService, Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory)
         {
             _supabase = supabase;
             _tenantService = tenantService;
             _configService = configService;
+            _scopeFactory = scopeFactory;
         }
 
         private const int NetworkTimeoutSeconds = 45;
@@ -790,6 +794,36 @@ namespace Management.Infrastructure.Services
                 if (Guid.TryParse(facilityIdStr, out var facilityId))
                 {
                     Serilog.Log.Information("[Onboarding] Facility provisioned successfully: {FacilityId}", facilityId);
+
+                    // STEP 2: Write to local SQLite immediately
+                    try 
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var context = scope.ServiceProvider.GetRequiredService<Management.Infrastructure.Data.AppDbContext>();
+                        
+                        var localFacility = new Management.Domain.Models.Facility
+                        {
+                            Id = facilityId,
+                            TenantId = tenantId,
+                            Type = (Management.Domain.Enums.FacilityType)facilityType,
+                            Name = facilityName,
+                            IsActive = true
+                        };
+                        
+                        var existing = await context.Facilities.IgnoreQueryFilters().FirstOrDefaultAsync(f => f.Id == facilityId);
+                        if (existing == null)
+                        {
+                            context.Facilities.Add(localFacility);
+                            await context.SaveChangesAsync();
+                            Serilog.Log.Information("[Setup] Facility written to local SQLite immediately: {Type} Id={Id}", facilityType, localFacility.Id);
+                        }
+                    }
+                    catch (Exception sqlEx)
+                    {
+                        // Note: There is NO 'Tenants' table locally, so FK violations on TenantId are impossible. 
+                        Serilog.Log.Error(sqlEx, "[Setup] Immediate local SQLite facility write failed (Sync will catch up later).");
+                    }
+
                     return Result.Success(facilityId);
                 }
 
