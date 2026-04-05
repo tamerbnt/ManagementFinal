@@ -572,19 +572,20 @@ namespace Management.Presentation
                 // (Localization moved to earlier in sequence)
                 // FIX 2: Removed duplicate PopulateNavigationRegistry call here — already called at step 4 above.
                 
-                // 6. Startup Security Guard (Hardware/Cloud Check)
+                // FIX 4: Start license check in parallel — immediately after DB + CommitFacility.
+                // This overlaps the Supabase network round-trip with all the synchronous setup below.
+                // We will 'await licenseTask' just before the navigation decision at the end.
                 ct.ThrowIfCancellationRequested();
-                Serilog.Log.Information("Running Startup Security Guard in background...");
                 UpdateStartupStatus("Verifying license...");
-                
-                System.Diagnostics.Debug.WriteLine($"[STARTUP] Step 2: License check starting {DateTime.Now:HH:mm:ss.fff}");
-                var licStopwatch = System.Diagnostics.Stopwatch.StartNew();
-                
-                bool isLicensed = await RunStartupSecurityGuard(ServiceProvider);
-                
-                licStopwatch.Stop();
-                System.Diagnostics.Debug.WriteLine($"[STARTUP] License check result={isLicensed} Duration={licStopwatch.ElapsedMilliseconds}ms");
+                Serilog.Log.Information("[App] Launching license check in background (parallel with setup)...");
+                var licenseTask = Task.Run(() => RunStartupSecurityGuard(ServiceProvider), ct);
 
+                // 6. FIX 4: Await license result — it has been running in the background while
+                // view mappings and nav registry were being registered above.
+                Serilog.Log.Information("[App] Awaiting license check result...");
+                ct.ThrowIfCancellationRequested();
+                bool isLicensed = await licenseTask;
+                Serilog.Log.Information("[App] License check resolved: {Result}", isLicensed);
 
                 // 7. FINAL NAVIGATION ROUTING (Based on background task results)
                 await Current.Dispatcher.InvokeAsync(async () => 

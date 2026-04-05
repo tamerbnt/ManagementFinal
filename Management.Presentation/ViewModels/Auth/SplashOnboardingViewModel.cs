@@ -192,11 +192,15 @@ namespace Management.Presentation.ViewModels.Auth
                     .Where(f => !f.IsDeleted)
                     .ToListAsync();
 
+                List<FacilityTypeOption> options;
+
                 if (localFacilities.Count > 0)
                 {
-                    var options = localFacilities
+                    // FIX 3: Deterministic selection — per type, pick the most recently updated facility
+                    // This guarantees the same facility is selected every time, not a random DBSet order.
+                    options = localFacilities
                         .GroupBy(f => f.Type)
-                        .Select(g => g.First())
+                        .Select(g => g.OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt).First())
                         .Select(f => new FacilityTypeOption
                         {
                             Id = f.Id,
@@ -209,28 +213,49 @@ namespace Management.Presentation.ViewModels.Auth
                         })
                         .ToList();
 
-                    _dispatcher.Invoke(() => 
-                    {
-                        if (options.Count == 0)
-                        {
-                            // Missing Synced local DB. Injecting Fallback Discovery options for Splash Mockup usage.
-                            options.Add(new FacilityTypeOption { Id = Guid.NewGuid(), Type = FacilityType.Gym, Name = "Titan Gym", Description = GetDescription(FacilityType.Gym), GradientStart = GetGradient(FacilityType.Gym, true), GradientEnd = GetGradient(FacilityType.Gym, false), IconKey = GetIcon(FacilityType.Gym) });
-                            options.Add(new FacilityTypeOption { Id = Guid.NewGuid(), Type = FacilityType.Salon, Name = "Titan Salon", Description = GetDescription(FacilityType.Salon), GradientStart = GetGradient(FacilityType.Salon, true), GradientEnd = GetGradient(FacilityType.Salon, false), IconKey = GetIcon(FacilityType.Salon) });
-                            options.Add(new FacilityTypeOption { Id = Guid.NewGuid(), Type = FacilityType.Restaurant, Name = "Titan Restaurant", Description = GetDescription(FacilityType.Restaurant), GradientStart = GetGradient(FacilityType.Restaurant, true), GradientEnd = GetGradient(FacilityType.Restaurant, false), IconKey = GetIcon(FacilityType.Restaurant) });
-                        }
-                        
-                        AvailableFacilities.Clear();
-                        foreach (var opt in options)
-                        {
-                            AvailableFacilities.Add(opt);
-                        }
-                        SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Type == FacilityType.Gym) ?? AvailableFacilities.FirstOrDefault();
-                    });
+                    Serilog.Log.Information("[Splash] Loaded {Count} facility type(s) from local SQLite", options.Count);
                 }
+                else
+                {
+                    // No local data yet — show discoverable fallback cards
+                    // This happens on first run before sync has had time to populate the DB
+                    Serilog.Log.Warning("[Splash] No facilities found in local SQLite — showing fallback options");
+                    options = new List<FacilityTypeOption>
+                    {
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Gym, Name = "Titan Gym", Description = GetDescription(FacilityType.Gym), GradientStart = GetGradient(FacilityType.Gym, true), GradientEnd = GetGradient(FacilityType.Gym, false), IconKey = GetIcon(FacilityType.Gym) },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Salon, Name = "Titan Salon", Description = GetDescription(FacilityType.Salon), GradientStart = GetGradient(FacilityType.Salon, true), GradientEnd = GetGradient(FacilityType.Salon, false), IconKey = GetIcon(FacilityType.Salon) },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Restaurant, Name = "Titan Restaurant", Description = GetDescription(FacilityType.Restaurant), GradientStart = GetGradient(FacilityType.Restaurant, true), GradientEnd = GetGradient(FacilityType.Restaurant, false), IconKey = GetIcon(FacilityType.Restaurant) }
+                    };
+                }
+
+                _dispatcher.Invoke(() =>
+                {
+                    AvailableFacilities.Clear();
+                    foreach (var opt in options)
+                    {
+                        AvailableFacilities.Add(opt);
+                    }
+
+                    // FIX 3: Auto-select most recently updated real facility — never random
+                    var realFacilities = localFacilities
+                        .OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt)
+                        .FirstOrDefault();
+
+                    if (realFacilities != null)
+                    {
+                        SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == realFacilities.Id)
+                            ?? AvailableFacilities.FirstOrDefault();
+                    }
+                    else
+                    {
+                        // Fallback mode — no real facility ID, don't pre-select
+                        SelectedFacility = null;
+                    }
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load facilities for splash discovery.");
+                _logger.LogError(ex, "[Splash] Failed to load facilities for splash discovery.");
             }
         }
 
