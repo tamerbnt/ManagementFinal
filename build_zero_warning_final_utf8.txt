@@ -1,5 +1,0 @@
-﻿  Identification des projets ├á restaurer...
-  Restauration effectu├®e de C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Presentation\Management.Presentation.csproj (en 1,8 sec).
-  Restauration effectu├®e de C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Infrastructure\Management.Infrastructure.csproj (en 1,82 sec).
-  Sur l'ensemble des projets, 2 sur 4 sont ├á jour pour la restauration.
-  Management.Domain -> C:\Users\techbox\.gemini\antigravity\scratch\ManagementCopy\Management.Domain\bin\Debug\net8.0\Management.Domain.dll
