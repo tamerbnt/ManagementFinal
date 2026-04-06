@@ -33,14 +33,11 @@
     </PackageReference>
   </ItemGroup>
   
-  <Target Name="CopyZKTecoNativeDlls" AfterTargets="Build">
-    <ItemGroup>
-      <ZKDlls Include="$(PkgZKTecoStandAlonePullSDKx64)\lib\**\*.dll"/>
-    </ItemGroup>
-    <Copy SourceFiles="@(ZKDlls)"
-          DestinationFolder="$(OutputPath)"
-          SkipUnchangedFiles="true"/>
-  </Target>
+  <ItemGroup>
+    <Content Include="$(PkgZKTecoStandAlonePullSDKx64)\lib\**\*.dll"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="Always"/>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Management.Application\Management.Application.csproj" />

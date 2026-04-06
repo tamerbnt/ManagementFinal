@@ -24,12 +24,12 @@ namespace Management.Infrastructure.Services
         {
             _context = context;
             
-            // Database is in LocalAppData
-            var luxuryaDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+            // Database is in ProgramData
+            var luxuryaDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
             _dbPath = Path.Combine(luxuryaDataFolder, "GymManagement.db");
 
-            // Backups are in MyDocuments for better persistence/sync
-            _backupFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Luxurya", "Backups");
+            // Backups are in ProgramData/Luxurya/backups for better persistence/sync across shift changes
+            _backupFolder = Path.Combine(luxuryaDataFolder, "backups");
             
             if (!Directory.Exists(_backupFolder))
             {

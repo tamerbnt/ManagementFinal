@@ -14,6 +14,9 @@ namespace Management.Presentation
         {
             try
             {
+                // Hooks setup for Velopack updates (MUST run before WPF init)
+                Management.Presentation.Services.VelopackHooks.Run();
+
                 // Basic console logging for immediate feedback
                 Console.WriteLine("PROGRAM STARTED");
                 

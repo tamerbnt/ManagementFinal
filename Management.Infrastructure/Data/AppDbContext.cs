@@ -739,7 +739,7 @@ namespace Management.Infrastructure.Data
             // Task 1: Database Safety - Connection String Enforcement
             if (!optionsBuilder.IsConfigured)
             {
-                var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+                var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
                 if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                 
                 var dbPath = Path.Combine(dbFolder, "GymManagement.db");

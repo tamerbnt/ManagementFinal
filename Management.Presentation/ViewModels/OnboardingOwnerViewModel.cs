@@ -168,6 +168,9 @@ namespace Management.Presentation.ViewModels
                 var tenantService = (ITenantService)await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     ((App)System.Windows.Application.Current).ServiceProvider.GetRequiredService<ITenantService>());
                 tenantService.SetTenantId(tenantId);
+                
+                // Persist TenantId to config file to prevent setup redirection on restart
+                _facilityContext.SaveTenantId(tenantId);
 
                 // 4. Trigger Service Re-initialization (Soft Restart)
                 Serilog.Log.Information("[OnboardingOwnerViewModel] Triggering service re-initialization...");

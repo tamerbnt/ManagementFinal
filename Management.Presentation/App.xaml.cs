@@ -634,6 +634,21 @@ namespace Management.Presentation
                                 Serilog.Log.Error(ex, "Error during background hardware check");
                             }
                         });
+                        // 9. Fire Background Update Check
+                        _ = Task.Run(async () => 
+                        {
+                            try
+                            {
+                                // Wait 15 seconds so startup isn't bottlenecked and user has logged in
+                                await Task.Delay(15000);
+                                var updateService = ServiceProvider.GetRequiredService<Management.Presentation.Services.IUpdateService>();
+                                await updateService.CheckForUpdatesAsync();
+                            }
+                            catch (Exception ex)
+                            {
+                                Serilog.Log.Error(ex, "Background update check failed");
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -877,7 +892,7 @@ namespace Management.Presentation
 
                 if (databaseMode == "LocalFirst")
                 {
-                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
                     if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                     
                     var dbPath = Path.Combine(dbFolder, "GymManagement.db");
@@ -972,6 +987,9 @@ namespace Management.Presentation
 
             // --- UNIT OF WORK ---
             services.AddScoped<IUnitOfWork, Management.Infrastructure.Data.UnitOfWork>();
+
+            // --- UPDATE SERVICE ---
+            services.AddSingleton<Management.Presentation.Services.IUpdateService, Management.Presentation.Services.UpdateService>();
 
             // --- REPOSITORIES (Data Access - Scoped) ---
             services.AddScoped<IStaffRepository, StaffRepository>();

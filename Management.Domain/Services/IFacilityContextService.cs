@@ -19,5 +19,6 @@ namespace Management.Domain.Services
         void Initialize();
         void CommitFacility();
         Guid GetFacilityId(FacilityType type);
+        void SaveTenantId(Guid tenantId);
     }
 }

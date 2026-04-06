@@ -16,6 +16,7 @@ namespace Management.Presentation.Services
         public FacilityType InitialFacility { get; set; } = FacilityType.Gym;
         public string LanguageCode { get; set; } = "en";
         public string PublicSlug { get; set; } = string.Empty;
+        public Guid? TenantId { get; set; }
         
         // Removed [JsonConverter(typeof(JsonStringEnumConverter))] as it crashes when applied directly to a Dictionary<Enum, Guid> property
         public Dictionary<FacilityType, Guid>? FacilityIds { get; set; }
@@ -25,6 +26,7 @@ namespace Management.Presentation.Services
     {
         private readonly IDispatcher _dispatcher;
         private readonly ILocalizationService _localizationService;
+        private readonly IOnboardingStateStore _onboardingState;
         private readonly string _configPath;
         
         // Default seed IDs removed (Relying on discovery)
@@ -73,14 +75,22 @@ namespace Management.Presentation.Services
             SaveConfig();
         }
 
-        public FacilityContextService(IDispatcher dispatcher, ILocalizationService localizationService)
+        public void SaveTenantId(Guid tenantId)
+        {
+            _onboardingState.TargetTenantId = tenantId;
+            Serilog.Log.Information("[FacilityContext] Tenant ID saved to config: {Id}", tenantId);
+            SaveConfig();
+        }
+
+        public FacilityContextService(IDispatcher dispatcher, ILocalizationService localizationService, IOnboardingStateStore onboardingState)
         {
             _dispatcher = dispatcher;
             _localizationService = localizationService;
+            _onboardingState = onboardingState;
             
-            // FIX: Absolute path in %LOCALAPPDATA%\Luxurya
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var titanFolder = Path.Combine(localAppData, "Luxurya");
+            // FIX: Absolute path in %PROGRAMDATA%\Luxurya
+            var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            var titanFolder = Path.Combine(programData, "Luxurya");
             if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
             
             _configPath = Path.Combine(titanFolder, "facility-config.json");
@@ -107,6 +117,12 @@ namespace Management.Presentation.Services
                     LanguageCode = config?.LanguageCode ?? "en";
                     PublicSlug = config?.PublicSlug ?? string.Empty;
                     
+                    if (config?.TenantId != null)
+                    {
+                        _onboardingState.TargetTenantId = config.TenantId;
+                        Serilog.Log.Information("[FacilityContext] Restored TargetTenantId from config: {Id}", config.TenantId);
+                    }
+
                     if (config?.FacilityIds != null)
                     {
                         foreach (var mapping in config.FacilityIds)
@@ -284,6 +300,7 @@ namespace Management.Presentation.Services
                     InitialFacility = CurrentFacility,
                     LanguageCode = LanguageCode,
                     PublicSlug = PublicSlug,
+                    TenantId = _onboardingState.TargetTenantId,
                     FacilityIds = _dynamicFacilityIds.ToDictionary(k => k.Key, v => v.Value)
                 };
                 var options = new JsonSerializerOptions 
