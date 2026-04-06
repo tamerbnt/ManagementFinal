@@ -12,7 +12,7 @@
         xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Auth.LuxuryaActivation}"
-        Height="720" Width="980"
+        MinHeight="600" Height="680" MaxHeight="720" Width="980"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -230,11 +230,11 @@
                     <auth:LoginSkeletonView Visibility="{Binding CurrentView, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}"/>
                     
                     <!-- Main content: fades in/out as views change, with silent scroll -->
-                    <ScrollViewer VerticalScrollBarVisibility="Hidden"
-                                  HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Style="{DynamicResource Style.ScrollViewer.PremiumOverlay}">
                         <ContentControl Content="{Binding CurrentView}"
                                         HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Top"/>
+                                        VerticalContentAlignment="Top"
+                                        Focusable="False"/>
                     </ScrollViewer>
                 </Grid>
             </Border>

@@ -19,8 +19,7 @@
     <Grid>
         <!-- Grid View Layout -->
         <ListBox ItemsSource="{Binding FilteredStaffMembers}"
-                 Background="Transparent"
-                 BorderThickness="0"
+                 Style="{StaticResource ListBox.Modern}"
                  Padding="0,0,12,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -159,8 +158,7 @@
 
         <!-- List View Layout (Updated to match MembersView) -->
         <ListBox ItemsSource="{Binding FilteredStaffMembers}"
-                 Background="Transparent"
-                 BorderThickness="0"
+                 Style="{StaticResource ListBox.Modern}"
                  Padding="0,0,12,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  VirtualizingPanel.VirtualizationMode="Recycling"

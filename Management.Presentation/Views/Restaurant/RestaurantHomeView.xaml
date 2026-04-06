@@ -8,9 +8,11 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:Management.Presentation.Views.Restaurant"
              mc:Ignorable="d" 
-             d:DesignHeight="850" d:DesignWidth="1440">
+             d:DesignHeight="850" d:DesignWidth="1440"
+             x:Name="RestaurantHomeControl">
 
-    <Grid VerticalAlignment="Stretch">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <Grid VerticalAlignment="Stretch">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
                 <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
@@ -23,7 +25,7 @@
         <Grid Margin="0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="24"/>
                 <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -32,7 +34,7 @@
             </Grid.RowDefinitions>
 
             <!-- SECTION 0: DASHBOARD HEADER -->
-            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32">
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,24">
                 <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                     <Path Data="{StaticResource IconRestaurant}" 
                           Style="{StaticResource Style.Icon.Large}" 
@@ -50,7 +52,7 @@
             <Grid Grid.Row="1" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> 
-                    <RowDefinition Height="32"/>   
+                    <RowDefinition Height="24"/>   
                     <RowDefinition Height="*"/>    
                 </Grid.RowDefinitions>
 
@@ -205,7 +207,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- New Table -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding NewTableCommand}" Height="110">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding NewTableCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconDashboard}" 
@@ -213,12 +215,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.NewTable}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.NewTable}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Takeout -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding TakeoutCommand}" Height="110">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding TakeoutCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconShop}" 
@@ -226,12 +228,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.Takeout}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.Takeout}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Pay Bill -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding PayBillCommand}" Height="110">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding PayBillCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconCheckCircle}" 
@@ -239,12 +241,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.PayBill}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.PayBill}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Menu Status -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding MenuStatusCommand}" Height="110">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding MenuStatusCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconApparatus}" 
@@ -252,7 +254,7 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.MenuStatus}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Restaurant.Action.MenuStatus}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -269,5 +271,6 @@
                 </Border>
             </Grid>
         </Grid>
-    </Grid>
+      </Grid>
+    </ScrollViewer>
 </UserControl>

@@ -206,9 +206,8 @@
                     </Grid.RowDefinitions>
                     
                     <ListBox Grid.Row="0"
+                             Style="{StaticResource ListBox.Modern}"
                              ItemsSource="{Binding Products}" 
-                             Background="Transparent" 
-                             BorderThickness="0" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True"
                              VirtualizingPanel.VirtualizationMode="Recycling"
@@ -278,9 +277,8 @@
                     </Grid.RowDefinitions>
 
                     <ListBox Grid.Row="0"
+                             Style="{StaticResource ListBox.Modern}"
                              ItemsSource="{Binding InventoryItems}" 
-                             Background="Transparent" 
-                             BorderThickness="0"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              VirtualizingPanel.IsVirtualizing="True"
                              VirtualizingPanel.VirtualizationMode="Recycling"

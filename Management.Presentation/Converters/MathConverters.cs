@@ -47,6 +47,30 @@ namespace Management.Presentation.Converters
         }
     }
 
+    public class IsLessThanConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null || parameter == null) return false;
+            
+            try
+            {
+                double val = System.Convert.ToDouble(value);
+                double param = System.Convert.ToDouble(parameter);
+                return val < param;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class GridStarConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

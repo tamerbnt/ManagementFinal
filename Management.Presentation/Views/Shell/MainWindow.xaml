@@ -14,7 +14,7 @@
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Shell.GymOS}"
         Width="1440" Height="900"
-        MinWidth="1280" MinHeight="720"
+        MinWidth="1024" MinHeight="640"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FlowDirection="{DynamicResource GlobalFlowDirection}"

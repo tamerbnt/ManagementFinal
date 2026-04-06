@@ -34,7 +34,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel VerticalAlignment="Top" Margin="40,32,40,40">
+    <StackPanel VerticalAlignment="Top" Margin="40,24,40,24">
 
             <!-- ROW 1 — TITAN BRAND -->
             <Grid Margin="0,8,0,8">

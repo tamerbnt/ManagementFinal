@@ -8,7 +8,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:Management.Presentation.Views.GymHome"
              mc:Ignorable="d" 
-             d:DesignHeight="850" d:DesignWidth="1440">
+             d:DesignHeight="850" d:DesignWidth="1440"
+             x:Name="GymHomeControl">
     
     <UserControl.Resources>
         <!-- Use Global Standardized Shadows and Brushes -->
@@ -21,6 +22,36 @@
         
         <DropShadowEffect x:Key="Shadow.TextContrast" BlurRadius="4" ShadowDepth="1" Opacity="0.3" Color="Black"/>
 
+        <!-- Adaptive Visibility Styles -->
+        <Style x:Key="Style.Illustration.Adaptive" TargetType="Image">
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+            <Setter Property="Opacity" Value="1"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource LessThanConverter}, ConverterParameter=750}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3"/>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Duration="0:0:0.3">
+                                    <DiscreteObjectKeyFrame KeyTime="0:0:0.3" Value="{x:Static Visibility.Collapsed}"/>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Duration="0">
+                                    <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+                                </ObjectAnimationUsingKeyFrames>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Animations (Standardized Durations) -->
         <Storyboard x:Key="PulseBreathing" RepeatBehavior="Forever" AutoReverse="True">
             <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.4" To="0.8" Duration="0:0:2.5"/>
@@ -29,7 +60,8 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <Grid VerticalAlignment="Stretch">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <Grid VerticalAlignment="Stretch">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
                 <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
@@ -42,7 +74,7 @@
         <Grid Margin="0" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="32"/> <!-- Lateral Gap -->
+                <ColumnDefinition Width="24"/> <!-- Optimized Lateral Gap -->
                 <ColumnDefinition Width="280"/> <!-- Sidebar Column -->
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -53,7 +85,7 @@
             <!-- ====================================================================== -->
             <!-- SECTION 0: DASHBOARD HEADER (Greeting + Primary Action) -->
             <!-- ====================================================================== -->
-            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,32" HorizontalAlignment="Left">
+            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,24" HorizontalAlignment="Left">
                 <Grid.ColumnDefinitions>
                     <!-- Auto-sized Left Column for Text (pushes the image against it) -->
                     <ColumnDefinition Width="Auto" /> 
@@ -79,7 +111,7 @@
                        VerticalAlignment="Bottom"
                        Height="130" 
                        Margin="32,0,0,0"
-                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Style="{StaticResource Style.Illustration.Adaptive}"
                        Source="/Resources/Images/Welcome_Gym.png" />
             </Grid>
 
@@ -89,7 +121,7 @@
             <Grid Grid.Row="1" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Metrics Strip -->
-                    <RowDefinition Height="32"/>   <!-- Spacer -->
+                    <RowDefinition Height="24"/>   <!-- Optimized Spacer -->
                     <RowDefinition Height="*"/>    <!-- Operational Core -->
                 </Grid.RowDefinitions>
 
@@ -295,7 +327,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <!-- Row 0, Col 0: Quick Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" Height="110" MinHeight="80">
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconFinance}" 
@@ -303,12 +335,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 0, Col 2: Create Member -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" Height="110" MinHeight="80">
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconPlus}" 
@@ -316,12 +348,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 2, Col 0: Walk-In Check-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" Height="110" MinHeight="80">
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconMembers}" 
@@ -329,12 +361,12 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             
                             <!-- Row 2, Col 2: Multi-Sale Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" Height="110" MinHeight="80">
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" MinHeight="110">
                                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                     <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
                                         <Path Data="{StaticResource IconCart}" 
@@ -342,7 +374,7 @@
                                               Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -377,5 +409,6 @@
                 </Border>
             </Grid>
         </Grid>
-    </Grid>
+      </Grid>
+    </ScrollViewer>
 </UserControl>

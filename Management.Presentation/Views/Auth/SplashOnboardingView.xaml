@@ -16,7 +16,14 @@
     <!-- Master Clipping Grid to preserve rounded corners -->
     <Grid>
         <Grid.Clip>
-            <RectangleGeometry RadiusX="24" RadiusY="24" Rect="0,0,980,720"/>
+            <RectangleGeometry RadiusX="24" RadiusY="24">
+                <RectangleGeometry.Rect>
+                    <MultiBinding Converter="{StaticResource RectConverter}">
+                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType=Grid}"/>
+                    </MultiBinding>
+                </RectangleGeometry.Rect>
+            </RectangleGeometry>
         </Grid.Clip>
 
         <!-- 1. BACKGROUND CROSSFADER LAYER (Liquid fast 0.35s snap morph) -->
@@ -60,14 +67,14 @@
         <!-- 2. FOREGROUND LAYOUT (40/60 Split) -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="440"/>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="0.45*"/>
+                <ColumnDefinition Width="24"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <!-- LEFT: Floating Action Card -->
-            <Border Grid.Column="0" Width="380" VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Background="White" CornerRadius="24" Padding="32" Margin="60,0,0,0" Effect="{StaticResource HeavyFloatShadow}">
+            <Border Grid.Column="0" MaxWidth="400" VerticalAlignment="Center" HorizontalAlignment="Left"
+                    Background="White" CornerRadius="24" Padding="32" Margin="40,0,0,0" Effect="{StaticResource HeavyFloatShadow}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -153,7 +160,7 @@
             </Border>
 
             <!-- RIGHT: Typography, Illustration, and Navigation -->
-            <Grid Grid.Column="2" Margin="0,60,60,60">
+            <Grid Grid.Column="2" Margin="0,48,48,48">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>

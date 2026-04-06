@@ -91,7 +91,7 @@ namespace Management.Presentation.ViewModels.Shell
         private Settings.SettingsViewModel? _settings;
 
         [ObservableProperty]
-        private bool _isSidebarCollapsed;
+        private bool _isSidebarCollapsed = true;
 
         [ObservableProperty]
         private bool _isEcoMode;

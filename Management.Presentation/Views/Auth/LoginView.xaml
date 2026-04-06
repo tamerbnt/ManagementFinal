@@ -42,7 +42,7 @@
 
     <Grid>
         <StackPanel VerticalAlignment="Top"
-                    Margin="40,32,40,40"
+                    Margin="40,16,40,24"
                     Visibility="{Binding IsInitializingApp, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
 
             <!-- HEADER -->

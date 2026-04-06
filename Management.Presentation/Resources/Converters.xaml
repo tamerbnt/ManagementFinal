@@ -12,6 +12,8 @@
     <converters:EqualityConverter x:Key="EqualityConverter"/>
     <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
     <converters:IsGreaterThanConverter x:Key="IsGreaterThanConverter"/>
+    <converters:IsLessThanConverter x:Key="IsLessThanConverter"/>
+    <converters:IsLessThanConverter x:Key="LessThanConverter"/>
     <converters:StringMatchToVisibilityConverter x:Key="StringMatchToVisibilityConverter"/>
     <converters:StringMatchMultiToVisibilityConverter x:Key="StringMatchMultiToVisibilityConverter"/>
     <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
@@ -45,6 +47,7 @@
     <converters:LaneWidthConverter x:Key="LaneWidthConverter"/>
     <converters:MultiplyValueConverter x:Key="GlobalOffsetConverter"/>
     <converters:MultiplyValueConverter x:Key="MultiplyValueConverter"/>
+    <converters:RectConverter x:Key="RectConverter"/>
 
     <!-- Group 3: Text & Formatting -->
     <converters:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
