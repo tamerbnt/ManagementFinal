@@ -11,7 +11,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Background="Transparent" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="0,0,0,20">
                 <!-- Header -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">

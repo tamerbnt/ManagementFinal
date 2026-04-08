@@ -63,8 +63,8 @@
 
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
-        <Grid VerticalAlignment="Stretch">
+    <!-- Dashboard Root Bounds: Locked strictly to Window size -->
+    <Grid VerticalAlignment="Stretch" Margin="0,0,0,0">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
                 <i:InvokeCommandAction Command="{Binding InitializeAsyncCommand}"/>
@@ -238,7 +238,44 @@
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <!-- CONTENT -->
-                            <TextBlock Grid.Row="1" Text="{Binding TotalRevenueToday}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Grid.Row="1" Text="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                           FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip Content="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" 
+                                                 Style="{StaticResource ToolTip.Standard}"/>
+                                    </TextBlock.ToolTip>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Trigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.05" Duration="0:0:0.2"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.05" Duration="0:0:0.2"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.EnterActions>
+                                                    <Trigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:0.2"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.0" Duration="0:0:0.2"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.ExitActions>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <ScaleTransform CenterX="0" CenterY="20"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Viewbox>
                         </Grid>
                     </Border>
                     
@@ -374,74 +411,81 @@
                         
                         <TextBlock Text="{DynamicResource Terminology.Home.QuickActions}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Margin="0,0,0,16" HorizontalAlignment="Center"/>
                         
-                        <!-- 2x2 Grid using real Commands -->
-                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                        <!-- 2x2 Grid of Buttons (Standardized to Gym Style) -->
+                        <Grid Grid.Row="1" VerticalAlignment="Stretch">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="1*" MinHeight="75"/>
                                 <RowDefinition Height="12"/> <!-- Gap -->
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="1*" MinHeight="75"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="12"/> <!-- Gap -->
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
                             
                             <!-- New Retail Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconFinance}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.NewSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.QuickAction}" Command="{Binding SellItemCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconFinance}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.NewSale}" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Add Client -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconPlus}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.AddClient}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.QuickAction}" Command="{Binding RegisterMemberCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconPlus}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.AddClient}" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Walk-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconMembers}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.QuickAction}" Command="{Binding ProcessWalkInCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconMembers}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.WalkIn}" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconCart}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.OpenCart}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.QuickAction}" Command="{Binding OpenMultiSaleCartCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconCart}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Home.Action.OpenCart}" FontSize="12.5" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                         </Grid>
                     </Grid>
                 </Border>
-
                 <!-- TIME/DATE WIDGET (Gym Style) -->
                 <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
                     <StackPanel>
@@ -470,6 +514,5 @@
                 </Border>
             </Grid>
         </Grid>
-      </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

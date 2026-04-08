@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Management.Presentation.Extensions;
@@ -14,6 +14,8 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly Management.Domain.Services.IFacilityContextService _facilityContext;
         private readonly ITerminologyService _terminologyService;
         private readonly Management.Presentation.Services.Localization.ILocalizationService _localizationService;
+
+        private System.Guid _targetFacilityId = System.Guid.Empty;
 
         [ObservableProperty]
         private string _email = string.Empty;
@@ -41,6 +43,16 @@ namespace Management.Presentation.ViewModels.Shell
             base.Title = Title;
         }
 
+        /// <summary>
+        /// Sets the specific facility that the user is trying to switch to.
+        /// Authentication will be validated against this target.
+        /// </summary>
+        public void SetTargetFacility(System.Guid facilityId)
+        {
+            _targetFacilityId = facilityId;
+            Serilog.Log.Information("[FacilityAuth] Target facility set to: {Id}", _targetFacilityId);
+        }
+
         [RelayCommand]
         private async Task CancelAsync()
         {
@@ -58,8 +70,13 @@ namespace Management.Presentation.ViewModels.Shell
 
             await ExecuteLoadingAsync(async () =>
             {
-                // Authenticate with current facility context (Locking)
-                var result = await _authService.LoginAsync(Email, Password, _facilityContext.CurrentFacilityId);
+                // FIX: Authenticate with the TARGET facility ID, not the current one.
+                // If _targetFacilityId is Empty, fallback to current (for same-facility locking cases).
+                var facilityIdToValidate = _targetFacilityId != System.Guid.Empty 
+                    ? _targetFacilityId 
+                    : _facilityContext.CurrentFacilityId;
+
+                var result = await _authService.LoginAsync(Email, Password, facilityIdToValidate);
                 
                 if (result.IsSuccess)
                 {

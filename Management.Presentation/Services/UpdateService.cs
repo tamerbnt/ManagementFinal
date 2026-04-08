@@ -20,7 +20,7 @@ namespace Management.Presentation.Services
         private readonly IToastService _toastService;
 
         // Change this to match the actual production URL (e.g. GitHub Releases, AWS S3 etc.)
-        private const string UpdateServerUrl = "https://github.com/Luxurya/releases/releases/latest/download";
+        private const string UpdateServerUrl = @"C:\Users\techbox\.gemini\antigravity\ManagementBackup1234\releases";
 
         public UpdateService(ILogger<UpdateService> logger, IToastService toastService)
         {

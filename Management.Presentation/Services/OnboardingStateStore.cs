@@ -11,6 +11,7 @@ namespace Management.Presentation.Services
         string? BusinessName { get; set; }
         string? AdminFullName { get; set; }
         string? AdminEmail { get; set; }
+        bool IsExpansionFlow { get; set; }
         void Clear();
     }
 
@@ -27,6 +28,7 @@ namespace Management.Presentation.Services
         public string? BusinessName { get; set; }
         public string? AdminFullName { get; set; }
         public string? AdminEmail { get; set; }
+        public bool IsExpansionFlow { get; set; }
 
         public void Clear()
         {
@@ -37,6 +39,7 @@ namespace Management.Presentation.Services
             BusinessName = null;
             AdminFullName = null;
             AdminEmail = null;
+            IsExpansionFlow = false;
         }
     }
 }

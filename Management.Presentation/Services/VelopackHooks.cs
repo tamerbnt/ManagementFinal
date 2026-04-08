@@ -40,6 +40,58 @@ namespace Management.Presentation.Services
                     {
                         // Clean up COM registrations to avoid orphaned registry keys
                         UnregisterZKTeco();
+
+                        // Data cleanup: Always remove local license and workspace data on uninstall.
+                        // The user already consented to this when they clicked Uninstall in Windows.
+                        // ProgramData requires admin rights — use elevated PowerShell (UAC prompt).
+                        // LocalAppData is user-owned — delete directly without elevation.
+                        
+                        var commonData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+                        // 1. ProgramData\Luxurya — Elevated deletion (required for admin-owned folder)
+                        var luxCommon = Path.Combine(commonData, "Luxurya");
+                        if (Directory.Exists(luxCommon))
+                        {
+                            try
+                            {
+                                var psArgs = $"-NoProfile -NonInteractive -Command \"Remove-Item -LiteralPath '{luxCommon}' -Recurse -Force -ErrorAction SilentlyContinue\"";
+                                var proc = Process.Start(new ProcessStartInfo
+                                {
+                                    FileName = "powershell.exe",
+                                    Arguments = psArgs,
+                                    Verb = "runas",
+                                    UseShellExecute = true,
+                                    WindowStyle = ProcessWindowStyle.Hidden
+                                });
+                                proc?.WaitForExit(10000); // Wait up to 10 seconds
+                                Serilog.Log.Information("[Uninstall] ProgramData\\Luxurya cleanup completed.");
+                            }
+                            catch (Exception ex) when (ex is System.ComponentModel.Win32Exception win32 && win32.NativeErrorCode == 1223)
+                            {
+                                // Error 1223 = Operation cancelled by user (UAC declined)
+                                Serilog.Log.Warning("[Uninstall] User declined UAC for ProgramData cleanup. License files remain.");
+                            }
+                            catch (Exception ex)
+                            {
+                                Serilog.Log.Error(ex, "[Uninstall] ProgramData cleanup failed unexpectedly.");
+                            }
+                        }
+
+                        // 2. LocalAppData\Luxurya — Direct deletion (user owns this path, no elevation needed)
+                        var luxLocal = Path.Combine(localAppData, "Luxurya");
+                        if (Directory.Exists(luxLocal))
+                        {
+                            try
+                            {
+                                Directory.Delete(luxLocal, true);
+                                Serilog.Log.Information("[Uninstall] LocalAppData\\Luxurya cleanup completed.");
+                            }
+                            catch (Exception ex)
+                            {
+                                Serilog.Log.Warning(ex, "[Uninstall] LocalAppData cleanup failed.");
+                            }
+                        }
                     })
                     .Run();
             }

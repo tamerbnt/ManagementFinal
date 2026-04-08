@@ -231,7 +231,8 @@
                                     MaxHeight="300"
                                     CornerRadius="12"
                                     Margin="0,4,0,0"
-                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                    CacheMode="BitmapCache">
                                 <ScrollViewer x:Name="DropDownScrollViewer" 
                                               Margin="4" 
                                               VerticalScrollBarVisibility="Auto">
@@ -367,7 +368,8 @@
                                     MaxHeight="300"
                                     CornerRadius="12"
                                     Margin="0,4,0,0"
-                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                    CacheMode="BitmapCache">
                                 <ScrollViewer x:Name="DropDownScrollViewer" 
                                               Margin="4" 
                                               VerticalScrollBarVisibility="Auto">

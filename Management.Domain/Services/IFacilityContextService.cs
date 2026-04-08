@@ -12,6 +12,8 @@ namespace Management.Domain.Services
         string PublicSlug { get; }
         event Action<FacilityType> FacilityChanged;
         Task SwitchFacility(FacilityType type);
+        Task SetActiveFacility(FacilityType type);
+        void PersistFacilityChoice(FacilityType type);
         void SetFacility(FacilityType type);
         void SaveLanguage(string languageCode);
         void UpdateFacilities(System.Collections.Generic.Dictionary<FacilityType, Guid> facilityMappings);

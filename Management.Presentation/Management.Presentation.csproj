@@ -13,9 +13,9 @@
     <ApplicationIcon>Assets\luxurya.ico</ApplicationIcon>
     <PublishSingleFile>false</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
-    <Version>1.2.0</Version>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
+    <Version>1.6.3</Version>
+    <AssemblyVersion>1.6.3.0</AssemblyVersion>
+    <FileVersion>1.6.3.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

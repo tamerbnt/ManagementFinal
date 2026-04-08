@@ -186,7 +186,10 @@ namespace Management.Infrastructure.Services
 
         public async Task<List<PlanRevenueDto>> GetRevenueByProductAsync(Guid facilityId, DateTime start, DateTime end)
         {
-            var sales = await _saleRepository.GetByDateRangeAsync(facilityId, start, end);
+            var utcStart = start.Kind == DateTimeKind.Utc ? start : start.ToUniversalTime();
+            var utcEnd = end.Kind == DateTimeKind.Utc ? end : end.ToUniversalTime();
+
+            var sales = await _saleRepository.GetByDateRangeAsync(facilityId, utcStart, utcEnd);
             var productSales = sales
                 .Where(s => s.Category == Management.Domain.Enums.SaleCategory.Product || 
                             s.Category == Management.Domain.Enums.SaleCategory.Service)
@@ -203,6 +206,7 @@ namespace Management.Infrastructure.Services
                 .OrderByDescending(x => x.Revenue)
                 .ToList();
         }
+
 
         public async Task<List<DateTimePoint>> GetRevenueTrendAsync(Guid facilityId, DateTime monthStart, DateTime monthEnd)
         {

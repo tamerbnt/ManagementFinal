@@ -1,6 +1,9 @@
 param (
-    [string]$Version = "1.2.0.0"
+    [string]$Version = "1.6.3"
 )
+
+
+
 
 Write-Host "========================================="
 Write-Host " Building Luxurya Installer v$Version "

@@ -84,8 +84,6 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.Subtitle">Here is what's happening at your facility today.</sys:String>
     <sys:String x:Key="Terminology.Home.RecentActivity">Recent Activity</sys:String>
     <sys:String x:Key="Terminology.Home.QuickActions">Quick Actions</sys:String>
-    <sys:String x:Key="Terminology.Home.PeopleInside">People Inside</sys:String>
-    <sys:String x:Key="Terminology.Home.ActiveMembers">Active Members</sys:String>
     <sys:String x:Key="Terminology.Home.InventoryStatus">Shop Status</sys:String>
 
     <!-- Sidebar Labels -->

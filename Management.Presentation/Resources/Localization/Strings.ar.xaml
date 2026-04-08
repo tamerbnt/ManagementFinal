@@ -747,6 +747,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Error.EnterLicenseKey">يرجى إدخال مفتاح ترخيص صالح.</sys:String>
     <sys:String x:Key="Strings.Auth.Status.AwaitingDiscovery">في انتظار الاكتشاف...</sys:String>
     <sys:String x:Key="Strings.Auth.Error.CopyFailed">فشل نسخ معرف الجهاز: {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.Title.Error">خطأ</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Success">تم النجاح</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">اكتمل الإعداد! تم تهيئة مساحة العمل الخاصة بك.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">فشل الإعداد: {0}</sys:String>

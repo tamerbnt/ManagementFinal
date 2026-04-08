@@ -256,8 +256,30 @@
                                 <Setter Property="CornerRadius" Value="{DynamicResource Corner.LG}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                        <Setter Property="Width" Value="52"/>
-                                        <Setter Property="Margin" Value="10,0"/>
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="52" Duration="0:0:0.20">
+                                                        <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="10,0" Duration="0:0:0.20">
+                                                        <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
+                                                    </ThicknessAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="248" Duration="0:0:0.20">
+                                                        <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="6,0" Duration="0:0:0.20">
+                                                        <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
+                                                    </ThicknessAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
                                         <Setter Property="CornerRadius" Value="{DynamicResource Corner.XL}"/>
                                     </DataTrigger>
                                 </Style.Triggers>

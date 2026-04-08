@@ -396,6 +396,7 @@ namespace Management.Infrastructure.Services
                 // 1. Register Business via RPC
                 int maxRetries = 5;
                 
+                string lastErrorMessage = string.Empty;
                 for (int i = 0; i < maxRetries; i++)
                 {
                     if (tenantId.HasValue) break;
@@ -426,6 +427,7 @@ namespace Management.Infrastructure.Services
                     }
                     catch (Supabase.Postgrest.Exceptions.PostgrestException ex) 
                     {
+                        lastErrorMessage = ex.Message;
                         Serilog.Log.Error(ex, $"[OnboardingService] RPC Registration Failure: {ex.Message}");
                     }
 
@@ -435,12 +437,17 @@ namespace Management.Infrastructure.Services
                 // --- Guard: Abort if RPC never returned a valid tenantId ---
                 if (!tenantId.HasValue)
                 {
-                    const string rpcFailMsg = "Registration RPC failed after all retries. " +
-                        "Ensure the 'profiles' table in Supabase has an 'updated_at' column. " +
-                        "Run: ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();";
+                    string rpcFailDetail = string.IsNullOrEmpty(lastErrorMessage) 
+                        ? "Check your Supabase logs or ensures the 'onboard_new_tenant' function exists."
+                        : $"Database Error: {lastErrorMessage}";
+
+                    string rpcFailMsg = $"Registration RPC failed after all retries. Detail: {rpcFailDetail}\n\n" +
+                        "Note: Ensure the 'profiles' table in Supabase has an 'updated_at' column if syncing issues persist.";
+                    
                     Serilog.Log.Error("[OnboardingService] " + rpcFailMsg);
                     return Result.Failure<Guid>(new Error("Onboarding.RpcFailed", rpcFailMsg));
                 }
+
 
                 // --- Phase 2 C# Fix: Eager Provisioning ---
                 // We MUST eagerly provision the standard 3 facilities immediately upon Tenant creation.

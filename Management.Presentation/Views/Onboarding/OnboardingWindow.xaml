@@ -31,6 +31,9 @@
         <!-- Wizard Visibility Switch Style -->
         <Style x:Key="WizardStageGrid" TargetType="Grid">
             <Setter Property="Visibility" Value="Collapsed"/>
+            <!-- FIX: Prevent collapsed stages from intercepting mouse wheel events
+                 (which would block ScrollViewer inside active stage step views) -->
+            <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
     </Window.Resources>
 
@@ -92,6 +95,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="{x:Static vm:OnboardingStep.LicenseActivation}">
                                             <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -148,6 +152,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="{x:Static vm:OnboardingStep.OwnerRegistration}">
                                             <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -172,6 +177,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="{x:Static vm:OnboardingStep.BusinessProfile}">
                                             <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -198,6 +204,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="{x:Static vm:OnboardingStep.FacilityConfig}">
                                             <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -224,6 +231,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding CurrentStep}" Value="{x:Static vm:OnboardingStep.Complete}">
                                             <Setter Property="Visibility" Value="Visible"/>
+                                            <Setter Property="IsHitTestVisible" Value="True"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

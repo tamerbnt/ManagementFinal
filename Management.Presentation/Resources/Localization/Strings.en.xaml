@@ -765,6 +765,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Error.EnterLicenseKey">Please enter a valid license key.</sys:String>
     <sys:String x:Key="Strings.Auth.Status.AwaitingDiscovery">Awaiting discovery...</sys:String>
     <sys:String x:Key="Strings.Auth.Error.CopyFailed">Failed to copy Hardware ID: {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.Title.Error">Error</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Success">Success</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">Setup complete! Your workspace has been initialized.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">Onboarding failed: {0}</sys:String>

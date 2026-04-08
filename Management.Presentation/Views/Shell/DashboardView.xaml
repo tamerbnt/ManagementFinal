@@ -458,7 +458,8 @@
                                         <Setter Property="Text" Value="{Binding ExpiringSoonCount}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsRestaurantMode}" Value="True">
-                                                <Setter Property="Text" Value="{Binding AverageOrderValue, StringFormat='{}{0:N1} DA'}"/>
+                                                <Setter Property="Text" Value="{Binding AverageOrderValue, Converter={StaticResource AbbreviatedCurrencyConverter}}"/>
+                                                <Setter Property="ToolTip" Value="{Binding AverageOrderValue, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -532,7 +533,44 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" VerticalAlignment="Center">
-                             <TextBlock Text="{Binding FinancialSummary.Revenue, StringFormat='{}{0:N2} DA'}" FontSize="36" FontWeight="Bold" Foreground="White"/>
+                             <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                 <TextBlock Text="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                            FontSize="36" FontWeight="Bold" Foreground="White">
+                                     <TextBlock.ToolTip>
+                                         <ToolTip Content="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" 
+                                                  Style="{StaticResource ToolTip.Standard}"/>
+                                     </TextBlock.ToolTip>
+                                     <TextBlock.Style>
+                                         <Style TargetType="TextBlock">
+                                             <Setter Property="RenderTransform">
+                                                 <Setter.Value>
+                                                     <ScaleTransform CenterX="0" CenterY="18"/>
+                                                 </Setter.Value>
+                                             </Setter>
+                                             <Style.Triggers>
+                                                 <Trigger Property="IsMouseOver" Value="True">
+                                                     <Trigger.EnterActions>
+                                                         <BeginStoryboard>
+                                                             <Storyboard>
+                                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.05" Duration="0:0:0.2"/>
+                                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.05" Duration="0:0:0.2"/>
+                                                             </Storyboard>
+                                                         </BeginStoryboard>
+                                                     </Trigger.EnterActions>
+                                                     <Trigger.ExitActions>
+                                                         <BeginStoryboard>
+                                                             <Storyboard>
+                                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:0.2"/>
+                                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.0" Duration="0:0:0.2"/>
+                                                             </Storyboard>
+                                                         </BeginStoryboard>
+                                                     </Trigger.ExitActions>
+                                                 </Trigger>
+                                             </Style.Triggers>
+                                         </Style>
+                                     </TextBlock.Style>
+                                 </TextBlock>
+                             </Viewbox>
                              <ProgressBar Value="{Binding RevenueProgress}" Maximum="1" Height="4" Background="#20FFFFFF" Foreground="{DynamicResource FacilityAccentBrush}" BorderThickness="0" Margin="0,8,0,0"/>
                         </StackPanel>
 
@@ -812,10 +850,14 @@
                             <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.NetProfitToday}" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Strings.Shell.DA}" Foreground="White" FontSize="32" FontWeight="SemiBold" VerticalAlignment="Bottom" Margin="0,0,4,6"/>
-                            <TextBlock Text="{Binding FinancialSummary.NetProfit, StringFormat=N0}" Foreground="White" FontSize="48" FontWeight="Bold" VerticalAlignment="Bottom"/>
-                        </StackPanel>
+                        <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FinancialSummary.NetProfit, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                       Foreground="White" FontSize="48" FontWeight="Bold">
+                                <TextBlock.ToolTip>
+                                    <ToolTip Content="{Binding FinancialSummary.NetProfit, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                        </Viewbox>
                         
                         <Border Grid.Row="2" Background="{Binding FinancialSummary.NetProfitPercentChange, Converter={StaticResource TrendToBrushConverter}, ConverterParameter='NetProfit_Background'}" CornerRadius="12" HorizontalAlignment="Left" Padding="8,4">
                             <StackPanel Orientation="Horizontal">
@@ -846,7 +888,15 @@
                             <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Revenue}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         
-                        <TextBlock Grid.Row="1" Text="{Binding FinancialSummary.Revenue, StringFormat='{}{0:N2} DA'}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="32" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                       Foreground="{DynamicResource TextPrimaryBrush}" FontSize="32" FontWeight="Bold">
+                                <TextBlock.ToolTip>
+                                    <ToolTip Content="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                        </Viewbox>
+
                         
                         <StackPanel Grid.Row="2" Orientation="Horizontal">
                             <TextBlock Text="{Binding FinancialSummary.RevenuePercentChange, StringFormat='{}{0:F1}%'}" Foreground="{Binding FinancialSummary.RevenuePercentChange, Converter={StaticResource TrendToTextBrushConverter}, ConverterParameter='Revenue'}" FontSize="12" FontWeight="Bold"/>
@@ -874,7 +924,15 @@
                             <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Expenses}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
                         </StackPanel>
                         
-                        <TextBlock Grid.Row="1" Text="{Binding FinancialSummary.Expenses, StringFormat='{}{0:N2} DA'}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="32" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding FinancialSummary.Expenses, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                       Foreground="{DynamicResource TextPrimaryBrush}" FontSize="32" FontWeight="Bold">
+                                <TextBlock.ToolTip>
+                                    <ToolTip Content="{Binding FinancialSummary.Expenses, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                </TextBlock.ToolTip>
+                            </TextBlock>
+                        </Viewbox>
+
                         
                          <StackPanel Grid.Row="2" Orientation="Horizontal">
                             <TextBlock Text="{Binding FinancialSummary.ExpensesPercentChange, StringFormat='{}{0:F1}%'}" Foreground="{Binding FinancialSummary.ExpensesPercentChange, Converter={StaticResource TrendToTextBrushConverter}, ConverterParameter='Expenses'}" FontSize="12" FontWeight="Bold"/>

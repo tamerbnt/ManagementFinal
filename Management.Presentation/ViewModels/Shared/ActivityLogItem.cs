@@ -1,9 +1,19 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+
 namespace Management.Presentation.ViewModels.Shared
 {
-    public class ActivityLogItem : IActivityItem
+    public class ActivityLogItem : ObservableObject, IActivityItem
     {
         public string Title { get; set; }
-        public string Status { get; set; }
+        
+        private string _status = string.Empty;
+        public string Status 
+        { 
+            get => _status; 
+            set => SetProperty(ref _status, value); 
+        }
+        
         public string? StatusResourceKey { get; set; }
         public string Icon { get; set; }
         public string Initials { get; set; }

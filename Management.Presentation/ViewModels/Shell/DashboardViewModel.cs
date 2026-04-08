@@ -908,19 +908,19 @@ namespace Management.Presentation.ViewModels.Shell
                         }
                         
                         LoadFinancialData(summary);
-                        
-                        // Revenue Trend must run OUTSIDE the dispatcher block
-                        // to avoid a nested-dispatcher deadlock (see RefreshRevenueTrendAsync).
-                        if (IsBusinessMode || IsRestaurantMode) await RefreshRevenueBreakdown();
-                        if (IsBusinessMode || IsSalonMode) await RefreshStaffPerformance();
-                        
-                        await RefreshMemberDevelopmentAsync();
-                        await RefreshOccupancyTrendAsync();
                     });
+
+                    // Background Data Loading (Moved outside Dispatcher to prevent deadlocks)
+                    if (IsBusinessMode || IsRestaurantMode || IsSalonMode) await RefreshRevenueBreakdown();
+                    if (IsBusinessMode || IsSalonMode) await RefreshStaffPerformance();
+                    
+                    await RefreshMemberDevelopmentAsync();
+                    await RefreshOccupancyTrendAsync();
+
 
                     // Revenue Trend: runs on the calling thread, then marshals UI updates
                     // through its own _dispatcher.InvokeAsync — safe outside the outer dispatcher block.
-                    if (IsBusinessMode || IsRestaurantMode) await RefreshRevenueTrendAsync();
+                    if (IsBusinessMode || IsRestaurantMode || IsSalonMode) await RefreshRevenueTrendAsync();
                 }
                 finally
                 {

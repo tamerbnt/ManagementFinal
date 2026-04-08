@@ -512,13 +512,31 @@ namespace Management.Presentation.ViewModels.Shell
             
             if (selectionResult.IsSuccess && selectionResult.Data is FacilityOption selected)
             {
-                // Step 2: Authentication
-                var authResult = await _modalNavigationStore.OpenAsync<FacilityAuthViewModel>();
+                // Step 2: Authentication setup
+                var facilityAuthVm = _serviceProvider.GetRequiredService<FacilityAuthViewModel>();
+                
+                // Get the GUID for the selected type to ensure we validate against the correct context
+                var targetId = _facilityContext.GetFacilityId(selected.Type);
+                facilityAuthVm.SetTargetFacility(targetId);
+
+                // Step 3: Open Auth Modal
+                var authResult = await _modalNavigationStore.OpenAsync(facilityAuthVm);
                 
                 if (authResult.IsSuccess)
                 {
-                    _facilityContext.SetFacility(selected.Type);
+                    // Step 4: Finalize Switch
+                    // Call SetActiveFacility (in-memory switch) first
+                    await _facilityContext.SetActiveFacility(selected.Type);
+                    
+                    // Then persist to disk (so it's remembered on next launch)
+                    _facilityContext.PersistFacilityChoice(selected.Type);
+
                     _toastService.ShowSuccess($"Successfully switched to {selected.Name}.");
+                    Serilog.Log.Information("[MainViewModel] Facility switch confirmed and persisted for {Type}", selected.Type);
+                }
+                else
+                {
+                    Serilog.Log.Information("[MainViewModel] Facility switch cancelled or auth failed. No changes persisted.");
                 }
             }
         }

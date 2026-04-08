@@ -127,23 +127,26 @@ namespace Management.Presentation.Views.Shell
 
                 if (GetMonitorInfo(hMonitor, ref monitorInfo))
                 {
-                    RECT workArea    = monitorInfo.rcWork;    // excludes taskbar
-                    RECT monitorArea = monitorInfo.rcMonitor; // full screen
+                    RECT workArea = monitorInfo.rcWork; // standard maximized space excluding taskbar
 
-                    // ptMaxPosition is relative to the monitor's top-left corner
-                    mmi.ptMaxPosition.X = workArea.Left   - monitorArea.Left;
-                    mmi.ptMaxPosition.Y = workArea.Top    - monitorArea.Top;
+                    uint dpi = GetDpiForWindow(hwnd);
+                    double scale = dpi > 0 ? dpi / 96.0 : 1.0;
+
+                    // To respect Windows taskbar, bind exclusively to rcWork physical geometry.
+                    // ptMaxPosition uses the work area physical offsets.
+                    mmi.ptMaxPosition.X = workArea.Left;
+                    mmi.ptMaxPosition.Y = workArea.Top;
+
+                    // ptMaxSize uses the bounded box containing ONLY the visible usable area.
                     mmi.ptMaxSize.X     = workArea.Right  - workArea.Left;
                     mmi.ptMaxSize.Y     = workArea.Bottom - workArea.Top;
 
+
                     // Convert WPF logical MinWidth/MinHeight to physical pixels using
                     // the current monitor's DPI — so Windows enforces the minimum
-                    // when the user drags the window border (bypassed previously because
-                    // handled=true skipped WPF's own ptMinTrackSize update).
-                    uint dpi = GetDpiForWindow(hwnd);
-                    double scale = dpi > 0 ? dpi / 96.0 : 1.0;
-                    mmi.ptMinTrackSize.X = (int)(1280 * scale);
-                    mmi.ptMinTrackSize.Y = (int)(720  * scale);
+                    // when the user drags the window border. MinTrackSize expects PHYSICAL pixels.
+                    mmi.ptMinTrackSize.X = (int)(this.MinWidth * scale);
+                    mmi.ptMinTrackSize.Y = (int)(this.MinHeight * scale);
                 }
 
                 Marshal.StructureToPtr(mmi, lParam, true);

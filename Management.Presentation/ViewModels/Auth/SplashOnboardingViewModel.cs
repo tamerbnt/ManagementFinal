@@ -22,6 +22,8 @@ namespace Management.Presentation.ViewModels.Auth
         private readonly AppDbContext _dbContext;
         private readonly IAppInitializationTracker _initTracker;
         private readonly IDispatcher _dispatcher;
+        private readonly Management.Application.Services.IAuthenticationService _authService;
+        private readonly Management.Presentation.Services.State.SessionManager _sessionManager;
 
         public ObservableCollection<OnboardingSlide> Slides { get; } = new();
         
@@ -91,13 +93,17 @@ namespace Management.Presentation.ViewModels.Auth
             Management.Application.Interfaces.App.IToastService toastService,
             ILogger<SplashOnboardingViewModel> logger,
             Management.Application.Services.IDiagnosticService diagnosticService,
-            IDispatcher dispatcher)
+            IDispatcher dispatcher,
+            Management.Application.Services.IAuthenticationService authService,
+            Management.Presentation.Services.State.SessionManager sessionManager)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService, dialogService)
         {
             _navigationService = navigationService;
             _dbContext = dbContext;
             _initTracker = initTracker;
             _dispatcher = dispatcher;
+            _authService = authService;
+            _sessionManager = sessionManager;
 
             NextSlideCommand = new RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex + 1) % Slides.Count);
             PrevSlideCommand = new RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex - 1 + Slides.Count) % Slides.Count);
@@ -173,7 +179,34 @@ namespace Management.Presentation.ViewModels.Auth
         {
             if (SelectedFacility == null) return;
             
-            // Navigate to Login, passing the selected facility as context
+            // Persist the choice
+            _facilityContext.SetFacility(SelectedFacility.Type);
+            
+            // Check for valid existing session (Auto-Login)
+            var currentUserResult = await _authService.GetCurrentUserAsync();
+            if (currentUserResult.IsSuccess && currentUserResult.Value != null)
+            {
+                var user = currentUserResult.Value;
+                // If the session matches the selected facility (or user is Owner), skip login
+                if (user.Role == Management.Domain.Enums.StaffRole.Owner || user.FacilityId == SelectedFacility.Id)
+                {
+                    Serilog.Log.Information("[Splash] Valid session found for {Email}. Bypassing login.", user.Email);
+                    _sessionManager.SetUser(user);
+                    
+                    if (System.Windows.Application.Current is Management.Presentation.App app)
+                    {
+                        await app.LaunchMainWindowAsync();
+                    }
+                    return;
+                }
+                else 
+                {
+                    // Optionally alert the user here or just let them fall through to login 
+                    Serilog.Log.Information("[Splash] Valid session found but facility mismatched. Falling through to login.");
+                }
+            }
+            
+            // No valid session or facility mismatch: Navigate to Login, passing the selected facility as context
             await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
         }
 

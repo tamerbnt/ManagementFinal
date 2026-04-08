@@ -161,7 +161,7 @@ namespace Management.Presentation.ViewModels.Salon
         }
 
         [ObservableProperty]
-        private string _totalRevenueToday = "0 DA";
+        private decimal _totalRevenueToday = 0;
 
         [ObservableProperty]
         private double _chairUtilization = 0;
@@ -439,7 +439,7 @@ namespace Management.Presentation.ViewModels.Salon
                 ChairUtilization = Math.Min(1.0, activeMinutes / 720.0);
                 
                 // Revenue - Use the authoritative total from the SQL sum
-                TotalRevenueToday = $"{totalRevenue:N2} {_terminologyService.GetTerm("Terminology.Global.Currency")}";
+                TotalRevenueToday = totalRevenue;
             });
         }
 
@@ -584,7 +584,7 @@ namespace Management.Presentation.ViewModels.Salon
                  TodayAgenda.Clear();
                  ScanInput = string.Empty;
                  AppointmentsTodayCount = "0";
-                 TotalRevenueToday = "0 DA";
+                 TotalRevenueToday = 0;
                  ChairUtilization = 0;
              });
          }

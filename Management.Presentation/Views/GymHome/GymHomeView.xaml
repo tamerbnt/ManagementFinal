@@ -60,8 +60,8 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
-        <Grid VerticalAlignment="Stretch">
+    <!-- Dashboard Root Bounds: Locked strictly to Window size -->
+    <Grid VerticalAlignment="Stretch" Margin="0,0,0,0">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
                 <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
@@ -121,7 +121,7 @@
             <Grid Grid.Row="1" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- Metrics Strip -->
-                    <RowDefinition Height="24"/>   <!-- Optimized Spacer -->
+                    <RowDefinition Height="10"/>   <!-- Optimized Spacer -->
                     <RowDefinition Height="*"/>    <!-- Operational Core -->
                 </Grid.RowDefinitions>
 
@@ -138,7 +138,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- HERO: ACTIVE MEMBERS CAROUSEL (Salon Style) -->
-                    <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="16,16,16,12" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="0" MinHeight="110" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="16,16,16,12" Effect="{StaticResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>  <!-- Label row -->
@@ -178,7 +178,7 @@
                     </Border>
 
                     <!-- ACTIVE MEMBERS TOTAL -->
-                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="2" MinHeight="110" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -197,7 +197,7 @@
                     </Border>
 
                     <!-- EXPIRING SOON -->
-                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="4" MinHeight="110" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -216,7 +216,7 @@
                     </Border>
 
                     <!-- REVENUE TODAY -->
-                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="6" MinHeight="110" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -230,7 +230,44 @@
                                 <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <!-- CONTENT -->
-                            <TextBlock Grid.Row="1" Text="{Binding RevenueToday, StringFormat={}{0:C0}}" FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center"/>
+                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Grid.Row="1" Text="{Binding RevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                           FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}">
+                                    <TextBlock.ToolTip>
+                                        <ToolTip Content="{Binding RevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" 
+                                                 Style="{StaticResource ToolTip.Standard}"/>
+                                    </TextBlock.ToolTip>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Trigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.05" Duration="0:0:0.2"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.05" Duration="0:0:0.2"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.EnterActions>
+                                                    <Trigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.0" Duration="0:0:0.2"/>
+                                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.0" Duration="0:0:0.2"/>
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </Trigger.ExitActions>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                            <Setter Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <ScaleTransform CenterX="0" CenterY="20"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Viewbox>
                         </Grid>
                     </Border>
                 </Grid>
@@ -299,11 +336,9 @@
             <Grid Grid.Row="1" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>    <!-- Quick Actions (Fluid Height) -->
-                    <RowDefinition Height="16"/>   <!-- Gap -->
-                    <RowDefinition Height="Auto"/> <!-- Time/Date (Anchored Bottom) -->
+                    <RowDefinition Height="10"/>   <!-- Optimized Gap -->
+                    <RowDefinition Height="Auto"/> <!-- Time/Date -->
                 </Grid.RowDefinitions>
-                
-                <!-- QUICK ACTIONS CARD -->
                 <Border Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -314,70 +349,83 @@
                         <TextBlock Text="{DynamicResource Terminology.Home.QuickActions}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Margin="0,0,0,16"/>
                         
                         <!-- 2x2 Grid of Buttons -->
-                        <Grid Grid.Row="1" VerticalAlignment="Center">
+                        <Grid Grid.Row="1" VerticalAlignment="Stretch">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="12"/> <!-- Gap -->
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="1*" MinHeight="75"/>
+                                <RowDefinition Height="10"/> <!-- Optimized Gap -->
+                                <RowDefinition Height="1*" MinHeight="75"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/> <!-- Gap -->
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="10"/> <!-- Optimized Gap -->
+                                <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
                             
                             <!-- Row 0, Col 0: Quick Sale -->
-                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding SellItemCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconFinance}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="0" Grid.Column="0" Style="{StaticResource Button.QuickAction}" Command="{Binding SellItemCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconFinance}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Width="24" Height="24"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Home.Action.QuickSale}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Row 0, Col 2: Create Member -->
-                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding RegisterMemberCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconPlus}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource Button.QuickAction}" Command="{Binding RegisterMemberCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconPlus}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Width="24" Height="24"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Home.Action.CreateMember}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Row 2, Col 0: Walk-In Check-In -->
-                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.Ghost}" Command="{Binding ProcessWalkInCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconMembers}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource Button.QuickAction}" Command="{Binding ProcessWalkInCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconMembers}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Width="24" Height="24"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                             
                             <!-- Row 2, Col 2: Multi-Sale Cart -->
-                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.Ghost}" Command="{Binding OpenMultiSaleCartCommand}" MinHeight="110">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Border Width="50" Height="50" CornerRadius="14" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                        <Path Data="{StaticResource IconCart}" 
-                                              Style="{StaticResource Style.Icon.Standard}"
-                                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
-                                </StackPanel>
+                            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource Button.QuickAction}" Command="{Binding OpenMultiSaleCartCommand}" VerticalAlignment="Stretch">
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
+                                            <Path Data="{StaticResource IconCart}" 
+                                                  Style="{StaticResource Style.Icon.Standard}"
+                                                  Width="24" Height="24"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{DynamicResource Terminology.Home.Action.MultiSale}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="100" TextAlignment="Center"/>
+                                    </StackPanel>
+                                </Viewbox>
                             </Button>
                         </Grid>
+
                     </Grid>
                 </Border>
                 
@@ -409,6 +457,5 @@
                 </Border>
             </Grid>
         </Grid>
-      </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

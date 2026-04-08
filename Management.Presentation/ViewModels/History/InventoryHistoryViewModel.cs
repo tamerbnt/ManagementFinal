@@ -7,11 +7,16 @@ using Management.Application.Interfaces.App;
 using Management.Domain.Services;
 using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Services;
+using Management.Presentation.Services;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
+using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels.History
 {
-    public partial class InventoryHistoryViewModel : FacilityAwareViewModelBase
+    public partial class InventoryHistoryViewModel : FacilityAwareViewModelBase,
+        IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>
     {
         private readonly IProductInventoryService _inventoryService;
         private readonly IFacilityContextService _facilityContext;
@@ -47,6 +52,8 @@ namespace Management.Presentation.ViewModels.History
 
             RefreshCommand = new AsyncRelayCommand(LoadDataAsync);
             CloseCommand = new RelayCommand(CloseModal);
+
+            WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<InventoryPurchaseDto>>(this);
 
             InitializeLocalizedLabels();
             _ = LoadDataAsync();
@@ -96,6 +103,13 @@ namespace Management.Presentation.ViewModels.History
         private void CloseModal()
         {
             _modalNavigationService.CloseModal();
+        }
+
+        public void Receive(RefreshRequiredMessage<InventoryPurchaseDto> message)
+        {
+            if (message.Value != _facilityContext.CurrentFacilityId) return;
+            System.Diagnostics.Debug.WriteLine($"[INV-HISTORY] Received refresh message at {DateTime.Now:HH:mm:ss}");
+            _ = LoadDataAsync();
         }
     }
 }

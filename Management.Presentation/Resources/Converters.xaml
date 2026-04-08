@@ -57,6 +57,7 @@
     <converters:TurnstileStatusToTextConverter x:Key="TurnstileStatusToTextConverter"/>
     <converters:StringFormatConverter x:Key="StringFormatConverter"/>
     <converters:EnumToLocalizedDescriptionConverter x:Key="EnumToLocalizedDescriptionConverter"/>
+    <converters:AbbreviatedCurrencyConverter x:Key="AbbreviatedCurrencyConverter"/>
 
     <!-- Group 4: Semantic Colors -->
     <converters:MemberStatusToBrushConverter x:Key="MemberStatusToBrushConverter"/>

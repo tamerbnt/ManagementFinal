@@ -14,11 +14,17 @@
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Shell.GymOS}"
         Width="1440" Height="900"
-        MinWidth="1024" MinHeight="640"
+        MinWidth="1024" MinHeight="580"
         WindowState="Maximized"
+        UseLayoutRounding="True"
+        WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
         Background="{DynamicResource Brush.Window.Background}">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="8" />
+    </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
         <!-- DataContext Proxy for InputBindings to bypass inheritance issues -->
@@ -43,12 +49,12 @@
                             </Storyboard>
                         </BeginStoryboard>
                     </DataTrigger.EnterActions>
-                    <!-- Expanding Animation: Slightly more deliberate than collapse to show intention -->
+                    <!-- Expanding Animation: Synchronized to 200ms for perfect "unit" feel -->
                     <DataTrigger.ExitActions>
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Width" 
-                                                  To="260" Duration="0:0:0.25">
+                                                  To="260" Duration="0:0:0.20">
                                     <DoubleAnimation.EasingFunction>
                                         <QuarticEase EasingMode="EaseOut"/>
                                     </DoubleAnimation.EasingFunction>
@@ -135,14 +141,8 @@
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>
                 <Style TargetType="Grid">
-                    <!-- Adaptive Margin: Shrunk from 32 down to 16 to reclaim spatial budget -->
-                    <Setter Property="Margin" Value="16"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
-                            <!-- Maximized Margin: Shrunk from 40 down to 24 (Includes 8px for OS overflow) -->
-                            <Setter Property="Margin" Value="24"/>
-                        </DataTrigger>
-                    </Style.Triggers>
+                    <!-- Standardized Margin (WindowChrome natively handles maximize bleed) -->
+                    <Setter Property="Margin" Value="12"/>
                 </Style>
             </Grid.Style>
             

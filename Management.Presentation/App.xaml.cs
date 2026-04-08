@@ -587,28 +587,48 @@ namespace Management.Presentation
                         else
                         {
                             var stateStore = ServiceProvider.GetRequiredService<IOnboardingStateStore>();
-                            if (stateStore.TargetTenantId.HasValue)
+                            var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
+                            var tenantService = ServiceProvider.GetRequiredService<ITenantService>();
+                            
+                            // TIER 0: Expansion Flow Bypass
+                            // If we have flagged this as an Expansion Flow (machine verified via license),
+                            // we skip the Cloud Owner verification entirely and move to Facility Selection.
+                            if (stateStore.IsExpansionFlow || (stateStore.TargetTenantId.HasValue && stateStore.TargetTenantId != Guid.Empty))
                             {
-                                var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
-                                bool hasOwner = await authService.TenantHasOwnerAccountAsync(stateStore.TargetTenantId.Value);
+                                Serilog.Log.Information("[App] Expansion Flow confirmed: Tenant {Id}. Bypassing owner check and routing to Splash Onboarding.", stateStore.TargetTenantId);
+                                await navService.NavigateToSplashAsync();
+                                return;
+                            }
 
-                                if (hasOwner)
-                                {
-                                    Serilog.Log.Information("[App] Owner confirmed. Navigating to Splash Onboarding...");
-                                    await navService.NavigateToSplashAsync();
-                                }
-                                else
-                                {
-                                    Serilog.Log.Information("[App] No owner found. Navigating to Account Setup...");
-                                    await navService.NavigateToAsync<OnboardingOwnerViewModel>();
-                                }
+                            Guid activeTenantId = tenantService.GetTenantId() ?? Guid.Empty;
+                            bool hasOwner = false;
+                            
+                            if (activeTenantId != Guid.Empty)
+                            {
+                                Serilog.Log.Information("[App] Checking verification for Tenant {Id}...", activeTenantId);
+                                hasOwner = await authService.TenantHasOwnerAccountAsync(activeTenantId);
+                            }
+                            
+                            // TIER 2: If Cloud/Tenant check failed OR was missing (Offline case), check local existence
+                            if (!hasOwner)
+                            {
+                                Serilog.Log.Information("[App] No cloud owner verified or Tenant missing. Performing local data probe...");
+                                // Passing Guid.Empty forces the authentication service to check for ANY local staff (Offline Safety Net)
+                                hasOwner = await authService.TenantHasOwnerAccountAsync(Guid.Empty);
+                            }
+
+                            if (hasOwner)
+                            {
+                                Serilog.Log.Information("[App] Owner/Staff confirmed. Navigating to Splash Onboarding...");
+                                await navService.NavigateToSplashAsync();
                             }
                             else
                             {
-                                Serilog.Log.Information("[App] Licensed but no tenant linked. Navigating to Account Setup...");
+                                Serilog.Log.Information("[App] No owner found in cloud or local. Navigating to Account Setup...");
                                 await navService.NavigateToAsync<OnboardingOwnerViewModel>();
                             }
                         }
+
 
                         Serilog.Log.Information("[App] Navigation routing complete.");
 
@@ -1724,7 +1744,13 @@ namespace Management.Presentation
                     {
                         var tenantId = verificationResult.Value.Value;
                         tenantService.SetTenantId(tenantId);
-                        Serilog.Log.Information($"[App] Device verified via RPC. Tenant context set to {tenantId}");
+                        
+                        // Fix: Explicitly flag expansion flow in state store so Router skips the owner check
+                        var stateStore = scope.ServiceProvider.GetRequiredService<IOnboardingStateStore>();
+                        stateStore.TargetTenantId = tenantId;
+                        stateStore.IsExpansionFlow = true;
+
+                        Serilog.Log.Information($"[App] Device verified via RPC. Tenant context set to {tenantId}. Expansion Flow flagged.");
                         return true;
                     }
 
@@ -1734,7 +1760,25 @@ namespace Management.Presentation
                     
                     if (lease != null && lease.IsValid(hardwareId))
                     {
-                        Serilog.Log.Information("[App] Device verified via local lease (Offline). WARNING: Tenant context may be limited.");
+                        try 
+                        {
+                            var configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya", "facility-config.json");
+                            if (System.IO.File.Exists(configPath))
+                            {
+                                var jsonStr = System.IO.File.ReadAllText(configPath);
+                                using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+                                if (doc.RootElement.TryGetProperty("TenantId", out var tProp) && tProp.TryGetGuid(out var tId))
+                                {
+                                    tenantService.SetTenantId(tId);
+                                    scope.ServiceProvider.GetRequiredService<IOnboardingStateStore>().TargetTenantId = tId;
+                                    Serilog.Log.Information($"[App] Device verified via local lease (Offline). Tenant context set to {tId}");
+                                    return true;
+                                }
+                            }
+                        } catch { }
+
+                        // Fallback if TenantId isn't found
+                        Serilog.Log.Information($"[App] Device verified via local lease (Offline), but no TenantId found in config. Using Empty.");
                         return true;
                     }
 

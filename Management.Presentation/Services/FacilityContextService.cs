@@ -44,6 +44,28 @@ namespace Management.Presentation.Services
             await SwitchFacility(type);
         }
 
+        /// <summary>
+        /// Switches the active facility in memory and fires FacilityChanged, but does NOT
+        /// write to facility-config.json. Call PersistFacilityChoice() after auth succeeds.
+        /// Used by ChangeFacility() in MainViewModel to stage a switch before authentication.
+        /// </summary>
+        public async Task SetActiveFacility(FacilityType type)
+        {
+            Serilog.Log.Information("[FacilityContext] SetActiveFacility({Type}) — in-memory switch, no disk write.", type);
+            await SwitchFacilityInMemory(type);
+        }
+
+        /// <summary>
+        /// Persists the current facility selection to facility-config.json.
+        /// Must only be called AFTER authentication has been confirmed.
+        /// </summary>
+        public void PersistFacilityChoice(FacilityType type)
+        {
+            CurrentFacility = type;
+            Serilog.Log.Information("[FacilityContext] PersistFacilityChoice({Type}) — writing to disk.", type);
+            SaveConfig();
+        }
+
         public void SaveLanguage(string languageCode)
         {
             LanguageCode = languageCode;
@@ -167,13 +189,53 @@ namespace Management.Presentation.Services
         public async Task SwitchFacility(FacilityType type)
         {
             CurrentFacility = type;
+            await LoadFacilityResourcesAsync(type);
 
+            // Persist selection to disk (used by normal facility commit path)
+            SaveConfig();
+
+            // Safety guard: Never fire FacilityChanged with an empty GUID
+            if (CurrentFacilityId == Guid.Empty)
+            {
+                Serilog.Log.Warning("[FacilityContext] GUARD: SwitchFacility({Type}) — CurrentFacilityId is Guid.Empty. FacilityChanged suppressed.", type);
+                return;
+            }
+
+            Serilog.Log.Information("[FacilityContext] FacilityChanged firing. CurrentFacility={Facility} CurrentFacilityId={Id}", CurrentFacility, CurrentFacilityId);
+            FacilityChanged?.Invoke(type);
+        }
+
+        /// <summary>
+        /// Switches facility resources and fires FacilityChanged WITHOUT saving to disk.
+        /// Used by SetActiveFacility() to stage a switch during the auth flow.
+        /// </summary>
+        private async Task SwitchFacilityInMemory(FacilityType type)
+        {
+            CurrentFacility = type;
+            await LoadFacilityResourcesAsync(type);
+
+            // Safety guard: Never fire FacilityChanged with an empty GUID
+            if (CurrentFacilityId == Guid.Empty)
+            {
+                Serilog.Log.Warning("[FacilityContext] GUARD: SwitchFacilityInMemory({Type}) — CurrentFacilityId is Guid.Empty. FacilityChanged suppressed.", type);
+                return;
+            }
+
+            Serilog.Log.Information("[FacilityContext] FacilityChanged firing (in-memory). CurrentFacility={Facility}", CurrentFacility);
+            FacilityChanged?.Invoke(type);
+        }
+
+        /// <summary>
+        /// Loads branding and terminology resources for the given facility type.
+        /// Extracted from SwitchFacility to allow reuse by both persisted and in-memory switches.
+        /// </summary>
+        private async Task LoadFacilityResourcesAsync(FacilityType type)
+        {
             await _dispatcher.InvokeAsync(() =>
             {
                 var appResources = System.Windows.Application.Current.Resources;
                 
-                // 1. Identify and remove existing facility themes (Branding and Terminology)
-                // Use a more robust check for facility-specific dictionaries
+                // 1. Remove existing facility themes (Branding and Terminology)
                 var toRemove = new List<System.Windows.ResourceDictionary>();
                 foreach (var dict in appResources.MergedDictionaries)
                 {
@@ -193,8 +255,7 @@ namespace Management.Presentation.Services
                     appResources.MergedDictionaries.Remove(dict);
                 }
 
-                // 2. Load and add new dictionaries
-                // Guard: Skip resource loading for 'General' type — no Branding.General.xaml exists.
+                // 2. Load new dictionaries
                 if (type == Management.Domain.Enums.FacilityType.General)
                 {
                     Serilog.Log.Information("[FacilityContext] Skipping branding load for 'General' type (no resource file).");
@@ -203,26 +264,20 @@ namespace Management.Presentation.Services
 
                 try
                 {
-                    // Add Branding
                     string brandingPath = $"Resources/Branding.{type}.xaml";
                     appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
                     { 
                         Source = new Uri(brandingPath, UriKind.Relative) 
                     });
 
-                    // Add Terminology
                     var lang = _localizationService.CurrentCulture.TwoLetterISOLanguageName;
                     string terminologyPath = $"Resources/Terminology.{type}.xaml";
                     
-                    // Localization: Check for localized filename convention (e.g. Terminology.Salon.fr.xaml)
-                    // Note: In a production app, we'd verify path existence or use an asset manifest.
-                    // For now, we try localized first, then fallback.
                     if (lang != "en")
                     {
                         string localizedPath = $"Resources/Terminology.{type}.{lang}.xaml";
                         try 
                         {
-                             // Try to check if resource exists by creating it (WPF Uri check is tricky, but adding to MergedDictionaries works or throws)
                              appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
                              { 
                                  Source = new Uri(localizedPath, UriKind.Relative) 
@@ -231,7 +286,6 @@ namespace Management.Presentation.Services
                         }
                         catch 
                         {
-                            // Fallback to default terminology
                             appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
                             { 
                                 Source = new Uri(terminologyPath, UriKind.Relative) 
@@ -251,7 +305,6 @@ namespace Management.Presentation.Services
                 {
                     Serilog.Log.Error(ex, "Failed to load facility resources for {Type}", type);
                     
-                    // Fallback to Gym
                     if (type != FacilityType.Gym)
                     {
                         try
@@ -269,22 +322,6 @@ namespace Management.Presentation.Services
                     }
                 }
             });
-
-            // 3. Persist selection (always, even if we abort the event below)
-            SaveConfig();
-
-            // Step 4 SAFETY GUARD: Never fire FacilityChanged with an empty GUID.
-            // This prevents ViewModels from executing their first query against a Guid.Empty filter
-            // which would return zero results. The type is already persisted above, so the next
-            // CommitFacility() call (e.g. after login discovery) will fire correctly.
-            if (CurrentFacilityId == Guid.Empty)
-            {
-                Serilog.Log.Warning("[FacilityContext] GUARD: SwitchFacility({Type}) — CurrentFacilityId is Guid.Empty. FacilityChanged suppressed.", type);
-                return;
-            }
-
-            Serilog.Log.Information("[FacilityContext] FacilityChanged firing. CurrentFacility={Facility} CurrentFacilityId={Id}", CurrentFacility, CurrentFacilityId);
-            FacilityChanged?.Invoke(type);
         }
 
         private readonly System.Threading.SemaphoreSlim _configSaveLock = new(1, 1);

@@ -66,6 +66,8 @@ namespace Management.Presentation
             public string PublicSlug => string.Empty;
             public event Action<Management.Domain.Enums.FacilityType>? FacilityChanged;
             public System.Threading.Tasks.Task SwitchFacility(Management.Domain.Enums.FacilityType type) => System.Threading.Tasks.Task.CompletedTask;
+            public System.Threading.Tasks.Task SetActiveFacility(Management.Domain.Enums.FacilityType type) => System.Threading.Tasks.Task.CompletedTask;
+            public void PersistFacilityChoice(Management.Domain.Enums.FacilityType type) { }
             public void SetFacility(Management.Domain.Enums.FacilityType type) { }
             public void SaveLanguage(string languageCode) { }
             public void UpdateFacilities(System.Collections.Generic.Dictionary<Management.Domain.Enums.FacilityType, Guid> facilityMappings) { }

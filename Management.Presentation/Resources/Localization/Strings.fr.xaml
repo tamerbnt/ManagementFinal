@@ -740,6 +740,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Error.EnterLicenseKey">Veuillez entrer une clé de licence valide.</sys:String>
     <sys:String x:Key="Strings.Auth.Status.AwaitingDiscovery">En attente de découverte...</sys:String>
     <sys:String x:Key="Strings.Auth.Error.CopyFailed">Échec de la copie de l'ID matériel : {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.Title.Error">Erreur</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Success">Succès</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">Configuration terminée ! Votre espace de travail a été initialisé.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">L'intégration a échoué : {0}</sys:String>

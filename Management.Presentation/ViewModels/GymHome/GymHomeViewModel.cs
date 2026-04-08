@@ -173,6 +173,16 @@ namespace Management.Presentation.ViewModels.GymHome
             _localizationService.LanguageChanged += (s, e) => 
             {
                 CurrentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy", _localizationService.CurrentCulture);
+                
+                // Re-resolve status strings for existing activity items using their stored key
+                foreach (var item in ActivityStream.OfType<Management.Presentation.ViewModels.Shared.ActivityLogItem>())
+                {
+                    if (!string.IsNullOrEmpty(item.StatusResourceKey))
+                    {
+                        var resolved = System.Windows.Application.Current.TryFindResource(item.StatusResourceKey) as string;
+                        if (resolved != null) item.Status = resolved;
+                    }
+                }
             };
             
             // Lightweight initialization ONLY

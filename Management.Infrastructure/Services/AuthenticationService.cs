@@ -287,6 +287,9 @@ namespace Management.Infrastructure.Services
             _tenantService.SetTenantId(staffEntity.TenantId);
             _tenantService.SetUserId(staffEntity.Id);
             _tenantService.SetRole(staffEntity.Role.ToString());
+            
+            // Fix P001 Loop: Commit the validated Cloud Tenant ID to local physical disk state
+            _facilityContext.SaveTenantId(staffEntity.TenantId);
 
             // ROLE-AWARE REFINEMENT: Identity-based data isolation.
             // 1. Regular staff are strictly siloed to their AUTHORIZED facilities. 
@@ -679,8 +682,10 @@ namespace Management.Infrastructure.Services
         {
             if (tenantId == Guid.Empty)
             {
-                Serilog.Log.Warning("[AccountCheck] TenantId is Guid.Empty — cannot check owner");
-                return false;
+                Serilog.Log.Warning("[AccountCheck] TenantId is Guid.Empty — skipping to Offline Safety Net (Tier 3)");
+                // We do NOT return false here. We let the method fall through
+                // to Tier 3 so it can check local SQLite.
+                goto TIER_3_SAFETY_NET;
             }
 
             // TIER 1 — Local SQLite (instant, offline-safe)
@@ -751,6 +756,7 @@ namespace Management.Infrastructure.Services
             // TIER 3 — Safety net (both local and cloud failed)
             // If any local staff exist at all — assume the tenant is configured
             // This prevents network outages from sending legitimate owners back to setup
+            TIER_3_SAFETY_NET:
             try
             {
                 using var scope = _scopeFactory.CreateScope();
@@ -758,7 +764,7 @@ namespace Management.Infrastructure.Services
 
                 var anyLocalStaff = await context.StaffMembers
                     .IgnoreQueryFilters()
-                    .AnyAsync(s => s.TenantId == tenantId);
+                    .AnyAsync();
 
                 if (anyLocalStaff)
                 {

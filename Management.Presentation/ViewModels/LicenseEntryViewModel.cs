@@ -1,4 +1,4 @@
-﻿using System.Windows.Input;
+using System.Windows.Input;
 using Management.Presentation.Extensions;
 using Management.Presentation.Services;
 using Management.Domain.Services;
@@ -109,14 +109,17 @@ namespace Management.Presentation.ViewModels
                     }
                     else
                     {
-                        // Schema 3: Expansion Flow
-                        Serilog.Log.Information("[LicenseEntryViewModel] Expansion Flow: Setting state and navigating to LoginViewModel...");
+                        // Schema 3: Expansion Flow (PC #2 and PC #3)
+                        Serilog.Log.Information("[LicenseEntryViewModel] Expansion Flow: Already assigned. Moving to Onboarding Slides...");
                         
-                        _onboardingState.ExpansionMessage = _localizationService?.GetString("Strings.Auth.Message.LicenseActiveLogin") ?? "This license is active. Please log in to authorize this new device.";
+                        _onboardingState.ExpansionMessage = _localizationService?.GetString("Strings.Auth.Message.LicenseActiveLogin") ?? "This license is active. Let's finish the setup for this new device.";
                         _onboardingState.TargetTenantId = validation.TenantId;
+                        _onboardingState.IsExpansionFlow = true;
 
-                        await _navigationService.NavigateToLoginAsync();
+                        // Instead of a direct login, we show the 5 premium onboarding slides first
+                        await _navigationService.NavigateToAsync<Auth.SplashOnboardingViewModel>();
                     }
+
                 }
                 else
                 {

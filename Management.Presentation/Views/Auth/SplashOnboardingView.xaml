@@ -45,14 +45,14 @@
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
                             <DataTrigger.EnterActions>
-                                <BeginStoryboard><Storyboard Timeline.DesiredFrameRate="60">
+                                <BeginStoryboard><Storyboard>
                                     <DoubleAnimation Storyboard.TargetName="BgSlide" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.6" FillBehavior="HoldEnd">
                                         <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                     </DoubleAnimation>
                                 </Storyboard></BeginStoryboard>
                             </DataTrigger.EnterActions>
                             <DataTrigger.ExitActions>
-                                <BeginStoryboard><Storyboard Timeline.DesiredFrameRate="60">
+                                <BeginStoryboard><Storyboard>
                                     <DoubleAnimation Storyboard.TargetName="BgSlide" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:1.0" FillBehavior="HoldEnd">
                                         <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
                                     </DoubleAnimation>
@@ -65,8 +65,8 @@
         </ItemsControl>
 
         <!-- 2. FOREGROUND LAYOUT (40/60 Split) -->
-        <Grid>
-            <Grid.ColumnDefinitions>
+        <Grid MinWidth="900" MinHeight="600">
+                <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.45*"/>
                 <ColumnDefinition Width="24"/>
                 <ColumnDefinition Width="*"/>
@@ -177,11 +177,9 @@
                                 <StackPanel>
                                     <!-- Elevated Font to Georgia Italic Light -->
                                     <TextBlock x:Name="HeadlineText" Text="{Binding EmotionalHeadline}" Foreground="{Binding TitleColor}" FontFamily="Georgia, Playfair Display, Serif" FontStyle="Italic" FontWeight="Light" FontSize="48" LineHeight="52" TextWrapping="Wrap" Margin="0,0,0,12" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
-                                        <TextBlock.Effect><BlurEffect Radius="25" RenderingBias="Performance"/></TextBlock.Effect>
                                         <TextBlock.RenderTransform><TranslateTransform Y="40"/></TextBlock.RenderTransform>
                                     </TextBlock>
                                     <TextBlock x:Name="SubtitleText" Text="{Binding TechnicalSubtitle}" Foreground="{Binding SubtitleColor}" FontSize="16" FontWeight="Medium" LineHeight="24" MaxWidth="420" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
-                                        <TextBlock.Effect><BlurEffect Radius="25" RenderingBias="Performance"/></TextBlock.Effect>
                                         <TextBlock.RenderTransform><TranslateTransform Y="20"/></TextBlock.RenderTransform>
                                     </TextBlock>
                                 </StackPanel>
@@ -190,24 +188,18 @@
                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                     <Setter TargetName="MasterTextGrid" Property="Visibility" Value="Visible"/>
                                     <DataTrigger.EnterActions>
-                                        <BeginStoryboard><Storyboard Timeline.DesiredFrameRate="60">
+                                        <BeginStoryboard><Storyboard>
                                             <!-- Sub-Second Tension: Fade Grid in -->
                                             <DoubleAnimation Storyboard.TargetName="MasterTextGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4"/>
                                             
                                             <!-- Staggered Headline (Starts at 80ms) + Fluid QuarticEase -->
                                             <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.08"/>
-                                            <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)" From="25" To="0" Duration="0:0:0.4" BeginTime="0:0:0.08">
-                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
                                             <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="40" To="0" Duration="0:0:0.4" BeginTime="0:0:0.08">
                                                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                             </DoubleAnimation>
 
                                             <!-- Staggered Subtitle (Starts at 150ms) -->
                                             <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.15"/>
-                                            <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="(UIElement.Effect).(BlurEffect.Radius)" From="25" To="0" Duration="0:0:0.4" BeginTime="0:0:0.15">
-                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
                                             <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="20" To="0" Duration="0:0:0.4" BeginTime="0:0:0.15">
                                                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                             </DoubleAnimation>
@@ -245,7 +237,7 @@
                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                     <Setter TargetName="ImgRoot" Property="Visibility" Value="Visible"/>
                                     <DataTrigger.EnterActions>
-                                        <BeginStoryboard><Storyboard Timeline.DesiredFrameRate="60">
+                                        <BeginStoryboard><Storyboard>
                                             <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
                                             <!-- Extreme fluid entry sliding tension -->
                                             <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="60" To="0" Duration="0:0:0.4">
@@ -299,7 +291,7 @@
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                         <Setter TargetName="Dot" Property="Background" Value="{Binding TitleColor}"/> <!-- Active color logic retains absolute high contrast -->
                                         <DataTrigger.EnterActions>
-                                            <BeginStoryboard><Storyboard Timeline.DesiredFrameRate="60"><DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="24" Duration="0:0:0.3"/></Storyboard></BeginStoryboard>
+                                            <BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="24" Duration="0:0:0.3"/></Storyboard></BeginStoryboard>
                                         </DataTrigger.EnterActions>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
