@@ -36,6 +36,9 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly MediatR.IMediator _mediator;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsProductSelectionActive))]
+        [NotifyPropertyChangedFor(nameof(IsWalkInSelectionActive))]
+        [NotifyPropertyChangedFor(nameof(IsControlPanelEmpty))]
         private CartTab _currentTab = CartTab.Products;
 
         [ObservableProperty]
@@ -57,7 +60,13 @@ namespace Management.Presentation.ViewModels.GymHome
         private int _walkInCount = 0;
 
         [ObservableProperty]
+        private string _walkInSearchQuery = string.Empty;
+
+        [ObservableProperty]
         private ObservableCollection<WalkInPlanDto> _walkInPlans = new();
+
+        [ObservableProperty]
+        private ObservableCollection<WalkInPlanDto> _filteredWalkInPlans = new();
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(WalkInPrice))]
@@ -67,12 +76,26 @@ namespace Management.Presentation.ViewModels.GymHome
 
         public decimal WalkInPrice => SelectedWalkInPlan?.Price ?? 0m;
 
+        private List<WalkInPlanDto> _allWalkInPlans = new();
+
 
         public decimal ProductsTotal => CartItems.Sum(item => item.Price * item.Quantity);
         public decimal WalkInTotal => WalkInCount * WalkInPrice;
         public decimal GrandTotal => ProductsTotal + WalkInTotal;
 
         public bool CanCheckout => GrandTotal > 0;
+
+        public int SelectedProductQuantity
+        {
+            get
+            {
+                if (SelectedProduct == null) return 0;
+                var item = CartItems.FirstOrDefault(i => i.ProductId == SelectedProduct.Id);
+                return item?.Quantity ?? 1; // Start at 1 for new selections
+            }
+        }
+
+        public bool IsSelectedProductInCart => SelectedProduct != null && CartItems.Any(i => i.ProductId == SelectedProduct.Id);
 
         private List<ProductDto> _allProducts = new();
 
@@ -154,6 +177,32 @@ namespace Management.Presentation.ViewModels.GymHome
             FilterProducts(value);
         }
 
+        partial void OnWalkInSearchQueryChanged(string value)
+        {
+            FilterWalkInPlans(value);
+        }
+
+        partial void OnSelectedProductChanged(ProductDto? value)
+        {
+            OnPropertyChanged(nameof(SelectedProductQuantity));
+            OnPropertyChanged(nameof(IsSelectedProductInCart));
+            OnPropertyChanged(nameof(IsProductSelectionActive));
+            OnPropertyChanged(nameof(IsControlPanelEmpty));
+        }
+
+        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? value)
+        {
+            OnPropertyChanged(nameof(WalkInPrice));
+            OnPropertyChanged(nameof(WalkInTotal));
+            OnPropertyChanged(nameof(GrandTotal));
+            OnPropertyChanged(nameof(IsWalkInSelectionActive));
+            OnPropertyChanged(nameof(IsControlPanelEmpty));
+        }
+
+        public bool IsProductSelectionActive => CurrentTab == CartTab.Products && SelectedProduct != null;
+        public bool IsWalkInSelectionActive => CurrentTab == CartTab.WalkIn && SelectedWalkInPlan != null;
+        public bool IsControlPanelEmpty => !IsProductSelectionActive && !IsWalkInSelectionActive;
+
         private void FilterProducts(string query)
         {
             List<ProductDto> filtered;
@@ -172,6 +221,25 @@ namespace Management.Presentation.ViewModels.GymHome
             Products.Clear();
             foreach (var p in filtered)
                 Products.Add(p);
+        }
+
+        private void FilterWalkInPlans(string query)
+        {
+            List<WalkInPlanDto> filtered;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                filtered = _allWalkInPlans;
+            }
+            else
+            {
+                filtered = _allWalkInPlans.Where(p =>
+                    p.Name.Contains(query, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+            }
+
+            FilteredWalkInPlans.Clear();
+            foreach (var p in filtered)
+                FilteredWalkInPlans.Add(p);
         }
 
         [RelayCommand]
@@ -213,6 +281,42 @@ namespace Management.Presentation.ViewModels.GymHome
             OnPropertyChanged(nameof(ProductsTotal));
             OnPropertyChanged(nameof(GrandTotal));
             OnPropertyChanged(nameof(CanCheckout));
+            OnPropertyChanged(nameof(SelectedProductQuantity));
+            OnPropertyChanged(nameof(IsSelectedProductInCart));
+        }
+
+        [RelayCommand]
+        private void IncrementSelectedProduct()
+        {
+            if (SelectedProduct == null) return;
+            AddProductToCart(SelectedProduct);
+            OnPropertyChanged(nameof(SelectedProductQuantity));
+            OnPropertyChanged(nameof(IsSelectedProductInCart));
+        }
+
+        [RelayCommand]
+        private void DecrementSelectedProduct()
+        {
+            if (SelectedProduct == null) return;
+            var item = CartItems.FirstOrDefault(i => i.ProductId == SelectedProduct.Id);
+            if (item != null)
+            {
+                if (item.Quantity > 1)
+                {
+                    item.Quantity--;
+                }
+                else
+                {
+                    CartItems.Remove(item);
+                    // Also clear selection if it's no longer in cart? 
+                    // No, let the user stay on the product but with 0/removed state.
+                }
+                OnPropertyChanged(nameof(ProductsTotal));
+                OnPropertyChanged(nameof(GrandTotal));
+                OnPropertyChanged(nameof(CanCheckout));
+                OnPropertyChanged(nameof(SelectedProductQuantity));
+                OnPropertyChanged(nameof(IsSelectedProductInCart));
+            }
         }
 
         [RelayCommand]
@@ -248,13 +352,41 @@ namespace Management.Presentation.ViewModels.GymHome
             var walkInResult = await _gymOperationService.GetWalkInPlansAsync(_facilityContext.CurrentFacilityId);
             if (walkInResult != null)
             {
+                _allWalkInPlans = walkInResult.ToList();
                 WalkInPlans.Clear();
-                foreach (var plan in walkInResult)
+                FilteredWalkInPlans.Clear();
+                foreach (var plan in _allWalkInPlans)
                 {
                     WalkInPlans.Add(plan);
+                    FilteredWalkInPlans.Add(plan);
                 }
-                SelectedWalkInPlan = WalkInPlans.FirstOrDefault();
             }
+        }
+
+        [RelayCommand]
+        private void ClearSelection()
+        {
+            if (SelectedProduct != null)
+            {
+                var item = CartItems.FirstOrDefault(i => i.ProductId == SelectedProduct.Id);
+                if (item != null)
+                {
+                    CartItems.Remove(item);
+                }
+                SelectedProduct = null;
+            }
+            else if (SelectedWalkInPlan != null)
+            {
+                WalkInCount = 0;
+                SelectedWalkInPlan = null;
+            }
+
+            OnPropertyChanged(nameof(ProductsTotal));
+            OnPropertyChanged(nameof(WalkInTotal));
+            OnPropertyChanged(nameof(GrandTotal));
+            OnPropertyChanged(nameof(CanCheckout));
+            OnPropertyChanged(nameof(SelectedProductQuantity));
+            OnPropertyChanged(nameof(IsSelectedProductInCart));
         }
 
         [RelayCommand]

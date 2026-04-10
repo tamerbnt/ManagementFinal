@@ -5,391 +5,190 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Shop"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:QuickSaleViewModel, IsDesignTimeCreatable=True}"
              Background="Transparent">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
         <converters:CountToBooleanConverter x:Key="CountToBooleanConverter"/>
-    </UserControl.Resources>
-
-    <!-- Overlay Background -->
-    <!-- Overlay Background with pronounced rounded corners -->
-    <Border Style="{DynamicResource GlobalModalContainerStyle}" 
-            CornerRadius="{DynamicResource RadiusModal}"
-            Padding="0"
-            Margin="32" MaxWidth="640" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header -->
-                <RowDefinition Height="Auto"/> <!-- Member Selection -->
-                <RowDefinition Height="Auto"/> <!-- Product Search -->
-                <RowDefinition Height="*"/>    <!-- Content -->
-                <RowDefinition Height="Auto"/> <!-- Footer -->
-
-            </Grid.RowDefinitions>
-
-            <!-- 1. Header Section -->
-            <Grid Grid.Row="0" Margin="40,32,40,8">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource Terminology.Shop.QuickSale.Title}" 
-                               Style="{DynamicResource Title2}" 
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"/>
-                </StackPanel>
-            </Grid>
-
-            <!-- 2. Member Selection Section -->
-            <Grid Grid.Row="1" Margin="40,8,40,16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <!-- Selected Member Display -->
-                <Border x:Name="SelectedMemberBorder" 
-                        Background="{DynamicResource FacilityAccentDimBrush}" 
-                        CornerRadius="12" 
-                        Padding="12,8"
-                        Margin="0,0,0,12"
-                        Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <Border Width="32" Height="32" CornerRadius="16" Background="White" Margin="0,0,12,0">
-                            <TextBlock Text="👤" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
-                        </Border>
-                        
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="SemiBold" Foreground="White" FontSize="14"/>
-                            <TextBlock Text="Selected Client" Foreground="{DynamicResource OnAccentSecondary}" FontSize="11"/>
-                        </StackPanel>
-                        
-                        <Button Grid.Column="2" 
-                                Command="{Binding ClearSelectedMemberCommand}"
-                                Style="{DynamicResource GhostButton}" 
-                                Foreground="White"
-                                Padding="8,4"
-                                Content="Clear"/>
-                    </Grid>
-                </Border>
-
-                <!-- Member Search Bar -->
-                <Grid Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}">
-                    <Border Background="{DynamicResource SurfaceBgSecondary}" 
-                            CornerRadius="{DynamicResource RadiusSearchBar}" 
-                            Height="48" 
-                            Padding="16,0" 
-                            BorderBrush="{DynamicResource SeparatorStroke}" 
-                            BorderThickness="1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Path Data="{DynamicResource IconUser}" 
-                                  Stroke="{DynamicResource TextTertiaryBrush}" 
-                                  StrokeThickness="1.5"
-                                  Width="16" Height="16" 
-                                  Stretch="Uniform" 
-                                  Margin="0,0,12,0"/>
-                            <Grid Grid.Column="1">
-                                <TextBlock Text="Search Member by Name or ID..." 
-                                           Foreground="{DynamicResource TextTertiaryBrush}"
-                                           VerticalAlignment="Center"
-                                           IsHitTestVisible="False">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Body}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Text, ElementName=MemberSearchBox}" Value="">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBox x:Name="MemberSearchBox"
-                                         Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
-                                         Style="{StaticResource Input.Field}"
-                                         Background="Transparent"
-                                         BorderThickness="0"
-                                         Padding="0"
-                                         VerticalContentAlignment="Center"/>
-                            </Grid>
-                            <ProgressBar Grid.Column="2" IsIndeterminate="True" Width="20" Height="2" 
-                                         Visibility="{Binding IsMemberSearching, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- Member Suggestions Popup -->
-                    <Popup IsOpen="{Binding SearchedMembers.Count, Converter={StaticResource CountToBooleanConverter}, Mode=OneWay}"
-                           PlacementTarget="{Binding ElementName=MemberSearchBox}"
-                           Placement="Bottom"
-                           StaysOpen="False"
-                           AllowsTransparency="True"
-                           PopupAnimation="Slide">
-                        <Border Background="{DynamicResource SurfaceBg}" 
-                                BorderBrush="{DynamicResource SeparatorStroke}"
+        
+        <Style x:Key="SelectionItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="OuterBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="#E5E7EB"
                                 BorderThickness="1"
                                 CornerRadius="12"
-                                Width="300"
-                                MaxHeight="300"
-                                Margin="0,4,0,0">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" Color="Black" Opacity="0.2" ShadowDepth="2"/>
-                            </Border.Effect>
-                            <ListBox ItemsSource="{Binding SearchedMembers}"
-                                     Tag="{Binding}"
-                                     Background="Transparent"
-                                     BorderThickness="0"
-                                     Padding="4">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding Tag.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{DynamicResource GhostButton}"
-                                                HorizontalContentAlignment="Stretch"
-                                                Padding="8">
-                                            <Button.Background>
-                                                <!-- Explicit unfrozen brush to prevent WPF animation crash on hover -->
-                                                <SolidColorBrush Color="Transparent"/>
-                                            </Button.Background>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Border Width="24" Height="24" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,12,0">
-                                                    <TextBlock Text="{Binding FullName[0]}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="12"/>
-                                                </Border>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" FontSize="13"/>
-                                                    <TextBlock Text="{Binding MemberId}" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Button>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                                Padding="16,12"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter />
                         </Border>
-                    </Popup>
-                </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="OuterBorder" Property="Background" Value="#F9FAFB"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="OuterBorder" Property="Background" Value="#F0F9FF"/>
+                                <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter TargetName="OuterBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <premium:ModalShellControl Title="Quick Sale" 
+                             Subtitle="Sell a single item rapidly and optionally link to a member"
+                             MaxWidth="820" MaxHeight="500"
+                             CancelCommand="{Binding CancelCommand}"
+                             RegisterCommand="{Binding ProcessSaleCommand}"
+                             PrimaryActionText="Complete Sale">
+        <Grid Margin="24,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="65*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="35*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT COLUMN: PRODUCT SELECTION -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <premium:PremiumSearchBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                         Placeholder="Search products by name..."
+                                         IconData="{StaticResource IconSearch}"
+                                         Margin="0,0,0,16"/>
+
+                <ListBox Grid.Row="1" 
+                         ItemsSource="{Binding Products}" 
+                         SelectedItem="{Binding SelectedProduct}"
+                         ItemContainerStyle="{StaticResource SelectionItemStyle}"
+                         Style="{StaticResource PremiumListBox}"
+                         Background="Transparent"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.CanContentScroll="False"
+                         BorderThickness="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                    <TextBlock Text="{Binding Category}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <!-- Loading Overlay -->
+                <Border Grid.Row="1" Background="{DynamicResource Brush.Surface.Card}" 
+                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Opacity="0.7">
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <ProgressBar IsIndeterminate="True" Width="100" Height="2" Margin="0,0,0,8"/>
+                        <TextBlock Text="Loading products..." FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
-            <!-- 3. Premium Search Bar (Products) -->
-            <Border Grid.Row="2" 
-                    Background="{DynamicResource SurfaceBgSecondary}" 
-                    CornerRadius="{DynamicResource RadiusSearchBar}" 
-                    Height="52" 
-                    Margin="40,8,40,24"
-                    Padding="16,0" 
-                    BorderBrush="{DynamicResource SeparatorStroke}" 
-                    BorderThickness="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Path Data="{DynamicResource IconSearch}" 
-                          Stroke="{DynamicResource TextTertiaryBrush}" 
-                          StrokeThickness="1.5"
-                          Width="18" Height="18" 
-                          Stretch="Uniform" 
-                          Margin="0,0,12,0"/>
-                    <Grid Grid.Column="1">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.QuickSale.SearchPlaceholder}" 
-                                   Foreground="{DynamicResource TextTertiaryBrush}"
-                                   VerticalAlignment="Center"
-                                   IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource Body}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBox x:Name="SearchBox"
-                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource Input.Field}"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 Padding="0"
-                                 VerticalContentAlignment="Center"/>
-                    </Grid>
-                </Grid>
-            </Border>
+            <!-- RIGHT COLUMN: MEMBER & CHECKOUT -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Background="Transparent">
+                <StackPanel>
+                    <!-- 1. MEMBER SELECTION -->
+                    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="Customer Linking" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                            
+                            <!-- Search & Suggestion Control -->
+                            <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
+                                <premium:PremiumSearchBox 
+                                                         Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                         Placeholder="Search member..."
+                                                         IconData="{StaticResource IconUsers}"
+                                                         Height="42"/>
+                                <Popup IsOpen="{Binding SearchedMembers.Count, Converter={StaticResource CountToBooleanConverter}, Mode=OneWay}"
+                                       PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Grid}}"
+                                       Placement="Bottom"
+                                       StaysOpen="False"
+                                       AllowsTransparency="True">
+                                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Width="240" MaxHeight="250">
+                                        <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" Padding="4">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Command="{Binding DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource Button.Ghost}" HorizontalContentAlignment="Left" Padding="12,8">
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock Text="{Binding MemberId}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Border>
+                                </Popup>
+                            </Grid>
 
-            <ScrollViewer Grid.Row="3" Margin="24,0,24,24" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-
-                <Grid>
-                    <ListBox ItemsSource="{Binding Products}"
-                             SelectedItem="{Binding SelectedProduct}"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             Padding="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel HorizontalAlignment="Center"/> 
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="Padding" Value="0"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Margin" Value="8"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListBoxItem">
-                                            <Border x:Name="OuterBorder" 
-                                                    Width="240" MinHeight="100" 
-                                                    CornerRadius="20" 
-                                                    BorderBrush="{DynamicResource SeparatorStroke}" 
-                                                    BorderThickness="1"
-                                                    Background="{DynamicResource SurfaceBg}"
-                                                    Padding="16"
-                                                    Margin="4">
-                                                <Grid>
-                                                    <!-- Selection Accent -->
-                                                    <Border x:Name="SelectionBar" 
-                                                            Width="4" HorizontalAlignment="Left" 
-                                                            Background="{DynamicResource Brush.Accent.Primary}" 
-                                                            CornerRadius="2"
-                                                            Margin="-16,0,0,0"
-                                                            Visibility="Collapsed"/>
-                                                    
-                                                    <Grid Margin="4,0,0,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    
-                                                    <StackPanel VerticalAlignment="Center" Margin="12,0">
-                                                        <TextBlock x:Name="NameText" 
-                                                                   Text="{Binding Name}" 
-                                                                   FontWeight="SemiBold"
-                                                                   FontSize="15"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock x:Name="CategoryText" 
-                                                                   Text="{Binding Category}" 
-                                                                   FontSize="12" 
-                                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                                    </StackPanel>
-
-                                                    <TextBlock x:Name="PriceText" 
-                                                               Grid.Column="1" 
-                                                               Text="{Binding Price, StringFormat='{}{0:N2} DA'}" 
-                                                               FontWeight="Bold" 
-                                                               FontSize="17"
-                                                               Foreground="{DynamicResource Brush.Accent.Primary}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="12,0,0,0"/>
-                                                </Grid>
-                                                </Grid>
-                                             </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentDimBrush}"/>
-                                                    <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource SurfaceBgSecondary}"/>
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="OuterBorder" Property="Background">
-                                                        <Setter.Value>
-                                                            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                                                <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/>
-                                                                <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/>
-                                                            </LinearGradientBrush>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Setter TargetName="OuterBorder" Property="Effect">
-                                                        <Setter.Value>
-                                                            <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="20" ShadowDepth="4" Opacity="0.4"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Setter TargetName="OuterBorder" Property="BorderBrush" Value="Transparent"/>
-                                                    <Setter TargetName="NameText" Property="Foreground" Value="White"/>
-                                                    <Setter TargetName="CategoryText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
-                                                    <Setter TargetName="PriceText" Property="Foreground" Value="White"/>
-                                                    <Setter TargetName="SelectionBar" Property="Visibility" Value="Collapsed"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                    </ListBox>
-
-                    <!-- Loading Overlay -->
-                    <Border Background="{DynamicResource SurfaceBg}" 
-                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
-                            Opacity="0.8"
-                            CornerRadius="20">
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <ProgressBar IsIndeterminate="True" Width="120" Height="4" Margin="0,0,0,12"/>
-                            <TextBlock Text="{DynamicResource Terminology.Shop.QuickSale.Loading}" Style="{StaticResource Caption}" HorizontalAlignment="Center"/>
+                            <!-- Selected Member Card -->
+                            <Border Background="{DynamicResource FacilityAccentDimBrush}" CornerRadius="12" Padding="12"
+                                    Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="White" FontSize="13"/>
+                                        <TextBlock Text="Linked Member" FontSize="11" Foreground="#E0F2FE"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Command="{Binding ClearSelectedMemberCommand}" Style="{StaticResource Button.Ghost}" Width="24" Height="24" Padding="6">
+                                        <Path Data="{StaticResource IconClose}" Fill="White" Stretch="Uniform"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
                         </StackPanel>
                     </Border>
-                </Grid>
-            </ScrollViewer>
 
-            <!-- 4. Explicit Footer -->
-            <Border Grid.Row="4" 
-                    Background="{DynamicResource SurfaceBgSecondary}" 
-                    BorderBrush="{DynamicResource SeparatorStroke}" 
-                    BorderThickness="0,1,0,0" 
-                    Padding="40,32"
-                    CornerRadius="0,0,24,24">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <!-- 2. ACTIVE SALE SUMMARY -->
+                    <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16" Padding="20" Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                            
+                            <Grid Visibility="{Binding SelectedProduct, Converter={StaticResource NullToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedProduct.Name}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                    <TextBlock Text="{Binding SelectedProduct.Price, StringFormat='{}{0:N2} DA'}" FontSize="18" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
 
-                    <Button Grid.Column="0" 
-                            Command="{Binding CancelCommand}" 
-                            IsCancel="True"
-                            Style="{DynamicResource GhostButton}" 
-                            Content="{DynamicResource Terminology.Global.Cancel}" 
-                            HorizontalAlignment="Left"
-                            Padding="24,0"
-                            MinWidth="120"
-                            Width="Auto"/>
-
-                    <Button Grid.Column="1" 
-                            Command="{Binding ProcessSaleCommand}" 
-                            Style="{StaticResource PrimaryButton}" 
-                            IsDefault="True"
-                            MinWidth="220"
-                            Width="Auto">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal">
-                                <Path Data="{DynamicResource IconCheck}" 
-                                      Stroke="White" 
-                                      StrokeThickness="2"
-                                      Width="14" Height="14" 
-                                      Stretch="Uniform" 
-                                      Margin="0,0,8,0"/>
-                                <TextBlock Text="{DynamicResource Terminology.Shop.QuickSale.Action.Confirm}"/>
+                            <!-- Selection Feedback -->
+                            <StackPanel Visibility="{Binding SelectedProduct, Converter={StaticResource InverseNullToVisibilityConverter}}" HorizontalAlignment="Center" Margin="0,20">
+                                <TextBlock Text="Select a product to continue" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}" FontStyle="Italic"/>
                             </StackPanel>
-                        </Button.Content>
-                    </Button>
-                </Grid>
-            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
-    </Border>
+    </premium:ModalShellControl>
 </UserControl>

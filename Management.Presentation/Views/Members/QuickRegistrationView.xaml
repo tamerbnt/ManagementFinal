@@ -3,353 +3,115 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Members"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="500"
-             FocusManager.FocusedElement="{Binding ElementName=FullNameBox}">
+             d:DataContext="{d:DesignInstance Type=vm:QuickRegistrationViewModel}"
+             Background="Transparent">
 
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Tertiary}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </UserControl.Resources>
 
-
-    <Border Style="{DynamicResource GlobalModalContainerStyle}"
-            Width="{DynamicResource SizeModalWidth}"
-            Padding="{DynamicResource PaddingModal}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
-
-        <i:Interaction.Behaviors>
-            <behaviors:ModalEntranceBehavior IsOpen="True"/>
-        </i:Interaction.Behaviors>
-
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header -->
-                <RowDefinition Height="*"/>    <!-- Form -->
-                <RowDefinition Height="Auto"/> <!-- Footer -->
-            </Grid.RowDefinitions>
-
-            <!-- 1. Header -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,32">
-                <Border Width="64" Height="64" 
-                        Background="{DynamicResource Brush.Brand.Primary.Fade}" 
-                        CornerRadius="32" 
-                        HorizontalAlignment="Center" 
-                        Margin="0,0,0,16">
-                    <Path Data="{StaticResource IconMembers}" 
-                          Style="{StaticResource Style.Icon.Large}" 
-                          Stroke="{DynamicResource Brush.Brand.Primary}" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Foreground="{DynamicResource Brush.Text.Primary}"
-                           HorizontalAlignment="Center">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Title2}">
-                            <Setter Property="Text" Value="{DynamicResource Terminology.Members.Add.Title}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRenewMode}" Value="True">
-                                    <Setter Property="Text" Value="{DynamicResource Terminology.Members.Renew.Title}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Foreground="{DynamicResource Brush.Text.Secondary}"
-                           HorizontalAlignment="Center"
-                           Margin="0,4,0,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}">
-                            <Setter Property="Text" Value="{DynamicResource Terminology.Members.Add.Subtitle}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRenewMode}" Value="True">
-                                    <Setter Property="Text" Value="{DynamicResource Terminology.Members.Renew.Subtitle}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
-
-            <!-- 2. Form Content -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,24">
+    <premium:ModalShellControl Title="{Binding Title}"
+                               Width="820"
+                               CancelCommand="{Binding CancelCommand}"
+                               RegisterCommand="{Binding RegisterCommand}"
+                               PrimaryActionText="{DynamicResource Terminology.Global.Register}">
+        
+        <StackPanel Margin="0,8,0,0">
+            <!-- 1. LEAD SEARCH (TOP SECTION) -->
+            <Border Background="{DynamicResource Brush.Surface.Glass}" 
+                    CornerRadius="16" 
+                    Padding="24" 
+                    Margin="0,0,0,32"
+                    BorderBrush="#F3F4F6"
+                    BorderThickness="1">
                 <StackPanel>
-                    <!-- Lead Search (Conversion Entry Point) -->
-                    <StackPanel Margin="0,0,0,24">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="Convert Existing Lead (Optional)" Style="{StaticResource FormLabel}"/>
-                        </StackPanel>
-                        <Grid>
-                            <TextBox Text="{Binding LeadSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{StaticResource Input.Apple}"
-                                     Tag="{DynamicResource Terminology.Gym.SearchLeadsPlaceholder}">
-                                <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Command="{Binding SearchLeadsCommand}"/>
-                                </TextBox.InputBindings>
-                            </TextBox>
-                            
-                            <!-- Search Icon / Spinner -->
-                            <Grid HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center">
-                                <Button Command="{Binding SearchLeadsCommand}"
-                                        Style="{StaticResource Button.Ghost}"
-                                        Width="30" Height="30"
-                                        Content="🔍"
-                                        Visibility="{Binding IsSearchingLeads, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
-                                
-                                <Path x:Name="SearchSpinner"
-                                      Visibility="{Binding IsSearchingLeads, Converter={StaticResource BoolToVis}}"
-                                      Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"
-                                      Fill="{DynamicResource Brush.Brand.Primary}"
-                                      Width="16" Height="16"
-                                      RenderTransformOrigin="0.5,0.5">
-                                    <Path.RenderTransform>
-                                        <RotateTransform Angle="0"/>
-                                    </Path.RenderTransform>
-                                    <Path.Triggers>
-                                        <EventTrigger RoutedEvent="Loaded">
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                                     From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                    </Path.Triggers>
-                                </Path>
-                            </Grid>
-                        </Grid>
-                        
-                        <!-- Search Results Dropdown-like List -->
-                        <ListBox ItemsSource="{Binding LeadResults}"
-                                 SelectedItem="{Binding SelectedLead}"
-                                 Visibility="{Binding HasLeadResults, Converter={StaticResource BoolToVis}}"
-                                 MaxHeight="120"
-                                 Margin="0,4,0,0"
-                                 BorderBrush="{DynamicResource Brush.Brand.Primary.Fade}"
-                                 BorderThickness="1">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="8,4">
-                                        <TextBlock Text="{Binding FullName}" FontWeight="Bold"/>
-                                        <TextBlock Text="{Binding PhoneNumber}" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="8,0,0,0"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </StackPanel>
-
-                    <Separator Margin="0,0,0,24" Background="{DynamicResource Brush.Surface.Card}"/>
-
-                    <!-- Full Name -->
-                    <StackPanel Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="{StaticResource IconMembers}" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" Style="{StaticResource FormLabel}"/>
-                        </StackPanel>
-                        <TextBox x:Name="FullNameBox"
-                                 Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource Input.Apple}"
-                                 Tag="{DynamicResource Strings.Members.egJohnDoe}"/>
-                    </StackPanel>
-
-                    <!-- Phone Number -->
-                    <StackPanel Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.Phone}" Style="{StaticResource FormLabel}"/>
-                        </StackPanel>
-                        <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource Input.Apple}"
-                                 Tag="+1 234 567 890"/>
-                    </StackPanel>
-
-                    <!-- Card ID / RFID -->
-                    <StackPanel Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="{StaticResource IconTag}" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="Card ID / RFID" Style="{StaticResource FormLabel}"/>
-                        </StackPanel>
-                        <TextBox Text="{Binding CardId, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource Input.Apple}"
-                                 Tag="Scan card or enter ID manually"/>
-                    </StackPanel>
-
-                    <!-- Email -->
-                    <StackPanel Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.Email}" Style="{StaticResource FormLabel}"/>
-                        </StackPanel>
-                        <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource Input.Apple}"
-                                 Tag="{DynamicResource Strings.Members.johnexamplecom}"/>
-                    </StackPanel>
-
-                    <!-- Gender Selection -->
-                    <StackPanel Margin="0,0,0,20">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5z M18 11h-2a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h1v1a1 1 0 0 1-1 1H7a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-1a1 1 0 0 1-1-1v-1h1a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z" 
-                                  Style="{DynamicResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Members.Gender}" Style="{DynamicResource FormLabel}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <RadioButton Content="{DynamicResource Terminology.Enum.Gender.Male}" 
-                                         IsChecked="{Binding Gender, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Male}"
-                                         Style="{DynamicResource RadioButton.Apple}"
-                                         Margin="0,0,16,0"/>
-                            <RadioButton Content="{DynamicResource Terminology.Enum.Gender.Female}" 
-                                         IsChecked="{Binding Gender, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Female}"
-                                         Style="{DynamicResource RadioButton.Apple}"
-                                         Margin="0,0,16,0"/>
-                        </StackPanel>
-                    </StackPanel>
+                    <TextBlock Text="Convert Existing Lead (Optional)" Style="{StaticResource SectionTitle}"/>
+                    <premium:PremiumSearchBox Text="{Binding LeadSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                             Placeholder="Search by Name or Phone..."
+                                             IconData="{StaticResource IconSearch}"/>
                     
-                    <!-- Date of Birth & Source -->
-                    <Grid Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Age -->
-                        <StackPanel Margin="0,0,12,0">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <!-- Calendar/Person icon -->
-                                <Path Data="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 16H5V10h14zM9 14H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2zm-8 4H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2z" 
-                                      Style="{StaticResource Style.Icon.Micro}" 
-                                      Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                      Margin="0,0,6,0"/>
-                                <TextBlock Text="Age" Style="{StaticResource FormLabel}"/>
-                            </StackPanel>
-                            <TextBox Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{StaticResource Input.Apple}"
-                                     Tag="eg: 25"/>
-                        </StackPanel>
+                    <!-- Search Results (Shown only if query active) -->
+                    <ListBox ItemsSource="{Binding LeadResults}" 
+                             SelectedItem="{Binding SelectedLead}"
+                             Visibility="{Binding LeadResults.Count, Converter={StaticResource IntToVisibilityConverter}}"
+                             MaxHeight="150" Margin="0,12,0,0"
+                             Style="{StaticResource PremiumListBox}"/>
+                </StackPanel>
+            </Border>
 
-                        <!-- Source -->
-                        <StackPanel Grid.Column="1">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                <Path Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" 
-                                      Style="{StaticResource Style.Icon.Micro}" 
-                                      Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                      Margin="0,0,6,0"/>
-                                <TextBlock Text="{DynamicResource Terminology.Members.Source}" Style="{StaticResource FormLabel}"/>
-                            </StackPanel>
-                            <ComboBox ItemsSource="{Binding Sources}"
-                                      SelectedItem="{Binding Source}"
-                                      Style="{StaticResource Input.ComboBox}"/>
-                        </StackPanel>
-                    </Grid>
+            <!-- 2. MAIN FORM (2 COLUMNS) -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/> <!-- Spacer -->
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <!-- Membership Plan -->
-                    <StackPanel Margin="0,0,0,16">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="{StaticResource IconTag}" 
-                                  Style="{DynamicResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Members.Add.Plan}" Style="{DynamicResource FormLabel}"/>
-                        </StackPanel>
-                        <ComboBox ItemsSource="{Binding Plans}"
+                <!-- Left Column: Personal Data & Gender (New Layout) -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Personal Details" Style="{StaticResource SectionTitle}"/>
+                    
+                    <premium:PremiumSearchBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                             Placeholder="{DynamicResource Terminology.Staff.Add.FullName}"
+                                             IconData="{StaticResource IconMembers}"
+                                             Margin="0,0,0,24"/>
+
+                    <premium:PremiumSearchBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                             Placeholder="{DynamicResource Terminology.Staff.Add.Phone}"
+                                             IconData="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                                             Margin="0,0,0,24"/>
+
+                    <premium:PremiumSearchBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                             Placeholder="{DynamicResource Terminology.Staff.Add.Email}"
+                                             IconData="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6"
+                                             Margin="0,0,0,24"/>
+
+                    <!-- Gender Segmented Toggle (Integrated from Column 2) -->
+                    <StackPanel Margin="0,8,0,0">
+                        <TextBlock Text="{DynamicResource Terminology.Member.Gender}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                        <premium:SegmentedToggleControl SelectedGender="{Binding Gender, Mode=TwoWay}" Width="250" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Right Column: Identification & Plan -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Identification &amp; Membership" Style="{StaticResource SectionTitle}"/>
+                    
+                    <premium:PremiumSearchBox Text="{Binding CardId, UpdateSourceTrigger=PropertyChanged}"
+                                             Placeholder="Card ID / RFID"
+                                             IconData="{StaticResource IconTag}"
+                                             Margin="0,0,0,24"/>
+
+                    <StackPanel Margin="0,0,0,24">
+                        <TextBlock Text="Membership Plan" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding Plans}" 
                                   SelectedItem="{Binding SelectedPlan}"
-                                  Style="{StaticResource Input.ComboBox}"
-                                  IsEditable="False">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                        <TextBlock Text="{Binding Price, StringFormat=' ({0:N2} DA)'}" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="4,0,0,0"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  DisplayMemberPath="Name"
+                                  Style="{StaticResource Input.ComboBox}"/>
                     </StackPanel>
 
-                    <!-- Salon Service (Salon Only) -->
-                    <StackPanel Margin="0,0,0,16" Visibility="{Binding IsSalonFacility, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <Path Data="{StaticResource IconTag}" 
-                                  Style="{DynamicResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,6,0"/>
-                            <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Service}" Style="{DynamicResource FormLabel}"/>
-                        </StackPanel>
-                        <ComboBox ItemsSource="{Binding SalonServices}"
-                                  SelectedItem="{Binding SelectedSalonService}"
-                                  Style="{StaticResource Input.ComboBox}"
-                                  IsEditable="False">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                        <TextBlock Text="{Binding BasePrice, StringFormat=' ({0:N2} DA)'}" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="4,0,0,0"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
+                    <StackPanel>
+                        <TextBlock Text="Acquisition Source" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <ComboBox SelectedValue="{Binding Source}" 
+                                  SelectedValuePath="Content"
+                                  Style="{StaticResource Input.ComboBox}">
+                            <ComboBoxItem Content="Walk-in"/>
+                            <ComboBoxItem Content="Social Media"/>
+                            <ComboBoxItem Content="Referral"/>
+                            <ComboBoxItem Content="Advertisement"/>
                         </ComboBox>
                     </StackPanel>
                 </StackPanel>
-            </ScrollViewer>
-
-            <!-- 3. Footer Actions -->
-            <Grid Grid.Row="2" Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-                
-                <Button Grid.Column="0" 
-                        Content="{DynamicResource Terminology.Global.Cancel}" 
-                        Command="{Binding CancelCommand}"
-                        IsCancel="True"
-                        Style="{StaticResource Button.Ghost}"
-                        Margin="0,0,12,0"
-                        Height="48"/>
-
-                <Button Grid.Column="1" 
-                        Command="{Binding RegisterCommand}"
-                        IsDefault="True"
-                        Height="48">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource Button.Primary}">
-                            <Setter Property="Content" Value="{DynamicResource Terminology.Members.Add.Action.Register}"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsRenewMode}" Value="True">
-                                    <Setter Property="Content" Value="{DynamicResource Terminology.Members.Renew.Action.Save}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
             </Grid>
-
-            <!-- Loading Overlay -->
-            <Grid Grid.RowSpan="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}" Panel.ZIndex="1000">
-                <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16"/>
-                <ProgressBar Style="{DynamicResource MaterialProgressBar}" 
-                             IsIndeterminate="True" 
-                             VerticalAlignment="Center" 
-                             Width="150" 
-                             Height="4"
-                             HorizontalAlignment="Center"/>
-            </Grid>
-        </Grid>
-    </Border>
+        </StackPanel>
+    </premium:ModalShellControl>
 </UserControl>

@@ -34,6 +34,9 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyPhoneLabel">Phone</sys:String>
     <sys:String x:Key="TerminologyEmailLabel">Email</sys:String>
     <sys:String x:Key="TerminologyHiredLabel">Hired</sys:String>
+    <sys:String x:Key="Terminology.Member.Gender">Gender</sys:String>
+    <sys:String x:Key="Terminology.Member.Gender.Male">Male</sys:String>
+    <sys:String x:Key="Terminology.Member.Gender.Female">Female</sys:String>
     
     <!-- Tabs -->
     <sys:String x:Key="TerminologyInfoTabLabel">Info</sys:String>

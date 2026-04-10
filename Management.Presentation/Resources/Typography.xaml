@@ -103,7 +103,11 @@
         <!-- 50 = +0.05em spacing -->
     </Style>
 
-    <!-- Duplicate Caption style removed - defined in TextStyles.xaml -->
+    <!-- CAPTION (Smallest readable) -->
+    <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+    </Style>
 
     <Style x:Key="FormLabel" TargetType="TextBlock" BasedOn="{StaticResource Micro}">
         <Setter Property="Margin" Value="0,0,0,8"/>

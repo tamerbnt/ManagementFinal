@@ -4,235 +4,196 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=vm:GymHomeViewModel}"
+             d:DataContext="{d:DesignInstance Type=vm:WalkInConfirmationViewModel}"
              Background="Transparent">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Refined Premium Item Style -->
+        <Style x:Key="WalkInPlanItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="ItemBorder" 
+                                CornerRadius="14" 
+                                BorderThickness="1.5" 
+                                BorderBrush="#E5E7EB"
+                                Background="{DynamicResource Brush.Surface.Glass}"
+                                Padding="16"
+                                Margin="0,0,8,12"
+                                Cursor="Hand">
+                            <Grid Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border x:Name="IndicatorBorder"
+                                        Grid.Column="0" 
+                                        Width="20" Height="20" 
+                                        CornerRadius="10" 
+                                        BorderThickness="2" 
+                                        BorderBrush="#D1D5DB"
+                                        Margin="0,0,16,0"
+                                        VerticalAlignment="Center">
+                                    <Ellipse x:Name="CheckMark" 
+                                             Width="8" Height="8" 
+                                             Fill="{DynamicResource FacilityAccentBrush}"
+                                             Visibility="Collapsed"/>
+                                </Border>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="NameText" Text="{Binding Name}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                    <TextBlock x:Name="DurationText" Text="{Binding DurationDescription}" FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <TextBlock x:Name="PriceText" 
+                                           Grid.Column="2" 
+                                           Text="{Binding Price, StringFormat='{}{0:N2} DA'}" 
+                                           FontSize="15"
+                                           FontWeight="ExtraBold" 
+                                           Foreground="{DynamicResource Brush.Text.Primary}"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#F0FDFA"/> <!-- Very light primary tint -->
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="IndicatorBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter TargetName="PriceText" Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter TargetName="ItemBorder" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Premium Stepper Button Style -->
+        <Style x:Key="StepperButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="16">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <!-- Modal Container -->
-    <Border Style="{DynamicResource GlobalModalContainerStyle}" 
-            CornerRadius="{DynamicResource RadiusModal}"
-            Padding="32"
-            Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid>
-            <Grid.RowDefinitions>
-                <!-- 0: Header -->
-                <RowDefinition Height="Auto"/>
-                <!-- 1: Plan Selection List (takes remaining space, allowing scrolling) -->
-                <RowDefinition Height="*"/>
-                <!-- 2: Quantity Selector -->
-                <RowDefinition Height="Auto"/>
-                <!-- 3: Total Price Summary -->
-                <RowDefinition Height="Auto"/>
-                <!-- 4: Actions (Buttons) -->
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+    <premium:ModalShellControl Title="{Binding Title}"
+                               Width="820"
+                               CancelCommand="{Binding CancelWalkInCommand}"
+                               RegisterCommand="{Binding ConfirmWalkInCommand}"
+                               PrimaryActionText="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}">
+        
+        <premium:ModalShellControl.ExtraFooterContent>
+            <Button Command="{Binding OpenRegisterWalkInCommand}" 
+                    Style="{DynamicResource Button.Pill.Outline}" 
+                    Content="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}"
+                    Margin="0,0,8,0"/>
+        </premium:ModalShellControl.ExtraFooterContent>
 
-            <!-- Header -->
-            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,24">
-                <Border Width="64" Height="64" CornerRadius="32" Background="{DynamicResource PrimaryBrush}" Margin="0,0,0,16">
-                    <Path Data="{DynamicResource IconRunner}" 
-                          Fill="White" 
-                          Width="32" Height="32" 
-                          Stretch="Uniform" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Title}" Style="{DynamicResource Title2}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Subtitle}" Style="{DynamicResource Body}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
-            </StackPanel>
+        <Grid Height="480" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Plan Selection List -->
-            <ListBox Grid.Row="1"
+            <!-- Column 0: Plan List -->
+            <ListBox Grid.Column="0"
                      ItemsSource="{Binding Plans}" 
                      SelectedItem="{Binding SelectedPlan}"
-                     BorderThickness="0"
-                     Background="Transparent"
-                     Margin="0,0,0,24">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="ItemBorder" 
-                                            CornerRadius="14" 
-                                            BorderThickness="1.5" 
-                                            BorderBrush="{DynamicResource SeparatorStroke}"
-                                            Background="{DynamicResource SurfaceBgSecondary}"
-                                            Padding="16"
-                                            Margin="0,0,0,10"
-                                            Cursor="Hand">
-                                        <Grid Background="Transparent"> <!-- Explicit transparent background for hit testing -->
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            
-                                            <!-- Radio/Check Indicator -->
-                                            <Border x:Name="IndicatorBorder"
-                                                    Grid.Column="0" 
-                                                    Width="22" Height="22" 
-                                                    CornerRadius="11" 
-                                                    BorderThickness="2" 
-                                                    BorderBrush="{DynamicResource TextTertiaryBrush}"
-                                                    Margin="0,0,16,0"
-                                                    VerticalAlignment="Center">
-                                                <Ellipse x:Name="CheckMark" 
-                                                         Width="12" Height="12" 
-                                                         Fill="{DynamicResource PrimaryBrush}"
-                                                         Visibility="Collapsed"/>
-                                            </Border>
+                     ItemContainerStyle="{StaticResource WalkInPlanItemStyle}"
+                     Style="{StaticResource PremiumListBox}"
+                     BorderThickness="0"/>
 
-                                            <!-- Content -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock x:Name="NameText" Text="{Binding Name}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock x:Name="DurationText" Text="{Binding DurationDescription}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
-                                            </StackPanel>
-
-                                            <!-- Price -->
-                                            <TextBlock x:Name="PriceText" 
-                                                       Grid.Column="2" 
-                                                       Text="{Binding Price, StringFormat='{}{0:N2} DA'}" 
-                                                       FontSize="16"
-                                                       FontWeight="ExtraBold" 
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="Transparent"/>
-                                            <Setter TargetName="ItemBorder" Property="Background">
-                                                <Setter.Value>
-                                                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="0"/> <!-- Facility Accent -->
-                                                        <GradientStop Color="{DynamicResource FacilityAccentColor}" Offset="1"/> <!-- Facility Accent -->
-                                                    </LinearGradientBrush>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
-                                            <Setter TargetName="CheckMark" Property="Fill" Value="White"/>
-                                            <Setter TargetName="ItemBorder" Property="Effect">
-                                                <Setter.Value>
-                                                    <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.4" Color="{DynamicResource FacilityAccentColor}"/>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <!-- Invert text colors for readability on dark background -->
-                                            <Setter TargetName="NameText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="DurationText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
-                                            <Setter TargetName="PriceText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="IndicatorBorder" Property="BorderBrush" Value="White"/>
-                                        </Trigger>
-                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Border}}" Value="True">
-                                            <Setter TargetName="ItemBorder" Property="BorderThickness" Value="2"/>
-                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                        </DataTrigger>
-                                        <MultiTrigger>
-                                            <MultiTrigger.Conditions>
-                                                <Condition Property="IsMouseOver" Value="True"/>
-                                                <Condition Property="IsSelected" Value="False"/>
-                                            </MultiTrigger.Conditions>
-                                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SurfaceBg}"/>
-                                        </MultiTrigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-            </ListBox>
-
-            <!-- Quantity Selector -->
-            <Border Grid.Row="2"
-                    Background="{DynamicResource SurfaceBgSecondary}" 
-                    CornerRadius="16" 
-                    Padding="20"
-                    Margin="0,0,0,24"
-                    BorderBrush="{DynamicResource SeparatorStroke}"
-                    BorderThickness="1">
-                <DockPanel>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Quantity}" FontWeight="Bold" FontSize="14"/>
-                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.QuantityDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Command="{Binding DecrementGuestCountCommand}" 
-                                Style="{DynamicResource SecondaryButton}" 
-                                Width="36" Height="36" Padding="0"
-                                FontSize="18" FontWeight="Bold"
-                                Content="-"/>
+            <!-- Column 1: Configuration -->
+            <StackPanel Grid.Column="2">
+                <!-- Quantity Card -->
+                <Border Background="{DynamicResource Brush.Surface.Card}" 
+                        CornerRadius="16" 
+                        Padding="24"
+                        Margin="0,0,0,24"
+                        BorderBrush="#F3F4F6"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Quantity}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        <TextBlock Text="Select group size" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,20"/>
                         
-                        <TextBlock Text="{Binding GuestCount}" 
-                                   Width="44" 
-                                   TextAlignment="Center" 
-                                   VerticalAlignment="Center" 
-                                   FontSize="20" 
-                                   FontWeight="ExtraBold"
-                                   Foreground="{DynamicResource FacilityAccentBrush}"/>
-                        
-                        <Button Command="{Binding IncrementGuestCountCommand}" 
-                                Style="{DynamicResource SecondaryButton}" 
-                                Width="36" Height="36" Padding="0"
-                                FontSize="18" FontWeight="Bold"
-                                Content="+"/>
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Grid.Column="0" Command="{Binding DecrementGuestCountCommand}" Style="{StaticResource StepperButtonStyle}">
+                                <Path Data="M19,13H5V11H19V13Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform" Margin="10"/>
+                            </Button>
+
+                            <TextBlock Grid.Column="1" Text="{Binding GuestCount}" TextAlignment="Center" VerticalAlignment="Center" FontSize="28" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}"/>
+
+                            <Button Grid.Column="2" Command="{Binding IncrementGuestCountCommand}" Style="{StaticResource StepperButtonStyle}">
+                                <Path Data="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Stretch="Uniform" Margin="10"/>
+                            </Button>
+                        </Grid>
                     </StackPanel>
-                </DockPanel>
-            </Border>
+                </Border>
 
-            <!-- Total Price Summary -->
-            <Border Grid.Row="3"
-                    Background="{DynamicResource SurfaceBg}" 
-                    CornerRadius="12" 
-                    Padding="16" 
-                    Margin="0,16,0,0">
-                <Grid>
-                    <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.GrandTotal}" VerticalAlignment="Center" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource FacilityAccentBrush}"/>
-                    <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:N2} DA'}" 
-                               HorizontalAlignment="Right" 
-                               VerticalAlignment="Center" 
-                               FontWeight="Bold" 
-                               FontSize="20" 
-                               Foreground="{DynamicResource FacilityAccentBrush}"/>
-                </Grid>
-            </Border>
-
-            <!-- Actions -->
-            <Grid Grid.Row="4" Margin="0,24,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <Button Grid.Column="0" 
-                        Command="{Binding CancelWalkInCommand}" 
-                        IsCancel="True"
-                        Style="{DynamicResource GhostButton}" 
-                        Content="{DynamicResource Terminology.Global.Cancel}"
-                        HorizontalAlignment="Left"/>
-                
-                <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Command="{Binding OpenRegisterWalkInCommand}" 
-                            Style="{DynamicResource SecondaryButton}" 
-                            Content="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}"
-                            Margin="0,0,12,0"
-                            Padding="16,8"/>
-
-                    <Button Command="{Binding ConfirmWalkInCommand}" 
-                            Style="{DynamicResource PrimaryButton}" 
-                            IsDefault="True"
-                            Content="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}"
-                            Padding="24,8"/>
-                </StackPanel>
-            </Grid>
+                <!-- Summary Card -->
+                <Border Background="{DynamicResource Brush.Surface.Glass}" 
+                        CornerRadius="16" 
+                        Padding="24"
+                        BorderBrush="#F3F4F6"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Summary" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
+                        
+                        <!-- Stacked Price Layout to prevent overlap -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Total Price" FontSize="13" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                            <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:N2} DA'}" 
+                                       FontSize="28" 
+                                       FontWeight="ExtraBold" 
+                                       Foreground="{DynamicResource FacilityAccentBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                        
+                        <Border Height="1" Background="#F3F4F6" Margin="0,0,0,20"/>
+                        <TextBlock Text="Ready to process guest entry." FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
-    </Border>
+    </premium:ModalShellControl>
 </UserControl>

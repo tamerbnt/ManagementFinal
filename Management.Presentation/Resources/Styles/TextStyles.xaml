@@ -96,22 +96,23 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}" />
     </Style>
 
-    <!-- Aliases for Short Names -->
+    <!-- Aliases for Short Names (Temporarily disabled to resolve Typography.xaml conflict) -->
+    <!-- Restore Master Alises (Ensure they point to Typography.xamlMaster versions) -->
     <Style x:Key="Title1" TargetType="TextBlock" BasedOn="{StaticResource Text.Title1}"/>
     <Style x:Key="Title2" TargetType="TextBlock" BasedOn="{StaticResource Text.Title2}"/>
-    <Style x:Key="Title3" TargetType="TextBlock" BasedOn="{StaticResource Title.H3}"/>
+    <Style x:Key="Title3" TargetType="TextBlock" BasedOn="{StaticResource Text.Title3}"/>
     <Style x:Key="Body" TargetType="TextBlock" BasedOn="{StaticResource Text.Body}"/>
     <Style x:Key="BodyMedium" TargetType="TextBlock" BasedOn="{StaticResource Text.Body}">
         <Setter Property="FontWeight" Value="Medium"/>
     </Style>
-    <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}"/>
+    <!-- Caption is now in Typography.xaml -->
     <Style x:Key="BodySmall" TargetType="TextBlock" BasedOn="{StaticResource Text.BodySmall}"/>
     <Style x:Key="BodyBold" TargetType="TextBlock" BasedOn="{StaticResource Text.BodyBold}"/>
 
-    <!-- Form Styles -->
-    <Style x:Key="FormLabel" TargetType="TextBlock" BasedOn="{StaticResource Text.Caption}">
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    <!-- Form Styles (Restored and linked to master Typography.xaml) -->
+    <Style x:Key="FormLabel" TargetType="TextBlock" BasedOn="{StaticResource Micro}">
+        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
     </Style>
 
     <Style x:Key="FormValue" TargetType="TextBlock" BasedOn="{StaticResource Text.Body}">

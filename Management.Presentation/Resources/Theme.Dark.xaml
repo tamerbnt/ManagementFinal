@@ -78,6 +78,5 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
     I'll add it as #5B8AB8 for now to satisfy the "Dark Mode" requirement of being a non-black color.
     -->
-    <Color x:Key="ElevationColor">#5B8AB8</Color>
     <sys:Double x:Key="ShadowOpacity">0.5</sys:Double>
 </ResourceDictionary>

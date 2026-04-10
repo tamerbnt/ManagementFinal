@@ -1,0 +1,143 @@
+<ContentControl x:Class="Management.Presentation.Controls.Premium.ModalShellControl"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                 xmlns:local="clr-namespace:Management.Presentation.Controls.Premium"
+                 mc:Ignorable="d"
+                 MaxWidth="820">
+    <ContentControl.Template>
+        <ControlTemplate TargetType="local:ModalShellControl">
+            <Grid Margin="16,16,16,32">
+                <Border Background="{DynamicResource Brush.Surface.Primary}"
+                        CornerRadius="24">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="40" ShadowDepth="12" 
+                                          Opacity="0.12" Direction="270"
+                                          Color="Black" RenderingBias="Performance"/>
+                    </Border.Effect>
+
+                    <Grid Margin="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/> <!-- Header -->
+                            <RowDefinition Height="*"/>    <!-- Content (Scrollable) -->
+                            <RowDefinition Height="Auto"/> <!-- Separator -->
+                            <RowDefinition Height="Auto"/> <!-- Footer (Buttons) -->
+                        </Grid.RowDefinitions>
+
+                        <!-- HEADER -->
+                        <Grid Grid.Row="0" Margin="32,32,32,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="{TemplateBinding Title}" 
+                                           Style="{DynamicResource Text.Title2}" 
+                                           FontSize="22"
+                                           Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                
+                                <TextBlock Text="{TemplateBinding Subtitle}" 
+                                           FontSize="13"
+                                           Foreground="{DynamicResource Brush.Text.Tertiary}"
+                                           Margin="0,4,0,0"
+                                           Visibility="{TemplateBinding Subtitle, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            </StackPanel>
+                            
+                            <Button Grid.Column="1" 
+                                     Command="{TemplateBinding CancelCommand}"
+                                     Width="32" Height="32"
+                                     Background="#F3F4F6"
+                                     BorderThickness="0"
+                                     Cursor="Hand"
+                                     VerticalAlignment="Center">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bgBorder" Background="{TemplateBinding Background}" CornerRadius="16" RenderTransformOrigin="0.5,0.5">
+                                            <Border.RenderTransform>
+                                                <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1"/>
+                                            </Border.RenderTransform>
+                                            <Path Data="M18 6L6 18M6 6l12 12" 
+                                                  Stroke="#6B7280" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  Stretch="Uniform" Margin="8"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FEE2E2"/>
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.1" Duration="0:0:0.1"/>
+                                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.1" Duration="0:0:0.1"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                                <Trigger.ExitActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard>
+                                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.1"/>
+                                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.1"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.ExitActions>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <!-- CONTENT -->
+                        <ScrollViewer Grid.Row="1" 
+                                      VerticalScrollBarVisibility="Auto" 
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      MaxHeight="580"
+                                      Padding="32,0,32,16">
+                            <ContentPresenter Content="{TemplateBinding Content}" />
+                        </ScrollViewer>
+
+                        <!-- SEPARATOR -->
+                        <Border Grid.Row="2" 
+                                Height="1" 
+                                Background="#F3F4F6" 
+                                Margin="0,8,0,0"/>
+
+                        <!-- FOOTER (Stretched Buttons) -->
+                        <Grid Grid.Row="3" Margin="32,24,32,32">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/> <!-- Col 0: Cancel -->
+                                <ColumnDefinition Width="Auto"/> <!-- Col 1: Extra (Optional Spacer) -->
+                                <ColumnDefinition Width="*"/> <!-- Col 2: Primary -->
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Cancel Button (Stretched) -->
+                            <Button Grid.Column="0"
+                                    Content="{DynamicResource Terminology.Global.Cancel}" 
+                                    Command="{TemplateBinding CancelCommand}"
+                                    IsCancel="True"
+                                    Style="{DynamicResource Button.Pill.Outline}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0,0,8,0"/>
+                            
+                            <!-- Middle Button (Extra Content - e.g. a third action) -->
+                            <ContentControl Grid.Column="1" 
+                                            Content="{TemplateBinding ExtraFooterContent}" 
+                                            Margin="8,0"
+                                            Visibility="{Binding Content, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                            <!-- Primary Action (Stretched) -->
+                            <Button Grid.Column="2" 
+                                    Command="{TemplateBinding RegisterCommand}"
+                                    IsDefault="True"
+                                    Style="{DynamicResource Button.Pill.Primary}"
+                                    Content="{TemplateBinding PrimaryActionText}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="8,0,0,0"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </ControlTemplate>
+    </ContentControl.Template>
+</ContentControl>

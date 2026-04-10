@@ -5,10 +5,9 @@
     <StreamGeometry x:Key="Path.Spinner">M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z</StreamGeometry>
 
     <Style x:Key="Button.Primary" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource Brush.Accent.Primary}" />
+        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Neutral.White}" />
         <Setter Property="Padding" Value="24,8" />
-
         <Setter Property="Height" Value="44" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
@@ -17,7 +16,7 @@
                     <Grid>
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource Corner.LG}">
+                                CornerRadius="14">
                             <Grid Margin="{TemplateBinding Padding}">
                                 <ContentPresenter x:Name="content"
                                                   HorizontalAlignment="Center"
@@ -32,7 +31,7 @@
                                       Visibility="Collapsed"
                                       RenderTransformOrigin="0.5,0.5">
                                     <Path.RenderTransform>
-                                        <RotateTransform Angle="0" />
+                                        <RotateTransform x:Name="RotationTransform" Angle="0" />
                                     </Path.RenderTransform>
                                 </Path>
                             </Grid>
@@ -40,7 +39,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="Opacity" Value="0.9" />
+                            <Setter TargetName="border" Property="Background" Value="{DynamicResource FacilityAccentBrush.Deep}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="border" Property="Opacity" Value="0.8" />
@@ -50,20 +49,43 @@
                             <Setter TargetName="content" Property="Visibility" Value="Collapsed" />
                             <Setter TargetName="spinner" Property="Visibility" Value="Visible" />
                         </Trigger>
-                        <DataTrigger Binding="{Binding Visibility, ElementName=spinner}" Value="Visible">
-                            <DataTrigger.EnterActions>
-                                <BeginStoryboard Name="RotationStoryboard">
-                                    <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="spinner"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                         From="0" To="360" Duration="0:0:1" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </DataTrigger.EnterActions>
-                            <DataTrigger.ExitActions>
-                                <StopStoryboard BeginStoryboardName="RotationStoryboard" />
-                            </DataTrigger.ExitActions>
-                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Button.Pill.Primary" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Tag" Value="Corner.Round"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="Button.Pill.Outline" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
+        <Setter Property="BorderBrush" Value="#E5E7EB" />
+        <Setter Property="BorderThickness" Value="1.5" />
+        <Setter Property="Padding" Value="24,8" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="14">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Background" Value="#F9FAFB" />
+                            <Setter TargetName="border" Property="BorderBrush" Value="#D1D5DB" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Opacity" Value="0.7" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -100,7 +122,7 @@
                                       Visibility="Collapsed"
                                       RenderTransformOrigin="0.5,0.5">
                                     <Path.RenderTransform>
-                                        <RotateTransform Angle="0" />
+                                        <RotateTransform x:Name="SecondaryRotationTransform" Angle="0" />
                                     </Path.RenderTransform>
                                 </Path>
                             </Grid>
@@ -122,8 +144,8 @@
                             <DataTrigger.EnterActions>
                                 <BeginStoryboard Name="RotationStoryboard">
                                     <Storyboard RepeatBehavior="Forever">
-                                        <DoubleAnimation Storyboard.TargetName="spinner"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                        <DoubleAnimation Storyboard.TargetName="SecondaryRotationTransform"
+                                                         Storyboard.TargetProperty="Angle"
                                                          From="0" To="360" Duration="0:0:1" />
                                     </Storyboard>
                                 </BeginStoryboard>

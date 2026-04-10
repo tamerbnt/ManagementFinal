@@ -5,28 +5,67 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              Height="44">
-    <!-- Premium iOS-style segmented control -->
-    <Border Background="#F3F4F6" CornerRadius="12" Padding="4">
+    
+    <UserControl.Resources>
+        <!-- Silent Premium Button Style: No hover flickers, just pure hit-testing -->
+        <Style x:Key="SegmentedButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#01FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" IsHitTestVisible="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="#F3F4F6" CornerRadius="14" Padding="4">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- The animated selection pill (mocked statically for now, animates left/right via visual state) -->
-            <Border x:Name="SelectionPill" Grid.Column="0" Background="#FFFFFF" CornerRadius="10">
+            <!-- Selection pill (Animation target) -->
+            <Border x:Name="SelectionPill" 
+                    Grid.Column="0" 
+                    Background="#FFFFFF" 
+                    CornerRadius="10"
+                    HorizontalAlignment="Left"
+                    IsHitTestVisible="False">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="PillTranslate" X="0"/>
+                </Border.RenderTransform>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.1" Direction="270" RenderingBias="Performance"/>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.08" Direction="270" RenderingBias="Performance"/>
                 </Border.Effect>
             </Border>
 
-            <!-- Option 1 -->
-            <Button Grid.Column="0" Content="Male" Background="Transparent" BorderThickness="0" 
-                    FontWeight="SemiBold" Foreground="#111827" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <!-- Male Segment -->
+            <Button Grid.Column="0" 
+                    Content="{DynamicResource Terminology.Member.Gender.Male}" 
+                    Click="MaleButton_Click"
+                    Style="{StaticResource SegmentedButtonStyle}"
+                    FontSize="14"
+                    FontWeight="SemiBold" 
+                    Foreground="#111827" 
+                    Cursor="Hand"/>
             
-            <!-- Option 2 -->
-            <Button Grid.Column="1" Content="Female" Background="Transparent" BorderThickness="0" 
-                    FontWeight="SemiBold" Foreground="#6B7280" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"/>
+            <!-- Female Segment -->
+            <Button Grid.Column="1" 
+                    Content="{DynamicResource Terminology.Member.Gender.Female}" 
+                    Click="FemaleButton_Click"
+                    Style="{StaticResource SegmentedButtonStyle}"
+                    FontSize="14"
+                    FontWeight="SemiBold" 
+                    Foreground="#111827" 
+                    Cursor="Hand"/>
         </Grid>
     </Border>
 </UserControl>
