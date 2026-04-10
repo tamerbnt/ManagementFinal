@@ -115,6 +115,11 @@ namespace Management.Presentation.ViewModels.GymHome
         private decimal _revenueToday;
 
         [ObservableProperty]
+        private KpiMetricDto _ptUpsellRate = new();
+
+        public IEnumerable<ISeries> DemographicSeries { get; set; }
+
+        [ObservableProperty]
         private bool _isScanSuccessful;
 
         [ObservableProperty]
@@ -861,6 +866,24 @@ namespace Management.Presentation.ViewModels.GymHome
                         ActiveMembersTotal = summary.ActiveMembers;
                         ExpiringSoonCount = summary.ExpiringSoonCount;
                         PendingRegistrationsCount = summary.PendingRegistrationsCount;
+                        PtUpsellRate = summary.PtUpsellRate ?? new KpiMetricDto();
+
+                        // Map demographics to chart series
+                        if (summary.MemberDemographics != null && summary.MemberDemographics.Any())
+                        {
+                            var primaryColor = (SKColor)System.Windows.Application.Current.Resources["Color.Brand.Primary"];
+                            var accentColor = (SKColor)System.Windows.Application.Current.Resources["Color.Brand.Accent"];
+                            
+                            DemographicSeries = summary.MemberDemographics.Select((d, index) => new PieSeries<int>
+                            {
+                                Name = d.Source,
+                                Values = new[] { d.Count },
+                                InnerRadius = 40,
+                                Stroke = null,
+                                Fill = new SolidColorPaint(index % 2 == 0 ? primaryColor : accentColor)
+                            }).ToArray();
+                            OnPropertyChanged(nameof(DemographicSeries));
+                        }
                     }
                 });
             }

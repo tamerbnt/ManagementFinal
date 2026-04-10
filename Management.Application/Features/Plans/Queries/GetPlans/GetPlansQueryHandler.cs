@@ -37,6 +37,7 @@ namespace Management.Application.Features.Plans.Queries.GetPlans
                 IsSessionPack = p.IsSessionPack,
                 IsWalkIn = p.IsWalkIn,
                 GenderRule = p.GenderRule,
+                IsPersonalTraining = p.IsPersonalTraining,
                 ScheduleJson = p.ScheduleJson
             }).ToList();
 

@@ -82,5 +82,20 @@ namespace Management.Infrastructure.Services
         {
             return await _sender.Send(new UpdateAppearanceSettingsCommand(facilityId, dto));
         }
+
+        public async Task<Result<SalonSettingsDto>> GetSalonSettingsAsync(Guid facilityId)
+        {
+            var result = await _sender.Send(new GetSalonSettingsQuery(facilityId));
+            if (result.IsFailure) return Result.Failure<SalonSettingsDto>(result.Error);
+
+            var s = result.Value;
+            return Result.Success(new SalonSettingsDto(
+                s.TotalChairs, s.DailyRevenueTarget, s.OperatingHoursJson));
+        }
+
+        public async Task<Result> UpdateSalonSettingsAsync(Guid facilityId, SalonSettingsDto dto)
+        {
+            return await _sender.Send(new UpdateSalonSettingsCommand(facilityId, dto));
+        }
     }
 }

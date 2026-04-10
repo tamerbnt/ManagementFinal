@@ -43,7 +43,7 @@ namespace Management.Presentation.Views.Salon
         public ObservableCollection<StaffMember> QualifiedStaff { get; } = new();
         public ObservableCollection<MemberDto> Clients { get; } = new();
         public ObservableCollection<SalonService> AvailableServices { get; } = new();
-        public ObservableCollection<MembershipPlanDto> AvailableMembershipPlans { get; } = new();
+        public ObservableCollection<string> AcquisitionSources { get; } = new() { "Walk-in", "Word of Mouth", "Instagram", "TikTok", "Facebook" };
 
         private StaffMember? _selectedStaff;
         public StaffMember? SelectedStaff
@@ -66,23 +66,24 @@ namespace Management.Presentation.Views.Salon
             {
                 if (SetProperty(ref _selectedService, value))
                 {
-                    SelectedPlanId = value?.Id;
+                    SelectedServiceId = value?.Id;
                     UpdatePrice();
                 }
             }
         }
 
-        private MembershipPlanDto? _selectedMembershipPlan;
-        public MembershipPlanDto? SelectedMembershipPlan
+        private int? _age;
+        public int? Age
         {
-            get => _selectedMembershipPlan;
-            set
-            {
-                if (SetProperty(ref _selectedMembershipPlan, value))
-                {
-                    UpdatePrice();
-                }
-            }
+            get => _age;
+            set => SetProperty(ref _age, value);
+        }
+
+        private string _acquisitionSource = "Walk-in";
+        public string AcquisitionSource
+        {
+            get => _acquisitionSource;
+            set => SetProperty(ref _acquisitionSource, value);
         }
 
         private void UpdatePrice()
@@ -90,9 +91,6 @@ namespace Management.Presentation.Views.Salon
             decimal total = 0;
             if (SelectedService != null)
                 total += SelectedService.BasePrice;
-            
-            if (SelectedMembershipPlan != null)
-                total += SelectedMembershipPlan.Price;
             
             Price = total;
             ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
@@ -166,13 +164,13 @@ namespace Management.Presentation.Views.Salon
         }
         }
 
-        private Guid? _selectedPlanId;
-        public Guid? SelectedPlanId
+        private Guid? _selectedServiceId;
+        public Guid? SelectedServiceId
         {
-            get => _selectedPlanId;
+            get => _selectedServiceId;
             set
             {
-                if (SetProperty(ref _selectedPlanId, value))
+                if (SetProperty(ref _selectedServiceId, value))
                 {
                     if (SelectedService?.Id != value)
                     {
@@ -270,9 +268,8 @@ namespace Management.Presentation.Views.Salon
                 var clientsTask = _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, new MemberSearchRequest("", Management.Domain.Enums.MemberFilterType.All));
                 var servicesInitTask = _salonService.LoadServicesAsync();
                 var staffTask = _salonService.GetQualifiedStaffAsync(Guid.Empty);
-                var plansTask = _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
 
-                await Task.WhenAll(clientsTask, servicesInitTask, staffTask, plansTask);
+                await Task.WhenAll(clientsTask, servicesInitTask, staffTask);
 
                 var clientsResult = await clientsTask;
                 if (clientsResult.IsSuccess)
@@ -290,14 +287,6 @@ namespace Management.Presentation.Views.Salon
                 var staff = await staffTask;
                 QualifiedStaff.Clear();
                 foreach (var s in staff) QualifiedStaff.Add(s);
-
-                var plansResult = await plansTask;
-                AvailableMembershipPlans.Clear();
-                if (plansResult.IsSuccess)
-                {
-                    foreach (var plan in plansResult.Value.Where(p => !p.IsWalkIn && p.IsActive))
-                        AvailableMembershipPlans.Add(plan);
-                }
                 
                 // Re-sync selected items if IDs were already set (e.g. from SalonBookArgs)
                 if (SelectedStaffId != Guid.Empty && SelectedStaff == null)
@@ -332,15 +321,15 @@ namespace Management.Presentation.Views.Salon
         private bool CanSave() => 
             !string.IsNullOrWhiteSpace(SelectedClientName) && 
             SelectedStaffId != Guid.Empty && 
-            (SelectedService != null || SelectedMembershipPlan != null) &&
+            SelectedService != null &&
             BookingDate.Date >= DateTime.Today;
 
         private async Task ExecuteSave()
         {
             // Fix 4: Robust Validation Guards
-            if (SelectedService == null && SelectedMembershipPlan == null)
+            if (SelectedService == null)
             {
-                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.Required") ?? "Please select a service or a membership plan.", NotificationType.Error);
+                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.Required") ?? "Please select a service.", NotificationType.Error);
                 return;
             }
 
@@ -383,10 +372,9 @@ namespace Management.Presentation.Views.Salon
                     FullName = SelectedClientName,
                     Status = MemberStatus.Active,
                     StartDate = DateTime.UtcNow,
-                    ExpirationDate = SelectedMembershipPlan != null 
-                        ? DateTime.UtcNow.AddDays(SelectedMembershipPlan.DurationDays) 
-                        : DateTime.UtcNow.AddYears(1),
-                    MembershipPlanId = SelectedMembershipPlan?.Id,
+                    ExpirationDate = DateTime.UtcNow.AddYears(1),
+                    DateOfBirth = Age.HasValue ? DateTime.Today.AddYears(-Age.Value) : (DateTime?)null,
+                    Source = AcquisitionSource,
                     Notes = "Auto-created from salon booking"
                 };
 
@@ -402,21 +390,7 @@ namespace Management.Presentation.Views.Salon
                     _notificationService.ShowNotification("Failed to create client record, booking as guest.", NotificationType.Warning);
                 }
             }
-            else if (clientId != Guid.Empty && SelectedMembershipPlan != null)
-            {
-                // Update existing client with new membership
-                var existingMemberResult = await _memberService.GetMemberAsync(_facilityContext.CurrentFacilityId, clientId);
-                if (existingMemberResult.IsSuccess)
-                {
-                    var member = existingMemberResult.Value;
-                    member.MembershipPlanId = SelectedMembershipPlan.Id;
-                    member.StartDate = DateTime.UtcNow;
-                    member.ExpirationDate = DateTime.UtcNow.AddDays(SelectedMembershipPlan.DurationDays);
-                    member.Status = MemberStatus.Active;
-                    
-                    await _memberService.UpdateMemberAsync(_facilityContext.CurrentFacilityId, member);
-                }
-            }
+            // Logic for updating existing member membership removed as per requirements (membership plans deleted)
 
             var appt = new Appointment
             {
@@ -427,8 +401,8 @@ namespace Management.Presentation.Views.Salon
                 ClientName = SelectedClientName ?? "Guest",
                 StaffId = SelectedStaffId,
                 StaffName = SelectedStaff?.FullName ?? "Unknown Staff", 
-                ServiceId = SelectedService?.Id ?? Guid.Empty, // Could be Empty if only plan selected
-                ServiceName = SelectedService?.Name ?? (SelectedMembershipPlan?.Name ?? "Membership Only"),
+                ServiceId = SelectedService?.Id ?? Guid.Empty,
+                ServiceName = SelectedService?.Name ?? "No Service",
                 StartTime = startTime,
                 EndTime = endTime,
                 Price = Price,

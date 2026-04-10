@@ -112,7 +112,7 @@
                         <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center"
                                 Background="{DynamicResource Brush.Sidebar.Hover}">
                             <Border.Effect>
-                                <StaticResource ResourceKey="ShadowGlow"/>
+                                <DynamicResource ResourceKey="ShadowGlow"/>
                             </Border.Effect>
                             <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource FacilityAccentBrush}">
                                 <Path.Data>
@@ -146,7 +146,7 @@
                              Visibility="{Binding IsSidebarCollapsed, Converter={StaticResource BoolToVis}}"
                              Background="{DynamicResource Brush.Sidebar.Hover}">
                          <Border.Effect>
-                             <StaticResource ResourceKey="ShadowGlow"/>
+                             <DynamicResource ResourceKey="ShadowGlow"/>
                          </Border.Effect>
                          <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource FacilityAccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -192,7 +192,7 @@
                                         Background="{DynamicResource FacilityAccentBrush}" 
                                         Margin="2"
                                         CornerRadius="10">
-                                    <Path Data="{StaticResource IconChevronLeft}"
+                                    <Path Data="{DynamicResource IconChevronLeft}"
                                           Fill="{DynamicResource Brush.Neutral.White}"
                                           Width="8" Height="8" 
                                           Stretch="Uniform" 
@@ -374,7 +374,7 @@
                         <Border.BorderThickness>0</Border.BorderThickness>
 
                         <Border.Effect>
-                            <StaticResource ResourceKey="ShadowGlow"/>
+                            <DynamicResource ResourceKey="ShadowGlow"/>
                         </Border.Effect>
                         
                         <!-- No internal dot for CoachPro style, just solid gradient -->

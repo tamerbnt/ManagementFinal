@@ -12,51 +12,51 @@
 
     <!-- Level 1: Subtle (Cards / List Items) -->
     <DropShadowEffect x:Key="Shadow.Level1" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="6" ShadowDepth="2" Opacity="0.06" 
                       RenderingBias="Performance" />
     
     <DropShadowEffect x:Key="Shadow1" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="6" ShadowDepth="2" Opacity="0.06" 
                       RenderingBias="Performance" />
 
     <!-- Level 2: Standard (Dropdowns / Popovers) -->
     <DropShadowEffect x:Key="Shadow.Level2" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="10" ShadowDepth="4" Opacity="0.10" 
                       RenderingBias="Performance" />
 
     <DropShadowEffect x:Key="Shadow2" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="10" ShadowDepth="4" Opacity="0.10" 
                       RenderingBias="Performance" />
 
     <!-- Level 3: Floating (Modals / Sticky Headers) -->
     <DropShadowEffect x:Key="Shadow.Level3" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="16" ShadowDepth="6" Opacity="0.14" 
                       RenderingBias="Performance" />
 
     <DropShadowEffect x:Key="Shadow3" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="16" ShadowDepth="6" Opacity="0.14" 
                       RenderingBias="Performance" />
 
     <!-- Level 4: Deep (Dialogs / Alerts) -->
     <DropShadowEffect x:Key="Shadow.Modal" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="30" ShadowDepth="10" Opacity="0.22" 
                       RenderingBias="Performance" />
 
     <DropShadowEffect x:Key="Shadow4" x:Shared="False"
-                      Color="{DynamicResource ElevationColor}" 
+                      Color="#000000" 
                       BlurRadius="30" ShadowDepth="10" Opacity="0.22" 
                       RenderingBias="Performance" />
 
     <!-- Level 5: Brand Glow (Focus States / Accents) -->
     <DropShadowEffect x:Key="ShadowGlow" x:Shared="False"
-                      Color="{DynamicResource FacilityAccentColor}" 
+                      Color="#06B6D4" 
                       Direction="270" BlurRadius="24" ShadowDepth="0" Opacity="0.3"
                       RenderingBias="Performance" />
 

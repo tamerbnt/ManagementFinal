@@ -40,6 +40,7 @@ namespace Management.Presentation.ViewModels.Members
 
         private Guid? _originalPlanId;
         private DateTime _originalExpirationDate;
+        private CancellationTokenSource? _leadSearchCts;
 
 
         [ObservableProperty]
@@ -53,6 +54,12 @@ namespace Management.Presentation.ViewModels.Members
 
         [ObservableProperty]
         private string _cardId = string.Empty;
+
+        [ObservableProperty]
+        private int? _age;
+
+        [ObservableProperty]
+        private string _source = "Walk-in"; // Default source
 
         [ObservableProperty]
         private MembershipPlanDto? _selectedPlan;
@@ -82,6 +89,84 @@ namespace Management.Presentation.ViewModels.Members
 
         [ObservableProperty]
         private bool _isSalonFacility;
+ 
+        // Lead Conversion
+        [ObservableProperty]
+        private string _leadSearchQuery = string.Empty;
+ 
+        [ObservableProperty]
+        private ObservableCollection<MemberDto> _leadResults = new();
+ 
+        [ObservableProperty]
+        private MemberDto? _selectedLead;
+ 
+        [ObservableProperty]
+        private bool _hasLeadResults;
+ 
+        [ObservableProperty]
+        private bool _isSearchingLeads;
+ 
+        partial void OnLeadSearchQueryChanged(string value)
+        {
+            _leadSearchCts?.Cancel();
+            _leadSearchCts = new CancellationTokenSource();
+            var token = _leadSearchCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(400, token);
+                    if (token.IsCancellationRequested) return;
+                    await SearchLeadsCommand.ExecuteAsync(null);
+                }
+                catch (TaskCanceledException) { }
+            }, token);
+        }
+ 
+        partial void OnSelectedLeadChanged(MemberDto? value)
+        {
+            if (value != null)
+            {
+                FullName = value.FullName;
+                PhoneNumber = value.PhoneNumber ?? string.Empty;
+                Email = value.Email ?? string.Empty;
+                Source = value.Source ?? "Walk-in";
+                
+                // Set ID for conversion (acts as an update)
+                MemberIdToUpdate = value.Id;
+                IsRenewMode = true;
+
+                LeadResults.Clear();
+                HasLeadResults = false;
+                LeadSearchQuery = string.Empty;
+            }
+        }
+ 
+        [RelayCommand]
+        private async Task SearchLeadsAsync()
+        {
+            if (string.IsNullOrWhiteSpace(LeadSearchQuery)) return;
+ 
+            IsSearchingLeads = true;
+            try
+            {
+                var result = await _memberService.SearchLeadAsync(_facilityContext.CurrentFacilityId, LeadSearchQuery);
+                if (result.IsSuccess)
+                {
+                    LeadResults.Clear();
+                    foreach (var lead in result.Value)
+                    {
+                        LeadResults.Add(lead);
+                    }
+                    HasLeadResults = LeadResults.Any();
+                }
+            }
+            finally
+            {
+                IsSearchingLeads = false;
+            }
+        }
 
         partial void OnSelectedPlanChanged(MembershipPlanDto? value) => UpdateTotalPrice();
         partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => UpdateTotalPrice();
@@ -140,7 +225,17 @@ namespace Management.Presentation.ViewModels.Members
                 PhoneNumber = prefillData.PhoneNumber;
                 Gender = prefillData.Gender;
             }
+
+            // Initialize Sources
+            Sources.Clear();
+            Sources.Add("Walk-in");
+            Sources.Add("Word of Mouth");
+            Sources.Add("Instagram");
+            Sources.Add("TikTok");
+            Sources.Add("Facebook");
         }
+
+        public ObservableCollection<string> Sources { get; } = new ObservableCollection<string>();
 
         private async Task LoadMemberDetailsAsync(Guid memberId)
         {
@@ -154,6 +249,11 @@ namespace Management.Presentation.ViewModels.Members
                     PhoneNumber = result.Value.PhoneNumber ?? string.Empty;
                     CardId = result.Value.CardId ?? string.Empty;
                     if (result.Value.Gender.HasValue) Gender = result.Value.Gender.Value;
+                    if (result.Value.DateOfBirth.HasValue)
+                    {
+                        Age = (int)((DateTime.UtcNow - result.Value.DateOfBirth.Value).TotalDays / 365.25);
+                    }
+                    Source = result.Value.Source ?? "Walk-in";
                     
                     if (result.Value.MembershipPlanId.HasValue)
                     {
@@ -236,6 +336,8 @@ namespace Management.Presentation.ViewModels.Members
                     PhoneNumber = PhoneNumber,
                     CardId = CardId,
                     Gender = Gender,
+                    DateOfBirth = Age.HasValue ? DateTime.UtcNow.AddYears(-Age.Value) : (DateTime?)null,
+                    Source = Source,
                     // FIX: In Salon mode the handler uses dto.MembershipPlanId to look up a SalonService
                     // (via ISalonServiceRepository). We must supply the SalonService ID, not a MembershipPlan ID.
                     // For Gym mode, selectedServiceId is always null, so selectedPlanId is used as before.

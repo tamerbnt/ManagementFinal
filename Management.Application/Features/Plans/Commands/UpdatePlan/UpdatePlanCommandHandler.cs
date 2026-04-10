@@ -37,7 +37,8 @@ namespace Management.Application.Features.Plans.Commands.UpdatePlan
                 dto.DurationDays,
                 price,
                 null, // BaseSessionCount
-                dto.IsWalkIn);
+                dto.IsWalkIn,
+                dto.IsPersonalTraining);
 
             plan.GenderRule = dto.GenderRule;
             plan.ScheduleJson = dto.ScheduleJson;

@@ -130,4 +130,21 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyPaymentHistoryLabel">Payment History</sys:String>
     <sys:String x:Key="TerminologyNoPaymentHistoryLabel">No payment history found.</sys:String>
 
+    <!-- NEW GYM MODERNIZATION KEYS -->
+    <sys:String x:Key="Terminology.Gym.Action.RegisterWalkIn">Register Walk-In</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Lead">Lead</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Frozen">Frozen</sys:String>
+    <sys:String x:Key="Terminology.Gym.Action.Freeze">Freeze Membership</sys:String>
+    <sys:String x:Key="Terminology.Gym.ConfirmFreezeTitle">Are you sure you want to freeze this membership?</sys:String>
+    <sys:String x:Key="Terminology.Gym.FreezeWarning">The member will not be able to check in until unfrozen.</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MembershipDistribution">Membership Distribution</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MemberDemographics">Member Demographics</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.LeadConversion">Lead Conversion Rate</sys:String>
+    <sys:String x:Key="Terminology.Gym.Label.IsPersonalTraining">Personal Training</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.MaxCapacityLabel">Maximum Capacity</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.CapacityDesc">Set the maximum number of people allowed in the facility at once.</sys:String>
+    <sys:String x:Key="Terminology.Gym.SearchLeadsPlaceholder">Search by Name or Phone...</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Name">Full Name</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Phone">Phone Number</sys:String>
+
 </ResourceDictionary>

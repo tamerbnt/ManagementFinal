@@ -114,6 +114,31 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Time.22_00">22h00</sys:String>
     <sys:String x:Key="Terminology.Time.23_00">23h00</sys:String>
 
+    <!-- Salon Settings -->
+    <sys:String x:Key="Terminology.Salon.Settings.Title">Paramètres du Salon</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.ChairTracking">Gestion des chaises et des stations</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.ChairTrackingDesc">Configurez la capacité physique de votre salon pour suivre l'utilisation et optimiser l'efficacité des réservations.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.TotalChairs">Total des chaises</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.TotalChairsDesc">Nombre total de postes de coiffage actifs disponibles.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.DailyTarget">Objectif de revenu quotidien</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.DailyTargetDesc">Définissez une base de référence pour le suivi des performances financières quotidiennes.</sys:String>
+
+    <!-- Salon BI -->
+    <sys:String x:Key="Terminology.Salon.BI.RebookingRate">Taux de changement de rendez-vous</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ChairUtilization">Utilisation des chaises</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.RetailAttach">Taux de vente au détail</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.AvgTicket">Valeur moyenne du ticket</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ServiceProfitability">Matrice de rentabilité des services</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ClientAquisition">Sources d'acquisition de clients</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.StaffPerformance">Performance de re-réservation du personnel</sys:String>
+
+    <!-- Member Demographics -->
+    <sys:String x:Key="Terminology.Members.Birthday">Date de naissance</sys:String>
+    <sys:String x:Key="Terminology.Members.Source">Source d'acquisition</sys:String>
+
+    <sys:String x:Key="Terminology.Salon.Booking.NoMembershipPlan">Aucun forfait d'adhésion</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.NoService">Aucun service</sys:String>
+
     <!-- Top Bar -->
     <sys:String x:Key="Terminology.TopBar.SearchPlaceholder">Recherche rapide...</sys:String>
     <sys:String x:Key="Terminology.TopBar.SearchDetail">Facilités de recherche, membres, outils...</sys:String>
@@ -1251,4 +1276,32 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Settings.Shortcuts.QuickWalkIn">Entrée libre rapide</sys:String>
     <sys:String x:Key="Terminology.Settings.Shortcuts.Confirm">Soumettre le formulaire / Confirmer</sys:String>
     <sys:String x:Key="Terminology.Settings.Shortcuts.Cancel">Fermer le modal / Annuler</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ChurnRate">Taux d&apos;Atreinte</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.AvgVisits">Visites Moy/Sem</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PeakCapacity">Capacité Pic</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">Upsell PT</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.FreezeRate">Taux de Gel</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.TrialConversion">Conv. Essai</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ClassFillRate">Remplissage Cours</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ActiveBase">Base Active</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.VisitFrequency">Fréquence de Visites (7j)</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.GrowthTrend">Tendance Croissance</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.MembershipBreakdown">Répartition Membres</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.ClassPerformance">Perf. Remplissage Cours</sys:String>
+    <sys:String x:Key="Terminology.Gym.Action.RegisterWalkIn">Enregistrer un Passage</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Lead">Prospect</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Frozen">Gelé</sys:String>
+    <sys:String x:Key="Terminology.Gym.Action.Freeze">Geler l'abonnement</sys:String>
+    <sys:String x:Key="Terminology.Gym.ConfirmFreezeTitle">Êtes-vous sûr de vouloir geler cet abonnement ?</sys:String>
+    <sys:String x:Key="Terminology.Gym.FreezeWarning">Le membre ne pourra pas badger tant qu'il n'est pas dégeler.</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MembershipDistribution">Distribution des Abonnements</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MemberDemographics">Démographie des Membres</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.LeadConversion">Taux de Conversion des Prospects</sys:String>
+    <sys:String x:Key="Terminology.Gym.Label.IsPersonalTraining">Entraînement Personnel</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.MaxCapacityLabel">Capacité Maximale</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.CapacityDesc">Définissez le nombre maximum de personnes autorisées simultanément dans l'établissement.</sys:String>
+    <sys:String x:Key="Terminology.Gym.SearchLeadsPlaceholder">Rechercher par Nom ou Téléphone...</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Name">Nom Complet</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Phone">Numéro de Téléphone</sys:String>
+    <sys:String x:Key="Terminology.Gym.LeadNoExpiry">En attente d'adhésion</sys:String>
 </ResourceDictionary>

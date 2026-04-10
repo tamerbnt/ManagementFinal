@@ -20,12 +20,13 @@ namespace Management.Domain.Models
         public bool IsSessionPack { get; set; }
         public int BaseSessionCount { get; private set; }
         public bool IsWalkIn { get; set; }
+        public bool IsPersonalTraining { get; set; }
 
         // Behavioral Rules
         public int GenderRule { get; set; } // 0: Both, 1: MaleOnly, 2: FemaleOnly
         public string? ScheduleJson { get; set; } // JSON serialized schedule windows
 
-        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false) : base(id)
+        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false, bool isPersonalTraining = false) : base(id)
         {
             Name = name;
             Description = description;
@@ -34,6 +35,7 @@ namespace Management.Domain.Models
             BaseSessionCount = baseSessionCount;
             IsActive = true;
             IsWalkIn = isWalkIn;
+            IsPersonalTraining = isPersonalTraining;
         }
 
         public MembershipPlan() 
@@ -43,7 +45,7 @@ namespace Management.Domain.Models
             Price = default!;
         }
 
-        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false)
+        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false, bool isPersonalTraining = false)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Result.Failure<MembershipPlan>(new Error("Plan.EmptyName", "Name is required"));
@@ -51,10 +53,10 @@ namespace Management.Domain.Models
             if (durationDays <= 0)
                 return Result.Failure<MembershipPlan>(new Error("Plan.InvalidDuration", "Duration must be positive"));
 
-            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price, baseSessionCount, isWalkIn));
+            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price, baseSessionCount, isWalkIn, isPersonalTraining));
         }
 
-        public void UpdateDetails(string name, string description, int durationDays, Money price, int? baseSessionCount = null, bool? isWalkIn = null)
+        public void UpdateDetails(string name, string description, int durationDays, Money price, int? baseSessionCount = null, bool? isWalkIn = null, bool? isPersonalTraining = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty");
@@ -65,6 +67,7 @@ namespace Management.Domain.Models
             Price = price;
             if (baseSessionCount.HasValue) BaseSessionCount = baseSessionCount.Value;
             if (isWalkIn.HasValue) IsWalkIn = isWalkIn.Value;
+            if (isPersonalTraining.HasValue) IsPersonalTraining = isPersonalTraining.Value;
             UpdateTimestamp();
         }
 

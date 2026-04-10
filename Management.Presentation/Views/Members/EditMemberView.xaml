@@ -165,11 +165,10 @@
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <RadioButton Content="{DynamicResource Strings.Members.Male}" 
                                          IsChecked="{Binding Gender, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Male}"
-                                         Style="{StaticResource RadioButton.Apple}"
                                          Margin="0,0,16,0"/>
                             <RadioButton Content="{DynamicResource Strings.Members.Female}" 
                                          IsChecked="{Binding Gender, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Female}"
-                                         Style="{StaticResource RadioButton.Apple}"/>
+                                         />
                         </StackPanel>
                     </StackPanel>
 
@@ -177,7 +176,7 @@
                     <StackPanel Grid.Row="6" Grid.Column="2">
                         <TextBlock Text="{DynamicResource TerminologyDateOfBirthLabel}" Style="{StaticResource FormLabel}"/>
                         <DatePicker SelectedDate="{Binding DateOfBirth}"
-                                    Style="{StaticResource GlobalDatePickerStyle}"/>
+                                    Style="{StaticResource DatePickerField}"/>
                     </StackPanel>
                 </Grid>
 
@@ -216,7 +215,7 @@
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource TerminologyStartDateLabel}" Style="{StaticResource FormLabel}"/>
                         <DatePicker SelectedDate="{Binding StartDate}"
-                                    Style="{StaticResource GlobalDatePickerStyle}"/>
+                                    Style="{StaticResource DatePickerField}"/>
                     </StackPanel>
                 </Grid>
 

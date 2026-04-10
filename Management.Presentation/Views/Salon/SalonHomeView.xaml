@@ -95,8 +95,8 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,24,0,24">
-                    <Path Data="{StaticResource IconSalon}" 
-                          Style="{StaticResource Style.Icon.Large}" 
+                    <Path Data="{DynamicResource IconSalon}" 
+                          Style="{DynamicResource Style.Icon.Large}" 
                           Stroke="{DynamicResource TextPrimaryBrush}"
                           Margin="0,0,12,0"
                           VerticalAlignment="Center"/>
@@ -137,7 +137,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- HERO: NEXT APPOINTMENT CAROUSEL -->
-                    <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="16,16,16,12" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="0" Height="140" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="16,16,16,12" Effect="{DynamicResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>  <!-- Label row -->
@@ -205,7 +205,7 @@
                 </Border>
 
                     <!-- APPOINTMENTS COUNT -->
-                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="2" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{DynamicResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -214,7 +214,7 @@
                             <!-- HEADER -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
                                 <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
-                                    <Path Data="{StaticResource IconCalendar}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Path Data="{DynamicResource IconCalendar}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -224,7 +224,7 @@
                     </Border>
 
                     <!-- REVENUE -->
-                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="4" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{DynamicResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -233,13 +233,13 @@
                             <!-- HEADER -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
                                 <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
-                                    <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Path Data="{DynamicResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.Revenue}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <!-- CONTENT -->
-                            <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                <TextBlock Grid.Row="1" Text="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                            <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
                                            FontSize="40" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}">
                                     <TextBlock.ToolTip>
                                         <ToolTip Content="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" 
@@ -280,7 +280,7 @@
                     </Border>
                     
                     <!-- UTILIZATION -->
-                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{StaticResource Shadow2}">
+                    <Border Grid.Column="6" Height="140" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="16" Padding="24,20" Effect="{DynamicResource Shadow2}">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -289,7 +289,7 @@
                             <!-- HEADER -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
                                 <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center" Margin="0,0,12,0">
-                                    <Path Data="{StaticResource IconApparatus}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Path Data="{DynamicResource IconApparatus}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Terminology.Salon.Home.ChairUtilization}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             </StackPanel>
@@ -305,7 +305,7 @@
                 </Grid>
 
                 <!-- RECENT ACTIVITY -->
-                <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="White" BorderThickness="0,1.5,0,0" CornerRadius="24" Padding="20" Effect="{DynamicResource Shadow2}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -314,7 +314,7 @@
                         
                         <!-- Header -->
                         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,20">
-                            <Path Data="{StaticResource IconHistory}" Fill="{DynamicResource FacilityAccentBrush}" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <Path Data="{DynamicResource IconHistory}" Fill="{DynamicResource FacilityAccentBrush}" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                             <TextBlock Text="{DynamicResource Terminology.Salon.Home.TodayActivity}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                         </StackPanel>
                         
@@ -402,7 +402,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- QUICK ACTIONS CARD -->
-                <Border Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}" VerticalAlignment="Stretch">
+                <Border Grid.Row="0" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{DynamicResource Shadow2}" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>  <!-- Header -->
@@ -429,7 +429,7 @@
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                            <Path Data="{StaticResource IconFinance}" 
+                                            <Path Data="{DynamicResource IconFinance}" 
                                                   Style="{StaticResource Style.Icon.Standard}"
                                                   Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -444,7 +444,7 @@
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                            <Path Data="{StaticResource IconPlus}" 
+                                            <Path Data="{DynamicResource IconPlus}" 
                                                   Style="{StaticResource Style.Icon.Standard}"
                                                   Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -459,7 +459,7 @@
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                            <Path Data="{StaticResource IconMembers}" 
+                                            <Path Data="{DynamicResource IconMembers}" 
                                                   Style="{StaticResource Style.Icon.Standard}"
                                                   Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -474,7 +474,7 @@
                                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly" Margin="4">
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <Border Width="52" Height="52" CornerRadius="16" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,0,12">
-                                            <Path Data="{StaticResource IconCart}" 
+                                            <Path Data="{DynamicResource IconCart}" 
                                                   Style="{StaticResource Style.Icon.Standard}"
                                                   Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2.5"
                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -487,10 +487,10 @@
                     </Grid>
                 </Border>
                 <!-- TIME/DATE WIDGET (Gym Style) -->
-                <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{StaticResource Shadow2}">
+                <Border Grid.Row="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="24" Padding="20" Effect="{DynamicResource Shadow2}">
                     <StackPanel>
                         <!-- Time Display -->
-                        <Path Data="{StaticResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                        <Path Data="{DynamicResource IconClock}" Fill="{DynamicResource FacilityAccentBrush}" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                         <TextBlock Text="{Binding CurrentTime}" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource Brush.Neutral.White}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         
                         <!-- Date Display -->

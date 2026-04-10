@@ -32,5 +32,10 @@ namespace Management.Application.Interfaces.App
         /// Sells a product (attached to member or guest).
         /// </summary>
         Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true);
+        
+        /// <summary>
+        /// Registers a walk-in visitor as a Lead.
+        /// </summary>
+        Task<LeadRegistrationResult> RegisterLeadAsync(string fullName, string phoneNumber, System.Guid facilityId);
     }
 }

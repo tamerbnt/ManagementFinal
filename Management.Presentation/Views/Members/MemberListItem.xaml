@@ -65,22 +65,43 @@
                            HorizontalAlignment="Center"
                            Margin="{StaticResource MarginSmallTop}"/>
 
-                <!-- Status Badge: Global Style -->
+                <!-- Status Badge: shows Lead in amber, Frozen in blue, Active in green etc. -->
                 <Border Style="{StaticResource StatusBadgeStyle}"
                         Background="{Binding Status, Converter={StaticResource MemberStatusToBrushConverter}}"
                         Margin="{StaticResource MarginTextVertical}"
                         HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding Status}" 
-                               Style="{StaticResource Micro}" 
-                               Foreground="{DynamicResource TextOnAccentBrush}"
-                               FontWeight="Bold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Snowflake icon — only visible when Frozen -->
+                        <Path Data="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+                              Style="{StaticResource Style.Icon.Micro}"
+                              Stroke="{DynamicResource TextOnAccentBrush}"
+                              Margin="0,0,4,0">
+                            <Path.Visibility>
+                                <Binding Path="IsFrozen" Converter="{StaticResource BoolToVisibilityConverter}"/>
+                            </Path.Visibility>
+                        </Path>
+                        <TextBlock Text="{Binding Status}"
+                                   Style="{StaticResource Micro}"
+                                   Foreground="{DynamicResource TextOnAccentBrush}"
+                                   FontWeight="Bold"/>
+                    </StackPanel>
                 </Border>
 
-                <!-- Expiration -->
-                <TextBlock Text="{Binding ExpirationDate, StringFormat='Expires {0:MMM dd, yyyy}'}" 
-                           Style="{StaticResource Caption}" 
-                           Foreground="{DynamicResource TextSecondary}"
-                           HorizontalAlignment="Center"/>
+                <!-- Expiration (hidden for Leads who have no plan yet) -->
+                <TextBlock HorizontalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
+                            <Setter Property="Text" Value="{Binding ExpirationDate, StringFormat='Expires {0:MMM dd, yyyy}'}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLead}" Value="True">
+                                    <Setter Property="Text" Value="{DynamicResource Terminology.Gym.LeadNoExpiry}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Brush.Status.Warning}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StackPanel>
 
             <!-- HOVER ACTIONS OVERLAY (Sequoia Standard) -->

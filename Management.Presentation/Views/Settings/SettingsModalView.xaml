@@ -159,6 +159,101 @@
             <DataTemplate x:Key="ShortcutsTemplate">
                 <local:ShortcutsSectionView/>
             </DataTemplate>
+
+            <DataTemplate x:Key="SalonSettingsTemplate">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="{DynamicResource Terminology.Salon.Settings.Title}" 
+                                   Style="{DynamicResource Title2}" 
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,24"/>
+
+                        <Border Background="{DynamicResource ComponentBg}" CornerRadius="16" Padding="24" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1" Margin="0,0,0,24">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Settings.ChairTracking}" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Settings.ChairTrackingDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Settings.TotalChairs}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Settings.TotalChairsDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1" Text="{Binding TotalChairs, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Settings.DailyTarget}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Salon.Settings.DailyTargetDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1" Text="{Binding SalonDailyRevenueTarget, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="{DynamicResource Terms.General.Save}" 
+                                Style="{DynamicResource Button.Primary}"
+                                Command="{Binding SaveSalonSettingsCommand}"
+                                Width="200" Height="48"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DataTemplate>
+            <DataTemplate x:Key="GymSettingsTemplate">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,0,20">
+                        <TextBlock Text="Gym Facility Settings" 
+                                   Style="{DynamicResource Title2}" 
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,24"/>
+
+                        <Border Background="{DynamicResource ComponentBg}" CornerRadius="16" Padding="24" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1" Margin="0,0,0,24">
+                            <StackPanel>
+                                <TextBlock Text="Capacity &amp; Occupancy" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="Configure your gym's operational limits and targets." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Max Occupancy" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Maximum number of members allowed in the gym." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1" Text="{Binding GymMaxOccupancy, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Daily Revenue Target" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Your daily financial goal for this facility." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1" Text="{Binding GymDailyRevenueTarget, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Content="{DynamicResource Terms.General.Save}" 
+                                Style="{DynamicResource Button.Primary}"
+                                Command="{Binding SaveGymSettingsCommand}"
+                                Width="200" Height="48"
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -471,6 +566,36 @@
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>
                             </Button>
+
+                            <!-- Salon Settings Tab -->
+                            <Button Command="{Binding SelectTabCommand}" 
+                                    CommandParameter="SalonSettings"
+                                    Visibility="{Binding IsSalonFacility, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconSettings}" 
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Style="{StaticResource Style.Icon.Small}"
+                                          Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Settings.Title}" 
+                                               Style="{StaticResource BodyMedium}"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Gym Settings Tab -->
+                            <Button Command="{Binding SelectTabCommand}" 
+                                    CommandParameter="GymSettings"
+                                    Visibility="{Binding IsGymFacility, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconSettings}" 
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Style="{StaticResource Style.Icon.Small}"
+                                          Margin="0,0,12,0"/>
+                                    <TextBlock Text="Gym Settings" 
+                                               Style="{StaticResource BodyMedium}"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -508,6 +633,12 @@
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding SelectedTab}" Value="Shortcuts">
                                             <Setter Property="ContentTemplate" Value="{StaticResource ShortcutsTemplate}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedTab}" Value="SalonSettings">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource SalonSettingsTemplate}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedTab}" Value="GymSettings">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource GymSettingsTemplate}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

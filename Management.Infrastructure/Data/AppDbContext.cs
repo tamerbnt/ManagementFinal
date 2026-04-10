@@ -111,11 +111,56 @@ namespace Management.Infrastructure.Data
                 // the column already exists (SQLite does not support ADD COLUMN IF NOT EXISTS).
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE products ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN is_personal_training INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_services ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE appointments ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN date_of_birth TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN source TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN gender INTEGER DEFAULT 3;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_settings ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_settings ADD COLUMN row_version BLOB;", ct); } catch { }
+
+                // Group Classes & Attendance
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS group_classes (
+                    id TEXT PRIMARY KEY, 
+                    name TEXT, 
+                    instructor_name TEXT, 
+                    start_time TEXT, 
+                    duration_minutes INTEGER, 
+                    max_capacity INTEGER, 
+                    color_hex TEXT,
+                    tenant_id TEXT,
+                    facility_id TEXT,
+                    created_at TEXT,
+                    updated_at TEXT,
+                    is_deleted INTEGER DEFAULT 0
+                );", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS class_attendances (
+                    id TEXT PRIMARY KEY,
+                    group_class_id TEXT,
+                    member_id TEXT,
+                    check_in_time TEXT,
+                    tenant_id TEXT,
+                    facility_id TEXT
+                );", ct); } catch { }
                 
                 
 
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS salon_settings (
+                    id TEXT PRIMARY KEY,
+                    tenant_id TEXT,
+                    facility_id TEXT,
+                    total_chairs INTEGER DEFAULT 1,
+                    daily_revenue_target NUMERIC DEFAULT 1000,
+                    operating_hours_json TEXT,
+                    created_at TEXT,
+                    updated_at TEXT,
+                    is_deleted INTEGER DEFAULT 0,
+                    is_synced INTEGER DEFAULT 0,
+                    row_version BLOB
+                );", ct); } catch { }
+                
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
             else if (Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL")
@@ -184,6 +229,7 @@ namespace Management.Infrastructure.Data
         public DbSet<FacilityZone> FacilityZones { get; set; }
         public DbSet<IntegrationConfig> IntegrationConfigs { get; set; }
         public DbSet<GymSettings> GymSettings { get; set; }
+        public DbSet<SalonSettings> SalonSettings { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<SalonService> SalonServices { get; set; }
         public DbSet<Facility> Facilities { get; set; }
@@ -191,6 +237,8 @@ namespace Management.Infrastructure.Data
         public DbSet<OutboxMessage> OutboxMessages { get; set; }
         public DbSet<OfflineAction> OfflineActions { get; set; }
         public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+        public DbSet<GroupClass> GroupClasses { get; set; }
+        public DbSet<ClassAttendance> ClassAttendances { get; set; }
 
         private static string UnescapeOverSerializedJson(string val)
         {
@@ -247,6 +295,7 @@ namespace Management.Infrastructure.Data
                     .UsingEntity(j => j.ToTable("membership_plan_facilities"));
 
                 entity.Property(e => e.IsWalkIn).HasColumnName("is_walk_in");
+                entity.Property(e => e.IsPersonalTraining).HasColumnName("is_personal_training");
             });
 
 
@@ -343,6 +392,9 @@ namespace Management.Infrastructure.Data
                       .HasDatabaseName("idx_appointment_search");
                 entity.HasIndex(a => new { a.FacilityId, a.StartTime, a.Status })
                       .HasDatabaseName("idx_appointment_performance_composite");
+                entity.HasIndex(a => new { a.ClientId, a.StartTime })
+                      .HasDatabaseName("idx_appointment_member_date");
+
             });
 
             modelBuilder.Entity<Registration>(entity =>
@@ -452,8 +504,11 @@ namespace Management.Infrastructure.Data
                     .HasField("_items")
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-                entity.HasIndex(s => new { s.FacilityId, s.CreatedAt }).HasDatabaseName("idx_sale_performance_composite");
-                entity.HasIndex(s => s.MemberId).HasDatabaseName("idx_sale_member_id");
+                entity.HasIndex(s => new { s.FacilityId, s.Timestamp })
+                    .HasDatabaseName("idx_sale_performance_composite");
+                entity.HasIndex(s => new { s.MemberId, s.Timestamp })
+                    .HasDatabaseName("idx_sale_member_date");
+
             });
 
             modelBuilder.Entity<SaleItem>(entity =>

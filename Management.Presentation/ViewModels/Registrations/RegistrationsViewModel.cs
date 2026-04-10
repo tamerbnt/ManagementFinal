@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Management.Presentation.Extensions;
 using Microsoft.Extensions.Logging;
 using Management.Application.Services;
@@ -121,6 +122,10 @@ namespace Management.Presentation.ViewModels.Registrations
                                     }
                                 }
                             }
+
+                            // Trigger UI refresh so dashboard cards update after undo
+                            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(
+                                new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Member>(_facilityContext.CurrentFacilityId));
                         }
                         await _websiteRegistrationService.UpdateRequestStatusAsync(reqCopy.Id, "pending");
 

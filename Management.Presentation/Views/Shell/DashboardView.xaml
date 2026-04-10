@@ -1120,7 +1120,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Member Demographics" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" TooltipPosition="Top"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}" TooltipPosition="Top"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -1128,63 +1128,13 @@
                 <!-- Row 1 (Alternate): NEW SALON BI CHARTS -->
                 <Grid Grid.Row="1" Visibility="{Binding IsSalonMode, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" /> <!-- Metric Cards -->
                         <RowDefinition Height="Auto" /> <!-- Charts Row 1 -->
                         <RowDefinition Height="Auto" /> <!-- Charts Row 2 -->
                     </Grid.RowDefinitions>
 
-                    <!-- Row 1: KPI Cards -->
+
+                    <!-- Row 1: Service Profitability & Demographics -->
                     <Grid Grid.Row="0" Margin="0,0,0,24">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Rebooking Rate -->
-                        <Border Grid.Column="0" Margin="0,0,16,0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
-                            <StackPanel Margin="20">
-                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.RebookingRate}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                <TextBlock Text="{Binding SalonRebookingRate.Value, StringFormat={}{0:N1}%}" Style="{DynamicResource Title1}" Margin="0,8,0,0"/>
-                                <TextBlock Text="vs last month" Style="{DynamicResource Caption}" Foreground="{DynamicResource StatusSuccessBrush}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Chair Utilization -->
-                        <Border Grid.Column="1" Margin="0,0,16,0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
-                            <StackPanel Margin="20">
-                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.ChairUtilization}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                <TextBlock Text="{Binding SalonChairUtilization.Value, StringFormat={}{0:N1}%}" Style="{DynamicResource Title1}" Margin="0,8,0,0"/>
-                                <ProgressBar Value="{Binding SalonChairUtilization.Value}" Maximum="100" Height="4" Margin="0,12,0,0" Foreground="{DynamicResource FacilityAccentBrush}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Retail Attach Rate -->
-                        <Border Grid.Column="2" Margin="0,0,16,0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
-                            <StackPanel Margin="20">
-                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.RetailAttach}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                <TextBlock Text="{Binding SalonRetailAttachRate.Value, StringFormat={}{0:N1}%}" Style="{DynamicResource Title1}" Margin="0,8,0,0"/>
-                                <TextBlock Text="Product upsell" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Avg Ticket Value -->
-                        <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
-                            <StackPanel Margin="20">
-                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.AvgTicket}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                <TextBlock Text="{Binding SalonAvgTicketValue.Value, StringFormat={}{0:N0} DA}" Style="{DynamicResource Title1}" Margin="0,8,0,0"/>
-                                <TextBlock Text="Per client visit" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <!-- Row 2: Service Profitability & Demographics -->
-                    <Grid Grid.Row="1" Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="1*"/>
@@ -1211,14 +1161,14 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Bi.MemberDemographics}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Margin="0,0,0,16"/>
-                                <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}"/>
+                                <TextBlock Text="Member Demographics" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                                <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}"/>
                             </Grid>
                         </Border>
                     </Grid>
 
-                    <!-- Row 3: Staff BI -->
-                    <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="300" Margin="0,0,0,24">
+                    <!-- Row 2: Staff BI -->
+                    <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="300" Margin="0,0,0,24">
                         <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>

@@ -532,6 +532,7 @@ namespace Management.Presentation
                 mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 mappingService.Register<InventoryHistoryViewModel, InventoryHistoryView>();
+                mappingService.Register<Management.Presentation.ViewModels.GymHome.RegisterWalkInViewModel, Management.Presentation.Views.GymHome.RegisterWalkInModal>();
                 // LogRestockViewModel, SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
@@ -855,12 +856,12 @@ namespace Management.Presentation
                     }
                     else 
                     {
-                        MessageBox.Show($"Fatal Error during startup:\n\n{ex.Message}", "Startup Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.IO.File.WriteAllText("startup_crash.txt", ex.ToString()); MessageBox.Show($"Fatal Error during startup:\n\n{ex.Message}", "Startup Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
                 catch 
                 {
-                    MessageBox.Show($"Fatal Error during startup:\n\n{ex.Message}", "Startup Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    System.IO.File.WriteAllText("startup_crash.txt", ex.ToString()); MessageBox.Show($"Fatal Error during startup:\n\n{ex.Message}", "Startup Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 // Shutdown might be too aggressive if we want the diagnostic window to stay open
                 // For a fatal startup error, we usually HAVE to shutdown eventually, but let's let the user see the console.
@@ -1049,6 +1050,7 @@ namespace Management.Presentation
             services.AddScoped<IRepository<MembershipPlan>>(s => s.GetRequiredService<IMembershipPlanRepository>());
             services.AddScoped<IIntegrationRepository, IntegrationRepository>();
             services.AddScoped<IGymSettingsRepository, GymSettingsRepository>();
+            services.AddScoped<ISalonSettingsRepository, SalonSettingsRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IFacilityScheduleRepository, FacilityScheduleRepository>();
             services.AddScoped<IRepository<FacilitySchedule>>(s => s.GetRequiredService<IFacilityScheduleRepository>());
@@ -1137,6 +1139,10 @@ namespace Management.Presentation
             services.AddTransient<IDashboardAggregator, TrendAggregator>();
             services.AddTransient<IDashboardAggregator, ActivityAggregator>();
             services.AddTransient<IDashboardAggregator, RetentionAggregator>();
+            services.AddTransient<IDashboardAggregator, GrowthAggregator>();
+            services.AddTransient<IDashboardAggregator, BehavioralAggregator>();
+            services.AddTransient<IDashboardAggregator, ClassPerformanceAggregator>();
+            services.AddTransient<IDashboardAggregator, SalonPerformanceAggregator>();
 
             services.AddTransient<IDashboardService, DashboardService>();
             services.AddTransient<ITransactionService, TransactionService>();
@@ -1305,6 +1311,7 @@ namespace Management.Presentation
             services.AddTransient<MemberAccessViewModel>();
             services.AddTransient<MultiSaleCartViewModel>();
             services.AddTransient<WalkInConfirmationViewModel>();
+            services.AddTransient<RegisterWalkInViewModel>();
             services.AddTransient<ChangeFacilityViewModel>();
             services.AddTransient<FacilityAuthViewModel>();
             services.AddTransient<SessionExpiredViewModel>();

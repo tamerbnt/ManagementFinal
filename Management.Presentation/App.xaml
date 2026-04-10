@@ -59,8 +59,8 @@
                 <!-- 4. BASE STYLES (Depend on Tokens & Theme) -->
                 <ResourceDictionary Source="Resources/Typography.xaml"/>
                 <ResourceDictionary Source="Resources/Iconography.xaml"/>
-                <ResourceDictionary Source="Resources/Animations.xaml"/>
                 <ResourceDictionary Source="Resources/Durations.xaml"/>
+                <ResourceDictionary Source="Resources/Animations.xaml"/>
 
                 <!-- 5. CONTROL STYLES (Depend on Base Styles) -->
                 <ResourceDictionary Source="Resources/Controls/Buttons.xaml"/>

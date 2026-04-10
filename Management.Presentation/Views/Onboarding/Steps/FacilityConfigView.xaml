@@ -15,7 +15,7 @@
             <StackPanel Margin="0,0,0,20">
                 <!-- Header -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
-                    <Path Data="{StaticResource Icon.Sliders}" 
+                    <Path Data="{DynamicResource Icon.Sliders}" 
                           Fill="{DynamicResource Brush.Brand.Primary}" 
                           Width="64" Height="64" Stretch="Uniform" />
                     <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.WorkstationSetup}" 

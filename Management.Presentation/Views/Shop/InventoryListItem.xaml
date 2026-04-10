@@ -100,7 +100,7 @@
 
             <!-- 1. Product Icon -->
             <Border Grid.Column="1" Width="40" Height="40" CornerRadius="8" Background="{DynamicResource SurfaceBg}" HorizontalAlignment="Left">
-                <Path Data="{StaticResource IconShop}" 
+                <Path Data="{DynamicResource IconShop}" 
                       Fill="{DynamicResource TextSecondaryBrush}" 
                       Stretch="Uniform" 
                       Width="16" Height="16" 
@@ -179,11 +179,11 @@
             <!-- 6. Actions -->
             <Button Grid.Column="6" 
                     Command="{Binding ModifyProductCommand}"
-                    Style="{StaticResource IconButtonStyle}"
+                    Style="{DynamicResource IconButtonStyle}"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Cursor="Hand">
-                <Path Data="{StaticResource IconEdit}">
+                <Path Data="{DynamicResource IconEdit}">
                     <Path.Style>
                         <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Micro}">
                             <Setter Property="Fill" Value="{DynamicResource TextSecondaryBrush}"/>

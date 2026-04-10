@@ -89,7 +89,10 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
                 EmergencyContactName = entity.EmergencyContactName,
                 EmergencyContactPhone = entity.EmergencyContactPhone?.Value ?? string.Empty,
                 Balance = entity.MembershipPlanId.HasValue ? (decimal)(allPlansList.FirstOrDefault(p => p.Id == entity.MembershipPlanId.Value)?.Price.Amount ?? 0) : 0,
-                Notes = entity.Notes
+                Notes = entity.Notes,
+                Gender = entity.Gender,
+                DateOfBirth = entity.DateOfBirth,
+                Source = entity.Source
             }).ToList();
 
             var result = new PagedResult<MemberDto>
@@ -129,7 +132,10 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
                 MembershipPlanId = entity.MembershipPlanId,
                 EmergencyContactName = entity.EmergencyContactName,
                 EmergencyContactPhone = entity.EmergencyContactPhone?.Value ?? string.Empty,
-                Notes = entity.Notes
+                Notes = entity.Notes,
+                Gender = entity.Gender,
+                DateOfBirth = entity.DateOfBirth,
+                Source = entity.Source
             };
         }
 

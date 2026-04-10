@@ -79,6 +79,7 @@
                     <UniformGrid Columns="2" Margin="0,0,0,24">
                         <CheckBox Content="{DynamicResource Terminology.Settings.Editor.SessionPack}" IsChecked="{Binding IsSessionPack}" Style="{DynamicResource CheckBox.Modern}"/>
                         <CheckBox Content="{DynamicResource Terminology.Settings.Editor.IsActive}" IsChecked="{Binding IsActive}" Style="{DynamicResource CheckBox.Modern}"/>
+                        <CheckBox Content="Personal Training" IsChecked="{Binding IsPersonalTraining}" Style="{DynamicResource CheckBox.Modern}"/>
                     </UniformGrid>
 
                     <!-- Gender Rules -->

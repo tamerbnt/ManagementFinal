@@ -71,6 +71,12 @@ namespace Management.Application.DTOs
         private Gender? _gender;
 
         [ObservableProperty]
+        private DateTime? _dateOfBirth;
+
+        [ObservableProperty]
+        private string? _source;
+
+        [ObservableProperty]
         private DateTime _joinedDate = DateTime.Now.AddYears(-1);
 
         [ObservableProperty]
@@ -94,6 +100,12 @@ namespace Management.Application.DTOs
                 return remaining > 0 ? (int)Math.Ceiling(remaining) : 0;
             }
         }
+
+        /// <summary>True when this record is a walk-in lead (not yet a full member).</summary>
+        public bool IsLead => _status == MemberStatus.Lead;
+
+        /// <summary>True when membership is frozen — drives the snowflake icon in the UI.</summary>
+        public bool IsFrozen => _status == MemberStatus.Frozen;
     }
 }
 

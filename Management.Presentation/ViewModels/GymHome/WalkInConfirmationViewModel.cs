@@ -17,6 +17,8 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly IGymOperationService _gymService;
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly IFacilityContextService _facilityContext;
+        private readonly Management.Domain.Services.IDialogService _dialogService;
+        private readonly Management.Presentation.Services.IModalNavigationService _modalNavigationService;
         private readonly MediatR.IMediator _mediator;
 
         [ObservableProperty]
@@ -37,11 +39,15 @@ namespace Management.Presentation.ViewModels.GymHome
             IGymOperationService gymService,
             ModalNavigationStore modalNavigationStore,
             IFacilityContextService facilityContext,
+            Management.Domain.Services.IDialogService dialogService,
+            Management.Presentation.Services.IModalNavigationService modalNavigationService,
             MediatR.IMediator mediator)
         {
             _gymService = gymService;
             _modalNavigationStore = modalNavigationStore;
             _facilityContext = facilityContext;
+            _dialogService = dialogService;
+            _modalNavigationService = modalNavigationService;
             _mediator = mediator;
             base.Title = "Process Walk-In";
             
@@ -80,7 +86,15 @@ namespace Management.Presentation.ViewModels.GymHome
         }
 
         [RelayCommand]
-        private async Task CancelAsync()
+        private async Task OpenRegisterWalkInAsync()
+        {
+            // Close current modal and open registration modal
+            await _modalNavigationStore.CloseAsync(ModalResult.Cancel());
+            await _modalNavigationService.OpenModalAsync<RegisterWalkInViewModel>(Management.Presentation.Services.ModalSize.Small);
+        }
+
+        [RelayCommand]
+        private async Task CancelWalkInAsync()
         {
             await _modalNavigationStore.CloseAsync(ModalResult.Cancel());
         }

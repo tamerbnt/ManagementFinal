@@ -18,5 +18,8 @@ namespace Management.Domain.Interfaces
 
         Task<Result<AppearanceSettingsDto>> GetAppearanceSettingsAsync(System.Guid facilityId);
         Task<Result> UpdateAppearanceSettingsAsync(System.Guid facilityId, AppearanceSettingsDto dto);
+
+        Task<Result<SalonSettingsDto>> GetSalonSettingsAsync(System.Guid facilityId);
+        Task<Result> UpdateSalonSettingsAsync(System.Guid facilityId, SalonSettingsDto dto);
     }
 }

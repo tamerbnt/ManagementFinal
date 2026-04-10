@@ -360,6 +360,9 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         [Column("is_walk_in")]
         public bool IsWalkIn { get; set; }
 
+        [Column("is_personal_training")]
+        public bool IsPersonalTraining { get; set; }
+
         [Column("gender_rule")]
         public int GenderRule { get; set; }
 

@@ -20,6 +20,10 @@ namespace Management.Domain.Models
         public string ProfileImageUrl { get; private set; } = string.Empty;
         public string SegmentDataJson { get; private set; } = "{}";
 
+        // Demographics & Acquisition
+        public DateTime? DateOfBirth { get; private set; }
+        public string? Source { get; private set; }
+
         private IMemberMetadata? _metadata;
 
         [NotMapped]
@@ -148,6 +152,26 @@ namespace Management.Domain.Models
             RemainingSessions = remainingSessions;
         }
 
+        public Member(
+            Guid id,
+            string fullName,
+            string email,
+            string phoneNumber,
+            string cardId,
+            string profileImageUrl,
+            MemberStatus status,
+            DateTime startDate,
+            DateTime expirationDate,
+            Guid? membershipPlanId,
+            Gender gender,
+            int remainingSessions,
+            DateTime? dateOfBirth,
+            string? source) : this(id, fullName, email, phoneNumber, cardId, profileImageUrl, status, startDate, expirationDate, membershipPlanId, gender, remainingSessions)
+        {
+            DateOfBirth = dateOfBirth;
+            Source = source;
+        }
+
         public static Result<Member> Register(
             string fullName,
             Email email,
@@ -183,6 +207,14 @@ namespace Management.Domain.Models
             UpdateTimestamp();
         }
 
+        public void UpdateDemographics(DateTime? dateOfBirth, string? source, Gender? gender = null)
+        {
+            DateOfBirth = dateOfBirth;
+            Source = source;
+            if (gender.HasValue) Gender = gender.Value;
+            UpdateTimestamp();
+        }
+
         public void UpdateEmergencyContact(string name, PhoneNumber? phone)
         {
             EmergencyContactName = name;
@@ -196,6 +228,12 @@ namespace Management.Domain.Models
             StartDate = startDate;
             ExpirationDate = expirationDate;
             Status = MemberStatus.Active;
+            UpdateTimestamp();
+        }
+
+        public void SetLeadStatus()
+        {
+            Status = MemberStatus.Lead;
             UpdateTimestamp();
         }
 

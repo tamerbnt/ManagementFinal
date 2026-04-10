@@ -39,7 +39,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                             a.StartTime >= context.UtcMonthStart && a.StartTime < context.UtcNow && 
                             a.Status == AppointmentStatus.Completed && 
                             a.StaffId != Guid.Empty)
-                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty)), 
+                .Join(_dbContext.StaffMembers.AsNoTracking().IgnoreQueryFilters().Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && !s.IsDeleted), 
                       a => a.StaffId, 
                       s => s.Id, 
                       (a, s) => new { StaffId = a.StaffId, StaffName = s.FullName, ServiceId = a.ServiceId })
@@ -48,7 +48,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var services = await _dbContext.SalonServices
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty))
+                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && !s.IsDeleted)
                 .ToDictionaryAsync(s => s.Id, s => s.BasePrice);
 
 

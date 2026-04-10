@@ -10,4 +10,7 @@ namespace Management.Application.Features.Settings
     public record UpdateAppearanceSettingsCommand(System.Guid FacilityId, AppearanceSettingsDto Settings) : IRequest<Result>;
     
     public record GetGymSettingsQuery(System.Guid FacilityId) : IRequest<Result<GymSettings>>;
+    
+    public record GetSalonSettingsQuery(System.Guid FacilityId) : IRequest<Result<SalonSettings>>;
+    public record UpdateSalonSettingsCommand(System.Guid FacilityId, SalonSettingsDto Settings) : IRequest<Result>;
 }

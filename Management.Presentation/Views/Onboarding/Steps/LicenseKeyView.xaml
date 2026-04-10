@@ -10,7 +10,7 @@
         <StackPanel>
             <!-- Header -->
             <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
-                <Path Data="{StaticResource Icon.Shield}" 
+                <Path Data="{DynamicResource Icon.Shield}" 
                       Fill="{DynamicResource Brush.Brand.Primary}" 
                       Width="64" Height="64" Stretch="Uniform" />
                 <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.Letsverifyyourpurchase}" 

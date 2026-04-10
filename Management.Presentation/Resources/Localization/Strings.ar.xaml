@@ -114,6 +114,31 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Time.22_00">22:00</sys:String>
     <sys:String x:Key="Terminology.Time.23_00">23:00</sys:String>
 
+    <!-- Salon Settings -->
+    <sys:String x:Key="Terminology.Salon.Settings.Title">إعدادات الصالون</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.ChairTracking">إدارة الكراسي والمحطات</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.ChairTrackingDesc">تكوين السعة المادية لصالونك لتتبع الاستخدام وتحسين كفاءة الحجز.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.TotalChairs">إجمالي الكراسي</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.TotalChairsDesc">إجمالي عدد محطات التصفيف النشطة المتاحة.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.DailyTarget">هدف الإيرادات اليومي</sys:String>
+    <sys:String x:Key="Terminology.Salon.Settings.DailyTargetDesc">تعيين خط أساس لتتبع الأداء المالي اليومي.</sys:String>
+
+    <!-- Salon BI -->
+    <sys:String x:Key="Terminology.Salon.BI.RebookingRate">معدل إعادة الحجز</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ChairUtilization">معدل إشغال الكراسي</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.RetailAttach">معدل مبيعات التجزئة</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.AvgTicket">متوسط قيمة التذكرة</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ServiceProfitability">مصفوفة ربحية الخدمات</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.ClientAquisition">مصادر استقطاب العملاء</sys:String>
+    <sys:String x:Key="Terminology.Salon.BI.StaffPerformance">أداء الموظفين في إعادة الحجز</sys:String>
+
+    <!-- Member Demographics -->
+    <sys:String x:Key="Terminology.Members.Birthday">تاريخ الميلاد</sys:String>
+    <sys:String x:Key="Terminology.Members.Source">مصدر الاستقطاب</sys:String>
+
+    <sys:String x:Key="Terminology.Salon.Booking.NoMembershipPlan">بدون خطة عضوية</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.NoService">بدون خدمة</sys:String>
+
     <!-- Top Bar -->
     <sys:String x:Key="Terminology.TopBar.SearchPlaceholder">بحث سريع...</sys:String>
     <sys:String x:Key="Terminology.TopBar.SearchDetail">مرافق البحث والأعضاء والأدوات...</sys:String>
@@ -1242,4 +1267,32 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Settings.Shortcuts.QuickWalkIn">دخول سريع</sys:String>
     <sys:String x:Key="Terminology.Settings.Shortcuts.Confirm">إرسال النموذج / تأكيد الإجراء</sys:String>
     <sys:String x:Key="Terminology.Settings.Shortcuts.Cancel">إغلاق النافذة / إلغاء</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ChurnRate">معدل الانقطاع</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.AvgVisits">متوسط الزيارات</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PeakCapacity">ذروة الاستيعاب</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">بيع إضافي مدرب</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.FreezeRate">معدل التجميد</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.TrialConversion">تحويل التجربة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ClassFillRate">امتلاء الحصص</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.ActiveBase">القاعدة النشطة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.VisitFrequency">تكرار الزيارات (7 أيام)</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.GrowthTrend">اتجاه النمو</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.MembershipBreakdown">توزيع الاشتراكات</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.ClassPerformance">أداء امتلاء الحصص</sys:String>
+    <sys:String x:Key="Terminology.Gym.Action.RegisterWalkIn">تسجيل دخول زائر</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Lead">عميل محتمل</sys:String>
+    <sys:String x:Key="Terminology.Gym.Status.Frozen">مجمد</sys:String>
+    <sys:String x:Key="Terminology.Gym.Action.Freeze">تجميد العضوية</sys:String>
+    <sys:String x:Key="Terminology.Gym.ConfirmFreezeTitle">هل أنت متأكد أنك تريد تجميد هذه العضوية؟</sys:String>
+    <sys:String x:Key="Terminology.Gym.FreezeWarning">لن يتمكن العضو من تسجيل الدخول حتى يتم إلغاء التجميد.</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MembershipDistribution">توزيع العضويات</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.MemberDemographics">ديموغرافية الأعضاء</sys:String>
+    <sys:String x:Key="Terminology.Gym.Chart.LeadConversion">معدل تحويل العملاء المحتملين</sys:String>
+    <sys:String x:Key="Terminology.Gym.Label.IsPersonalTraining">تدريب شخصي</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.MaxCapacityLabel">العتبة القصوى</sys:String>
+    <sys:String x:Key="Terminology.Gym.Settings.CapacityDesc">حدد الحد الأقصى لعدد الأشخاص المسموح بهم في المنشأة في وقت واحد.</sys:String>
+    <sys:String x:Key="Terminology.Gym.SearchLeadsPlaceholder">البحث بالاسم أو الهاتف...</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Name">الاسم الكامل</sys:String>
+    <sys:String x:Key="Terminology.Gym.Registration.Phone">رقم الهاتف</sys:String>
+    <sys:String x:Key="Terminology.Gym.LeadNoExpiry">في انتظار العضوية</sys:String>
 </ResourceDictionary>

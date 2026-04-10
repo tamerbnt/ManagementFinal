@@ -33,7 +33,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Path Data="{StaticResource Icon.Storefront}" 
+                    <Path Data="{DynamicResource Icon.Storefront}" 
                           Style="{StaticResource Style.Icon.Large}" 
                           Stroke="{DynamicResource TextPrimaryBrush}"
                           Margin="0,0,12,0"/>
@@ -48,7 +48,7 @@
                     <Button Command="{Binding OpenAddProductCommand}" 
                             Style="{StaticResource PrimaryButton}">
                         <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconPlus}" 
+                            <Path Data="{DynamicResource IconPlus}" 
                                   Stroke="White" 
                                   Style="{StaticResource Style.Icon.Small}" 
                                   Margin="{StaticResource MarginIconRight}"/>
@@ -85,11 +85,11 @@
                         <StackPanel Orientation="Horizontal">
                             <!-- Icon Grid/List Switch -->
                             <Grid>
-                                <Path Data="{StaticResource IconDashboard}" 
+                                <Path Data="{DynamicResource IconDashboard}" 
                                       Style="{StaticResource Style.Icon.Micro}"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                       Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.List}}"/>
-                                <Path Data="{StaticResource IconMenu}" 
+                                <Path Data="{DynamicResource IconMenu}" 
                                       Style="{StaticResource Style.Icon.Micro}"
                                       Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                       Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.Grid}}"/>
@@ -152,7 +152,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Grid x:Name="Root">
                                             <Ellipse Fill="{DynamicResource StatusErrorBrush}" Effect="{DynamicResource Shadow2}"/>
-                                            <Path Data="{StaticResource IconDelete}" 
+                                            <Path Data="{DynamicResource IconDelete}" 
                                                   Stroke="White" 
                                                   StrokeThickness="2"
                                                   Width="18" Height="18"
@@ -263,7 +263,7 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,16">
                     <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <Path Data="{DynamicResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
                         <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Button>
@@ -320,7 +320,7 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,16">
                     <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
+                        <Path Data="{DynamicResource IconPlus}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource BrandPrimaryBrush}" Margin="0,0,8,0"/>
                         <TextBlock Text="{DynamicResource Terminology.Global.Action.LoadMore}" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Button>
@@ -331,7 +331,7 @@
                          Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                         Background="{DynamicResource CardBackgroundBrush}" 
                         CornerRadius="32,0,0,32"
-                        Effect="{StaticResource Shadow3}"
+                        Effect="{DynamicResource Shadow3}"
                         Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"
                         BorderThickness="1,0,0,0"
                         BorderBrush="{DynamicResource BorderBrush}">

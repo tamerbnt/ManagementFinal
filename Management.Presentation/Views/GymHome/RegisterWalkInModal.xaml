@@ -1,0 +1,75 @@
+<controls:ModernWindow x:Class="Management.Presentation.Views.GymHome.RegisterWalkInModal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
+        xmlns:controls="clr-namespace:Management.Presentation.Resources.Controls"
+        mc:Ignorable="d" 
+        d:DataContext="{d:DesignInstance Type=vm:RegisterWalkInViewModel}"
+        Title="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}"
+        SizeToContent="WidthAndHeight"
+        MinWidth="400"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Border Style="{DynamicResource GlobalModalContainerStyle}" 
+            CornerRadius="{DynamicResource RadiusModal}"
+            Background="{DynamicResource SurfaceBg}"
+            Margin="16">
+        <Grid Margin="32">
+            <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="Auto"/> <!-- Form -->
+            <RowDefinition Height="Auto"/> <!-- Actions -->
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,24">
+            <TextBlock Text="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}" Style="{DynamicResource Title2}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Subtitle}" Style="{DynamicResource Body}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+        </StackPanel>
+
+        <!-- Form -->
+        <StackPanel Grid.Row="1">
+            <!-- Name -->
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Text="{DynamicResource Terminology.Gym.Registration.Name}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{DynamicResource Input.Apple}"
+                         Tag="John Doe"/>
+            </StackPanel>
+
+            <!-- Phone -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock Text="{DynamicResource Terminology.Gym.Registration.Phone}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
+                         Style="{DynamicResource Input.Apple}"
+                         Tag="+213..."/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Actions -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" 
+                    Command="{Binding CancelCommand}" 
+                    IsCancel="True"
+                    Style="{DynamicResource GhostButton}" 
+                    Content="{DynamicResource Terminology.Global.Cancel}"/>
+
+            <Button Grid.Column="2" 
+                    Command="{Binding SaveLeadCommand}" 
+                    Style="{DynamicResource PrimaryButton}" 
+                    IsDefault="True"
+                    Content="{DynamicResource Terminology.Global.Save}"/>
+        </Grid>
+        </Grid>
+    </Border>
+</controls:ModernWindow>

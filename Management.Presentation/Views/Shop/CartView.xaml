@@ -139,7 +139,7 @@
                                         Command="{Binding DecrementCommand}"
                                         Width="{StaticResource SizeQuantityButton}" 
                                         Height="{StaticResource SizeQuantityButton}">
-                                    <Path Data="{StaticResource IconMinus}" 
+                                    <Path Data="{DynamicResource IconMinus}" 
                                           Fill="{DynamicResource TextSecondaryBrush}" 
                                           Style="{StaticResource Style.Icon.Small}"/>
                                 </Button>
@@ -157,7 +157,7 @@
                                         Command="{Binding IncrementCommand}"
                                         Width="{StaticResource SizeQuantityButton}" 
                                         Height="{StaticResource SizeQuantityButton}">
-                                    <Path Data="{StaticResource IconPlus}" 
+                                    <Path Data="{DynamicResource IconPlus}" 
                                           Fill="{DynamicResource FacilityAccentBrush}" 
                                           Style="{StaticResource Style.Icon.Small}"/>
                                 </Button>
@@ -223,7 +223,7 @@
                   Visibility="{Binding CartItemCount, Converter={StaticResource ZeroIsVisibleConverter}}"
                   IsHitTestVisible="False">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5">
-                    <Path Data="{StaticResource IconCart}"
+                    <Path Data="{DynamicResource IconCart}"
                           Fill="{DynamicResource TextTertiaryBrush}"
                           Width="{StaticResource SizeIconHero}" 
                           Height="{StaticResource SizeIconHero}"

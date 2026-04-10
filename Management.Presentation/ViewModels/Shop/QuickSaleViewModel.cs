@@ -27,12 +27,26 @@ namespace Management.Presentation.ViewModels.Shop
     {
         private readonly IProductService _productService;
         private readonly ISaleService _saleService;
+        private readonly IMemberService _memberService;
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly ProductStore _productStore;
 
         [ObservableProperty]
         private ObservableRangeCollection<ProductDto> _products = new();
         private List<ProductDto> _allProducts = new();
+
+        [ObservableProperty]
+        private ObservableRangeCollection<MemberDto> _searchedMembers = new();
+
+        [ObservableProperty]
+        private MemberDto? _selectedMember;
+
+        [ObservableProperty]
+        private string _memberSearchQuery = string.Empty;
+
+        [ObservableProperty]
+        private bool _isMemberSearching;
+
 
         [ObservableProperty]
         private string _searchQuery = string.Empty;
@@ -54,6 +68,7 @@ namespace Management.Presentation.ViewModels.Shop
             IToastService toastService,
             IProductService productService,
             ISaleService saleService,
+            IMemberService memberService,
             ModalNavigationStore modalNavigationStore,
             ProductStore productStore,
             ILocalizationService localizationService)
@@ -61,8 +76,10 @@ namespace Management.Presentation.ViewModels.Shop
         {
             _productService = productService;
             _saleService = saleService;
+            _memberService = memberService;
             _modalNavigationStore = modalNavigationStore;
             _productStore = productStore;
+
             
             Title = GetTerm("Strings.Shop.QuickSale") ?? "Quick Sale";
             _productStore.StockUpdated += OnProductStockUpdated;
@@ -112,6 +129,70 @@ namespace Management.Presentation.ViewModels.Shop
             FilterProducts(value);
         }
 
+        private CancellationTokenSource? _memberSearchCts;
+
+        partial void OnMemberSearchQueryChanged(string value)
+        {
+            _memberSearchCts?.Cancel();
+            _memberSearchCts = new CancellationTokenSource();
+            var token = _memberSearchCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(400, token);
+                    if (token.IsCancellationRequested) return;
+
+                    await SearchMembersAsync(value);
+                }
+                catch (TaskCanceledException) { }
+            }, token);
+        }
+
+        private async Task SearchMembersAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => SearchedMembers.Clear());
+                return;
+            }
+
+            IsMemberSearching = true;
+            try
+            {
+                var request = new MemberSearchRequest(query);
+                var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request, 1, 10);
+
+                if (result.IsSuccess)
+                {
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        SearchedMembers.ReplaceRange(result.Value.Items);
+                    });
+                }
+            }
+            finally
+            {
+                IsMemberSearching = false;
+            }
+        }
+
+        [RelayCommand]
+        private void SelectMember(MemberDto member)
+        {
+            SelectedMember = member;
+            MemberSearchQuery = string.Empty;
+            SearchedMembers.Clear();
+        }
+
+        [RelayCommand]
+        private void ClearSelectedMember()
+        {
+            SelectedMember = null;
+        }
+
+
         private void FilterProducts(string query)
         {
             List<ProductDto> filtered;
@@ -154,9 +235,10 @@ namespace Management.Presentation.ViewModels.Shop
                 var request = new CheckoutRequestDto(
                     Management.Domain.Enums.PaymentMethod.Cash,
                     SelectedProduct.Price,
-                    null,
+                    SelectedMember?.Id,
                     itemsMap
                 );
+
 
                 System.Diagnostics.Debug.WriteLine("[QUICKSALE] Sending ProcessCheckoutCommand via SaleService");
                 var result = await _saleService.ProcessCheckoutAsync(_facilityContext.CurrentFacilityId, request);

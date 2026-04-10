@@ -165,6 +165,9 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                     member.UpdateEmergencyContact(dto.EmergencyContactName, emerPhone.Value);
                 }
             }
+
+            // Persist demographic data captured during registration
+            member.UpdateDemographics(dto.DateOfBirth, dto.Source, dto.Gender);
             
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try

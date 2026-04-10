@@ -15,6 +15,11 @@ namespace Management.Application.Services
         /// <returns>A PagedResult containing the list AND the total count.</returns>
         // FIX: Changed return type from List<MemberDto> to PagedResult<MemberDto>
         Task<Result<PagedResult<MemberDto>>> SearchMembersAsync(Guid facilityId, MemberSearchRequest request, int page = 1, int pageSize = 20);
+ 
+        /// <summary>
+        /// Searches for existing Leads by name or phone.
+        /// </summary>
+        Task<Result<List<MemberDto>>> SearchLeadAsync(Guid facilityId, string query);
 
         /// <summary>
         /// Gets the full profile details for a specific member.

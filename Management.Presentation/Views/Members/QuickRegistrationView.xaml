@@ -73,6 +73,76 @@
             <!-- 2. Form Content -->
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,24">
                 <StackPanel>
+                    <!-- Lead Search (Conversion Entry Point) -->
+                    <StackPanel Margin="0,0,0,24">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Path Data="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35" 
+                                  Style="{StaticResource Style.Icon.Micro}" 
+                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                  Margin="0,0,6,0"/>
+                            <TextBlock Text="Convert Existing Lead (Optional)" Style="{StaticResource FormLabel}"/>
+                        </StackPanel>
+                        <Grid>
+                            <TextBox Text="{Binding LeadSearchQuery, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource Input.Apple}"
+                                     Tag="{DynamicResource Terminology.Gym.SearchLeadsPlaceholder}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SearchLeadsCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            
+                            <!-- Search Icon / Spinner -->
+                            <Grid HorizontalAlignment="Right" Margin="0,0,10,0" VerticalAlignment="Center">
+                                <Button Command="{Binding SearchLeadsCommand}"
+                                        Style="{StaticResource Button.Ghost}"
+                                        Width="30" Height="30"
+                                        Content="🔍"
+                                        Visibility="{Binding IsSearchingLeads, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"/>
+                                
+                                <Path x:Name="SearchSpinner"
+                                      Visibility="{Binding IsSearchingLeads, Converter={StaticResource BoolToVis}}"
+                                      Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"
+                                      Fill="{DynamicResource Brush.Brand.Primary}"
+                                      Width="16" Height="16"
+                                      RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </Path.RenderTransform>
+                                    <Path.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360" Duration="0:0:1" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Path.Triggers>
+                                </Path>
+                            </Grid>
+                        </Grid>
+                        
+                        <!-- Search Results Dropdown-like List -->
+                        <ListBox ItemsSource="{Binding LeadResults}"
+                                 SelectedItem="{Binding SelectedLead}"
+                                 Visibility="{Binding HasLeadResults, Converter={StaticResource BoolToVis}}"
+                                 MaxHeight="120"
+                                 Margin="0,4,0,0"
+                                 BorderBrush="{DynamicResource Brush.Brand.Primary.Fade}"
+                                 BorderThickness="1">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="8,4">
+                                        <TextBlock Text="{Binding FullName}" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding PhoneNumber}" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="8,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+
+                    <Separator Margin="0,0,0,24" Background="{DynamicResource Brush.Surface.Card}"/>
+
                     <!-- Full Name -->
                     <StackPanel Margin="0,0,0,20">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
@@ -150,6 +220,43 @@
                                          Margin="0,0,16,0"/>
                         </StackPanel>
                     </StackPanel>
+                    
+                    <!-- Date of Birth & Source -->
+                    <Grid Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Age -->
+                        <StackPanel Margin="0,0,12,0">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <!-- Calendar/Person icon -->
+                                <Path Data="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 16H5V10h14zM9 14H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2zm-8 4H7v-2h2zm4 0h-2v-2h2zm4 0h-2v-2h2z" 
+                                      Style="{StaticResource Style.Icon.Micro}" 
+                                      Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                      Margin="0,0,6,0"/>
+                                <TextBlock Text="Age" Style="{StaticResource FormLabel}"/>
+                            </StackPanel>
+                            <TextBox Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}" 
+                                     Style="{StaticResource Input.Apple}"
+                                     Tag="eg: 25"/>
+                        </StackPanel>
+
+                        <!-- Source -->
+                        <StackPanel Grid.Column="1">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Path Data="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" 
+                                      Style="{StaticResource Style.Icon.Micro}" 
+                                      Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                      Margin="0,0,6,0"/>
+                                <TextBlock Text="{DynamicResource Terminology.Members.Source}" Style="{StaticResource FormLabel}"/>
+                            </StackPanel>
+                            <ComboBox ItemsSource="{Binding Sources}"
+                                      SelectedItem="{Binding Source}"
+                                      Style="{StaticResource Input.ComboBox}"/>
+                        </StackPanel>
+                    </Grid>
 
                     <!-- Membership Plan -->
                     <StackPanel Margin="0,0,0,16">

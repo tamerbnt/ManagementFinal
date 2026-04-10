@@ -25,7 +25,7 @@
                     <Border.Effect>
                         <StaticResource ResourceKey="Shadow.Modal"/>
                     </Border.Effect>
-                    <Path Data="{StaticResource Icon.Shield}" 
+                    <Path Data="{DynamicResource Icon.Shield}" 
                           Fill="White" 
                           Width="32" Height="32" 
                           Stretch="Uniform" 

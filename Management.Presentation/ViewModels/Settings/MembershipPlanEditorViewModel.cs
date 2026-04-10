@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Management.Application.DTOs;
@@ -45,6 +45,7 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty] private bool _isActive = true;
         [ObservableProperty] private bool _isSessionPack;
         [ObservableProperty] private int _genderRule;
+        [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private bool _isEditMode;
 
         public ObservableCollection<ScheduleWindowViewModel> ScheduleWindows { get; } = new();
@@ -62,6 +63,7 @@ namespace Management.Presentation.ViewModels.Settings
             IsActive = true;
             IsSessionPack = false;
             IsEditMode = false;
+            IsPersonalTraining = false;
             GenderRule = 0;
             ScheduleWindows.Clear();
             IsLoading = false;
@@ -80,6 +82,7 @@ namespace Management.Presentation.ViewModels.Settings
                 IsWalkIn = dto.IsWalkIn;
                 IsActive = dto.IsActive;
                 IsSessionPack = dto.IsSessionPack;
+                IsPersonalTraining = dto.IsPersonalTraining;
                 GenderRule = dto.GenderRule;
                 IsEditMode = true;
 
@@ -152,6 +155,7 @@ namespace Management.Presentation.ViewModels.Settings
                     IsWalkIn = IsWalkIn,
                     IsActive = IsActive,
                     IsSessionPack = IsSessionPack,
+                    IsPersonalTraining = IsPersonalTraining,
                     GenderRule = GenderRule,
                     ScheduleJson = scheduleJson
                 };

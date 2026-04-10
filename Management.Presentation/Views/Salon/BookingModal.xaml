@@ -68,7 +68,7 @@
                             Padding="24" CornerRadius="16" Margin="0,0,0,20"
                             BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Section.ClientPlan}" Style="{StaticResource Text.Caption}" 
+                            <TextBlock Text="{DynamicResource Terminology.Members.Add.PersonalInfo}" Style="{StaticResource Text.Caption}" 
                                      Foreground="{DynamicResource Brush.Text.Tertiary}" FontWeight="Bold" 
                                      Margin="0,0,0,16"/>
 
@@ -79,16 +79,49 @@
                                           Style="{StaticResource Style.Icon.Micro}" 
                                           Stroke="{DynamicResource Brush.Text.Secondary}" 
                                           Margin="0,0,6,0"/>
-                                    <TextBlock Text="{DynamicResource Terminology.Members.Detail.Name}" Style="{StaticResource FormLabel}"/>
-                                </StackPanel>
-                                <ComboBox ItemsSource="{Binding Clients}" 
-                                          SelectedValue="{Binding SelectedClientId}" 
-                                          SelectedValuePath="Id"
-                                          DisplayMemberPath="FullName"
-                                          Text="{Binding SelectedClientName, UpdateSourceTrigger=PropertyChanged}"
-                                          IsEditable="True"
-                                          Style="{StaticResource Input.ComboBox}"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" Style="{StaticResource FormLabel}"/>
+                                 </StackPanel>
+                                 <ComboBox ItemsSource="{Binding Clients}" 
+                                           SelectedValue="{Binding SelectedClientId}" 
+                                           SelectedValuePath="Id"
+                                           DisplayMemberPath="FullName"
+                                           Text="{Binding SelectedClientName, UpdateSourceTrigger=PropertyChanged}"
+                                           IsEditable="True"
+                                           Style="{StaticResource Input.ComboBox}"/>
                             </StackPanel>
+
+                            <!-- Age & Source Row -->
+                            <Grid Margin="0,0,0,20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="1.5*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Age -->
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBlock Text="Age" Style="{StaticResource FormLabel}"/>
+                                    </StackPanel>
+                                    <TextBox Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}" 
+                                             Style="{StaticResource Input.Apple}"
+                                             MaxLength="3"/>
+                                </StackPanel>
+
+                                <!-- Source of Acquisition -->
+                                <StackPanel Grid.Column="2">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <Path Data="{StaticResource IconUsers}" 
+                                              Style="{StaticResource Style.Icon.Micro}" 
+                                              Stroke="{DynamicResource Brush.Text.Secondary}" 
+                                              Margin="0,0,6,0"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Members.Source}" Style="{StaticResource FormLabel}"/>
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{Binding AcquisitionSources}" 
+                                              SelectedItem="{Binding AcquisitionSource}"
+                                              Style="{StaticResource Input.ComboBox}"/>
+                                </StackPanel>
+                            </Grid>
 
                             <!-- Service Selection -->
                             <StackPanel>
@@ -112,33 +145,8 @@
                                 </ComboBox>
                             </StackPanel>
 
-                            <!-- Membership Plan Selection -->
-                            <StackPanel Margin="0,20,0,0">
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Path Data="{StaticResource IconTag}" 
-                                          Style="{StaticResource Style.Icon.Micro}" 
-                                          Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                          Margin="0,0,6,0"/>
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Booking.MembershipPlan}" Style="{StaticResource FormLabel}"/>
-                                </StackPanel>
-                                <ComboBox ItemsSource="{Binding AvailableMembershipPlans}" 
-                                          SelectedItem="{Binding SelectedMembershipPlan}"
-                                          IsEditable="False"
-                                          Style="{StaticResource Input.ComboBox}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding Name}"/>
-                                                <TextBlock Text=" - " Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                                                <TextBlock Text="{Binding Price, StringFormat={}{0:N2} DA}" Foreground="{DynamicResource Brush.Brand.Primary}" FontWeight="SemiBold"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <!-- Service Price -->
-                            <StackPanel Margin="0,20,0,0">
+                            <!-- Price -->
+                            <StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                                     <Path Data="{StaticResource IconTag}" 
                                           Style="{StaticResource Style.Icon.Micro}" 
@@ -146,8 +154,9 @@
                                           Margin="0,0,6,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Price}" Style="{StaticResource FormLabel}"/>
                                 </StackPanel>
-                                <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}" 
-                                         Style="{StaticResource Input.Apple}"/>
+                                <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" 
+                                         Style="{StaticResource Input.Apple}"
+                                         IsReadOnly="True"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

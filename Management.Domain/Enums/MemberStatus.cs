@@ -11,6 +11,7 @@ namespace Management.Domain.Enums
         Frozen = 3,
         Suspended = 4,
         Pending = 5,
-        Banned = 6
+        Banned = 6,
+        Lead = 7
     }
 }

@@ -219,7 +219,8 @@ namespace Management.Infrastructure.Services
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(s => s.FacilityId == facilityId &&
-                            s.Timestamp >= utcStart && s.Timestamp < utcEnd)
+                            s.Timestamp >= utcStart && s.Timestamp < utcEnd &&
+                            !s.IsDeleted)
                 .Select(s => new { s.Timestamp, Amount = s.TotalAmount.Amount })
                 .ToListAsync();
 

@@ -316,7 +316,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect" Value="{StaticResource Shadow2}"/>
+        <Setter Property="Effect" Value="{DynamicResource Shadow2}"/>
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
         <Setter Property="RenderTransform">
             <Setter.Value>
@@ -396,6 +396,33 @@
                             </Trigger.EnterActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ToolTip.Standard: Luxurya glass-effect tooltip for revenue/metric hover labels.
+         Used in: DashboardView, GymHomeView, SalonHomeView, RestaurantHomeView.
+         Added here because this is the earliest loaded resource that all those views can resolve. -->
+    <Style x:Key="ToolTip.Standard" TargetType="ToolTip">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{DynamicResource SurfaceBg}"
+                            BorderBrush="{DynamicResource SeparatorStroke}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="12,8">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="3" Opacity="0.12" RenderingBias="Performance"/>
+                        </Border.Effect>
+                        <ContentPresenter TextElement.FontSize="13"
+                                          TextElement.FontFamily="Inter, Segoe UI Variable Display, Segoe UI"
+                                          TextElement.Foreground="{DynamicResource TextPrimary}"/>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

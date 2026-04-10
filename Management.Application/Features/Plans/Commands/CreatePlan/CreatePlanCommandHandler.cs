@@ -38,7 +38,8 @@ namespace Management.Application.Features.Plans.Commands.CreatePlan
                 dto.DurationDays,
                 price,
                 0, // BaseSessionCount
-                dto.IsWalkIn);
+                dto.IsWalkIn,
+                dto.IsPersonalTraining);
 
             if (planResult.IsFailure) return Result.Failure<Guid>(planResult.Error);
 

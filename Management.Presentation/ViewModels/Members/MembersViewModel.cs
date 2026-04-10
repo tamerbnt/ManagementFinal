@@ -166,6 +166,7 @@ namespace Management.Presentation.ViewModels.Members
 
         private CancellationTokenSource? _searchCts;
         private bool _isDirty = true;
+        private bool _isSearchQueued;
 
         partial void OnSearchTextChanged(string value)
         {
@@ -189,8 +190,19 @@ namespace Management.Presentation.ViewModels.Members
 
         private async Task RefreshFiltersAsync()
         {
-            UpdateIsAnyFilterActive();
-            await LoadMembersAsync();
+            if (IsLoading)
+            {
+                _isSearchQueued = true;
+                return;
+            }
+
+            do
+            {
+                _isSearchQueued = false;
+                UpdateIsAnyFilterActive();
+                CurrentPage = 1; // Reset to page 1 on search
+                await LoadMembersAsync(force: true);
+            } while (_isSearchQueued && !IsDisposed);
         }
 
         private void RefreshFilters()

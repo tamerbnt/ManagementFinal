@@ -279,17 +279,6 @@ namespace Management.Presentation.ViewModels.Shell
         private int _todayAppointmentsPending;
 
         // Salon BI Metrics
-        [ObservableProperty]
-        private KpiMetricDto _salonRebookingRate = new();
-
-        [ObservableProperty]
-        private KpiMetricDto _salonRetailAttachRate = new();
-
-        [ObservableProperty]
-        private KpiMetricDto _salonChairUtilization = new();
-
-        [ObservableProperty]
-        private KpiMetricDto _salonAvgTicketValue = new();
 
         [ObservableProperty]
         private ISeries[] _salonServiceProfitabilitySeries = Array.Empty<ISeries>();
@@ -312,6 +301,9 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private Axis[] _combinedDemographicsXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _combinedDemographicsYAxes = Array.Empty<Axis>();
 
         [ObservableProperty]
         private string _selectedStaffFilter = "Today";
@@ -1553,11 +1545,6 @@ namespace Management.Presentation.ViewModels.Shell
 
             await _dispatcher.InvokeAsync(() =>
             {
-                SalonRebookingRate = summary.SalonRebookingRate;
-                SalonRetailAttachRate = summary.SalonRetailAttachRate;
-                SalonChairUtilization = summary.SalonChairUtilization;
-                SalonAvgTicketValue = summary.SalonAvgTicketValue;
-
                 // 1. Service Profitability (Bar Chart)
                 SalonServiceProfitabilitySeries = new ISeries[]
                 {
@@ -1619,6 +1606,16 @@ namespace Management.Presentation.ViewModels.Shell
                     new Axis
                     {
                         Labels = ageGroups,
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                        TextSize = 10
+                    }
+                };
+
+                CombinedDemographicsYAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        MinLimit = 0,
                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
                         TextSize = 10
                     }
@@ -1804,6 +1801,16 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = ageLabels,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            TextSize = 10
+                        }
+                    };
+
+                    CombinedDemographicsYAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            MinLimit = 0,
                             LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
                             TextSize = 10
                         }

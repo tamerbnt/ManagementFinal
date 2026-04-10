@@ -1,6 +1,7 @@
 using Management.Application.Features.Members.Queries.GetMember;
 using Management.Application.Services;
 using Management.Application.Features.Members.Queries.SearchMembers;
+using Management.Application.Features.Members.Queries.SearchLeads;
 using Management.Application.Features.Members.Queries.GetMemberMetrics;
 using Management.Application.Features.Members.Commands.CreateMember;
 using Management.Application.Features.Members.Commands.UpdateMember;
@@ -34,6 +35,12 @@ namespace Management.Infrastructure.Services
         public async Task<Result<MemberDto>> GetMemberAsync(Guid facilityId, Guid id)
         {
             return await _sender.Send(new GetMemberQuery(id));
+        }
+ 
+        public async Task<Result<List<MemberDto>>> SearchLeadAsync(Guid facilityId, string query)
+        {
+            // We need to create SearchLeadsQuery
+            return await _sender.Send(new SearchLeadsQuery(query));
         }
 
         public async Task<Result<Guid>> CreateMemberAsync(Guid facilityId, MemberDto member)

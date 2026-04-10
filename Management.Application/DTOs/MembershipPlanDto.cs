@@ -14,6 +14,7 @@ namespace Management.Application.DTOs
         public bool IsSessionPack { get; set; }
         public bool IsWalkIn { get; set; }
         public int GenderRule { get; set; }
+        public bool IsPersonalTraining { get; set; }
         public string? ScheduleJson { get; set; }
     }
 }

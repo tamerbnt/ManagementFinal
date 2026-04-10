@@ -55,7 +55,8 @@ namespace Management.Presentation
             }
             catch (Exception ex)
             {
-                var msg = $"FATAL CRASH: {ex.Message}\n{ex.StackTrace}";
+                var innerMsg = ex.InnerException != null ? $"\n\nINNER EXCEPTION:\n{ex.InnerException.Message}" : "";
+                var msg = $"FATAL CRASH: {ex.Message}{innerMsg}\n\nSTACK TRACE:\n{ex.StackTrace}";
                 Console.WriteLine(msg);
                 if (Log.Logger != null)
                 {

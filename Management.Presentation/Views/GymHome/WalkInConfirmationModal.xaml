@@ -208,22 +208,30 @@
             <Grid Grid.Row="4" Margin="0,24,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="2*"/> <!-- More space for the long confirm button -->
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
                 <Button Grid.Column="0" 
-                        Command="{Binding CancelCommand}" 
+                        Command="{Binding CancelWalkInCommand}" 
                         IsCancel="True"
                         Style="{DynamicResource GhostButton}" 
-                        Content="{DynamicResource Terminology.Global.Cancel}"/>
-                        
-                <Button Grid.Column="2" 
-                        Command="{Binding ConfirmWalkInCommand}" 
-                        Style="{DynamicResource PrimaryButton}" 
-                        IsDefault="True"
-                        Content="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}"
-                        Padding="16,8"/>
+                        Content="{DynamicResource Terminology.Global.Cancel}"
+                        HorizontalAlignment="Left"/>
+                
+                <StackPanel Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Command="{Binding OpenRegisterWalkInCommand}" 
+                            Style="{DynamicResource SecondaryButton}" 
+                            Content="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}"
+                            Margin="0,0,12,0"
+                            Padding="16,8"/>
+
+                    <Button Command="{Binding ConfirmWalkInCommand}" 
+                            Style="{DynamicResource PrimaryButton}" 
+                            IsDefault="True"
+                            Content="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}"
+                            Padding="24,8"/>
+                </StackPanel>
             </Grid>
         </Grid>
     </Border>

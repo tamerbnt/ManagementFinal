@@ -1,7 +1,7 @@
 using Management.Application.DTOs;
 using Management.Application.Interfaces;
 using Management.Domain.Interfaces;
-using Management.Domain.Models.Restaurant;
+using Management.Domain.Enums;
 using Management.Infrastructure.Data;
 using OrderStatus = Management.Domain.Models.Restaurant.OrderStatus;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +35,21 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             decimal yesterdayRevenue = 0;
             if (context.IsGym || context.IsSalon)
             {
-                dto.MonthlyRevenue = await _saleRepository.GetTotalRevenueAsync(facilityId, context.UtcMonthStart, context.UtcNow);
+                // Gym/Salon: Monthly Breakdown
+                var monthlySales = await _dbContext.Sales
+                    .AsNoTracking()
+                    .Where(s => s.FacilityId == facilityId && s.Timestamp >= context.UtcMonthStart && s.Timestamp < context.UtcNow && !s.IsDeleted)
+                    .Select(s => new { s.Category, Amount = s.TotalAmount.Amount })
+                    .ToListAsync();
+
+                dto.MonthlyRevenue = monthlySales.Sum(s => s.Amount);
+                dto.MonthlyMembershipRevenue = monthlySales
+                    .Where(s => s.Category == SaleCategory.Membership || s.Category == SaleCategory.WalkIn || s.Category == SaleCategory.Service)
+                    .Sum(s => s.Amount);
+                dto.MonthlyMerchandiseRevenue = monthlySales
+                    .Where(s => s.Category == SaleCategory.Product || s.Category == SaleCategory.General)
+                    .Sum(s => s.Amount);
+
                 dto.DailyRevenue = await _saleRepository.GetTotalRevenueAsync(facilityId, context.UtcDayStart, context.UtcDayEnd);
                 yesterdayRevenue = await _saleRepository.GetTotalRevenueAsync(facilityId, context.UtcYesterdayStart, context.UtcYesterdayEnd);
             }
@@ -47,6 +61,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .AsNoTracking()
                     .Where(o => o.FacilityId == facilityId && 
                                 o.CompletedAt >= context.UtcMonthStart && o.CompletedAt < context.UtcNow &&
+                                !o.IsDeleted &&
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
                     .Select(o => (double)(o.Subtotal + o.Tax))
                     .SumAsync();
@@ -56,6 +71,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .AsNoTracking()
                     .Where(o => o.FacilityId == facilityId && 
                                 o.CompletedAt >= context.UtcDayStart && o.CompletedAt < context.UtcDayEnd &&
+                                !o.IsDeleted &&
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
                     .Select(o => (double)(o.Subtotal + o.Tax))
                     .SumAsync();
@@ -65,6 +81,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     .AsNoTracking()
                     .Where(o => o.FacilityId == facilityId && 
                                 o.CompletedAt >= context.UtcYesterdayStart && o.CompletedAt < context.UtcYesterdayEnd &&
+                                !o.IsDeleted &&
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
                     .Select(o => (double)(o.Subtotal + o.Tax))
                     .SumAsync();

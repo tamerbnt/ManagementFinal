@@ -1,0 +1,3 @@
+[FATAL CRASH] UnobservedTaskException: A Task's exception(s) were not observed either by Waiting on the Task or accessing its Exception property. As a result, the unobserved exception was rethrown by the finalizer thread. (CRITICAL: System clock drift detected (59,9 minutes). Please synchronize your PC clock with Internet time to prevent data corruption and sync failures.)
+Type: System.AggregateException
+Stack Trace: 

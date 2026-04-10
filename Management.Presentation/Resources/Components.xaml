@@ -49,10 +49,8 @@
                                 </TransformGroup>
                             </Border.RenderTransform>
 
-                            <!-- Shadow / Glow Logic -->
-                            <!-- Uses ElevationColor for Dark Mode Glow -->
                             <Border.Effect>
-                                <StaticResource ResourceKey="Shadow.Level1" />
+                                <DynamicResource ResourceKey="Shadow.Level1" />
                             </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"

@@ -65,7 +65,10 @@ namespace Management.Application.Features.Members.Queries.GetMember
                 }).ToList(),
                 EmergencyContactName = entity.EmergencyContactName,
                 EmergencyContactPhone = entity.EmergencyContactPhone?.Value ?? string.Empty,
-                Notes = entity.Notes
+                Notes = entity.Notes,
+                Gender = entity.Gender,
+                DateOfBirth = entity.DateOfBirth,
+                Source = entity.Source
             };
         }
     }

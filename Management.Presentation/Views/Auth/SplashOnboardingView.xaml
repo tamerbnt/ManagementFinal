@@ -65,7 +65,7 @@
         </ItemsControl>
 
         <!-- 2. FOREGROUND LAYOUT (40/60 Split) -->
-        <Grid MinWidth="900" MinHeight="600">
+        <Grid MinWidth="900" MinHeight="500">
                 <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.45*"/>
                 <ColumnDefinition Width="24"/>

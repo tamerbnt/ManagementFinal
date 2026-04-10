@@ -102,6 +102,20 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private string _lastBackupSizeDisplay = "0 KB";
 
+        // Salon Settings
+        [ObservableProperty]
+        private int _totalChairs = 1;
+
+        [ObservableProperty]
+        private decimal _salonDailyRevenueTarget = 1000m;
+        
+        // Gym Settings
+        [ObservableProperty]
+        private int _gymMaxOccupancy = 100;
+
+        [ObservableProperty]
+        private decimal _gymDailyRevenueTarget = 5000m;
+
         [ObservableProperty]
         private CultureInfo? _selectedLanguage;
 
@@ -483,6 +497,7 @@ namespace Management.Presentation.ViewModels.Settings
                                     Status = dto.IsActive ? "Active" : "Archived",
                                     IsActive = dto.IsActive,
                                     IsSessionPack = dto.IsSessionPack,
+                                    IsPersonalTraining = dto.IsPersonalTraining,
                                     GenderRule = dto.GenderRule,
                                     ScheduleJson = dto.ScheduleJson
                                 });
@@ -499,6 +514,7 @@ namespace Management.Presentation.ViewModels.Settings
                                     Status = dto.IsActive ? "Active" : "Archived",
                                     IsActive = dto.IsActive,
                                     IsSessionPack = dto.IsSessionPack,
+                                    IsPersonalTraining = dto.IsPersonalTraining,
                                     GenderRule = dto.GenderRule,
                                     ScheduleJson = dto.ScheduleJson
                                 });
@@ -595,6 +611,117 @@ namespace Management.Presentation.ViewModels.Settings
             if (tabName == "Backups")
             {
                 await LoadBackupMetadataAsync();
+            }
+
+            if (tabName == "SalonSettings")
+            {
+                await LoadSalonSettingsAsync();
+            }
+
+            if (tabName == "GymSettings")
+            {
+                await LoadGymSettingsAsync();
+            }
+        }
+
+        private bool _salonSettingsLoaded = false;
+
+        [RelayCommand]
+        public async Task LoadSalonSettingsAsync()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                var result = await _settingsService.GetSalonSettingsAsync(_facilityContext.CurrentFacilityId);
+                if (result.IsSuccess)
+                {
+                    TotalChairs = result.Value.TotalChairs;
+                    SalonDailyRevenueTarget = result.Value.DailyRevenueTarget;
+                    _salonSettingsLoaded = true;
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        public async Task SaveSalonSettings()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                var dto = new SalonSettingsDto(TotalChairs, SalonDailyRevenueTarget, "{}");
+                var result = await _settingsService.UpdateSalonSettingsAsync(_facilityContext.CurrentFacilityId, dto);
+                if (result.IsSuccess)
+                {
+                    _toastService.ShowSuccess("Salon settings saved.");
+                }
+                else
+                {
+                    _toastService.ShowError($"Failed to save settings: {result.Error.Message}");
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        public async Task LoadGymSettingsAsync()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                var result = await _settingsService.GetFacilitySettingsAsync(_facilityContext.CurrentFacilityId);
+                if (result.IsSuccess)
+                {
+                    GymMaxOccupancy = result.Value.MaxOccupancy;
+                    GymDailyRevenueTarget = result.Value.DailyRevenueTarget;
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        public async Task SaveGymSettings()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                // FacilitySettingsDto is a record requiring all constructor arguments
+                var current = await _settingsService.GetFacilitySettingsAsync(_facilityContext.CurrentFacilityId);
+                
+                var dto = new FacilitySettingsDto(
+                    GymMaxOccupancy,
+                    GymDailyRevenueTarget,
+                    current.IsSuccess ? current.Value.IsMaintenanceMode : false,
+                    current.IsSuccess ? current.Value.Schedule : new System.Collections.Generic.List<DayScheduleDto>(),
+                    current.IsSuccess ? current.Value.Zones : new System.Collections.Generic.List<ZoneDto>()
+                );
+                
+                var result = await _settingsService.UpdateFacilitySettingsAsync(_facilityContext.CurrentFacilityId, dto);
+                if (result.IsSuccess)
+                {
+                    _toastService.ShowSuccess("Gym settings saved.");
+                }
+                else
+                {
+                    _toastService.ShowError($"Failed to save settings: {result.Error.Message}");
+                }
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -879,6 +1006,7 @@ namespace Management.Presentation.ViewModels.Settings
                     IsWalkIn = false, 
                     IsActive = m.IsActive,
                     IsSessionPack = m.IsSessionPack,
+                    IsPersonalTraining = m.IsPersonalTraining,
                     GenderRule = m.GenderRule,
                     ScheduleJson = m.ScheduleJson
                 }, false);
@@ -894,6 +1022,7 @@ namespace Management.Presentation.ViewModels.Settings
                     IsWalkIn = true, 
                     IsActive = w.IsActive,
                     IsSessionPack = w.IsSessionPack,
+                    IsPersonalTraining = w.IsPersonalTraining,
                     GenderRule = w.GenderRule,
                     ScheduleJson = w.ScheduleJson
                 }, true);
@@ -985,6 +1114,7 @@ namespace Management.Presentation.ViewModels.Settings
         private bool _isActive = true;
 
         [ObservableProperty] private bool _isSessionPack;
+        [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private int _genderRule;
         [ObservableProperty] private string? _scheduleJson;
     }
@@ -1013,6 +1143,7 @@ namespace Management.Presentation.ViewModels.Settings
         private bool _isActive = true;
 
         [ObservableProperty] private bool _isSessionPack;
+        [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private int _genderRule;
         [ObservableProperty] private string? _scheduleJson;
     }

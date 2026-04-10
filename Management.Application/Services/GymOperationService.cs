@@ -23,6 +23,7 @@ namespace Management.Application.Services
         private readonly IAccessEventRepository _accessRepo;
         private readonly ISaleRepository _saleRepo;
         private readonly IMembershipPlanRepository _planRepo;
+        private readonly IMemberRepository _memberRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantService _tenantService;
         private readonly Microsoft.Extensions.Logging.ILogger<GymOperationService> _logger;
@@ -33,6 +34,7 @@ namespace Management.Application.Services
             IAccessEventRepository accessRepo,
             ISaleRepository saleRepo,
             IMembershipPlanRepository planRepo,
+            IMemberRepository memberRepo,
             ICurrentUserService currentUserService,
             ITenantService tenantService,
             Microsoft.Extensions.Logging.ILogger<GymOperationService> logger)
@@ -42,6 +44,7 @@ namespace Management.Application.Services
             _accessRepo = accessRepo;
             _saleRepo = saleRepo;
             _planRepo = planRepo;
+            _memberRepo = memberRepo;
             _currentUserService = currentUserService;
             _tenantService = tenantService;
             _logger = logger;
@@ -222,6 +225,39 @@ namespace Management.Application.Services
                     DurationDescription = $"{p.DurationDays} Days", 
                     Status = "Active" 
                 });
+        }
+
+        public async Task<LeadRegistrationResult> RegisterLeadAsync(string fullName, string phoneNumber, Guid facilityId)
+        {
+            try
+            {
+                var phoneResult = PhoneNumber.Create(phoneNumber);
+                if (!phoneResult.IsSuccess) return LeadRegistrationResult.Failed("Invalid phone number format.");
+
+                var memberResult = Member.Register(
+                    fullName,
+                    Email.Create("lead@gym.com").Value, // Placeholder email for leads
+                    phoneResult.Value,
+                    $"LEAD-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}",
+                    null);
+
+                if (!memberResult.IsSuccess) return LeadRegistrationResult.Failed(memberResult.Error.Message);
+
+                var member = memberResult.Value;
+                member.FacilityId = facilityId;
+                member.TenantId = _tenantService.GetTenantId() ?? Guid.Empty;
+                member.UpdateDemographics(null, "Walk-In");
+                member.SetLeadStatus();
+
+                await _memberRepo.AddAsync(member);
+
+                return LeadRegistrationResult.Succeeded(member.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to register lead {FullName}", fullName);
+                return LeadRegistrationResult.Failed("An internal error occurred while registering the lead.");
+            }
         }
     }
 }

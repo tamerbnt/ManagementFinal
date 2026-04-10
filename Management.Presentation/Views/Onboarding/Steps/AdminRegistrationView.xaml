@@ -20,7 +20,7 @@
             <StackPanel Margin="0,0,0,20">
                 <!-- Header -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,0,0,24">
-                    <Path Data="{StaticResource IconMembers}" 
+                    <Path Data="{DynamicResource IconMembers}" 
                           Fill="{DynamicResource Brush.Brand.Primary}" 
                           Width="64" Height="64" Stretch="Uniform" />
                     <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.CreateAdministrator}" 

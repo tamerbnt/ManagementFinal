@@ -69,6 +69,9 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
                 dto.ProfileImageUrl,
                 dto.Notes);
 
+            // Persist demographic updates
+            member.UpdateDemographics(dto.DateOfBirth, dto.Source, dto.Gender);
+
             if (!string.IsNullOrEmpty(dto.EmergencyContactName) && !string.IsNullOrEmpty(dto.EmergencyContactPhone))
             {
                  var emerPhone = PhoneNumber.Create(dto.EmergencyContactPhone);
