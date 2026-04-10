@@ -3,146 +3,306 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="500">
+             d:DesignHeight="700" d:DesignWidth="900"
+             Background="Transparent">
 
-    <Border Style="{DynamicResource GlobalModalContainerStyle}"
-            Width="550"
-            Padding="{DynamicResource PaddingModal}"
-            VerticalAlignment="Center"
-            MaxHeight="700">
+    <premium:ModalShellControl Title="{Binding Title}"
+                               Width="880"
+                               Height="680"
+                               CancelCommand="{Binding CancelCommand}"
+                               RegisterCommand="{Binding SaveCommand}"
+                               PrimaryActionText="{Binding ActionButtonText}">
+        
+        <Grid Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.8*"/> <!-- Identity Section -->
+                <ColumnDefinition Width="40"/>    <!-- Visual Spacer -->
+                <ColumnDefinition Width="*"/>    <!-- Roles & Permissions Section -->
+            </Grid.ColumnDefinitions>
 
-        <i:Interaction.Behaviors>
-            <behaviors:ModalEntranceBehavior IsOpen="True"/>
-        </i:Interaction.Behaviors>
+            <!-- LEFT COLUMN: Identity & Bio (65%) -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Identity &amp; Bio" 
+                           FontSize="14" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="0,0,0,24"/>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header -->
-                <RowDefinition Height="*"/>    <!-- Form -->
-                <RowDefinition Height="Auto"/> <!-- Footer -->
-            </Grid.RowDefinitions>
+                <!-- Contact Info Card -->
+                <Border Background="{DynamicResource SurfaceBg}" 
+                        CornerRadius="20" 
+                        Padding="24"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <!-- Full Name -->
+                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" 
+                                   FontSize="12" FontWeight="Bold" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox Text="{Binding NewStaff.FullName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Placeholder="{DynamicResource Strings.FinanceAndStaff.egSarahConnor}"
+                                                 IconData="{StaticResource IconMembers}"
+                                                 Margin="0,0,0,20"/>
 
-            <!-- 1. Header -->
-            <StackPanel Grid.Row="0" Margin="{DynamicResource MarginHeaderBottom}">
-                <TextBlock Text="{Binding DialogTitle}" 
-                           Style="{DynamicResource Title2}" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="{DynamicResource Terminology.Staff.Add.Subtitle}" 
-                           Style="{DynamicResource Body}" 
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="{DynamicResource MarginTextTop}"/>
+                        <!-- Phone -->
+                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.Phone}" 
+                                   FontSize="12" FontWeight="Bold" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox Text="{Binding NewStaff.Phone, UpdateSourceTrigger=PropertyChanged}"
+                                                 Placeholder="+1 555 019 2834"
+                                                 IconData="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                                                 Margin="0,0,0,20"/>
+
+                        <!-- Email -->
+                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.Email}" 
+                                   FontSize="12" FontWeight="Bold" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox Text="{Binding NewStaff.Email, UpdateSourceTrigger=PropertyChanged}"
+                                                 Placeholder="{DynamicResource Strings.FinanceAndStaff.sarahexamplecom}"
+                                                 IconData="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6"
+                                                 Margin="0,0,0,20"/>
+
+                        <!-- Password (Creation Only) -->
+                        <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.Password}" 
+                                       FontSize="12" FontWeight="Bold" 
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <!-- Password field with eye reveal toggle -->
+                            <Border Background="{DynamicResource SurfaceBg}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Height="46"
+                                    Margin="0,0,0,10">
+                                <Grid Margin="12,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>  <!-- Lock icon -->
+                                        <ColumnDefinition Width="*"/>     <!-- Input -->
+                                        <ColumnDefinition Width="Auto"/>  <!-- Eye toggle -->
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Lock Icon -->
+                                    <Path Grid.Column="0"
+                                          Data="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM17 11V7a5 5 0 0 0-10 0v4"
+                                          Stroke="{DynamicResource TextTertiaryBrush}"
+                                          StrokeThickness="1.5"
+                                          Width="16" Height="16"
+                                          Stretch="Uniform"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,10,0"/>
+
+                                    <!-- PasswordBox (default) -->
+                                    <PasswordBox
+                                                 Grid.Column="1"
+                                                 Loaded="StaffPasswordBox_Loaded"
+                                                 PasswordChanged="StaffPasswordBox_PasswordChanged"
+                                                 VerticalContentAlignment="Center"
+                                                 FontSize="14"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                                    <!-- Plain TextBox (reveal mode) -->
+                                    <TextBox
+                                             Grid.Column="1"
+                                             Loaded="PasswordRevealBox_Loaded"
+                                             Visibility="Collapsed"
+                                             TextChanged="PasswordRevealBox_TextChanged"
+                                             VerticalContentAlignment="Center"
+                                             FontSize="14"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             Foreground="{DynamicResource TextPrimaryBrush}"/>
+
+                                    <!-- Eye Toggle Button -->
+                                    <Button Grid.Column="2"
+                                            Click="TogglePasswordVisibility"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            Padding="4"
+                                            VerticalAlignment="Center">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                        <Path Loaded="EyeIconPath_Loaded"
+                                              Data="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"
+                                              Stroke="{DynamicResource TextTertiaryBrush}"
+                                              StrokeThickness="1.5"
+                                              Fill="Transparent"
+                                              Width="18" Height="18"
+                                              Stretch="Uniform"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
-            <!-- 2. Form Content -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
-                <StackPanel Margin="0,0,10,0">
-                    <!-- Full Name -->
-                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.FullName}" Style="{DynamicResource FormLabel}"/>
-                    <TextBox Text="{Binding NewStaff.FullName, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{DynamicResource UnderlineTextBox}"
-                             Margin="{DynamicResource MarginSmallBottom}"
-                             Tag="{DynamicResource Strings.FinanceAndStaff.egSarahConnor}"/>
+            <!-- RIGHT COLUMN: Employment & Permissions (35%) -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Employment" 
+                           FontSize="14" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="0,0,0,24"/>
 
-                    <!-- Phone Number -->
-                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.Phone}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                    <TextBox Text="{Binding NewStaff.Phone, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{DynamicResource UnderlineTextBox}"
-                             Margin="{DynamicResource MarginSmallBottom}"
-                             Tag="+1 555 019 2834"/>
+                <!-- Organization Details -->
+                <StackPanel Margin="0,0,0,32">
+                    <!-- Role Segmented Toggle -->
+                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.Role}" 
+                               FontSize="12" FontWeight="Bold" 
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Margin="0,0,0,8"/>
+                    <Border Background="#F3F4F6" CornerRadius="14" Padding="4" Height="44" Margin="0,0,0,20">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                    <!-- Email -->
-                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.Email}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                    <TextBox Text="{Binding NewStaff.Email, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{DynamicResource UnderlineTextBox}"
-                             Margin="{DynamicResource MarginSmallBottom}"
-                             Tag="{DynamicResource Strings.FinanceAndStaff.sarahexamplecom}"/>
+                            <!-- Animated selection pill -->
+                            <Border Loaded="RoleSelectionPill_Loaded"
+                                    Grid.Column="0"
+                                    Background="White"
+                                    CornerRadius="10"
+                                    HorizontalAlignment="Left"
+                                    IsHitTestVisible="False">
+                                <Border.RenderTransform>
+                                    <TranslateTransform X="0"/>
+                                </Border.RenderTransform>
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.08" Direction="270" RenderingBias="Performance"/>
+                                </Border.Effect>
+                            </Border>
 
-                    <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
-                        <!-- Password (New) -->
-                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.Password}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                        <PasswordBox x:Name="StaffPasswordBox" 
-                                     Style="{DynamicResource UnderlinePasswordBox}"
-                                     behaviors:PasswordBoxHelper.BindPassword="True"
-                                     behaviors:PasswordBoxHelper.BoundPassword="{Binding NewStaff.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="{DynamicResource MarginSmallBottom}"/>
-                    </StackPanel>
+                            <!-- Staff Button -->
+                            <Button Grid.Column="0" Content="Staff"
+                                    Click="RoleStaffButton_Click"
+                                    Background="#01FFFFFF" BorderThickness="0"
+                                    FontSize="14" FontWeight="SemiBold" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" IsHitTestVisible="True">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding NewStaff.Role}" Value="Staff">
+                                                <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
 
+                            <!-- Owner Button -->
+                            <Button Grid.Column="1" Content="Owner"
+                                    Click="RoleOwnerButton_Click"
+                                    Background="#01FFFFFF" BorderThickness="0"
+                                    FontSize="14" FontWeight="SemiBold" Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" IsHitTestVisible="True">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding NewStaff.Role}" Value="Owner">
+                                                <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
 
-
-
-
-                    <!-- Role -->
-                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.Role}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                    <ComboBox ItemsSource="{Binding Roles}"
-                              SelectedItem="{Binding NewStaff.Role}" 
-                              Style="{StaticResource Input.ComboBox}" 
-                              IsEditable="False"
-                              Margin="{DynamicResource MarginSmallBottom}"/>
-
-                    <!-- Salary & Payment Day -->
-                    <Grid Margin="{DynamicResource MarginSectionTop}">
+                    <!-- Salary & Payment -->
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
+                        
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.Salary}" Style="{DynamicResource FormLabel}"/>
-                            <TextBox Text="{Binding NewStaff.Salary, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{DynamicResource UnderlineTextBox}"
-                                     Tag="{DynamicResource Strings.FinanceAndStaff.eg2500}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.Salary}" 
+                                       FontSize="11" FontWeight="Bold" 
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding NewStaff.Salary}" 
+                                     Style="{StaticResource Input.Field}"
+                                     Height="40"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource Terminology.Staff.Add.PaymentDay}" Style="{DynamicResource FormLabel}"/>
-                            <TextBox Text="{Binding NewStaff.PaymentDay, UpdateSourceTrigger=PropertyChanged}" 
-                                     Style="{DynamicResource UnderlineTextBox}"
-                                     Tag="1 - 31"/>
+                            <TextBlock Text="Day" 
+                                       FontSize="11" FontWeight="Bold" 
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <TextBox Text="{Binding NewStaff.PaymentDay}" 
+                                     Style="{StaticResource Input.Field}"
+                                     Height="40"/>
                         </StackPanel>
                     </Grid>
-
-                    <!-- Permissions -->
-                    <TextBlock Text="{DynamicResource Terminology.Staff.Add.Permissions}" Style="{DynamicResource FormLabel}" Margin="{DynamicResource MarginSectionTop}"/>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Text="{DynamicResource Terminology.Staff.Add.CreateAccount}" 
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        
-                        <CheckBox Grid.Column="1"
-                                  IsChecked="{Binding NewStaff.Permissions[0].IsGranted}"
-                                  Style="{DynamicResource ToggleSwitchStyle}"/>
-                    </Grid>
                 </StackPanel>
-            </ScrollViewer>
 
-            <!-- 3. Footer Actions -->
-            <StackPanel Grid.Row="2" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right"
-                        Margin="32">
+                <!-- Permissions Section -->
+                <TextBlock Text="{DynamicResource Terminology.Staff.Add.Permissions}" 
+                           FontSize="14" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="0,0,0,16"/>
                 
-                <Button Content="{DynamicResource Terminology.Global.Cancel}" 
-                        Command="{Binding CancelCommand}"
-                        Style="{DynamicResource SecondaryButton}"
-                        Width="100" Margin="0,0,12,0"/>
-
-                <Button Content="{Binding ActionButtonText}" 
-                        Command="{Binding SaveCommand}"
-                        CommandParameter="{Binding ElementName=StaffPasswordBox}"
-                        Style="{DynamicResource PrimaryButton}"
-                        Width="200"/>
+                <ItemsControl ItemsSource="{Binding NewStaff.Permissions}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="{DynamicResource SurfaceBg}" 
+                                    CornerRadius="12" 
+                                    Padding="16,12" 
+                                    Margin="0,0,0,8"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Name}" 
+                                               VerticalAlignment="Center" 
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <CheckBox Grid.Column="1" 
+                                              IsChecked="{Binding IsGranted, Mode=TwoWay}"
+                                              Style="{StaticResource GlobalToggleSwitchStyle}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </Grid>
-    </Border>
+    </premium:ModalShellControl>
 </UserControl>

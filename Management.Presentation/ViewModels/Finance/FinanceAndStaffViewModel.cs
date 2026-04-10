@@ -427,6 +427,7 @@ namespace Management.Presentation.ViewModels.Finance
         [ObservableProperty] private string _email = string.Empty;
         [ObservableProperty] private string _phone = string.Empty;
         public string PhoneNumber => Phone; // Alias for View compatibility
+        [ObservableProperty] private string _password = string.Empty;
         [ObservableProperty] private string _employmentStatus = "Active"; // Active, Inactive
         [ObservableProperty] private string _initials = string.Empty;
         [ObservableProperty] private bool _isActive;

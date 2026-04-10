@@ -3,154 +3,180 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:shopvm="clr-namespace:Management.Presentation.ViewModels.Shop"
              mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="400"
-             d:DataContext="{d:DesignInstance shopvm:AddProductViewModel}">
+             d:DesignHeight="640" d:DesignWidth="880"
+             d:DataContext="{d:DesignInstance shopvm:AddProductViewModel}"
+             Background="Transparent">
 
-    <Border Style="{DynamicResource GlobalModalContainerStyle}"
-            Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}"
-            Padding="{DynamicResource PaddingModal}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center">
+    <premium:ModalShellControl Title="{Binding Title}"
+                               Width="860"
+                               Height="640"
+                               CancelCommand="{Binding CancelCommand}"
+                               RegisterCommand="{Binding SaveCommand}"
+                               PrimaryActionText="{DynamicResource Terminology.Shop.AddProduct.Action.Save}">
 
-        <i:Interaction.Behaviors>
-            <behaviors:ModalEntranceBehavior IsOpen="True"/>
-        </i:Interaction.Behaviors>
+        <Grid Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.5*"/> <!-- Product Details (60%) -->
+                <ColumnDefinition Width="36"/>   <!-- Spacer -->
+                <ColumnDefinition Width="*"/>    <!-- Pricing & Inventory (40%) -->
+            </Grid.ColumnDefinitions>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Header -->
-                <RowDefinition Height="Auto"/> <!-- Form -->
-                <RowDefinition Height="Auto"/> <!-- Footer -->
-            </Grid.RowDefinitions>
+            <!-- ===== LEFT COLUMN: Product Details ===== -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>   <!-- Form fields -->
+                    <RowDefinition Height="Auto"/> <!-- Delete action (edit mode) -->
+                </Grid.RowDefinitions>
 
-            <!-- 1. Header -->
-            <StackPanel Grid.Row="0" Margin="{DynamicResource MarginHeaderBottom}">
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Title}" 
-                           Style="{DynamicResource Title2}" 
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Subtitle}" 
-                           Style="{DynamicResource Body}" 
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="{DynamicResource MarginTextTop}"/>
-            </StackPanel>
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Product Details"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               Margin="0,0,0,24"/>
 
-            <!-- 2. Form Content -->
-            <StackPanel Grid.Row="1">
-                <!-- Product Name -->
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Name}" Style="{DynamicResource FormLabel}"/>
-                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{DynamicResource UnderlineTextBox}"
-                         Margin="{DynamicResource MarginSmallBottom}"
-                         Tag="{DynamicResource Terminology.Shop.AddProduct.NameHint}"/>
+                    <!-- Product Name Card -->
+                    <Border Background="{DynamicResource SurfaceBg}"
+                            CornerRadius="20"
+                            Padding="24"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1">
+                        <StackPanel>
 
-                <!-- SKU & Category -->
-                <Grid Margin="{DynamicResource MarginSectionTop}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Sku}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="{DynamicResource Terminology.Shop.AddProduct.SkuHint}"/>
-                    </StackPanel>
+                            <!-- Product Name -->
+                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Name}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <premium:PremiumSearchBox
+                                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                Placeholder="{DynamicResource Terminology.Shop.AddProduct.NameHint}"
+                                IconData="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"
+                                Margin="0,0,0,20"/>
 
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Category}" Style="{DynamicResource FormLabel}"/>
-                        <ComboBox ItemsSource="{x:Static shopvm:AddProductViewModel.AvailableCategories}"
-                                  SelectedItem="{Binding Category, Mode=TwoWay}"
-                                  Style="{StaticResource ComboBox.Apple}"/>
-                    </StackPanel>
-                </Grid>
+                            <!-- SKU / Barcode -->
+                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Sku}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,8"/>
+                            <premium:PremiumSearchBox
+                                Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}"
+                                Placeholder="{DynamicResource Terminology.Shop.AddProduct.SkuHint}"
+                                IconData="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10"/>
 
-                <!-- Prices -->
-                <Grid Margin="{DynamicResource MarginSectionTop}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.SalePrice}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="0.00"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.UnitCost}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="0.00"/>
-                    </StackPanel>
-                </Grid>
-
-                <!-- Stock -->
-                <Grid Margin="{DynamicResource MarginSectionTop}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.InitialStock}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="0"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.LowStockAlert}" Style="{DynamicResource FormLabel}"/>
-                        <TextBox Text="{Binding ReorderLevel, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{DynamicResource UnderlineTextBox}"
-                                 Tag="10"/>
-                    </StackPanel>
-                </Grid>
-            </StackPanel>
-
-            <!-- 3. Footer Actions -->
-            <StackPanel Grid.Row="2" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right"
-                        Margin="{DynamicResource MarginSectionTop}">
-                
-                <Button Content="{DynamicResource Terminology.Global.Cancel}" 
-                        Command="{Binding CancelCommand}"
-                        Style="{DynamicResource SecondaryButton}"
-                        Margin="{DynamicResource MarginSmallRight}"/>
-
-                <Button Content="Delete" 
+                <!-- Delete Button (Edit mode only) -->
+                <Button Grid.Row="1"
                         Command="{Binding DeleteCommand}"
-                        Style="{DynamicResource SecondaryButton}"
-                        Foreground="{DynamicResource Brush.Accent.Red}"
-                        BorderBrush="{DynamicResource Brush.Accent.Red}"
-                        BorderThickness="1"
-                        MinWidth="{DynamicResource SizeButtonMinWidth}"
-                        Margin="{DynamicResource MarginSmallRight}"
-                        Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"/>
-
-                <Button Content="{DynamicResource Terminology.Shop.AddProduct.Action.Save}" 
-                        Command="{Binding SaveCommand}"
-                        Style="{DynamicResource PrimaryButton}"
-                        MinWidth="{DynamicResource SizeButtonMinWidth}"/>
-            </StackPanel>
-
-            <!-- Loading Overlay -->
-            <Grid Grid.RowSpan="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-                <Border Background="White" Opacity="0.6" CornerRadius="{DynamicResource RadiusModal}"/>
-                <ProgressBar IsIndeterminate="True" VerticalAlignment="Center" Width="100"/>
+                        Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
+                        HorizontalAlignment="Left"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,20,0,0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6"
+                              Stroke="{DynamicResource Brush.Accent.Red}"
+                              StrokeThickness="1.5"
+                              Width="16" Height="16"
+                              Stretch="Uniform"
+                              VerticalAlignment="Center"
+                              Margin="0,0,8,0"/>
+                        <TextBlock Text="Delete Product"
+                                   FontSize="13" FontWeight="Medium"
+                                   Foreground="{DynamicResource Brush.Accent.Red}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
             </Grid>
+
+            <!-- ===== RIGHT COLUMN: Pricing & Inventory ===== -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Pricing &amp; Inventory"
+                           FontSize="14" FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           Margin="0,0,0,24"/>
+
+                <!-- Category -->
+                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Category}"
+                           FontSize="12" FontWeight="Bold"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Margin="0,0,0,8"/>
+                <ComboBox ItemsSource="{x:Static shopvm:AddProductViewModel.AvailableCategories}"
+                          SelectedItem="{Binding Category, Mode=TwoWay}"
+                          Style="{StaticResource Input.ComboBox}"
+                          Margin="0,0,0,24"/>
+
+                <!-- Sale Price & Unit Cost -->
+                <Grid Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.SalePrice}"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Price, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                 Style="{StaticResource Input.Field}"
+                                 Height="40"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.UnitCost}"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                 Style="{StaticResource Input.Field}"
+                                 Height="40"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Initial Stock & Reorder Level -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.InitialStock}"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input.Field}"
+                                 Height="40"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.LowStockAlert}"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding ReorderLevel, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input.Field}"
+                                 Height="40"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
         </Grid>
-    </Border>
+    </premium:ModalShellControl>
 </UserControl>

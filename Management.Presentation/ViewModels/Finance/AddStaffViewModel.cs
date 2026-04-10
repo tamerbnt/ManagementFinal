@@ -27,8 +27,6 @@ namespace Management.Presentation.ViewModels.Finance
         private readonly ITenantService _tenantService;
         private readonly ModalNavigationStore _modalNavigationStore;
 
-        [ObservableProperty]
-        private string _password = string.Empty;
 
         [ObservableProperty] private bool _isGymEnabled = true;
         [ObservableProperty] private bool _isSalonEnabled = false;
@@ -57,7 +55,7 @@ namespace Management.Presentation.ViewModels.Finance
             _modalNavigationStore = modalNavigationStore;
 
             CancelCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => CloseAsync(null));
-            SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<object>(SaveAsync);
+            SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(SaveAsync);
 
             NewStaff.Role = "Staff";
             NewStaff.Permissions = new System.Collections.ObjectModel.ObservableCollection<StaffPermission>
@@ -86,7 +84,7 @@ namespace Management.Presentation.ViewModels.Finance
         {
              await _modalNavigationStore.CloseAsync(result is null ? null : Management.Presentation.Stores.ModalResult.Success(result));
         }
-        private async Task SaveAsync(object? parameter)
+        private async Task SaveAsync()
         {
             if (string.IsNullOrWhiteSpace(NewStaff.FullName))
             {
@@ -106,14 +104,9 @@ namespace Management.Presentation.ViewModels.Finance
                 return;
             }
 
-            string password = string.Empty;
+            string password = NewStaff.Password;
             if (!IsEditing)
             {
-                if (parameter is System.Windows.Controls.PasswordBox pb)
-                {
-                    password = pb.Password;
-                }
-
                 if (string.IsNullOrWhiteSpace(password))
                 {
                     _toastService?.ShowError(_localizationService.GetString("Strings.Finance.Validation.PasswordRequired"));
