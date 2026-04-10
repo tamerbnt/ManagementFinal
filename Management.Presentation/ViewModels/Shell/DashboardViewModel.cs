@@ -175,6 +175,35 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private Axis[] _memberYAxes = Array.Empty<Axis>();
 
+        // ── Marketing & BI Series (Gym Specific) ──────────────────────────────
+        [ObservableProperty]
+        private ISeries[] _frequencySeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _frequencyXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private ISeries[] _growthSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _growthXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private ISeries[] _gymAcquisitionSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _demographicSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _classFillSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private DashboardSummaryDto _summary = new();
+
+        [ObservableProperty]
+        private ISeries[] _planBreakdownSeries = Array.Empty<ISeries>();
+        // ────────────────────────────────────────────────────────────────────
+
         [ObservableProperty]
         private bool _isBusinessMode;
 
@@ -248,6 +277,41 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private int _todayAppointmentsPending;
+
+        // Salon BI Metrics
+        [ObservableProperty]
+        private KpiMetricDto _salonRebookingRate = new();
+
+        [ObservableProperty]
+        private KpiMetricDto _salonRetailAttachRate = new();
+
+        [ObservableProperty]
+        private KpiMetricDto _salonChairUtilization = new();
+
+        [ObservableProperty]
+        private KpiMetricDto _salonAvgTicketValue = new();
+
+        [ObservableProperty]
+        private ISeries[] _salonServiceProfitabilitySeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _salonGenderSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _salonAgeSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _salonStaffPerformanceSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private ISeries[] _salonAcquisitionSeries = Array.Empty<ISeries>();
+
+        // Gym BI Metrics
+        [ObservableProperty]
+        private ISeries[] _combinedDemographicsSeries = Array.Empty<ISeries>();
+
+        [ObservableProperty]
+        private Axis[] _combinedDemographicsXAxes = Array.Empty<Axis>();
 
         [ObservableProperty]
         private string _selectedStaffFilter = "Today";
@@ -476,6 +540,18 @@ namespace Management.Presentation.ViewModels.Shell
                             InnerRadius = 60
                         }
                     };
+                }
+
+                // 2. Acquisition Sources
+                if (summary.MemberDemographics?.Any() == true)
+                {
+                    GymAcquisitionSeries = summary.MemberDemographics.Select(d => 
+                        new PieSeries<int>
+                        {
+                            Name = d.Source,
+                            Values = new[] { d.Count },
+                            InnerRadius = 60
+                        }).ToArray();
                 }
             });
         }
@@ -815,6 +891,7 @@ namespace Management.Presentation.ViewModels.Shell
                     
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
                     {
+                        Summary = summary;
                         ActivePeopleCount = summary.CheckInsToday;
                         TotalActiveMembers = summary.ActiveMembers; 
                         TotalMembers = summary.TotalMembers;
@@ -921,6 +998,9 @@ namespace Management.Presentation.ViewModels.Shell
                     // Revenue Trend: runs on the calling thread, then marshals UI updates
                     // through its own _dispatcher.InvokeAsync — safe outside the outer dispatcher block.
                     if (IsBusinessMode || IsRestaurantMode || IsSalonMode) await RefreshRevenueTrendAsync();
+
+                    if (IsGymMode) await RefreshBiChartsAsync(summary);
+                    if (IsSalonMode) await RefreshSalonBiChartsAsync(summary);
                 }
                 finally
                 {
@@ -943,8 +1023,8 @@ namespace Management.Presentation.ViewModels.Shell
                 RevenuePercentChange = summary.RevenuePercentChange,
                 Expenses = summary.DailyExpenses,
                 ExpensesPercentChange = summary.ExpensesPercentChange,
-                MembershipsRevenue = IsRestaurantMode ? 0 : summary.MonthlyRevenue * 0.8m,
-                MerchandiseRevenue = IsRestaurantMode ? 0 : summary.MonthlyRevenue * 0.2m,
+                MembershipsRevenue = IsRestaurantMode ? 0 : summary.MonthlyMembershipRevenue,
+                MerchandiseRevenue = IsRestaurantMode ? 0 : summary.MonthlyMerchandiseRevenue,
                 Salaries = 0,
                 Rent = 0,
                 Utilities = 0
@@ -1465,6 +1545,291 @@ namespace Management.Presentation.ViewModels.Shell
                 _logger.LogError(ex, "Failed to send re-engagement email");
                 _toastService.ShowError("Failed to send email. Check your API key and domain health in Settings.");
             }
+        }
+
+        private async Task RefreshSalonBiChartsAsync(DashboardSummaryDto summary)
+        {
+            if (summary == null) return;
+
+            await _dispatcher.InvokeAsync(() =>
+            {
+                SalonRebookingRate = summary.SalonRebookingRate;
+                SalonRetailAttachRate = summary.SalonRetailAttachRate;
+                SalonChairUtilization = summary.SalonChairUtilization;
+                SalonAvgTicketValue = summary.SalonAvgTicketValue;
+
+                // 1. Service Profitability (Bar Chart)
+                SalonServiceProfitabilitySeries = new ISeries[]
+                {
+                    new ColumnSeries<decimal>
+                    {
+                        Name = "Profitability Index",
+                        Values = new ObservableCollection<decimal>(summary.ServiceProfitability.Select(s => s.ProfitabilityIndex)),
+                        Fill = new SolidColorPaint(SKColor.Parse("#8B5CF6")), // Violet
+                        Padding = 4,
+                        Rx = 8, Ry = 8
+                    }
+                };
+
+                // 2. Combined Demographics (Gym Style: Grouped Column)
+                var ageGroups = new[] { "Under 18", "18-25", "26-35", "36-50", "50+" };
+                var maleData = new double[5];
+                var femaleData = new double[5];
+
+                // Note: SalonAggregator provides GenderDemographics and AgeDemographics separately.
+                // We split the age counts by the overall gender ratio for a high-fidelity visual.
+                double maleRatio = summary.GenderDemographics.FirstOrDefault(g => g.Source == "Male")?.Count 
+                                    / (double)Math.Max(1, summary.GenderDemographics.Sum(g => g.Count)) ?? 0.5;
+                double femaleRatio = 1.0 - maleRatio;
+
+                for (int i = 0; i < ageGroups.Length; i++)
+                {
+                    var group = summary.AgeDemographics.FirstOrDefault(a => a.Source == ageGroups[i]);
+                    if (group != null)
+                    {
+                        maleData[i] = group.Count * maleRatio;
+                        femaleData[i] = group.Count * femaleRatio;
+                    }
+                }
+
+                CombinedDemographicsSeries = new ISeries[]
+                {
+                    new ColumnSeries<double>
+                    {
+                        Name = "Male",
+                        Values = maleData,
+                        Stroke = new SolidColorPaint(SKColor.Parse("#3B82F6")) { StrokeThickness = 2 },
+                        Fill = new SolidColorPaint(SKColor.Parse("#3B82F6").WithAlpha(180)),
+                        Rx = 4, Ry = 4,
+                        MaxBarWidth = 35
+                    },
+                    new ColumnSeries<double>
+                    {
+                        Name = "Female",
+                        Values = femaleData,
+                        Stroke = new SolidColorPaint(SKColor.Parse("#EC4899")) { StrokeThickness = 2 },
+                        Fill = new SolidColorPaint(SKColor.Parse("#EC4899").WithAlpha(180)),
+                        Rx = 4, Ry = 4,
+                        MaxBarWidth = 35
+                    }
+                };
+
+                CombinedDemographicsXAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = ageGroups,
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                        TextSize = 10
+                    }
+                };
+
+                // 3. Acquisition Sources (Pie Chart) - NEW PROPERTY
+                SalonAcquisitionSeries = summary.MemberDemographics.Select(d => 
+                    new PieSeries<int>
+                    {
+                        Name = d.Source,
+                        Values = new[] { d.Count },
+                        InnerRadius = 60
+                    }).ToArray();
+
+                // 4. Staff Performance
+                SalonStaffPerformanceSeries = new ISeries[]
+                {
+                    new ColumnSeries<decimal>
+                    {
+                        Name = "Rebooking Rate",
+                        Values = new ObservableCollection<decimal>(summary.SalonStaffPerformance.Select(s => s.RebookingRate)),
+                        Fill = new SolidColorPaint(SKColor.Parse("#10B981")), // Emerald
+                        Padding = 4,
+                        Rx = 8, Ry = 8
+                    }
+                };
+            });
+        }
+
+        private async Task RefreshBiChartsAsync(DashboardSummaryDto summary)
+        {
+            if (summary == null || !IsGymMode) return;
+
+            await _dispatcher.InvokeAsync(() =>
+            {
+                // 1. Visit Frequency Distribution (Last 7 Days)
+                if (summary.VisitFrequencyDistribution?.Any() == true)
+                {
+                    FrequencySeries = new ISeries[]
+                    {
+                        new ColumnSeries<int>
+                        {
+                            Name = "Members",
+                            Values = summary.VisitFrequencyDistribution.ToArray(),
+                            Stroke = new SolidColorPaint(SKColor.Parse("#3B82F6")) { StrokeThickness = 2 },
+                            Fill = new SolidColorPaint(SKColor.Parse("#3B82F6").WithAlpha(180)),
+                            Rx = 4, Ry = 4,
+                            MaxBarWidth = 35
+                        }
+                    };
+
+                    FrequencyXAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = new[] { "0 visits", "1 visit", "2 visits", "3 visits", "4 visits", "5+ visits" },
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            TextSize = 10
+                        }
+                    };
+                }
+
+                // 2. Member Growth Trend (Latest vs Lost)
+                if (summary.GrowthTrend?.Any() == true)
+                {
+                    GrowthSeries = new ISeries[]
+                    {
+                        new StackedColumnSeries<int>
+                        {
+                            Name = "New Members",
+                            Values = summary.GrowthTrend.Select(t => t.NewMembers).ToArray(),
+                            Stroke = new SolidColorPaint(SKColor.Parse("#10B981")) { StrokeThickness = 2 },
+                            Fill = new SolidColorPaint(SKColor.Parse("#10B981").WithAlpha(180))
+                        },
+                        new StackedColumnSeries<int>
+                        {
+                            Name = "Lost Members",
+                            Values = summary.GrowthTrend.Select(t => t.LostMembers).ToArray(),
+                            Stroke = new SolidColorPaint(SKColor.Parse("#EF4444")) { StrokeThickness = 2 },
+                            Fill = new SolidColorPaint(SKColor.Parse("#EF4444").WithAlpha(180))
+                        }
+                    };
+
+                    GrowthXAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = summary.GrowthTrend.Select(t => t.Month).ToArray(),
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            TextSize = 10
+                        }
+                    };
+                }
+
+                // 3. Plan Breakdown (Donut Chart)
+                if (summary.MembershipBreakdown?.Any() == true)
+                {
+                    PlanBreakdownSeries = summary.MembershipBreakdown.Select((p, index) => 
+                    {
+                        var colors = new[] { "#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444" };
+                        var color = colors[index % colors.Length];
+                        return (ISeries)new PieSeries<int>
+                        {
+                            Name = p.PlanName,
+                            Values = new[] { p.Count },
+                            Fill = new SolidColorPaint(SKColor.Parse(color)),
+                            InnerRadius = 60,
+                            DataLabelsPaint = null
+                        };
+                    }).ToArray();
+                }
+
+                // 3. Gender Demographics
+                if (summary.GenderDemographics?.Any() == true)
+                {
+                    SalonGenderSeries = summary.GenderDemographics.Select((d, index) =>
+                    {
+                        var colors = new[] { "#3B82F6", "#EC4899", "#8B5CF6", "#94A3B8" };
+                        var color = colors[index % colors.Length];
+                        return (ISeries)new PieSeries<int>
+                        {
+                            Name = d.Source,
+                            Values = new[] { d.Count },
+                            Fill = d.Source.ToLower() switch
+                            {
+                                "male" => new SolidColorPaint(SKColor.Parse("#3B82F6")),
+                                "female" => new SolidColorPaint(SKColor.Parse("#EC4899")),
+                                _ => new SolidColorPaint(SKColor.Parse(color))
+                            },
+                            InnerRadius = 45,
+                            DataLabelsPaint = null
+                        };
+                    }).ToArray();
+                }
+
+                // 4. Age Demographics
+                if (summary.AgeDemographics?.Any() == true)
+                {
+                    SalonAgeSeries = summary.AgeDemographics.Select((d, index) =>
+                    {
+                        var colors = new[] { "#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444" };
+                        var color = colors[index % colors.Length];
+                        return (ISeries)new PieSeries<int>
+                        {
+                            Name = d.Source,
+                            Values = new[] { d.Count },
+                            Fill = new SolidColorPaint(SKColor.Parse(color)),
+                            InnerRadius = 45,
+                            DataLabelsPaint = null
+                        };
+                    }).ToArray();
+                }
+
+                // 5. Combined Demographics (Age Group + Gender)
+                if (summary.CombinedDemographics?.Any() == true)
+                {
+                    var maleValues = summary.CombinedDemographics.Select(d => d.MaleCount).ToArray();
+                    var femaleValues = summary.CombinedDemographics.Select(d => d.FemaleCount).ToArray();
+                    var ageLabels = summary.CombinedDemographics.Select(d => d.AgeGroup).ToArray();
+
+                    CombinedDemographicsSeries = new ISeries[]
+                    {
+                        new ColumnSeries<int>
+                        {
+                            Name = "Male",
+                            Values = maleValues,
+                            Fill = new SolidColorPaint(SKColor.Parse("#3B82F6")), // Blue
+                            Padding = 2,
+                            Rx = 4, Ry = 4
+                        },
+                        new ColumnSeries<int>
+                        {
+                            Name = "Female",
+                            Values = femaleValues,
+                            Fill = new SolidColorPaint(SKColor.Parse("#EC4899")), // Pink
+                            Padding = 2,
+                            Rx = 4, Ry = 4
+                        }
+                    };
+
+                    CombinedDemographicsXAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            Labels = ageLabels,
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            TextSize = 10
+                        }
+                    };
+                }
+
+                // 6. Member Demographics (Acquisition)
+                if (summary.MemberDemographics?.Any() == true)
+                {
+                    GymAcquisitionSeries = summary.MemberDemographics.Select((d, index) =>
+                    {
+                        var colors = new[] { "#8B5CF6", "#3B82F6", "#10B981", "#F59E0B", "#EF4444" };
+                        var color = colors[index % colors.Length];
+                        return (ISeries)new PieSeries<int>
+                        {
+                            Name = d.Source,
+                            Values = new[] { d.Count },
+                            Fill = new SolidColorPaint(SKColor.Parse(color)),
+                             DataLabelsPaint = null,
+                             InnerRadius = 45
+                        };
+                    }).ToArray();
+                    DemographicSeries = GymAcquisitionSeries; // Align with XAML binding
+                }
+
+            });
         }
     }
 
