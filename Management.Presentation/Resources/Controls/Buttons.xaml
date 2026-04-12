@@ -199,8 +199,8 @@
     <Style x:Key="Button.QuickAction" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Neutral.White}" />
-        <Setter Property="Padding" Value="12,16" />
-        <Setter Property="MinHeight" Value="110" />
+        <Setter Property="Padding" Value="10,12" />
+        <Setter Property="MinHeight" Value="80" />
         <Setter Property="BorderThickness" Value="1.5" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>

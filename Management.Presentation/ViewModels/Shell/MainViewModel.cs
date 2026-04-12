@@ -302,7 +302,7 @@ namespace Management.Presentation.ViewModels.Shell
             // Subscribe to navigation changes
             _serviceProvider.GetRequiredService<NavigationStore>().CurrentViewModelChanged += OnCurrentViewModelChanged;
             _resilienceService.ConnectivityChanged += (s, isOnline) => OnConnectionStatusChanged(isOnline);
-            _sessionMonitor.SessionExpired += OnSessionExpired;
+
 
             var localizationService = _serviceProvider.GetRequiredService<ILocalizationService>();
             localizationService.LanguageChanged += (s, e) => 
@@ -605,13 +605,6 @@ namespace Management.Presentation.ViewModels.Shell
             });
         }
 
-        private void OnSessionExpired(object? sender, Management.Domain.Services.SessionExpiredEventArgs e)
-        {
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                _dialogService.ShowCustomDialogAsync<SessionExpiredViewModel>(e.Message);
-            });
-        }
 
         private void OnConflictDetected(Management.Domain.Models.OutboxMessage message)
         {

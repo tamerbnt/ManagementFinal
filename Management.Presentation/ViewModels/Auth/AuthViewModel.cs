@@ -44,16 +44,65 @@ namespace Management.Presentation.ViewModels
 
             _navigationStore = navigationStore;
             _notificationService = notificationService;
-            _currentView = _navigationStore.CurrentViewModel as ViewModelBase;
+            
+            // ARCHITECTURE GUARD: Only allow Auth-related ViewModels in this shell.
+            // This prevents the Dashboard from ever "Mashup" rendering inside the Auth card.
+            var candidateVm = _navigationStore.CurrentViewModel as ViewModelBase;
+            _currentView = IsAuthView(candidateVm) ? candidateVm : null;
+
             _navigationStore.CurrentViewModelChanged += OnCurrentViewModelChanged;
 
             CurrentModal = _modalNavigationStore.CurrentModalViewModel;
             IsModalOpen = _modalNavigationStore.IsOpen;
         }
 
+        private bool _isHandoffInProgress;
+
+        public void PrepareForHandoff()
+        {
+            Serilog.Log.Information("[AuthViewModel] Handoff initiated. Disconnecting from NavigationStore and clearing view...");
+            _isHandoffInProgress = true;
+            _navigationStore.CurrentViewModelChanged -= OnCurrentViewModelChanged;
+            CurrentView = null;
+        }
+
         private void OnCurrentViewModelChanged()
         {
-            CurrentView = _navigationStore.CurrentViewModel as ViewModelBase;
+            if (_isHandoffInProgress) return;
+
+            var newVm = _navigationStore.CurrentViewModel as ViewModelBase;
+            
+            // FIREWALL: If the new ViewModel is not an Auth-view, ignore it.
+            // This stops the Dashboard from appearing in the Auth Window for a split second during handoff.
+            if (IsAuthView(newVm))
+            {
+                CurrentView = newVm;
+            }
+            else
+            {
+                Serilog.Log.Debug("[AuthFirewall] Blocked non-auth ViewModel {VmName} from rendering in Auth Shell.", newVm?.GetType().Name ?? "null");
+                // If we are already on an auth view, keep it. 
+                // If we are transitioning to a black-hole (Dashboard resolution), just stay where we are.
+            }
+        }
+
+        private bool IsAuthView(ViewModelBase? vm)
+        {
+            if (vm == null) return true; // Clearing the view is always allowed
+
+            var type = vm.GetType();
+            var ns = type.Namespace ?? string.Empty;
+            var typeName = type.Name;
+            
+            // FIREWALL ALLOWLIST:
+            // 1. Any ViewModel in the .Auth sub-namespace (SplashOnboarding, etc.)
+            // 2. The main LoginViewModel
+            // 3. The initial FacilityOnboarding or LicenseEntry views
+            return ns.Contains("ViewModels.Auth") || 
+                   typeName == "LoginViewModel" || 
+                   typeName == "SplashOnboardingViewModel" ||
+                   typeName == "FacilityOnboardingViewModel" ||
+                   typeName == "LicenseEntryViewModel";
         }
 
         private void OnModalStorePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

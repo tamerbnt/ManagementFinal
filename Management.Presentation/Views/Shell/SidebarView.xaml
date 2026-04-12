@@ -240,225 +240,230 @@
             </Button>
 
             <!-- NAVIGATION (COINEST Floating Pillars) -->
-            <Grid Grid.Row="2" Margin="0,12,0,0">
-                <!-- SELECTION RAIL (Fluid Motion Layer) -->
-                <Canvas x:Name="SelectionRail" IsHitTestVisible="False" Margin="0,0">
-                    <!-- GLOWING BLUE PILL INDICATOR -->
-                    <Border x:Name="FluidIndicator">
-                        <Border.RenderTransform>
-                            <TranslateTransform x:Name="IndicatorTransform" Y="0"/>
-                        </Border.RenderTransform>
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Width" Value="248"/>
-                                <Setter Property="Height" Value="64"/>
-                                <Setter Property="Margin" Value="6,0"/>
-                                <Setter Property="CornerRadius" Value="{DynamicResource Corner.LG}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="52" Duration="0:0:0.20">
-                                                        <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
-                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="10,0" Duration="0:0:0.20">
-                                                        <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
-                                                    </ThicknessAnimation>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="248" Duration="0:0:0.20">
-                                                        <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
-                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="6,0" Duration="0:0:0.20">
-                                                        <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
-                                                    </ThicknessAnimation>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                        <Setter Property="CornerRadius" Value="{DynamicResource Corner.XL}"/>
+            <ScrollViewer Grid.Row="2" 
+                          VerticalScrollBarVisibility="Hidden" 
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False">
+                <Grid Margin="0,12,0,12">
+                    <!-- SELECTION RAIL (Fluid Motion Layer) -->
+                    <Canvas x:Name="SelectionRail" IsHitTestVisible="False" Margin="0,0">
+                        <!-- GLOWING BLUE PILL INDICATOR -->
+                        <Border x:Name="FluidIndicator">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="IndicatorTransform" Y="0"/>
+                            </Border.RenderTransform>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Width" Value="248"/>
+                                    <Setter Property="Height" Value="64"/>
+                                    <Setter Property="Margin" Value="6,0"/>
+                                    <Setter Property="CornerRadius" Value="{DynamicResource Corner.LG}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Width" To="52" Duration="0:0:0.20">
+                                                            <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <ThicknessAnimation Storyboard.TargetProperty="Margin" To="10,0" Duration="0:0:0.20">
+                                                            <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
+                                                        </ThicknessAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="Width" To="248" Duration="0:0:0.20">
+                                                            <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                        </DoubleAnimation>
+                                                        <ThicknessAnimation Storyboard.TargetProperty="Margin" To="6,0" Duration="0:0:0.20">
+                                                            <ThicknessAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></ThicknessAnimation.EasingFunction>
+                                                        </ThicknessAnimation>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                            <Setter Property="CornerRadius" Value="{DynamicResource Corner.XL}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="SelectionStates">
+                                    <VisualStateGroup.Transitions>
+                                        <VisualTransition From="*" To="*" GeneratedDuration="0:0:0.4">
+                                            <VisualTransition.GeneratedEasingFunction>
+                                                <CubicEase EasingMode="EaseInOut"/>
+                                            </VisualTransition.GeneratedEasingFunction>
+                                        </VisualTransition>
+                                    </VisualStateGroup.Transitions>
+
+                                    <VisualState x:Name="State0">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="0" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State1">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="64" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State2">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="128" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State3">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="192" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State4">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="256" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State5">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="320" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State6">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="384" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="State7">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="448" Duration="0"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <i:Interaction.Triggers>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="0">
+                                    <i:GoToStateAction StateName="State0"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="1">
+                                    <i:GoToStateAction StateName="State1"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="2">
+                                    <i:GoToStateAction StateName="State2"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="3">
+                                    <i:GoToStateAction StateName="State3"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="4">
+                                    <i:GoToStateAction StateName="State4"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="5">
+                                    <i:GoToStateAction StateName="State5"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="6">
+                                    <i:GoToStateAction StateName="State6"/>
+                                </i:DataTrigger>
+                                <i:DataTrigger Binding="{Binding ActiveIndex}" Value="7">
+                                    <i:GoToStateAction StateName="State7"/>
+                                </i:DataTrigger>
+                            </i:Interaction.Triggers>
+                            
+                            <!-- CoachPro Style: Solid Identity Pill -->
+                            <Border.Background>
+                                <DynamicResource ResourceKey="FacilityAccentGradient"/>
+                            </Border.Background>
+                            
+                            <Border.BorderThickness>0</Border.BorderThickness>
+
+                            <Border.Effect>
+                                <DynamicResource ResourceKey="ShadowGlow"/>
+                            </Border.Effect>
+                            
+                            <!-- No internal dot for CoachPro style, just solid gradient -->
+                        </Border>
+                    </Canvas>
+
+                    <ItemsControl ItemsSource="{Binding MenuItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Floating Container -->
+                                <Border x:Name="NavItemBorder" Background="Transparent" CornerRadius="{DynamicResource Corner.LG}" Margin="6,0" Height="64">
+                                    <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource SidebarNavigationButtonStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                                        <Setter Property="ToolTip" Value="{Binding DisplayName}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="48"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <Path x:Name="IconPath" Grid.Column="0"
+                                                  Data="{Binding IconKey, Converter={StaticResource ResourceKeyToIconConverter}}"
+                                                  Fill="{DynamicResource Brush.Sidebar.Text.Inactive}"
+                                                  Width="20" Height="20" Stretch="Uniform"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                                                <Setter Property="Grid.ColumnSpan" Value="2"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                            
+                                            <TextBlock x:Name="LabelText" Grid.Column="1" 
+                                                       Text="{Binding DisplayName}" 
+                                                       VerticalAlignment="Center" Margin="4,0,16,0"
+                                                       Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}"
+                                                       FontSize="14" FontWeight="Medium">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Opacity" Value="1"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                                                <Setter Property="Opacity" Value="0"/>
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                                <!-- REMOVED TextGlow to fix ghosting/blur issues -->
+                                            </TextBlock>
+                                        </Grid>
+                                    </Button>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <!-- Using semi-transparent background for hover -->
+                                        <Setter TargetName="NavItemBorder" Property="Background" Value="{DynamicResource Brush.Sidebar.Hover}"/> 
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter TargetName="IconPath" Property="Fill" Value="{DynamicResource Brush.Sidebar.Text.Active}"/>
+                                        <Setter TargetName="LabelText" Property="Foreground" Value="{DynamicResource Brush.Sidebar.Text.Active}"/>
+                                        <Setter TargetName="LabelText" Property="FontWeight" Value="SemiBold"/>
+                                        <!-- NO TEXT EFFECT -> FIXES GHOSTING -->
                                     </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="SelectionStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition From="*" To="*" GeneratedDuration="0:0:0.4">
-                                        <VisualTransition.GeneratedEasingFunction>
-                                            <CubicEase EasingMode="EaseInOut"/>
-                                        </VisualTransition.GeneratedEasingFunction>
-                                    </VisualTransition>
-                                </VisualStateGroup.Transitions>
-
-                                <VisualState x:Name="State0">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="0" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State1">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="64" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State2">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="128" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State3">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="192" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State4">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="256" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State5">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="320" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State6">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="384" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="State7">
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="IndicatorTransform" Storyboard.TargetProperty="Y" To="448" Duration="0"/>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-
-                        <i:Interaction.Triggers>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="0">
-                                <i:GoToStateAction StateName="State0"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="1">
-                                <i:GoToStateAction StateName="State1"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="2">
-                                <i:GoToStateAction StateName="State2"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="3">
-                                <i:GoToStateAction StateName="State3"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="4">
-                                <i:GoToStateAction StateName="State4"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="5">
-                                <i:GoToStateAction StateName="State5"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="6">
-                                <i:GoToStateAction StateName="State6"/>
-                            </i:DataTrigger>
-                            <i:DataTrigger Binding="{Binding ActiveIndex}" Value="7">
-                                <i:GoToStateAction StateName="State7"/>
-                            </i:DataTrigger>
-                        </i:Interaction.Triggers>
-                        
-                        <!-- CoachPro Style: Solid Identity Pill -->
-                        <Border.Background>
-                            <DynamicResource ResourceKey="FacilityAccentGradient"/>
-                        </Border.Background>
-                        
-                        <Border.BorderThickness>0</Border.BorderThickness>
-
-                        <Border.Effect>
-                            <DynamicResource ResourceKey="ShadowGlow"/>
-                        </Border.Effect>
-                        
-                        <!-- No internal dot for CoachPro style, just solid gradient -->
-                    </Border>
-                </Canvas>
-
-                <ItemsControl ItemsSource="{Binding MenuItems}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- Floating Container -->
-                            <Border x:Name="NavItemBorder" Background="Transparent" CornerRadius="{DynamicResource Corner.LG}" Margin="6,0" Height="64">
-                                <Button Command="{Binding DataContext.NavigateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource SidebarNavigationButtonStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                                    <Setter Property="ToolTip" Value="{Binding DisplayName}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                    <Grid HorizontalAlignment="Stretch">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="48"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        
-                                        <Path x:Name="IconPath" Grid.Column="0"
-                                              Data="{Binding IconKey, Converter={StaticResource ResourceKeyToIconConverter}}"
-                                              Fill="{DynamicResource Brush.Sidebar.Text.Inactive}"
-                                              Width="20" Height="20" Stretch="Uniform"
-                                              HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <Path.Style>
-                                                <Style TargetType="Path">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                                            <Setter Property="Grid.ColumnSpan" Value="2"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Path.Style>
-                                        </Path>
-                                        
-                                        <TextBlock x:Name="LabelText" Grid.Column="1" 
-                                                   Text="{Binding DisplayName}" 
-                                                   VerticalAlignment="Center" Margin="4,0,16,0"
-                                                   Foreground="{DynamicResource Brush.Sidebar.Text.Inactive}"
-                                                   FontSize="14" FontWeight="Medium">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Opacity" Value="1"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                                            <Setter Property="Opacity" Value="0"/>
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                            <!-- REMOVED TextGlow to fix ghosting/blur issues -->
-                                        </TextBlock>
-                                    </Grid>
-                                </Button>
-                            </Border>
-                            <DataTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <!-- Using semi-transparent background for hover -->
-                                    <Setter TargetName="NavItemBorder" Property="Background" Value="{DynamicResource Brush.Sidebar.Hover}"/> 
-                                </Trigger>
-                                <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter TargetName="IconPath" Property="Fill" Value="{DynamicResource Brush.Sidebar.Text.Active}"/>
-                                    <Setter TargetName="LabelText" Property="Foreground" Value="{DynamicResource Brush.Sidebar.Text.Active}"/>
-                                    <Setter TargetName="LabelText" Property="FontWeight" Value="SemiBold"/>
-                                    <!-- NO TEXT EFFECT -> FIXES GHOSTING -->
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Grid>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
             
             <!-- SEPARATOR -->
-            <Rectangle Grid.Row="2" VerticalAlignment="Bottom" Height="1" Margin="16,12" Opacity="0.2">
+            <Rectangle Grid.Row="2" VerticalAlignment="Bottom" Height="1" Margin="16,0" Opacity="0.2">
                 <Rectangle.Fill>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                         <GradientStop Color="Transparent" Offset="0"/>

@@ -17,6 +17,9 @@
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" Inverted="True"/>
         
+        <!-- Missing icon aliases -->
+        <StreamGeometry x:Key="IconMember">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
+        
         <Style x:Key="SelectionItemStyle" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
@@ -136,7 +139,7 @@
                                         <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" Padding="4">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Button Command="{Binding DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    <Button Command="{Binding PlacementTarget.DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource Button.Ghost}" HorizontalContentAlignment="Left" Padding="12,8">
                                                         <StackPanel>
@@ -151,20 +154,15 @@
                                 </Popup>
                             </Grid>
 
-                            <!-- Selected Member Card -->
-                            <Border Background="{DynamicResource FacilityAccentDimBrush}" CornerRadius="12" Padding="12"
-                                    Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
+                            <!-- Selected Member Badge -->
+                            <Border Background="#EFF6FF" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="White" FontSize="13"/>
-                                        <TextBlock Text="Linked Member" FontSize="11" Foreground="#E0F2FE"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconMember}" Fill="#3B82F6" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="#1E40AF" FontSize="13" VerticalAlignment="Center"/>
                                     </StackPanel>
-                                    <Button Grid.Column="1" Command="{Binding ClearSelectedMemberCommand}" Style="{StaticResource Button.Ghost}" Width="24" Height="24" Padding="6">
-                                        <Path Data="{StaticResource IconClose}" Fill="White" Stretch="Uniform"/>
+                                    <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
+                                        <Path Data="{StaticResource IconClose}" Fill="#1E40AF" Stretch="Uniform"/>
                                     </Button>
                                 </Grid>
                             </Border>

@@ -59,6 +59,11 @@ namespace Management.Presentation.ViewModels.Shop
         [NotifyCanExecuteChangedFor(nameof(ProcessSaleCommand))]
         private ProductDto? _selectedProduct;
 
+        partial void OnSelectedProductChanged(ProductDto? oldValue, ProductDto? newValue)
+        {
+            _ = UpdatePricingAsync();
+        }
+
         [ObservableProperty]
         private decimal _effectivePrice;
 
@@ -66,6 +71,7 @@ namespace Management.Presentation.ViewModels.Shop
         private decimal? _originalPrice;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsDiscounted))]
         private decimal? _discountAmount;
 
         [ObservableProperty]
@@ -141,14 +147,14 @@ namespace Management.Presentation.ViewModels.Shop
             IsLoading = false;
         }
 
-        partial void OnSearchQueryChanged(string value)
+        partial void OnSearchQueryChanged(string? oldValue, string? newValue)
         {
-            FilterProducts(value);
+            FilterProducts(newValue ?? string.Empty);
         }
 
         private CancellationTokenSource? _memberSearchCts;
 
-        partial void OnMemberSearchQueryChanged(string value)
+        partial void OnMemberSearchQueryChanged(string? oldValue, string? newValue)
         {
             _memberSearchCts?.Cancel();
             _memberSearchCts = new CancellationTokenSource();
@@ -161,7 +167,7 @@ namespace Management.Presentation.ViewModels.Shop
                     await Task.Delay(400, token);
                     if (token.IsCancellationRequested) return;
 
-                    await SearchMembersAsync(value);
+                    await SearchMembersAsync(newValue ?? string.Empty);
                 }
                 catch (TaskCanceledException) { }
             }, token);

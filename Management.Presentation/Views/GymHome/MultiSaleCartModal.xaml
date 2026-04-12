@@ -239,7 +239,8 @@
                                                             IconData="{StaticResource IconSearch}"/>
                                     
                                     <!-- Search Results Popup -->
-                                    <Popup IsOpen="{Binding SearchedMembers, Converter={StaticResource CountToBooleanConverter}}" 
+                                    <Popup IsOpen="{Binding SearchedMembers.Count, Converter={StaticResource CountToBooleanConverter}, Mode=OneWay}" 
+                                           PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Grid}}"
                                            StaysOpen="False" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade">
                                         <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E5E7EB" Width="260" Margin="4">
                                             <Border.Effect>
@@ -248,7 +249,7 @@
                                             <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" MaxHeight="250">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Button Command="{Binding DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        <Button Command="{Binding PlacementTarget.DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
                                                                 CommandParameter="{Binding}" Style="{DynamicResource Button.Ghost}" HorizontalContentAlignment="Left" Padding="12,8">
                                                             <StackPanel>
                                                                 <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" FontSize="13"/>
@@ -314,7 +315,7 @@
                                         
                                         <Border Background="#D1FAE5" CornerRadius="10" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Bottom"
                                                 Visibility="{Binding SelectedProductPricing.IsDiscountApplied, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBlock Text="PROMO" FontSize="9" FontWeight="Bold" Foreground="#047857"/>
+                                            <TextBlock Text="{Binding SelectedProductPricing.AppliedPromotionName, FallbackValue=PROMO}" FontSize="9" FontWeight="Bold" Foreground="#047857"/>
                                         </Border>
                                     </StackPanel>
                                     

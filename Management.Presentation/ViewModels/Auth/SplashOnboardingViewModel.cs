@@ -13,6 +13,8 @@ using Management.Domain.Enums;
 using Management.Infrastructure.Data;
 using Management.Presentation.Services;
 using Management.Presentation.ViewModels.Base;
+using Management.Application.DTOs;
+using Management.Domain.Primitives;
 
 namespace Management.Presentation.ViewModels.Auth
 {
@@ -183,7 +185,11 @@ namespace Management.Presentation.ViewModels.Auth
             _facilityContext.SetFacility(SelectedFacility.Type);
             
             // Check for valid existing session (Auto-Login)
-            var currentUserResult = await _authService.GetCurrentUserAsync();
+            // CRITICAL: We skip auto-login if the user has explicitly logged out during this session.
+            var currentUserResult = _authService.IsLogoutActive 
+                ? Result.Failure<StaffDto>(new Error("Auth.ForcedLogin", "Forcing login after logout."))
+                : await _authService.GetCurrentUserAsync();
+
             if (currentUserResult.IsSuccess && currentUserResult.Value != null)
             {
                 var user = currentUserResult.Value;

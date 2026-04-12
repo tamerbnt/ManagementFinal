@@ -240,6 +240,10 @@
             </DataTemplate>
 
 
+            <DataTemplate DataType="{x:Type authvm:LogoutConfirmationViewModel}">
+                <auth:LogoutConfirmationView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type sharedvm:NotificationDetailViewModel}">
                 <shared:NotificationDetailView/>
             </DataTemplate>

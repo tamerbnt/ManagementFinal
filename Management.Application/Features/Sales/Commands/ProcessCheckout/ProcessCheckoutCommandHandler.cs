@@ -28,6 +28,9 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProcessCheckoutCommandHandler> _logger;
 
+        private readonly IPricingService _pricingService;
+        private readonly IMemberRepository _memberRepository;
+
         public ProcessCheckoutCommandHandler(
             ISaleRepository saleRepository,
             IProductRepository productRepository,
@@ -36,7 +39,9 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             ICurrentUserService currentUserService,
             ITenantService tenantService,
             IUnitOfWork unitOfWork,
-            ILogger<ProcessCheckoutCommandHandler> logger)
+            ILogger<ProcessCheckoutCommandHandler> logger,
+            IPricingService pricingService,
+            IMemberRepository memberRepository)
         {
             _saleRepository = saleRepository;
             _productRepository = productRepository;
@@ -46,6 +51,8 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             _tenantService = tenantService;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _pricingService = pricingService;
+            _memberRepository = memberRepository;
         }
 
         public async Task<Result<Guid>> Handle(ProcessCheckoutCommand request, CancellationToken cancellationToken)
@@ -89,6 +96,10 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
             {
                 var productsToUpdate = new List<Product>();
 
+                Member? member = checkoutRequest.MemberId.HasValue 
+                    ? await _memberRepository.GetByIdAsync(checkoutRequest.MemberId.Value) 
+                    : null;
+
                 foreach (var item in checkoutRequest.Items)
                 {
                     var productId = item.Key;
@@ -108,7 +119,27 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     
                     productsToUpdate.Add(product);
                     
-                    var addResult = saleEntity.AddLineItem(product, qty);
+                    // --- BEWARE: BACKEND-SIDE PRICING VALIDATION ---
+                    // Re-calculate effective price to ensure promotion rules are respected at the point of save.
+                    var pricingResult = await _pricingService.CalculateEffectivePriceAsync(
+                        request.FacilityId, 
+                        productId, 
+                        product.Price, 
+                        member?.Gender, 
+                        member?.MembershipPlanId);
+
+                    if (pricingResult.IsDiscountApplied && string.IsNullOrEmpty(saleEntity.AppliedPromotionName))
+                    {
+                        saleEntity.SetPromotionName(pricingResult.AppliedPromotionName);
+                    }
+
+                    var addResult = saleEntity.AddLineItem(
+                        product, 
+                        qty, 
+                        pricingResult.EffectivePrice, 
+                        pricingResult.OriginalPrice, 
+                        pricingResult.DiscountAmount);
+
                     if (addResult.IsFailure)
                     {
                         return Result.Failure<Guid>(addResult.Error);

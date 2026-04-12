@@ -533,6 +533,7 @@ namespace Management.Presentation
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 mappingService.Register<InventoryHistoryViewModel, InventoryHistoryView>();
                 mappingService.Register<Management.Presentation.ViewModels.GymHome.RegisterWalkInViewModel, Management.Presentation.Views.GymHome.RegisterWalkInModal>();
+                mappingService.Register<LogoutConfirmationViewModel, LogoutConfirmationWindow>();
                 // LogRestockViewModel, SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
@@ -703,25 +704,17 @@ namespace Management.Presentation
                 try 
                 {
                     Serilog.Log.Information("Handoff: Launching Main Shell...");
+                                  // CRITICAL: Reset all stateful Singletons (State Isolation) before re-establishing UI
+                    ResetApplicationState();
                     
-                    // CRITICAL: Reset all stateful Singletons (State Isolation) before re-establishing UI
-                    try 
-                    {
-                        var resettables = ServiceProvider.GetServices<Management.Domain.Interfaces.IStateResettable>();
-                        foreach (var resettable in resettables)
-                        {
-                            resettable.ResetState();
-                        }
+                    // CRITICAL: Blank the navigation store immediately so no window renders old/ghost content
+                    var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+                    navStore.CurrentViewModel = null;
 
-                        // Re-synchronize SessionManager after reset
-                        var facilityContext = ServiceProvider.GetRequiredService<Management.Domain.Services.IFacilityContextService>();
-                        var sessionManager = ServiceProvider.GetRequiredService<Management.Presentation.Services.State.SessionManager>();
-                        sessionManager.CurrentFacility = facilityContext.CurrentFacility;
-
-                    }
-                    catch (Exception ex)
+                    // CRITICAL: If the current shell is AuthWindow, tell its ViewModel to stop listening to NavigationStore
+                    if (Current.MainWindow?.DataContext is AuthViewModel authVm)
                     {
-                        Serilog.Log.Error(ex, "Failed to reset state during LaunchMainWindow");
+                        authVm.PrepareForHandoff();
                     }
 
                     var mainWindow = ServiceProvider.GetRequiredService<Management.Presentation.Views.Shell.MainWindow>();
@@ -758,6 +751,14 @@ namespace Management.Presentation
                 try
                 {
                     Serilog.Log.Information("Handoff: Logging out, switching to Auth Shell...");
+                    
+                    // CRITICAL: Clear the navigation state FIRST so no NEW windows see old content
+                    var navStore = ServiceProvider.GetRequiredService<NavigationStore>();
+                    navStore.CurrentViewModel = null;
+
+                    // CRITICAL: Clear all in-memory singleton state
+                    ResetApplicationState();
+
                     var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
                     var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
                     var navService = ServiceProvider.GetRequiredService<INavigationService>();
@@ -766,11 +767,16 @@ namespace Management.Presentation
                     authWindow.DataContext = authVm;
                     Current.MainWindow = authWindow;
                     authWindow.Show();
+                    
+                    if (oldWindow is Management.Presentation.Views.Shell.MainWindow mainWin)
+                    {
+                        mainWin.PrepareForHandoff();
+                    }
 
                     oldWindow?.Close();
 
-                    // Navigate to Login view within Auth shell
-                    await navService.NavigateToLoginAsync();
+                    // Navigate to Splash Onboarding view within Auth shell (5 slides)
+                    await navService.NavigateToSplashAsync();
                 }
                 catch (Exception ex)
                 {
@@ -782,6 +788,31 @@ namespace Management.Presentation
 
         // FIX 3: Keep backward-compatible sync entry point
         public void Logout() => _ = LogoutAsync();
+
+        private void ResetApplicationState()
+        {
+            try
+            {
+                Serilog.Log.Information("State Isolation: Resetting all resettable stores...");
+                var resettables = ServiceProvider.GetServices<Management.Domain.Interfaces.IStateResettable>();
+                foreach (var resettable in resettables)
+                {
+                    resettable.ResetState();
+                }
+
+                // Re-synchronize SessionManager after reset (ensures it reflects the currently committed facility context)
+                var facilityContext = ServiceProvider.GetService<Management.Domain.Services.IFacilityContextService>();
+                var sessionManager = ServiceProvider.GetService<Management.Presentation.Services.State.SessionManager>();
+                if (sessionManager != null && facilityContext != null)
+                {
+                    sessionManager.CurrentFacility = facilityContext.CurrentFacility;
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "Failed to reset application state");
+            }
+        }
 
         /// <summary>
         /// Re-initializes services that depend on a valid tenant context/license.
@@ -1085,6 +1116,7 @@ namespace Management.Presentation
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<TurnstileStore>());
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SyncStore>());
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<NotificationStore>());
+            services.AddSingleton<IStateResettable>(s => (IStateResettable)s.GetRequiredService<IAuthenticationService>());
             
             // Register Home ViewModels and Shell ViewModels as Resettable
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<MainViewModel>());
@@ -1109,14 +1141,14 @@ namespace Management.Presentation
             services.AddSingleton<IAccessControlCache, AccessControlCache>();
             services.AddTransient<ITableService, TableService>();
             services.AddTransient<IAccessControlService, AccessControlService>();
-            services.AddSingleton<IPricingService, PricingService>();
+            services.AddScoped<IPricingService, PricingService>();
             services.AddTransient<IPromotionService, PromotionService>();
             // The line below was moved up as part of the change.
             // services.AddSingleton<IAccessControlCache, AccessControlCache>();
 
             // --- APPLICATION SERVICES (Orchestration) ---
             services.AddSingleton<Management.Domain.Services.IConnectionService, ConnectionService>();
-            services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddSingleton<IAuthenticationService, AuthenticationService>();
             services.AddTransient<ITurnstileService, TurnstileService>();
             services.AddTransient<IFinanceService, FinanceService>();
             services.AddTransient<ISettingsService, SettingsService>();
@@ -1320,6 +1352,7 @@ namespace Management.Presentation
             services.AddTransient<ChangeFacilityViewModel>();
             services.AddTransient<FacilityAuthViewModel>();
             services.AddTransient<SessionExpiredViewModel>();
+            services.AddTransient<LogoutConfirmationViewModel>();
             services.AddTransient<ConfirmationModalViewModel>();
             services.AddTransient<MembershipPlanEditorViewModel>();
             services.AddTransient<SalonServiceEditorViewModel>();
@@ -1346,6 +1379,7 @@ namespace Management.Presentation
             services.AddTransient<OccupancyHistoryView>();
             services.AddTransient<InventoryHistoryView>();
             services.AddTransient<LogRestockView>();
+            services.AddTransient<LogoutConfirmationWindow>();
         }
 
         private async System.Threading.Tasks.Task InitializeDatabaseAsync(CancellationToken ct = default)

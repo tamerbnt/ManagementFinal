@@ -1,0 +1,15 @@
+<controls:ModernWindow x:Class="Management.Presentation.Views.Auth.LogoutConfirmationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+        xmlns:controls="clr-namespace:Management.Presentation.Resources.Controls"
+        Title="Logout Confirmation"
+        SizeToContent="WidthAndHeight"
+        MinWidth="450"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Grid>
+        <local:LogoutConfirmationView />
+    </Grid>
+</controls:ModernWindow>

@@ -73,13 +73,6 @@ namespace Management.Infrastructure.Services
                     return null;
                 }
 
-                if (session.IsExpired)
-                {
-                    _logger.LogInformation("Loaded session is expired");
-                    await ClearSessionAsync();
-                    return null;
-                }
-
                 _logger.LogInformation("Session loaded for user {Email}", session.Email);
                 return session;
             }
@@ -117,7 +110,7 @@ namespace Management.Infrastructure.Services
         public async Task<bool> HasValidSessionAsync()
         {
             var session = await LoadSessionAsync();
-            return session != null && !session.IsExpired;
+            return session != null;
         }
     }
 }

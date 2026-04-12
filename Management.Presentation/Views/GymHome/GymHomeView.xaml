@@ -27,7 +27,7 @@
             <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
             <Setter Property="Opacity" Value="1"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource LessThanConverter}, ConverterParameter=750}" Value="True">
+                <DataTrigger Binding="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource LessThanConverter}, ConverterParameter=600}" Value="True">
                     <DataTrigger.EnterActions>
                         <BeginStoryboard>
                             <Storyboard>
@@ -351,9 +351,9 @@
                         <!-- 2x2 Grid of Buttons -->
                         <Grid Grid.Row="1" VerticalAlignment="Stretch">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="1*" MinHeight="75"/>
-                                <RowDefinition Height="10"/> <!-- Optimized Gap -->
-                                <RowDefinition Height="1*" MinHeight="75"/>
+                                <RowDefinition Height="1*" MinHeight="85"/>
+                                <RowDefinition Height="12"/> <!-- Optimized Gap -->
+                                <RowDefinition Height="1*" MinHeight="85"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>

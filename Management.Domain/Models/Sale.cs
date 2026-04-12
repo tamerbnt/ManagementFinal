@@ -26,6 +26,8 @@ namespace Management.Domain.Models
         public SaleCategory Category { get; private set; }
         public string CapturedLabel { get; private set; } = string.Empty;
 
+        public string? AppliedPromotionName { get; private set; }
+
         private readonly List<SaleItem> _items = new();
         public IReadOnlyCollection<SaleItem> Items => _items.AsReadOnly();
 
@@ -51,15 +53,24 @@ namespace Management.Domain.Models
             return Result.Success(new Sale(Guid.NewGuid(), memberId, DateTime.UtcNow, paymentMethod, transactionType, category, capturedLabel));
         }
 
-        public Result AddLineItem(Product product, int quantity)
-        {
-             // Pass this.Id as saleId
-             var item = SaleItem.Create(this.Id, product.Id, product.Name, product.Price, quantity);
-             if (item.IsFailure) return item;
+        public void SetPromotionName(string? name) => AppliedPromotionName = name;
 
-             _items.Add(item.Value);
-             RecalculateTotals();
-             return Result.Success();
+        public Result AddLineItem(
+            Product product, 
+            int quantity, 
+            Money? unitPrice = null, 
+            Money? originalPrice = null, 
+            Money? discountAmount = null)
+        {
+            // Pass the custom unitPrice if provided (Net), else fallback to product.Price (Gross)
+            var finalUnitPrice = unitPrice ?? product.Price;
+            
+            var item = SaleItem.Create(this.Id, product.Id, product.Name, finalUnitPrice, quantity, originalPrice, discountAmount);
+            if (item.IsFailure) return item;
+
+            _items.Add(item.Value);
+            RecalculateTotals();
+            return Result.Success();
         }
 
         public void AddItem(SaleItem item)
@@ -70,11 +81,15 @@ namespace Management.Domain.Models
 
         public void RecalculateTotals()
         {
-            decimal total = _items.Sum(i => i.TotalLinePrice.Amount);
+            // Net Total (What was actually paid)
+            decimal netTotal = _items.Sum(i => i.TotalLinePrice.Amount);
             
-            SubtotalAmount = new Money(total, "DA");
-            TaxAmount = Money.Zero(); // No tax as requested
-            TotalAmount = new Money(total, "DA");
+            // Gross Total (Before any discounts)
+            decimal grossTotal = _items.Sum(i => (i.OriginalPrice?.Amount ?? i.UnitPriceSnapshot.Amount) * i.Quantity);
+            
+            SubtotalAmount = new Money(grossTotal, "DA");
+            TaxAmount = Money.Zero(); 
+            TotalAmount = new Money(netTotal, "DA");
         }
     }
 }

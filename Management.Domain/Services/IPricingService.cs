@@ -20,9 +20,9 @@ namespace Management.Domain.Services
 
     public class PricingResult
     {
-        public Money EffectivePrice { get; init; }
-        public Money OriginalPrice { get; init; }
-        public Money DiscountAmount { get; init; }
+        public required Money EffectivePrice { get; init; }
+        public required Money OriginalPrice { get; init; }
+        public required Money DiscountAmount { get; init; }
         public string? AppliedPromotionName { get; init; }
         public bool IsDiscountApplied => DiscountAmount.Amount > 0;
 

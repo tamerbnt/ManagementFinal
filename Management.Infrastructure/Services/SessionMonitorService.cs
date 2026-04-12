@@ -77,18 +77,10 @@ namespace Management.Infrastructure.Services
                     return;
                 }
 
-                if (session.IsExpired)
-                {
-                    _logger.LogWarning("Session has expired");
-                    OnSessionExpired("Your session has expired. Please log in again.");
-                    await StopMonitoringAsync();
-                    return;
-                }
-
                 // If expiring soon, try to refresh
                 if (session.IsExpiringSoon)
                 {
-                    _logger.LogInformation("Session expiring soon, attempting refresh");
+                    _logger.LogInformation("Session expiring soon, attempting refresh in background");
                     var refreshResult = await _authService.RefreshSessionAsync();
                     
                     if (refreshResult.IsSuccess)
@@ -98,9 +90,7 @@ namespace Management.Infrastructure.Services
                     }
                     else
                     {
-                        _logger.LogError("Failed to refresh session: {Error}", refreshResult.Error.Message);
-                        OnSessionExpired("Your session could not be refreshed. Please log in again.");
-                        await StopMonitoringAsync();
+                        _logger.LogWarning("Failed to refresh session: {Error}. Will keep trying.", refreshResult.Error.Message);
                     }
                 }
             }

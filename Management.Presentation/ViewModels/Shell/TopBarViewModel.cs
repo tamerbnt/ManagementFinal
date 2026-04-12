@@ -108,6 +108,7 @@ namespace Management.Presentation.ViewModels.Shell
         public IRelayCommand OpenSettingsCommand { get; set; }
         public IRelayCommand OpenAccountSettingsCommand { get; set; }
         public IRelayCommand CloseSettingsCommand { get; set; }
+        public IRelayCommand LogoutCommand { get; set; }
         public IRelayCommand MarkAllAsReadCommand { get; set; }
         public IRelayCommand<BreadcrumbItem> NavigateToBreadcrumbCommand { get; }
         public IRelayCommand SubmitSearchCommand { get; }
@@ -192,6 +193,8 @@ namespace Management.Presentation.ViewModels.Shell
             OpenSettingsCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => { });
             OpenAccountSettingsCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => { });
             CloseSettingsCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => { });
+
+            ManageLogoutCommand();
 
             NavigateToBreadcrumbCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<BreadcrumbItem>(item =>
             {
@@ -345,6 +348,26 @@ namespace Management.Presentation.ViewModels.Shell
                 default:
                     // Fallback to basic nav if it's just a view name type string
                     break;
+            }
+        }
+
+        private void ManageLogoutCommand()
+        {
+            LogoutCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteLogoutAsync);
+        }
+
+        private async Task ExecuteLogoutAsync()
+        {
+            var result = await _modalNavigationService.OpenModalWithResultAsync<Management.Presentation.ViewModels.Auth.LogoutConfirmationViewModel, bool>();
+            if (result)
+            {
+                await _authenticationService.LogoutAsync();
+                
+                // CRITICAL: Switch from MainWindow shell back to AuthWindow shell
+                if (System.Windows.Application.Current is App app)
+                {
+                    await app.LogoutAsync();
+                }
             }
         }
 

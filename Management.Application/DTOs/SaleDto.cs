@@ -8,6 +8,9 @@ namespace Management.Application.DTOs
         public Guid Id { get; set; }
         public DateTime Timestamp { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal TotalOriginalAmount { get; set; }
+        public decimal TotalDiscountAmount { get; set; }
+        public string? AppliedPromotionName { get; set; }
         public string TransactionType { get; set; } = string.Empty;
         public string PaymentMethod { get; set; } = string.Empty;
         public string MemberName { get; set; } = string.Empty;

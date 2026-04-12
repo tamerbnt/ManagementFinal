@@ -193,17 +193,22 @@ namespace Management.Presentation.ViewModels.GymHome
             IsLoading = false;
         }
 
-        partial void OnSearchQueryChanged(string value)
+        partial void OnSearchQueryChanged(string? oldValue, string? newValue)
         {
-            FilterProducts(value);
+            FilterProducts(newValue ?? string.Empty);
+        }
+
+        partial void OnWalkInSearchQueryChanged(string? oldValue, string? newValue)
+        {
+            FilterWalkInPlans(newValue ?? string.Empty);
         }
 
         private CancellationTokenSource? _memberSearchCts;
 
-        partial void OnMemberSearchQueryChanged(string value)
+        partial void OnMemberSearchQueryChanged(string? oldValue, string? newValue)
         {
             _memberSearchCts?.Cancel();
-            if (string.IsNullOrWhiteSpace(value)) { SearchedMembers.Clear(); return; }
+            if (string.IsNullOrWhiteSpace(newValue)) { SearchedMembers.Clear(); return; }
             
             _memberSearchCts = new CancellationTokenSource();
             var token = _memberSearchCts.Token;
@@ -215,7 +220,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     await Task.Delay(400, token);
                     if (token.IsCancellationRequested) return;
 
-                    var request = new MemberSearchRequest(value);
+                    var request = new MemberSearchRequest(newValue);
                     var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request, 1, 10);
                     if (result.IsSuccess)
                     {
@@ -308,9 +313,9 @@ namespace Management.Presentation.ViewModels.GymHome
              OnPropertyChanged(nameof(IsControlPanelEmpty));
         }
 
-        partial void OnSelectedProductChanged(ProductDto? value) => _ = UpdateSelectedProductPricingAsync();
+        partial void OnSelectedProductChanged(ProductDto? oldValue, ProductDto? newValue) => _ = UpdateSelectedProductPricingAsync();
 
-        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? value) => _ = UpdateSelectedWalkInPricingAsync();
+        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? oldValue, WalkInPlanDto? newValue) => _ = UpdateSelectedWalkInPricingAsync();
 
         public bool IsProductSelectionActive => CurrentTab == CartTab.Products && SelectedProduct != null;
         public bool IsWalkInSelectionActive => CurrentTab == CartTab.WalkIn && SelectedWalkInPlan != null;

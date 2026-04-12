@@ -11,6 +11,12 @@ namespace Management.Application.Services
     public interface IAuthenticationService
     {
         /// <summary>
+        /// Indicates if the user has explicitly logged out in the current session.
+        /// This is used to suppress auto-login logic during the post-logout handoff.
+        /// </summary>
+        bool IsLogoutActive { get; }
+
+        /// <summary>
         /// Attempts to authenticate a user with credentials.
         /// </summary>
         /// <param name="email">Staff email address.</param>

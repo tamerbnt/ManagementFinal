@@ -253,6 +253,15 @@ namespace Management.Presentation.Views.Shell
 
         private bool _isExiting = false;
 
+        /// <summary>
+        /// Prepares the window for a shell handoff (e.g. logout), ensuring it closes
+        /// silently without triggering the shutdown confirmation dialog or full app exit.
+        /// </summary>
+        public void PrepareForHandoff()
+        {
+            _isExiting = true;
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             if (_isExiting)

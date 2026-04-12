@@ -17,6 +17,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
         private readonly IMemberRepository _memberRepository;
         private readonly ISaleRepository _saleRepository;
         private readonly IMembershipPlanRepository _membershipPlanRepository;
+        private readonly Management.Domain.Services.IPricingService _pricingService;
         private readonly Management.Domain.Services.ITenantService _tenantService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ApproveRegistrationCommandHandler> _logger;
@@ -28,7 +29,8 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             IMembershipPlanRepository membershipPlanRepository,
             Management.Domain.Services.ITenantService tenantService,
             IUnitOfWork unitOfWork,
-            ILogger<ApproveRegistrationCommandHandler> logger)
+            ILogger<ApproveRegistrationCommandHandler> logger,
+            Management.Domain.Services.IPricingService pricingService)
         {
             _registrationRepository = registrationRepository;
             _memberRepository = memberRepository;
@@ -37,6 +39,7 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
             _tenantService = tenantService;
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _pricingService = pricingService;
         }
 
         public async Task<Result<(Guid MemberId, Guid? SaleId)>> Handle(ApproveRegistrationCommand request, CancellationToken cancellationToken)
@@ -107,6 +110,19 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
 
                     if (plan != null)
                     {
+                        // --- PROMOTION AWARE REGISTRATION ---
+                        var pricingResult = await _pricingService.CalculateEffectivePriceAsync(
+                            request.FacilityId, 
+                            plan.Id, 
+                            plan.Price, 
+                            member.Gender, 
+                            plan.Id); // At this point they have the plan assigned in the Member.Register call
+
+                        if (pricingResult.IsDiscountApplied)
+                        {
+                            saleEntity.SetPromotionName(pricingResult.AppliedPromotionName);
+                        }
+
                         // Create a temporary Product adapter for the plan to use AddLineItem
                         var tempProductResult = Management.Domain.Models.Product.Create(
                             plan.Name, 
@@ -123,7 +139,13 @@ namespace Management.Application.Features.Registrations.Commands.ApproveRegistra
                         {
                             var tempProduct = tempProductResult.Value;
                             typeof(Management.Domain.Models.Product).GetProperty("Id")?.SetValue(tempProduct, plan.Id);
-                            saleEntity.AddLineItem(tempProduct, 1);
+                            
+                            saleEntity.AddLineItem(
+                                tempProduct, 
+                                1, 
+                                pricingResult.EffectivePrice, 
+                                pricingResult.OriginalPrice, 
+                                pricingResult.DiscountAmount);
                         }
                     }
                     else

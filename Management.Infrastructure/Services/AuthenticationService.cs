@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Management.Infrastructure.Services
 {
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : IAuthenticationService, IStateResettable
     {
         private readonly Supabase.Client _supabase;
         private readonly IStaffRepository _staffRepository;
@@ -28,6 +28,8 @@ namespace Management.Infrastructure.Services
 
         // Simple in-memory cache for the current session context
         private StaffDto? _currentUser;
+        private bool _isLogoutActive;
+        public bool IsLogoutActive => _isLogoutActive;
 
         private readonly IFacilityContextService _facilityContext;
         private readonly ITenantService _tenantService;
@@ -137,11 +139,14 @@ namespace Management.Infrastructure.Services
                 await PersistSessionDataAsync(staffEntity, finalSession);
 
                 // 5. Map to DTO and Cache
+                _isLogoutActive = false; // Successfully entering the app: disable the logout-guard
                 _currentUser = MapToDto(staffEntity);
+                Serilog.Log.Information("[AuthService] Login SUCCESS: User logged in. LogoutGuard DISABLED.");
                 return Result.Success(_currentUser);
             }
             catch (Exception ex)
             {
+                Serilog.Log.Error(ex, "[AuthService] CRITICAL: Login error");
                 return await HandleLoginFailureAsync(email, password, facilityId, ex);
             }
         }
@@ -438,14 +443,50 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result> LogoutAsync()
         {
+            _isLogoutActive = true;
             await ResiliencePolicyRegistry.CloudRetryPolicy.ExecuteAsync(() => _supabase.Auth.SignOut());
             await _sessionStorage.ClearSessionAsync();
             _currentUser = null;
             return Result.Success();
         }
 
+        public void ResetState()
+        {
+            Serilog.Log.Information("[AuthService] Resetting internal authentication state...");
+            _currentUser = null;
+            
+            // Hard session termination in Supabase
+            try
+            {
+                _ = _supabase.Auth.SignOut();
+                // Explicitly clear Supabase headers/tokens in the underlying client if possible
+                if (_supabase.Auth.CurrentSession != null)
+                {
+                    _supabase.Auth.CurrentSession.AccessToken = null;
+                }
+            }
+            catch { }
+
+            // Clear local cached session if possible synchronously (best effort)
+            try
+            {
+                _ = _sessionStorage.ClearSessionAsync();
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "[AuthService] Failed to clear session synchronously during ResetState");
+            }
+        }
+
         public async Task<Result<StaffDto>> GetCurrentUserAsync()
         {
+            // 0. If we just logged out, block any restoration until next explicit login
+            if (_isLogoutActive)
+            {
+                Serilog.Log.Information("[AuthService] GetCurrentUserAsync BLOCKED: Logout is ACTIVE in current session.");
+                return Result.Failure<StaffDto>(new Error("Auth.LoggedOut", "User just logged out."));
+            }
+
             // 1. Return cached user if available
             if (_currentUser != null) return Result.Success(_currentUser);
 

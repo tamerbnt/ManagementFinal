@@ -173,6 +173,7 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN description TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN row_version BLOB;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN applied_promotion_name TEXT;", ct); } catch { }
 
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_amount NUMERIC;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_currency TEXT;", ct); } catch { }

@@ -45,7 +45,12 @@ namespace Management.Domain.Models
             Timestamp = DateTime.UtcNow;
         }
 
-        private InventoryTransaction() { } // EF Core
+        private InventoryTransaction() 
+        { 
+            UnitCost = null!;
+            TotalCost = null!;
+            Notes = string.Empty;
+        } // EF Core
 
         public static Result<InventoryTransaction> Create(
             Guid tenantId,
