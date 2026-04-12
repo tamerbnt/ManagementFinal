@@ -57,7 +57,7 @@
                     <!-- Plan Name -->
                     <StackPanel Margin="0,0,0,24">
                         <TextBlock Text="{DynamicResource Terminology.Settings.Editor.PlanName}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
-                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.Apple}"/>
+                        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.Field}"/>
                     </StackPanel>
 
                     <!-- Price & Duration -->
@@ -68,28 +68,86 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
                             <TextBlock Text="{DynamicResource Terminology.Settings.Editor.PriceUSD}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
-                            <TextBox Text="{Binding Price}" Style="{DynamicResource Input.Apple}"/>
+                            <TextBox Text="{Binding Price}" Style="{DynamicResource Input.Field}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0">
                             <TextBlock Text="{DynamicResource Terminology.Settings.Editor.DurationDays}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
-                            <TextBox Text="{Binding DurationDays}" Style="{DynamicResource Input.Apple}"/>
+                            <TextBox Text="{Binding DurationDays}" Style="{DynamicResource Input.Field}"/>
                         </StackPanel>
                     </Grid>
 
-                    <UniformGrid Columns="2" Margin="0,0,0,24">
-                        <CheckBox Content="{DynamicResource Terminology.Settings.Editor.SessionPack}" IsChecked="{Binding IsSessionPack}" Style="{DynamicResource CheckBox.Modern}"/>
-                        <CheckBox Content="{DynamicResource Terminology.Settings.Editor.IsActive}" IsChecked="{Binding IsActive}" Style="{DynamicResource CheckBox.Modern}"/>
-                        <CheckBox Content="Personal Training" IsChecked="{Binding IsPersonalTraining}" Style="{DynamicResource CheckBox.Modern}"/>
-                    </UniformGrid>
+                    <StackPanel Margin="0,0,0,24">
+                        <Grid Margin="0,0,0,16">
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Editor.SessionPack}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
+                            <CheckBox IsChecked="{Binding IsSessionPack}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,16">
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Editor.IsActive}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
+                            <CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
+                        </Grid>
+                        <Grid>
+                            <TextBlock Text="Personal Training" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
+                            <CheckBox IsChecked="{Binding IsPersonalTraining}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
+                        </Grid>
+                    </StackPanel>
 
                     <!-- Gender Rules -->
                     <StackPanel Margin="0,0,0,32">
                         <TextBlock Text="{DynamicResource Terminology.Settings.Editor.GenderRestriction}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
-                        <ComboBox SelectedIndex="{Binding GenderRule}" Style="{StaticResource Input.ComboBox}" IsEditable="False">
-                            <ComboBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Unrestricted}"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Male}"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Female}"/>
-                        </ComboBox>
+                        
+                        <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Padding="4">
+                            <ListBox SelectedIndex="{Binding GenderRule}" 
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     HorizontalContentAlignment="Stretch"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                        <Setter Property="Padding" Value="0,8"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="8">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                                            <Setter TargetName="Border" Property="Effect">
+                                                                <Setter.Value>
+                                                                    <DropShadowEffect ShadowDepth="1" BlurRadius="6" Opacity="0.1" Direction="270"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                        </Trigger>
+                                                        <MultiTrigger>
+                                                            <MultiTrigger.Conditions>
+                                                                <Condition Property="IsMouseOver" Value="True"/>
+                                                                <Condition Property="IsSelected" Value="False"/>
+                                                            </MultiTrigger.Conditions>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                                                        </MultiTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                
+                                <ListBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Unrestricted}"/>
+                                <ListBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Male}"/>
+                                <ListBoxItem Content="{DynamicResource Terminology.Settings.Editor.Gender.Female}"/>
+                            </ListBox>
+                        </Border>
                     </StackPanel>
 
                     <!-- Scheduling -->
@@ -102,22 +160,32 @@
                         <ItemsControl ItemsSource="{Binding ScheduleWindows}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource CardBackgroundBrush}" 
-                                            CornerRadius="12" 
-                                            Padding="16" 
-                                            Margin="0,0,0,12"
-                                            BorderBrush="{DynamicResource Brush.Border.Subtle}"
-                                            BorderThickness="1">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="140"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                    <!-- Borderless row concept -->
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="60"/>
+                                        </Grid.ColumnDefinitions>
 
-                                            <!-- Day Selector -->
-                                            <ComboBox Grid.Column="0" Margin="0,0,16,0" SelectedIndex="{Binding DayOfWeek}" Style="{StaticResource Input.ComboBox}" IsEditable="False">
+                                        <!-- Day Selector Pill -->
+                                        <Border Grid.Column="0" CornerRadius="22" 
+                                                Background="{DynamicResource SurfaceBg}" 
+                                                BorderThickness="1" 
+                                                BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                                Height="44"
+                                                Margin="0,0,12,0"
+                                                Padding="12,0">
+                                            <ComboBox SelectedIndex="{Binding DayOfWeek}" 
+                                                      BorderThickness="0" 
+                                                      Background="Transparent" 
+                                                      VerticalAlignment="Center" 
+                                                      HorizontalContentAlignment="Stretch">
+                                                <ComboBox.Resources>
+                                                    <Style TargetType="ComboBoxItem">
+                                                        <Setter Property="Padding" Value="12,8"/>
+                                                    </Style>
+                                                </ComboBox.Resources>
                                                 <ComboBoxItem Content="{DynamicResource Terminology.Days.Sunday}"/>
                                                 <ComboBoxItem Content="{DynamicResource Terminology.Days.Monday}"/>
                                                 <ComboBoxItem Content="{DynamicResource Terminology.Days.Tuesday}"/>
@@ -126,21 +194,67 @@
                                                 <ComboBoxItem Content="{DynamicResource Terminology.Days.Friday}"/>
                                                 <ComboBoxItem Content="{DynamicResource Terminology.Days.Saturday}"/>
                                             </ComboBox>
+                                        </Border>
 
-                                            <TextBox Grid.Column="1" Text="{Binding StartTime}" Margin="0,0,8,0" Style="{DynamicResource Input.Apple}" Tag="09:00"/>
-                                            <TextBox Grid.Column="2" Text="{Binding EndTime}" Margin="8,0,0,0" Style="{DynamicResource Input.Apple}" Tag="17:00"/>
+                                        <!-- Unified Time Range Capsule (Pill shaped) -->
+                                        <Border Grid.Column="1" CornerRadius="18" 
+                                                Background="{DynamicResource SurfaceBg}" 
+                                                BorderThickness="1" 
+                                                BorderBrush="{DynamicResource Brush.Border.Subtle}"
+                                                Height="44"
+                                                Padding="16,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <!-- Clock symbol as visual indicator -->
+                                                <Path Grid.Column="0" Data="{StaticResource IconClock}" Fill="{DynamicResource TextSecondaryBrush}" Stretch="Uniform" Width="16" Height="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                
+                                                <TextBox Grid.Column="1" Text="{Binding StartTime}" 
+                                                         BorderThickness="0" 
+                                                         Background="Transparent" 
+                                                         HorizontalContentAlignment="Center" 
+                                                         VerticalAlignment="Center" 
+                                                         FontFamily="Consolas" 
+                                                         FontSize="16"
+                                                         FontWeight="SemiBold"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                                         Tag="09:00"/>
+                                                         
+                                                <TextBlock Grid.Column="2" Text="→" 
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" 
+                                                           VerticalAlignment="Center" 
+                                                           Margin="12,0"/>
+                                                           
+                                                <TextBox Grid.Column="3" Text="{Binding EndTime}" 
+                                                         BorderThickness="0" 
+                                                         Background="Transparent" 
+                                                         HorizontalContentAlignment="Center" 
+                                                         VerticalAlignment="Center" 
+                                                         FontFamily="Consolas"
+                                                         FontSize="16" 
+                                                         FontWeight="SemiBold"
+                                                         Foreground="{DynamicResource TextPrimaryBrush}"
+                                                         Tag="17:00"/>
+                                            </Grid>
+                                        </Border>
 
-                                            <Button Command="{Binding DataContext.RemoveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                    CommandParameter="{Binding}"
-                                                    Content="Ã—" 
-                                                    FontSize="20" 
-                                                    FontWeight="Bold"
-                                                    Grid.Column="3" 
-                                                    Margin="16,0,0,0" 
-                                                    Style="{DynamicResource IconButtonStyle}" 
-                                                    Foreground="{DynamicResource Brush.Functional.Error}"/>
-                                        </Grid>
-                                    </Border>
+                                        <!-- Clean Delete Button -->
+                                        <Button Grid.Column="2" 
+                                                Command="{Binding DataContext.RemoveWindowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                CommandParameter="{Binding}"
+                                                Style="{DynamicResource IconButtonStyle}" 
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="Delete Schedule"
+                                                Foreground="{DynamicResource Brush.Functional.Error}"
+                                                Margin="8,0,0,0">
+                                            <Path Data="{StaticResource IconDelete}" Fill="{DynamicResource Brush.Functional.Error}" Stretch="Uniform" Width="18" Height="18"/>
+                                        </Button>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

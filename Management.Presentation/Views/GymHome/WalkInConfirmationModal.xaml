@@ -112,14 +112,14 @@
     <premium:ModalShellControl Title="{Binding Title}"
                                Width="820"
                                CancelCommand="{Binding CancelWalkInCommand}"
-                               RegisterCommand="{Binding ConfirmWalkInCommand}"
+                               SaveCommand="{Binding ConfirmWalkInCommand}"
                                PrimaryActionText="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}">
         
         <premium:ModalShellControl.ExtraFooterContent>
             <Button Command="{Binding OpenRegisterWalkInCommand}" 
                     Style="{DynamicResource Button.Pill.Outline}" 
                     Content="{DynamicResource Terminology.Gym.Action.RegisterWalkIn}"
-                    Margin="0,0,8,0"/>
+                    HorizontalAlignment="Stretch"/>
         </premium:ModalShellControl.ExtraFooterContent>
 
         <Grid Height="480" Margin="0,16,0,0">

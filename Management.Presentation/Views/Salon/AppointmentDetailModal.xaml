@@ -6,188 +6,193 @@
         xmlns:converters="clr-namespace:Management.Presentation.Converters"
         mc:Ignorable="d" 
         Title="{DynamicResource Terminology.Salon.AppointmentDetail.Title}"
-        Width="460" Height="520"
+        Width="520" Height="580"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         WindowStyle="None" 
-        AllowsTransparency="False"
-        Background="{DynamicResource Brush.Window.Background}"
+        AllowsTransparency="True"
+        Background="Transparent"
         WindowStartupLocation="CenterOwner">
 
-    <shell:WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="0"
-                          GlassFrameThickness="-1"
-                          CornerRadius="24"
-                          ResizeBorderThickness="0"/>
-    </shell:WindowChrome.WindowChrome>
-    <Window.Resources>
-        <converters:TerminologyConverter x:Key="TerminologyConverter"/>
-    </Window.Resources>
-    <Grid Margin="24"> <!-- Shadow Padding -->
-        <Border Background="{DynamicResource Brush.Surface.Primary}" 
-                CornerRadius="24" 
-                Padding="32"
-                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}"
-                Effect="{StaticResource Shadow3}">
-        <StackPanel>
-            <!-- Header -->
-            <Grid Margin="0,0,0,32">
+    <!-- Root shell matching our ModalShellControl aesthetic -->
+    <Border Background="{DynamicResource SurfaceBg}"
+            Margin="30"
+            CornerRadius="24"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="60" ShadowDepth="30" Direction="270" Opacity="0.18" Color="Black"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="80"/>   <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Custom Close Button -->
+            <Button Grid.Row="0" 
+                    Click="CloseButton_Click"
+                    Width="32" Height="32"
+                    Background="#F3F4F6"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Margin="16">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bgBorder" Background="{TemplateBinding Background}" CornerRadius="16" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <Path Data="M18 6L6 18M6 6l12 12" 
+                                  Stroke="#6B7280" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Stretch="Uniform" Margin="8"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FEE2E2"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.1" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.1" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+            <!-- ===== HEADER ===== -->
+            <Border Grid.Row="0" Padding="32,32,32,24">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="Appointment Details"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   TextAlignment="Left"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding Appointment.ClientName}"
+                                   FontSize="28" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </StackPanel>
+
+                    <!-- Status Pill -->
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Padding="12,6" CornerRadius="12"
+                            Background="{DynamicResource FacilityAccentDimBrush}">
+                        <TextBlock Text="{Binding Appointment.Status}"
+                                   Foreground="{DynamicResource FacilityAccentBrush}"
+                                   FontWeight="SemiBold" FontSize="11"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ===== CONTENT ===== -->
+            <ScrollViewer Grid.Row="1" Padding="32,0">
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Title}" 
-                             Style="{StaticResource Text.Caption}" 
-                             Foreground="{DynamicResource Brush.Text.Tertiary}" 
-                             FontWeight="Bold" 
-                             Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding Appointment.ClientName, Converter={StaticResource TerminologyConverter}}" 
-                             Style="{StaticResource Title.H2}" 
-                             Foreground="{DynamicResource Brush.Text.Primary}"/>
+                    <!-- Info Grid -->
+                    <UniformGrid Columns="2" Margin="0,0,0,24">
+                        <!-- Service -->
+                        <Border Background="{DynamicResource SurfaceBg}" 
+                                CornerRadius="16" Padding="16" Margin="0,0,8,0"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Service" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding Appointment.ServiceName}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Stylist -->
+                        <Border Background="{DynamicResource SurfaceBg}" 
+                                CornerRadius="16" Padding="16" Margin="8,0,0,0"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Stylist" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding Appointment.StaffName}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+
+                    <!-- Schedule Card -->
+                    <Border Background="{DynamicResource SurfaceBg}" 
+                            CornerRadius="20" Padding="20"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Date" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2 M16 2v4 M8 2v4 M3 10h18" 
+                                          Stroke="{DynamicResource TextTertiaryBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Appointment.StartTime, StringFormat='{}{0:D}'}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Separator Grid.Column="1" HorizontalAlignment="Center" Width="1" Height="24" Background="{DynamicResource BorderBrush}"/>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Time" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4" HorizontalAlignment="Right"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" 
+                                          Stroke="{DynamicResource TextTertiaryBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Appointment.StartTime, StringFormat='{}{0:HH:mm}'}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Notes Section -->
+                    <StackPanel Margin="0,24,0,0" Visibility="{Binding Appointment.Notes, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <TextBlock Text="Notes" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding Appointment.Notes}" FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontStyle="Italic"/>
+                    </StackPanel>
                 </StackPanel>
-                <Button Command="{Binding CloseCommand}" 
-                        Style="{StaticResource IconButtonStyle}" 
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Top">
-                    <Path Data="{StaticResource IconClose}" 
-                          Style="{StaticResource Style.Icon.Small}" 
-                          Stroke="{DynamicResource Brush.Text.Secondary}"/>
-                </Button>
-            </Grid>
+            </ScrollViewer>
 
-            <!-- Info Cards -->
-            <UniformGrid Columns="1">
-                <!-- Service Info -->
-                <Border Background="{DynamicResource Brush.Surface.Secondary}" 
-                        CornerRadius="16" Padding="20" Margin="0,0,0,16">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="{DynamicResource Brush.Brand.Primary.Transparent}" 
-                                Width="48" Height="48" CornerRadius="12" Margin="0,0,16,0">
-                            <Path Data="{StaticResource IconTag}" 
-                                  Style="{StaticResource Style.Icon.Small}" 
-                                  Stroke="{DynamicResource Brush.Brand.Primary}"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Service}" Style="{StaticResource Text.Caption}" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                            <TextBlock Text="{Binding Appointment.ServiceName}" Style="{StaticResource Body}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
+            <!-- ===== FOOTER ===== -->
+            <Border Grid.Row="2" Padding="32,0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Button Command="{Binding CancelCommand}"
+                            HorizontalAlignment="Left"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.5" Width="16" Height="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="Cancel Appointment" Foreground="{DynamicResource StatusErrorBrush}" FontWeight="SemiBold"/>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Button>
 
-                <!-- Staff Info -->
-                <Border Background="{DynamicResource Brush.Surface.Secondary}" 
-                        CornerRadius="16" Padding="20" Margin="0,0,0,16">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Background="{DynamicResource Brush.Accent.Blue.Transparent}" 
-                                Width="48" Height="48" CornerRadius="12" Margin="0,0,16,0">
-                            <Path Data="{StaticResource IconUsers}" 
-                                  Style="{StaticResource Style.Icon.Small}" 
-                                  Stroke="{DynamicResource Brush.Accent.Blue}"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.StaffMember}" Style="{StaticResource Text.Caption}" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                            <TextBlock Text="{Binding Appointment.StaffName, Converter={StaticResource TerminologyConverter}}" Style="{StaticResource Body}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- Schedule Info -->
-                <Border Background="{DynamicResource Brush.Surface.Secondary}" 
-                        CornerRadius="16" Padding="20" Margin="0,0,0,16">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Orientation="Horizontal" Grid.Column="0">
-                            <Path Data="{StaticResource IconCalendar}" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Appointment.StartTime, StringFormat='{}{0:MMM dd}'}" 
-                                     Style="{StaticResource Body}" 
-                                     FontWeight="SemiBold"
-                                     Foreground="{DynamicResource Brush.Text.Primary}" 
-                                     VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
-                            <Path Data="{StaticResource IconClock}" 
-                                  Style="{StaticResource Style.Icon.Micro}" 
-                                  Stroke="{DynamicResource Brush.Text.Secondary}" 
-                                  Margin="0,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Appointment.StartTime, StringFormat='{}{0:t}'}" 
-                                     Style="{StaticResource Body}" 
-                                     FontWeight="SemiBold"
-                                     Foreground="{DynamicResource Brush.Text.Primary}" 
-                                     VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </UniformGrid>
-
-            <!-- Status Footer Action -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                <Button Command="{Binding CancelCommand}" 
-                        Background="{DynamicResource Brush.Accent.Red.Transparent}" 
-                        BorderBrush="{DynamicResource Brush.Accent.Red}"
-                        BorderThickness="1"
-                        Padding="24,12" 
-                        Margin="0,0,12,0"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="PART_MainBorder"
-                                    Background="{TemplateBinding Background}" 
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="12" 
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="PART_MainBorder" Property="Background" Value="{DynamicResource Brush.Accent.Red}" />
-                                    <Setter TargetName="PART_MainBorder" Property="Opacity" Value="0.1" />
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="PART_MainBorder" Property="Opacity" Value="0.2" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                    <TextBlock Text="Cancel Appointment" 
-                             FontWeight="SemiBold" 
-                             Foreground="{DynamicResource Brush.Accent.Red}"
-                             FontSize="13"/>
-                </Button>
-
-                <Button Command="{Binding UpdateStatusCommand}" 
-                        Background="{DynamicResource Brush.Brand.Primary}" 
-                        BorderThickness="0"
-                        Padding="32,16" 
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="PART_BrandBorder"
-                                    Background="{TemplateBinding Background}" 
-                                    CornerRadius="16" 
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="PART_BrandBorder" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}" />
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="PART_BrandBorder" Property="Opacity" Value="0.8" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                    <TextBlock Text="{Binding ActionButtonText}" 
-                             FontWeight="Bold" 
-                             Foreground="White"
-                             FontSize="14"/>
-                </Button>
-            </StackPanel>
-        </StackPanel>
+                    <Button Command="{Binding UpdateStatusCommand}"
+                            HorizontalAlignment="Right"
+                            Width="180" Height="48"
+                            Style="{StaticResource PrimaryButton}"
+                            Background="{DynamicResource FacilityAccentBrush}">
+                        <TextBlock Text="{Binding ActionButtonText}" 
+                                   Foreground="White" FontWeight="Bold"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
     </Border>
-    </Grid>
 </Window>

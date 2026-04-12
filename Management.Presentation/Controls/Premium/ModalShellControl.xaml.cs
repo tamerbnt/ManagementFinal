@@ -31,13 +31,13 @@ namespace Management.Presentation.Controls.Premium
             set => SetValue(CancelCommandProperty, value);
         }
 
-        public static readonly System.Windows.DependencyProperty RegisterCommandProperty =
-            System.Windows.DependencyProperty.Register("RegisterCommand", typeof(System.Windows.Input.ICommand), typeof(ModalShellControl), new System.Windows.PropertyMetadata(null));
+        public static readonly System.Windows.DependencyProperty SaveCommandProperty =
+            System.Windows.DependencyProperty.Register("SaveCommand", typeof(System.Windows.Input.ICommand), typeof(ModalShellControl), new System.Windows.PropertyMetadata(null));
 
-        public System.Windows.Input.ICommand RegisterCommand
+        public System.Windows.Input.ICommand SaveCommand
         {
-            get => (System.Windows.Input.ICommand)GetValue(RegisterCommandProperty);
-            set => SetValue(RegisterCommandProperty, value);
+            get => (System.Windows.Input.ICommand)GetValue(SaveCommandProperty);
+            set => SetValue(SaveCommandProperty, value);
         }
 
         public static readonly System.Windows.DependencyProperty PrimaryActionTextProperty =
@@ -47,6 +47,15 @@ namespace Management.Presentation.Controls.Premium
         {
             get => (string)GetValue(PrimaryActionTextProperty);
             set => SetValue(PrimaryActionTextProperty, value);
+        }
+
+        public static readonly System.Windows.DependencyProperty IsBusyProperty =
+            System.Windows.DependencyProperty.Register("IsBusy", typeof(bool), typeof(ModalShellControl), new System.Windows.PropertyMetadata(false));
+
+        public bool IsBusy
+        {
+            get => (bool)GetValue(IsBusyProperty);
+            set => SetValue(IsBusyProperty, value);
         }
 
         public static readonly System.Windows.DependencyProperty ExtraFooterContentProperty =

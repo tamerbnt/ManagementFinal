@@ -19,12 +19,22 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            SnapsToDevicePixels="True">
-                        <Grid>
+                    <Grid>
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True" />
+                        
+                        <!-- Focus Border Overlay -->
+                        <Border x:Name="focusBorder"
+                                BorderBrush="#2563EB"
+                                BorderThickness="0,0,0,3"
+                                Opacity="0"
+                                IsHitTestVisible="False"
+                                SnapsToDevicePixels="True"/>
+
+                        <Grid Margin="{TemplateBinding Padding}">
                             <TextBlock x:Name="placeholder" 
                                        Text="{TemplateBinding Tag}" 
                                        Foreground="{DynamicResource Brush.Text.Secondary}" 
@@ -35,22 +45,26 @@
                                        Visibility="Collapsed" />
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="false" VerticalAlignment="Center" />
                         </Grid>
+                        
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="FocusStates">
                                 <VisualState x:Name="Focused">
                                     <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="border"
-                                                        Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                                        To="#2563EB" Duration="0:0:0.2" />
-                                        <ThicknessAnimation Storyboard.TargetName="border"
-                                                            Storyboard.TargetProperty="BorderThickness"
-                                                            To="0,0,0,3" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="focusBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="1" Duration="0:0:0.2" />
                                     </Storyboard>
                                 </VisualState>
-                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="Unfocused">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="focusBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                    </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource Self}}" Value="">
                             <Setter TargetName="placeholder" Property="Visibility" Value="Visible" />
@@ -210,6 +224,7 @@
         </Setter>
     </Style>
 
+    <!-- PasswordBox Style -->
     <Style x:Key="Input.Apple.Password" TargetType="PasswordBox">
         <Setter Property="Background" Value="#FAFAFA" />
         <Setter Property="BorderBrush" Value="#E2E8F0" />
@@ -219,34 +234,48 @@
         <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Primary}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="PasswordChar" Value="â—"/>
+        <Setter Property="PasswordChar" Value="●"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
-                    <Border x:Name="border"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            SnapsToDevicePixels="True">
-                        <Grid>
+                    <Grid>
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True" />
+
+                        <!-- Focus Border Overlay -->
+                        <Border x:Name="focusBorder"
+                                BorderBrush="#2563EB"
+                                BorderThickness="0,0,0,3"
+                                Opacity="0"
+                                IsHitTestVisible="False"
+                                SnapsToDevicePixels="True"/>
+                        
+                        <Grid Margin="{TemplateBinding Padding}">
                              <ScrollViewer x:Name="PART_ContentHost" Focusable="false" VerticalAlignment="Center" />
                         </Grid>
+                        
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="FocusStates">
                                 <VisualState x:Name="Focused">
                                     <Storyboard>
-                                        <ColorAnimation Storyboard.TargetName="border"
-                                                        Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                                        To="#2563EB" Duration="0:0:0.2" />
-                                        <ThicknessAnimation Storyboard.TargetName="border"
-                                                            Storyboard.TargetProperty="BorderThickness"
-                                                            To="0,0,0,3" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="focusBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="1" Duration="0:0:0.2" />
                                     </Storyboard>
                                 </VisualState>
-                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="Unfocused">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="focusBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0" Duration="0:0:0.2" />
+                                    </Storyboard>
+                                </VisualState>
                             </VisualStateGroup>
                         </VisualStateManager.VisualStateGroups>
-                    </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="border" Property="Opacity" Value="0.5" />

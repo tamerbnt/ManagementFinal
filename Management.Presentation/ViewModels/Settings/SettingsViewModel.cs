@@ -42,8 +42,9 @@ namespace Management.Presentation.ViewModels.Settings
         private readonly IHardwareService _hardwareService;
         private readonly ISecureStorageService _secureStorage;
         private readonly IToastService _toastService;
-        private readonly INavigationRegistry _navigationRegistry;
         private readonly ITerminologyService _terminologyService;
+        private readonly IPromotionService _promotionService;
+        private readonly INavigationRegistry _navigationRegistry;
 
         // Tab Navigation
         [ObservableProperty]
@@ -96,6 +97,8 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private string _backupFolderPath = string.Empty;
 
+        private PromotionEditorViewModel? _promotionEditorVm;
+
         [ObservableProperty]
         private string _lastBackupDateDisplay = "Never";
 
@@ -142,6 +145,10 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private ObservableCollection<SalonServiceViewModel> _salonServices = new();
 
+        // Promotions
+        [ObservableProperty]
+        private ObservableCollection<PromotionViewModel> _promotions = new();
+
         // Keyboard Shortcuts
         public ObservableCollection<ShortcutItem> Shortcuts { get; } = new();
 
@@ -175,6 +182,7 @@ namespace Management.Presentation.ViewModels.Settings
             IToastService toastService,
             INavigationRegistry navigationRegistry,
             ITerminologyService terminologyService,
+            IPromotionService promotionService,
             ISecureStorageService secureStorage) : base(null, null, toastService)
         {
             _serviceProvider = serviceProvider;
@@ -192,6 +200,7 @@ namespace Management.Presentation.ViewModels.Settings
             _toastService = toastService;
             _navigationRegistry = navigationRegistry;
             _terminologyService = terminologyService;
+            _promotionService = promotionService;
             
             _modalNavigationStore = modalNavigationStore;
 
@@ -622,9 +631,15 @@ namespace Management.Presentation.ViewModels.Settings
             {
                 await LoadGymSettingsAsync();
             }
+
+            if (tabName == "Promotions")
+            {
+                await LoadPromotionsAsync();
+            }
         }
 
         private bool _salonSettingsLoaded = false;
+        private bool _promotionsLoaded = false;
 
         [RelayCommand]
         public async Task LoadSalonSettingsAsync()
@@ -968,6 +983,11 @@ namespace Management.Presentation.ViewModels.Settings
                 salonEditor.Saved -= OnSalonServiceSaved;
                 salonEditor.Canceled -= OnSalonServiceCanceled;
             }
+            else if (CurrentDrawerContent is PromotionEditorViewModel promotionEditor)
+            {
+                promotionEditor.Saved -= OnPromotionSaved;
+                promotionEditor.Canceled -= OnPromotionCanceled;
+            }
 
             CurrentDrawerContent = null;
         }
@@ -977,6 +997,19 @@ namespace Management.Presentation.ViewModels.Settings
         {
              IsDrawerOpen = false;
              CleanupEditor();
+        }
+
+        private async void OnPromotionSaved(object? sender, Guid promotionId)
+        {
+            IsDrawerOpen = false;
+            CleanupEditor();
+            await LoadPromotionsAsync();
+        }
+
+        private void OnPromotionCanceled(object? sender, EventArgs e)
+        {
+            IsDrawerOpen = false;
+            CleanupEditor();
         }
 
 
@@ -1087,6 +1120,81 @@ namespace Management.Presentation.ViewModels.Settings
  
 
         public DeviceManagementViewModel DeviceManagement => _deviceManagement.Value;
+
+        [RelayCommand]
+        public async Task LoadPromotionsAsync()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                var result = await _promotionService.GetPromotionsAsync(_facilityContext.CurrentFacilityId);
+                if (result.IsSuccess)
+                {
+                    Promotions.Clear();
+                    foreach (var p in result.Value)
+                    {
+                        Promotions.Add(new PromotionViewModel(p));
+                    }
+                    _promotionsLoaded = true;
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task CreatePromotionAsync()
+        {
+            CleanupEditor();
+
+            if (_promotionEditorVm == null)
+            {
+                _promotionEditorVm = _serviceProvider.GetRequiredService<PromotionEditorViewModel>();
+            }
+
+            _promotionEditorVm.Saved += OnPromotionSaved;
+            _promotionEditorVm.Canceled += OnPromotionCanceled;
+
+            await _promotionEditorVm.InitializeAsync(null);
+            
+            CurrentDrawerContent = _promotionEditorVm;
+            IsDrawerOpen = true;
+        }
+
+        [RelayCommand]
+        private async Task EditPromotionAsync(PromotionViewModel promotion)
+        {
+            if (promotion == null) return;
+            CleanupEditor();
+
+            if (_promotionEditorVm == null)
+            {
+                _promotionEditorVm = _serviceProvider.GetRequiredService<PromotionEditorViewModel>();
+            }
+
+            _promotionEditorVm.Saved += OnPromotionSaved;
+            _promotionEditorVm.Canceled += OnPromotionCanceled;
+
+            await _promotionEditorVm.InitializeAsync(promotion.Id);
+
+            CurrentDrawerContent = _promotionEditorVm;
+            IsDrawerOpen = true;
+        }
+
+        [RelayCommand]
+        private async Task DeletePromotionAsync(PromotionViewModel promotion)
+        {
+            if (promotion == null) return;
+            var result = await _promotionService.DeletePromotionAsync(_facilityContext.CurrentFacilityId, promotion.Id);
+            if (result.IsSuccess)
+            {
+                Promotions.Remove(promotion);
+                _toastService.ShowSuccess($"Promotion '{promotion.Name}' deleted.");
+            }
+        }
     }
 
     // Simple ViewModel for membership plans in settings

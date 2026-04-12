@@ -12,6 +12,14 @@ namespace Management.Presentation.Converters
             {
                 return count > 0;
             }
+            if (value is System.Collections.ICollection collection)
+            {
+                return collection.Count > 0;
+            }
+            if (value is System.Collections.IEnumerable enumerable)
+            {
+                return enumerable.Cast<object>().Any();
+            }
             return false;
         }
 

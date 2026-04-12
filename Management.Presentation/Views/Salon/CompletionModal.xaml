@@ -15,55 +15,158 @@
                           CornerRadius="24"
                           ResizeBorderThickness="0"/>
     </shell:WindowChrome.WindowChrome>
-    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="24" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
-        <Grid Margin="32">
+    <!-- Root shell matching our ModalShellControl aesthetic -->
+    <Border Background="{DynamicResource Brush.Window.Background}"
+            CornerRadius="24"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="60" ShadowDepth="30" Direction="270" Opacity="0.18" Color="Black"/>
+        </Border.Effect>
+
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/> <!-- Header -->
+                <RowDefinition Height="*"/>    <!-- Content -->
+                <RowDefinition Height="100"/>  <!-- Footer -->
             </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <StackPanel Margin="0,0,0,24">
-                <TextBlock Text="{DynamicResource TerminologyCheckoutLabel}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Text="{Binding ClientName}" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="18" Margin="0,4,0,0"/>
-                <TextBlock Text="{Binding ServiceName}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14"/>
-            </StackPanel>
+            <!-- Custom Close Button -->
+            <Button Grid.Row="0" 
+                    Click="CloseButton_Click"
+                    Width="32" Height="32"
+                    Background="#F3F4F6"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Margin="24">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bgBorder" Background="{TemplateBinding Background}" CornerRadius="16" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <Path Data="M18 6L6 18M6 6l12 12" 
+                                  Stroke="#6B7280" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Stretch="Uniform" Margin="8"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FEE2E2"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.1" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.1" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="scale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
-            <!-- Content -->
-            <Grid Grid.Row="1">
+            <!-- ===== HEADER ===== -->
+            <Border Grid.Row="0" Padding="40,40,40,24">
+                <Grid>
+                    <StackPanel>
+                        <TextBlock Text="Checkout"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   TextAlignment="Left"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding ClientName}"
+                                   FontSize="28" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding ServiceName}"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Icon / Branding -->
+                    <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Width="48" Height="48" CornerRadius="12"
+                            Background="{DynamicResource FacilityAccentDimBrush}">
+                        <Path Data="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+                              Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Width="20" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ===== CONTENT — Dual Column ===== -->
+            <Grid Grid.Row="1" Margin="40,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="32"/>
-                    <ColumnDefinition Width="350"/>
+                    <ColumnDefinition Width="*"/>     <!-- Products -->
+                    <ColumnDefinition Width="40"/>    <!-- Gutter -->
+                    <ColumnDefinition Width="360"/>   <!-- Summary -->
                 </Grid.ColumnDefinitions>
 
-                <!-- Product Selection -->
-                <Grid>
+                <!-- Left: Product Selection -->
+                <Grid Grid.Column="0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{DynamicResource TerminologySelectProductsLabel}" Style="{StaticResource InputLabel}" Margin="0,0,0,8"/>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    
+                    <TextBlock Text="Add Products to Sale"
+                               FontSize="14" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <ItemsControl ItemsSource="{Binding AvailableProducts}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Columns="2" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Command="{Binding DataContext.AddProductCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                             CommandParameter="{Binding}"
-                                            Style="{StaticResource GhostButton}"
-                                            HorizontalContentAlignment="Stretch"
-                                            Margin="0,0,0,8">
-                                        <Border Padding="12">
-                                            <Grid>
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
-                                                    <TextBlock Text="{Binding SKU}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="10"/>
-                                                </StackPanel>
-                                                <TextBlock Text="{Binding Price.Amount, StringFormat=C}" Foreground="{DynamicResource FacilityAccentBrush}" 
-                                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            </Grid>
-                                        </Border>
+                                            Margin="0,0,12,12"
+                                            Padding="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Cursor="Hand">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="ProductCard" 
+                                                        Background="{DynamicResource SurfaceBg}"
+                                                        CornerRadius="16" Padding="16"
+                                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                                                    <Grid>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                            <TextBlock Text="{Binding SKU}" FontSize="10" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,8"/>
+                                                            <TextBlock Text="{Binding Price, StringFormat=C}" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="SemiBold"/>
+                                                        </StackPanel>
+                                                        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                                                Width="28" Height="28" CornerRadius="8"
+                                                                Background="{DynamicResource FacilityAccentDimBrush}">
+                                                            <Path Data="M12 5v14M5 12h14" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Width="12" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ProductCard" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        <Setter TargetName="ProductCard" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
                                     </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -71,41 +174,45 @@
                     </ScrollViewer>
                 </Grid>
 
-                <!-- Usage Summary -->
-                <Border Grid.Column="2" Background="{DynamicResource SurfaceBg}" CornerRadius="16" Padding="20">
+                <!-- Right: Receipt Summary -->
+                <Border Grid.Column="2" 
+                        Background="{DynamicResource SurfaceBg}" 
+                        CornerRadius="24" Padding="28"
+                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="16"/>
                             <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="{DynamicResource TerminologyOrderSummaryLabel}" Style="{StaticResource InputLabel}" Margin="0,0,0,16"/>
+                        <TextBlock Text="Order Summary" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
 
-                        <ScrollViewer Grid.Row="1" Margin="0,0,0,16">
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,0,20">
                             <StackPanel>
+                                <!-- Service Fee -->
                                 <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="{DynamicResource Terminology.Salon.Completion.ServiceFee}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding BasePrice, StringFormat=C}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="Service Fee" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding BasePrice, StringFormat=C}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
                                 
-                                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,4,0,12"/>
-                                
+                                <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,8,0,16"/>
+
+                                <!-- Items -->
                                 <ItemsControl ItemsSource="{Binding UsedProducts}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,0,0,8">
+                                            <Grid Margin="0,0,0,16">
                                                 <StackPanel>
-                                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{DynamicResource Terminology.Salon.Completion.Qty}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
-                                                        <TextBox Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}" 
-                                                                 Background="Transparent" BorderThickness="0" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="11" Width="30"/>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                        <TextBlock Text="{Binding Quantity}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                                                        <TextBlock Text=" x " Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                                                        <TextBlock Text="{Binding Price, StringFormat=C}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
                                                     </StackPanel>
                                                 </StackPanel>
-                                                <TextBlock Text="{Binding Total, StringFormat=C}" Foreground="{DynamicResource TextPrimaryBrush}" 
-                                                           HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Total, StringFormat=C}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -113,24 +220,42 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <Grid Grid.Row="2" Margin="0,0,0,8">
-                            <TextBlock Text="{DynamicResource Terminology.Salon.Completion.Total}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding TotalAmount, StringFormat=C}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
-                        </Grid>
+                        <!-- Totals -->
+                        <StackPanel Grid.Row="3">
+                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,0,0,20"/>
+                            <Grid>
+                                <TextBlock Text="Total Amount" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding TotalAmount, StringFormat=C}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </StackPanel>
                     </Grid>
                 </Border>
             </Grid>
 
-            <!-- Footer -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
-                <Button Command="{Binding CancelCommand}" Style="{StaticResource GhostButton}" Margin="0,0,12,0" Content="{DynamicResource Terminology.Global.Cancel}"/>
-                <Button Command="{Binding CompleteCommand}" Style="{StaticResource PrimaryButton}" Background="{DynamicResource FacilityAccentBrush}" Width="200">
-                     <StackPanel Orientation="Horizontal">
-                        <Path Data="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" Stroke="{DynamicResource TextOnAccentBrush}" StrokeThickness="2" Width="16" Height="16" Margin="0,0,8,0"/>
-                        <TextBlock Text="{DynamicResource TerminologyProcessPrintLabel}" Foreground="{DynamicResource TextOnAccentBrush}" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            <!-- ===== FOOTER ===== -->
+            <Border Grid.Row="2" Padding="40,0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Button Command="{Binding CancelCommand}"
+                            HorizontalAlignment="Left"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <TextBlock Text="Cancel" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold"/>
+                    </Button>
+
+                    <Button Command="{Binding CompleteCommand}"
+                            HorizontalAlignment="Right"
+                            Width="260" Height="56"
+                            Style="{StaticResource PrimaryButton}"
+                            Background="{DynamicResource FacilityAccentBrush}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" 
+                                  Stroke="White" StrokeThickness="2" Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Complete &amp; Print" Foreground="White" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
         </Grid>
     </Border>
 </Window>

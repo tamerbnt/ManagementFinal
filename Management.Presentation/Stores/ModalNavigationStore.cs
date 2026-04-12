@@ -47,12 +47,22 @@ namespace Management.Presentation.Stores
 
     public class ModalNavigationStore : ViewModelBase, IDisposable, Management.Domain.Interfaces.IStateResettable
     {
+        private class ModalContext
+        {
+            public Type ViewModelType { get; set; } = null!;
+            public object ViewModel { get; set; } = null!;
+            public object? Parameter { get; set; }
+            public DateTime OpenedAt { get; set; }
+            public TaskCompletionSource<ModalResult> CompletionSource { get; set; } = null!;
+            public IServiceScope? Scope { get; set; }
+        }
+
         public void ResetState()
         {
             while (_modalStack.Count > 0)
             {
                 var context = _modalStack.Pop();
-                DisposeViewModel(context.ViewModel);
+                DisposeViewModel(context.ViewModel, context.Scope);
                 context.CompletionSource.TrySetCanceled();
             }
             CurrentModalViewModel = null;
@@ -61,6 +71,7 @@ namespace Management.Presentation.Stores
         private readonly Stack<ModalContext> _modalStack = new();
         private new readonly ILogger<ModalNavigationStore>? _logger;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private bool _isDisposed;
         private CancellationTokenSource? _currentOperationCts;
 
@@ -85,9 +96,11 @@ namespace Management.Presentation.Stores
 
         public ModalNavigationStore(
             IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             ILogger<ModalNavigationStore>? logger = null)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
             _logger = logger;
         }
 
@@ -105,7 +118,19 @@ namespace Management.Presentation.Stores
                 _currentOperationCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 var token = _currentOperationCts.Token;
 
-                var viewModel = _serviceProvider.GetRequiredService<TViewModel>();
+                // Create a DI scope so Scoped/Transient dependencies (e.g. DbContext) are
+                // resolved correctly instead of throwing from the root provider.
+                var scope = _scopeFactory.CreateScope();
+                TViewModel viewModel;
+                try
+                {
+                    viewModel = scope.ServiceProvider.GetRequiredService<TViewModel>();
+                }
+                catch
+                {
+                    scope.Dispose();
+                    throw;
+                }
 
                 var context = new ModalContext
                 {
@@ -113,7 +138,8 @@ namespace Management.Presentation.Stores
                     ViewModel = viewModel,
                     Parameter = parameter,
                     OpenedAt = DateTime.UtcNow,
-                    CompletionSource = new TaskCompletionSource<ModalResult>()
+                    CompletionSource = new TaskCompletionSource<ModalResult>(),
+                    Scope = scope
                 };
 
                 // PHASED INITIALIZATION (Mirroring ModalNavigationService)
@@ -132,7 +158,7 @@ namespace Management.Presentation.Stores
 
                 if (viewModel is IModalAware modalAware)
                 {
-                    // FIX 6: Show the modal FIRST so the user sees it immediately,
+                    // Show the modal FIRST so the user sees it immediately,
                     // then load data. Prevents UI appearing frozen during data fetch.
                     _modalStack.Push(context);
                     CurrentModalViewModel = viewModel;
@@ -140,7 +166,7 @@ namespace Management.Presentation.Stores
                     _logger?.LogInformation("Modal opened: {ViewModelType}", typeof(TViewModel).Name);
                     ModalOpened?.Invoke(this, new ModalEventArgs(typeof(TViewModel).Name));
 
-                    // FIX: Release lock BEFORE awaiting to allow CloseAsync to acquire it
+                    // Release lock BEFORE awaiting to allow CloseAsync to acquire it
                     _modalLock.Release();
 
                     await modalAware.OnModalOpenedAsync(parameter ?? new object(), token);
@@ -153,7 +179,7 @@ namespace Management.Presentation.Stores
                     _logger?.LogInformation("Modal opened: {ViewModelType}", typeof(TViewModel).Name);
                     ModalOpened?.Invoke(this, new ModalEventArgs(typeof(TViewModel).Name));
 
-                    // FIX: Release lock BEFORE awaiting completion
+                    // Release lock BEFORE awaiting completion
                     _modalLock.Release();
                 }
 
@@ -240,7 +266,7 @@ namespace Management.Presentation.Stores
                 }
 
                 _modalStack.Pop();
-                DisposeViewModel(context.ViewModel);
+                DisposeViewModel(context.ViewModel, context.Scope);
                 context.CompletionSource.TrySetResult(result ?? ModalResult.Cancel());
 
                 CurrentModalViewModel = _modalStack.Count > 0 ? _modalStack.Peek().ViewModel : null;
@@ -275,7 +301,7 @@ namespace Management.Presentation.Stores
             _ = CloseAsync(ModalResult.Cancel());
         }
 
-        private void DisposeViewModel(object viewModel)
+        private void DisposeViewModel(object viewModel, IServiceScope? scope)
         {
             if (viewModel is IDisposable disposable)
             {
@@ -289,6 +315,10 @@ namespace Management.Presentation.Stores
                     _logger?.LogWarning(ex, "Failed to dispose ViewModel: {Type}", viewModel.GetType().Name);
                 }
             }
+
+            // Dispose the DI scope that was created for this modal
+            try { scope?.Dispose(); }
+            catch (Exception ex) { _logger?.LogWarning(ex, "Failed to dispose modal scope"); }
         }
 
         private void ThrowIfDisposed()
@@ -307,7 +337,7 @@ namespace Management.Presentation.Stores
             while (_modalStack.Count > 0)
             {
                 var context = _modalStack.Pop();
-                DisposeViewModel(context.ViewModel);
+                DisposeViewModel(context.ViewModel, context.Scope);
                 context.CompletionSource.TrySetCanceled();
             }
 
@@ -315,13 +345,5 @@ namespace Management.Presentation.Stores
             _logger?.LogInformation("ModalNavigationStore disposed");
         }
 
-        private class ModalContext
-        {
-            public required Type ViewModelType { get; set; }
-            public required object ViewModel { get; set; }
-            public object? Parameter { get; set; }
-            public DateTime OpenedAt { get; set; }
-            public required TaskCompletionSource<ModalResult> CompletionSource { get; set; }
-        }
     }
 }

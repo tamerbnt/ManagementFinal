@@ -147,19 +147,37 @@ namespace Management.Infrastructure.Data
                 
                 
 
-                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS salon_settings (
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS promotions (
                     id TEXT PRIMARY KEY,
                     tenant_id TEXT,
                     facility_id TEXT,
-                    total_chairs INTEGER DEFAULT 1,
-                    daily_revenue_target NUMERIC DEFAULT 1000,
-                    operating_hours_json TEXT,
+                    name TEXT,
+                    description TEXT,
+                    target_type INTEGER,
+                    target_id TEXT,
+                    price_amount NUMERIC,
+                    price_currency TEXT,
+                    discount_percentage NUMERIC,
+                    criteria_gender INTEGER,
+                    criteria_member_plan_id TEXT,
+                    start_date TEXT,
+                    end_date TEXT,
+                    is_active INTEGER DEFAULT 1,
                     created_at TEXT,
                     updated_at TEXT,
                     is_deleted INTEGER DEFAULT 0,
                     is_synced INTEGER DEFAULT 0,
                     row_version BLOB
                 );", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN description TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN row_version BLOB;", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_amount NUMERIC;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_currency TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN discount_amount_amount NUMERIC;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN discount_amount_currency TEXT;", ct); } catch { }
                 
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
@@ -239,6 +257,7 @@ namespace Management.Infrastructure.Data
         public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
         public DbSet<GroupClass> GroupClasses { get; set; }
         public DbSet<ClassAttendance> ClassAttendances { get; set; }
+        public DbSet<Promotion> Promotions { get; set; }
 
         private static string UnescapeOverSerializedJson(string val)
         {
@@ -518,6 +537,32 @@ namespace Management.Infrastructure.Data
                     p.Property(m => m.Amount).HasColumnName("price_snapshot");
                     p.Property(m => m.Currency).HasColumnName("price_snapshot_currency");
                 });
+
+                entity.OwnsOne(si => si.OriginalPrice, p =>
+                {
+                    p.Property(m => m.Amount).HasColumnName("original_price_amount");
+                    p.Property(m => m.Currency).HasColumnName("original_price_currency");
+                });
+
+                entity.OwnsOne(si => si.DiscountAmount, p =>
+                {
+                    p.Property(m => m.Amount).HasColumnName("discount_amount_amount");
+                    p.Property(m => m.Currency).HasColumnName("discount_amount_currency");
+                });
+            });
+
+            modelBuilder.Entity<Promotion>(entity =>
+            {
+                entity.ToTable("promotions");
+                entity.HasKey(e => e.Id);
+
+                entity.OwnsOne(e => e.PromotionPrice, p =>
+                {
+                    p.Property(m => m.Amount).HasColumnName("price_amount");
+                    p.Property(m => m.Currency).HasColumnName("price_currency");
+                });
+                
+                entity.HasIndex(e => new { e.FacilityId, e.TargetId, e.IsActive }).HasDatabaseName("idx_promotion_lookup");
             });
 
             modelBuilder.Entity<PayrollEntry>(entity =>

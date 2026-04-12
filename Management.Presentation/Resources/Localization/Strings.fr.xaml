@@ -354,6 +354,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Settings.Editor.AddWindow">+ Ajouter une fenêtre</sys:String>
     <sys:String x:Key="Terminology.Settings.Editor.SaveChanges">Enregistrer les modifications</sys:String>
     <sys:String x:Key="Terminology.Settings.Editor.Cancel">Annuler</sys:String>
+    <sys:String x:Key="Terminology.Settings.Editor.SaveSuccess">Enregistré avec succès!</sys:String>
+    <sys:String x:Key="Terminology.Settings.Editor.Saving">Enregistrement...</sys:String>
 
     <!-- Walk-In Plans -->
     <sys:String x:Key="Terminology.Settings.WalkIn.Days">jours</sys:String>

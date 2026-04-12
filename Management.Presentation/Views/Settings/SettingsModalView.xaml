@@ -199,7 +199,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Button Content="{DynamicResource Terms.General.Save}" 
+                        <Button Content="{DynamicResource TerminologySaveLabel}" 
                                 Style="{DynamicResource Button.Primary}"
                                 Command="{Binding SaveSalonSettingsCommand}"
                                 Width="200" Height="48"
@@ -246,13 +246,17 @@
                             </StackPanel>
                         </Border>
 
-                        <Button Content="{DynamicResource Terms.General.Save}" 
+                        <Button Content="{DynamicResource TerminologySaveLabel}" 
                                 Style="{DynamicResource Button.Primary}"
                                 Command="{Binding SaveGymSettingsCommand}"
                                 Width="200" Height="48"
                                 HorizontalAlignment="Left"/>
                     </StackPanel>
                 </ScrollViewer>
+            </DataTemplate>
+
+            <DataTemplate x:Key="PromotionsTemplate">
+                <local:PromotionsSectionView/>
             </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -582,6 +586,20 @@
                                 </StackPanel>
                             </Button>
 
+                            <!-- Promotions Tab -->
+                            <Button Command="{Binding SelectTabCommand}" CommandParameter="Promotions">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconTag}" 
+                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Style="{StaticResource Style.Icon.Small}"
+                                          Margin="0,0,12,0"/>
+                                    <TextBlock Text="Promotions" 
+                                               Style="{StaticResource BodyMedium}"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- Gym Settings Tab -->
                             <Button Command="{Binding SelectTabCommand}" 
                                     CommandParameter="GymSettings"
@@ -639,6 +657,9 @@
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding SelectedTab}" Value="GymSettings">
                                             <Setter Property="ContentTemplate" Value="{StaticResource GymSettingsTemplate}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedTab}" Value="Promotions">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource PromotionsTemplate}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

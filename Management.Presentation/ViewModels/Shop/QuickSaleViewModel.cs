@@ -30,6 +30,7 @@ namespace Management.Presentation.ViewModels.Shop
         private readonly IMemberService _memberService;
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly ProductStore _productStore;
+        private readonly IPricingService _pricingService;
 
         [ObservableProperty]
         private ObservableRangeCollection<ProductDto> _products = new();
@@ -58,6 +59,20 @@ namespace Management.Presentation.ViewModels.Shop
         [NotifyCanExecuteChangedFor(nameof(ProcessSaleCommand))]
         private ProductDto? _selectedProduct;
 
+        [ObservableProperty]
+        private decimal _effectivePrice;
+
+        [ObservableProperty]
+        private decimal? _originalPrice;
+
+        [ObservableProperty]
+        private decimal? _discountAmount;
+
+        [ObservableProperty]
+        private string? _appliedPromotionName;
+
+        public bool IsDiscounted => DiscountAmount > 0;
+
         public bool CanProcessSale => SelectedProduct != null;
 
         public QuickSaleViewModel(
@@ -71,7 +86,8 @@ namespace Management.Presentation.ViewModels.Shop
             IMemberService memberService,
             ModalNavigationStore modalNavigationStore,
             ProductStore productStore,
-            ILocalizationService localizationService)
+            ILocalizationService localizationService,
+            IPricingService pricingService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
@@ -79,6 +95,7 @@ namespace Management.Presentation.ViewModels.Shop
             _memberService = memberService;
             _modalNavigationStore = modalNavigationStore;
             _productStore = productStore;
+            _pricingService = pricingService;
 
             
             Title = GetTerm("Strings.Shop.QuickSale") ?? "Quick Sale";
@@ -179,17 +196,44 @@ namespace Management.Presentation.ViewModels.Shop
         }
 
         [RelayCommand]
-        private void SelectMember(MemberDto member)
+        private async Task SelectMemberAsync(MemberDto member)
         {
             SelectedMember = member;
             MemberSearchQuery = string.Empty;
             SearchedMembers.Clear();
+            await UpdatePricingAsync();
         }
 
         [RelayCommand]
-        private void ClearSelectedMember()
+        private async Task ClearSelectedMemberAsync()
         {
             SelectedMember = null;
+            await UpdatePricingAsync();
+        }
+
+        private async Task UpdatePricingAsync()
+        {
+            if (SelectedProduct == null) 
+            {
+                EffectivePrice = 0;
+                OriginalPrice = null;
+                DiscountAmount = null;
+                AppliedPromotionName = null;
+                return;
+            }
+
+            var basePrice = new Management.Domain.ValueObjects.Money(SelectedProduct.Price, "DA");
+            var result = await _pricingService.CalculateEffectivePriceAsync(
+                _facilityContext.CurrentFacilityId,
+                SelectedProduct.Id,
+                basePrice,
+                SelectedMember?.Gender,
+                SelectedMember?.MembershipPlanId);
+
+            EffectivePrice = result.EffectivePrice.Amount;
+            OriginalPrice = result.IsDiscountApplied ? result.OriginalPrice.Amount : null;
+            DiscountAmount = result.IsDiscountApplied ? result.DiscountAmount.Amount : null;
+            AppliedPromotionName = result.AppliedPromotionName;
         }
 
 
@@ -218,9 +262,10 @@ namespace Management.Presentation.ViewModels.Shop
         }
 
         [RelayCommand]
-        private void SetSelectedProduct(ProductDto product)
+        private async Task SetSelectedProductAsync(ProductDto product)
         {
             SelectedProduct = product;
+            await UpdatePricingAsync();
         }
 
         [RelayCommand(CanExecute = nameof(CanProcessSale))]
@@ -234,7 +279,7 @@ namespace Management.Presentation.ViewModels.Shop
                 var itemsMap = new Dictionary<Guid, int> { { SelectedProduct.Id, 1 } };
                 var request = new CheckoutRequestDto(
                     Management.Domain.Enums.PaymentMethod.Cash,
-                    SelectedProduct.Price,
+                    EffectivePrice, // Use discounted price
                     SelectedMember?.Id,
                     itemsMap
                 );

@@ -1109,6 +1109,8 @@ namespace Management.Presentation
             services.AddSingleton<IAccessControlCache, AccessControlCache>();
             services.AddTransient<ITableService, TableService>();
             services.AddTransient<IAccessControlService, AccessControlService>();
+            services.AddSingleton<IPricingService, PricingService>();
+            services.AddTransient<IPromotionService, PromotionService>();
             // The line below was moved up as part of the change.
             // services.AddSingleton<IAccessControlCache, AccessControlCache>();
 
@@ -1295,6 +1297,9 @@ namespace Management.Presentation
 
             services.AddSingleton<ServicesViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<ServicesViewModel>());
+
+            services.AddTransient<PromotionEditorViewModel>();
+            services.AddTransient<PromotionViewModel>();
 
             services.AddSingleton<SchedulerViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<SchedulerViewModel>());

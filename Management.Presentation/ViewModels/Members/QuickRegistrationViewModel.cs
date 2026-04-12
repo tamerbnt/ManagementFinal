@@ -37,6 +37,7 @@ namespace Management.Presentation.ViewModels.Members
         private readonly Management.Presentation.Services.Salon.ISalonService _salonService;
         private readonly ITerminologyService _terminologyService;
         private readonly ISaleService _saleService;
+        private readonly IPricingService _pricingService;
 
         private Guid? _originalPlanId;
         private DateTime _originalExpirationDate;
@@ -89,6 +90,14 @@ namespace Management.Presentation.ViewModels.Members
 
         [ObservableProperty]
         private bool _isSalonFacility;
+
+        [ObservableProperty]
+        private decimal? _originalTotalPrice;
+
+        [ObservableProperty]
+        private string? _appliedPromotionName;
+
+        public bool IsDiscounted => AppliedPromotionName != null;
  
         // Lead Conversion
         [ObservableProperty]
@@ -141,6 +150,7 @@ namespace Management.Presentation.ViewModels.Members
                 HasLeadResults = false;
                 LeadSearchQuery = string.Empty;
             }
+            _ = UpdateTotalPriceAsync();
         }
  
         [RelayCommand]
@@ -168,12 +178,47 @@ namespace Management.Presentation.ViewModels.Members
             }
         }
 
-        partial void OnSelectedPlanChanged(MembershipPlanDto? value) => UpdateTotalPrice();
-        partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => UpdateTotalPrice();
+        partial void OnGenderChanged(Gender value) => _ = UpdateTotalPriceAsync();
+        partial void OnSelectedPlanChanged(MembershipPlanDto? value) => _ = UpdateTotalPriceAsync();
+        partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => _ = UpdateTotalPriceAsync();
 
-        private void UpdateTotalPrice()
+        private async Task UpdateTotalPriceAsync()
         {
-            TotalPrice = (SelectedPlan?.Price ?? 0) + (SelectedSalonService?.BasePrice ?? 0);
+            decimal effectiveTotal = 0;
+            decimal originalTotal = 0;
+            string? promoName = null;
+
+            // Check plan promotion
+            if (SelectedPlan != null && SelectedPlan.Id != Guid.Empty)
+            {
+                var planResult = await _pricingService.CalculateEffectivePriceAsync(
+                    _facilityContext.CurrentFacilityId,
+                    SelectedPlan.Id,
+                    new Management.Domain.ValueObjects.Money(SelectedPlan.Price, "DA"),
+                    Gender);
+                
+                effectiveTotal += planResult.EffectivePrice.Amount;
+                originalTotal += planResult.OriginalPrice.Amount;
+                if (planResult.IsDiscountApplied) promoName = planResult.AppliedPromotionName;
+            }
+
+            // Check salon service promotion
+            if (SelectedSalonService != null && SelectedSalonService.Id != Guid.Empty)
+            {
+                var svcResult = await _pricingService.CalculateEffectivePriceAsync(
+                    _facilityContext.CurrentFacilityId,
+                    SelectedSalonService.Id,
+                    new Management.Domain.ValueObjects.Money(SelectedSalonService.BasePrice, "DA"),
+                    Gender);
+
+                effectiveTotal += svcResult.EffectivePrice.Amount;
+                originalTotal += svcResult.OriginalPrice.Amount;
+                if (svcResult.IsDiscountApplied) promoName = svcResult.AppliedPromotionName;
+            }
+
+            TotalPrice = effectiveTotal;
+            OriginalTotalPrice = (originalTotal > effectiveTotal) ? originalTotal : null;
+            AppliedPromotionName = promoName;
         }
 
         public QuickRegistrationViewModel(
@@ -189,7 +234,8 @@ namespace Management.Presentation.ViewModels.Members
             IGymOperationService gymOperationService,
             Management.Presentation.Services.Salon.ISalonService salonService,
             ITerminologyService terminologyService,
-            ISaleService saleService)
+            ISaleService saleService,
+            IPricingService pricingService)
             : base(logger, diagnosticService, toastService)
         {
             _memberService = memberService;
@@ -202,6 +248,7 @@ namespace Management.Presentation.ViewModels.Members
             _salonService = salonService;
             _terminologyService = terminologyService;
             _saleService = saleService;
+            _pricingService = pricingService;
 
             _isSalonFacility = _facilityContext.CurrentFacility == FacilityType.Salon;
             Title = "Quick Registration";

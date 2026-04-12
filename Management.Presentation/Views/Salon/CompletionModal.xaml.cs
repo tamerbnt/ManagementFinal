@@ -8,5 +8,17 @@ namespace Management.Presentation.Views.Salon
         {
             InitializeComponent();
         }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is CompletionViewModel vm)
+            {
+                vm.CancelCommand.Execute(null);
+            }
+            else
+            {
+                this.Close();
+            }
+        }
     }
 }

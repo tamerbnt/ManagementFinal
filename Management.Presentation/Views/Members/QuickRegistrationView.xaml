@@ -22,7 +22,7 @@
     <premium:ModalShellControl Title="{Binding Title}"
                                Width="820"
                                CancelCommand="{Binding CancelCommand}"
-                               RegisterCommand="{Binding RegisterCommand}"
+                               SaveCommand="{Binding RegisterCommand}"
                                PrimaryActionText="{DynamicResource Terminology.Global.Register}">
         
         <StackPanel Margin="0,8,0,0">
@@ -95,8 +95,27 @@
                         <TextBlock Text="Membership Plan" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding Plans}" 
                                   SelectedItem="{Binding SelectedPlan}"
-                                  DisplayMemberPath="Name"
-                                  Style="{StaticResource Input.ComboBox}"/>
+                                  Style="{StaticResource Input.ComboBox}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Salon Service Selection (Conditional) -->
+                    <StackPanel Margin="0,0,0,24" Visibility="{Binding IsSalonFacility, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Salon Service" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding SalonServices}" 
+                                  SelectedItem="{Binding SelectedSalonService}"
+                                  Style="{StaticResource Input.ComboBox}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </StackPanel>
 
                     <StackPanel>
@@ -112,6 +131,35 @@
                     </StackPanel>
                 </StackPanel>
             </Grid>
+
+            <!-- 3. PRICING SUMMARY -->
+            <Border Background="#F9FAFB" CornerRadius="12" Padding="20" Margin="0,32,0,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource IconCart}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"/>
+                        <TextBlock Text="Registration Total" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <!-- Original Price (Strikethrough) -->
+                        <TextBlock Text="{Binding OriginalTotalPrice, StringFormat='{}{0:N2} DA'}" 
+                                   FontSize="14" Foreground="{DynamicResource Brush.Text.Tertiary}" TextDecorations="Strikethrough"
+                                   Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   Margin="0,0,12,0" VerticalAlignment="Bottom"/>
+                        
+                        <!-- Effective Total -->
+                        <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:N2} DA'}" 
+                                   FontSize="24" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" 
+                                   VerticalAlignment="Bottom"/>
+                        
+                        <!-- Promo Badge -->
+                        <Border Background="#D1FAE5" CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Bottom"
+                                Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </StackPanel>
     </premium:ModalShellControl>
 </UserControl>

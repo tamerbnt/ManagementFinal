@@ -5,12 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
              xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:MultiSaleCartViewModel}"
              Background="Transparent">
 
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:CountToBooleanConverter x:Key="CountToBooleanConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" Inverted="True"/>
 
+        <!-- Missing icon aliases -->
+        <StreamGeometry x:Key="IconMember">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
         
         <!-- Selection Highlight Style -->
         <Style x:Key="SelectionItemStyle" TargetType="ListBoxItem">
@@ -101,7 +109,7 @@
                                Subtitle="{DynamicResource Terminology.GymHome.MultiSale.Subtitle}"
                                Width="900" 
                                CancelCommand="{Binding CancelCommand}"
-                               RegisterCommand="{Binding CheckoutCommand}"
+                               SaveCommand="{Binding CheckoutCommand}"
                                PrimaryActionText="{DynamicResource Terminology.GymHome.MultiSale.Summary.Checkout}">
 
         <Grid Height="500" Margin="0,12,0,0">
@@ -166,7 +174,7 @@
                                         <!-- Row Unselect (VISIBLE ONLY WHEN SELECTED) -->
                                         <Button Grid.Column="2" 
                                                 Command="{Binding DataContext.ClearSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                Style="{StaticResource Button.Ghost}" Width="32" Height="32" Padding="8"
+                                                Style="{DynamicResource Button.Ghost}" Width="32" Height="32" Padding="8"
                                                 Visibility="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="#EF4444" Stretch="Uniform"/>
                                         </Button>
@@ -206,7 +214,7 @@
                                         <!-- Row Unselect -->
                                         <Button Grid.Column="2" 
                                                 Command="{Binding DataContext.ClearSelectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                Style="{StaticResource Button.Ghost}" Width="32" Height="32" Padding="8"
+                                                Style="{DynamicResource Button.Ghost}" Width="32" Height="32" Padding="8"
                                                 Visibility="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}, Converter={StaticResource BooleanToVisibilityConverter}}">
                                             <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" Fill="#EF4444" Stretch="Uniform"/>
                                         </Button>
@@ -220,6 +228,55 @@
                 <!-- RIGHT COLUMN: INDEPENDENT SCROLLING CONTROLS -->
                 <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Height="400">
                     <StackPanel>
+                        <!-- 0. MEMBER SEARCH -->
+                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="12" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="Link Member (Optional)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                                
+                                <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
+                                    <premium:PremiumSearchBox Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                            Placeholder="Search members..."
+                                                            IconData="{StaticResource IconSearch}"/>
+                                    
+                                    <!-- Search Results Popup -->
+                                    <Popup IsOpen="{Binding SearchedMembers, Converter={StaticResource CountToBooleanConverter}}" 
+                                           StaysOpen="False" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade">
+                                        <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E5E7EB" Width="260" Margin="4">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.1"/>
+                                            </Border.Effect>
+                                            <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" MaxHeight="250">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Command="{Binding DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}" Style="{DynamicResource Button.Ghost}" HorizontalContentAlignment="Left" Padding="12,8">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" FontSize="13"/>
+                                                                <TextBlock Text="{Binding PhoneNumber}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+
+                                <!-- Selected Member Badge -->
+                                <Border Background="#EFF6FF" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource IconMember}" Fill="#3B82F6" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="#1E40AF" FontSize="13" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
+                                            <Path Data="{StaticResource IconClose}" Fill="#1E40AF" Stretch="Uniform"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
                         <!-- 1. ACTIVE SELECTION DETAILS -->
                         <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
                             <Grid MinHeight="140">
@@ -239,14 +296,27 @@
                                     <Grid Margin="0,0,0,8">
                                         <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         <Button Command="{Binding ClearSelectionCommand}" 
-                                                Style="{StaticResource Button.Ghost}"
+                                                Style="{DynamicResource Button.Ghost}"
                                                 HorizontalAlignment="Right" Width="24" Height="24" Padding="6">
                                             <Path Data="{StaticResource IconClose}" Fill="#EF4444" Stretch="Uniform"/>
                                         </Button>
                                     </Grid>
                                     
                                     <TextBlock Text="{Binding SelectedProduct.Name}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding SelectedProduct.Price, StringFormat='{}{0:N2} DA'}" FontSize="13" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="SemiBold"/>
+                                    
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding SelectedProductPricing.OriginalPrice.Amount, StringFormat='{}{0:N2} DA'}" 
+                                                   FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}" TextDecorations="Strikethrough"
+                                                   Visibility="{Binding SelectedProductPricing.IsDiscountApplied, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}"
+                                                   Margin="0,0,8,0" VerticalAlignment="Bottom"/>
+                                        <TextBlock Text="{Binding SelectedProductPricing.EffectivePrice.Amount, StringFormat='{}{0:N2} DA'}" 
+                                                   FontSize="18" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="ExtraBold" VerticalAlignment="Bottom"/>
+                                        
+                                        <Border Background="#D1FAE5" CornerRadius="10" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Bottom"
+                                                Visibility="{Binding SelectedProductPricing.IsDiscountApplied, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <TextBlock Text="PROMO" FontSize="9" FontWeight="Bold" Foreground="#047857"/>
+                                        </Border>
+                                    </StackPanel>
                                     
                                     <Grid Margin="0,16,0,0" HorizontalAlignment="Center">
                                         <Grid.ColumnDefinitions>
@@ -269,7 +339,7 @@
                                     <Grid Margin="0,0,0,8">
                                         <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         <Button Command="{Binding ClearSelectionCommand}" 
-                                                Style="{StaticResource Button.Ghost}"
+                                                Style="{DynamicResource Button.Ghost}"
                                                 HorizontalAlignment="Right" Width="24" Height="24" Padding="6">
                                             <Path Data="{StaticResource IconClose}" Fill="#EF4444" Stretch="Uniform"/>
                                         </Button>
@@ -308,13 +378,22 @@
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" MaxWidth="110" TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                        <!-- Promo Dot -->
+                                                        <Ellipse Width="6" Height="6" Fill="#10B981" Margin="6,0,0,0" VerticalAlignment="Center" 
+                                                                 Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <Ellipse.ToolTip>
+                                                                <ToolTip Content="Promotional Discount Applied"/>
+                                                            </Ellipse.ToolTip>
+                                                        </Ellipse>
+                                                    </StackPanel>
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" Margin="12,0" VerticalAlignment="Center"/>
                                                 <Button Grid.Column="2" 
                                                         Command="{Binding DataContext.RemoveProductFromCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
-                                                        Style="{StaticResource Button.Ghost}" Width="24" Height="24" Padding="6">
+                                                        Style="{DynamicResource Button.Ghost}" Width="24" Height="24" Padding="6">
                                                     <Path Data="{StaticResource IconClose}" Fill="#EF4444" Stretch="Uniform"/>
                                                 </Button>
                                             </Grid>
@@ -361,3 +440,4 @@
         </Grid>
     </premium:ModalShellControl>
 </UserControl>
+

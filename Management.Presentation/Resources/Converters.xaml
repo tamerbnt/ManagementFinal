@@ -5,6 +5,8 @@
     <!-- Group 1: Logic & Visibility -->
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:BoolToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:CountToBooleanConverter x:Key="CountToBooleanConverter"/>
+    <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
     <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" ConverterParameter="Inverse"/>
     <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
     <converters:BoolToVisibilityConverter x:Key="BooleanToVis"/>

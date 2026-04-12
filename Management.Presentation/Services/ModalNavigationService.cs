@@ -563,26 +563,23 @@ namespace Management.Presentation.Services
             }
         }
 
-        private Task CloseModalWindowAsync(ModalState state)
+        private async Task CloseModalWindowAsync(ModalState state)
         {
             // Use a TaskCompletionSource so we properly AWAIT the animation completion.
-            // Previously, _dispatcher.InvokeAsync returned immediately after scheduling the
-            // animation, causing the modal stack cleanup to run before window.Close() was
-            // ever called. This also prevented the storyboard Completed event from firing
-            // on the correct window instance.
             var tcs = new System.Threading.Tasks.TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             _dispatcher.InvokeAsync(() =>
             {
                 try
                 {
-                    if (state.Window.IsLoaded)
+                    if (state.Window.IsLoaded && state.Window.IsVisible)
                     {
                         if (!IsReducedMotionEnabled())
                         {
                             ApplyCloseAnimation(state.Window, () =>
                             {
-                                state.Window.Close();
+                                // Defensive: only close if not already closing
+                                try { state.Window.Close(); } catch { }
                                 tcs.TrySetResult(true);
                             });
                         }
@@ -599,11 +596,22 @@ namespace Management.Presentation.Services
                 }
                 catch (Exception ex)
                 {
-                    tcs.TrySetException(ex);
+                    _logger?.LogWarning(ex, "Error during modal window closure dispatch");
+                    tcs.TrySetResult(false);
                 }
             });
 
-            return tcs.Task;
+            // SAFETY TIMEOUT: Ensure we never hang the global lock for more than 500ms
+            // if an animation fails to fire its Completed event.
+            var timeoutTask = Task.Delay(500);
+            var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+            if (completedTask == timeoutTask)
+            {
+                _logger?.LogWarning("Modal close animation timed out for {ViewModel}. Forcing stack cleanup.", state.ViewModel.GetType().Name);
+                // Force close the window just in case
+                _dispatcher.InvokeAsync(() => { try { state.Window.Close(); } catch { } });
+            }
         }
 
         #endregion
@@ -688,12 +696,27 @@ namespace Management.Presentation.Services
             if (window == null) return;
 
             // Immediate execution to minimize race conditions with the Stack.Pop()
-            // We first try to get the state from the Window Tag where we attached it.
             var state = window.Tag as ModalState ?? _modalStack.FirstOrDefault(s => s.Window == window);
             
             if (state != null)
             {
                 CaptureModalResult(state);
+
+                // GHOST MODAL RECOVERY: If the window was closed via direct Window.Close() 
+                // (e.g. from code-behind), it won't have been popped from the stack yet.
+                if (_modalStack.Any() && _modalStack.Peek() == state && !state.IsClosing)
+                {
+                    _logger?.LogInformation("Manual window closure detected for {ViewModel}. Syncing stack.", state.ViewModel.GetType().Name);
+                    
+                    state.IsClosing = true;
+                    _modalStack.Pop();
+                    CleanupModalState(state);
+                    
+                    UpdateCurrentViewModel(_modalStack.Count > 0 ? _modalStack.Peek().ViewModel : null);
+                    
+                    OnPropertyChanged(nameof(StackDepth));
+                    OnPropertyChanged(nameof(IsModalOpen));
+                }
 
                 // Clean up event handlers
                 window.Closed -= OnModalWindowClosed;

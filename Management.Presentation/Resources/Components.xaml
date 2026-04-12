@@ -542,7 +542,7 @@
 
                         <!-- "Saved" Heartbeat Indicator -->
                         <TextBlock x:Name="SavedIndicator" 
-                                   Text="âœ“" 
+                                   Text="&#x2713;"  
                                    Foreground="{DynamicResource FacilityAccentBrush}"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Right" VerticalAlignment="Center"

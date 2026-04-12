@@ -1,15 +1,20 @@
 <ContentControl x:Class="Management.Presentation.Controls.Premium.ModalShellControl"
-                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-                 xmlns:local="clr-namespace:Management.Presentation.Controls.Premium"
-                 mc:Ignorable="d"
-                 MaxWidth="820">
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+                xmlns:local="clr-namespace:Management.Presentation.Controls.Premium"
+                xmlns:converters="clr-namespace:Management.Presentation.Converters"
+                mc:Ignorable="d"
+                MaxWidth="820">
+    <ContentControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </ContentControl.Resources>
     <ContentControl.Template>
         <ControlTemplate TargetType="local:ModalShellControl">
             <Grid Margin="16,16,16,32">
-                <Border Background="{DynamicResource Brush.Surface.Primary}"
+                <Border Background="{DynamicResource SurfaceBg}"
                         CornerRadius="24">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="40" ShadowDepth="12" 
@@ -19,11 +24,22 @@
 
                     <Grid Margin="0">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/> <!-- Header -->
-                            <RowDefinition Height="*"/>    <!-- Content (Scrollable) -->
-                            <RowDefinition Height="Auto"/> <!-- Separator -->
-                            <RowDefinition Height="Auto"/> <!-- Footer (Buttons) -->
+                            <RowDefinition Height="Auto"/> <!-- Row 0: Header -->
+                            <RowDefinition Height="Auto"/> <!-- Row 1: Loading Indicator -->
+                            <RowDefinition Height="*"/>    <!-- Row 2: Content (Scrollable) -->
+                            <RowDefinition Height="Auto"/> <!-- Row 3: Separator -->
+                            <RowDefinition Height="Auto"/> <!-- Row 4: Footer (Buttons) -->
                         </Grid.RowDefinitions>
+
+                        <!-- PROGRESS BAR -->
+                        <ProgressBar Grid.Row="1" 
+                                     IsIndeterminate="True" 
+                                     Height="2" 
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Foreground="{DynamicResource Brush.Accent.Primary}"
+                                     Visibility="{TemplateBinding IsBusy, Converter={StaticResource BoolToVis}}"
+                                     VerticalAlignment="Top"/>
 
                         <!-- HEADER -->
                         <Grid Grid.Row="0" Margin="32,32,32,24">
@@ -89,7 +105,7 @@
                         </Grid>
 
                         <!-- CONTENT -->
-                        <ScrollViewer Grid.Row="1" 
+                        <ScrollViewer Grid.Row="2" 
                                       VerticalScrollBarVisibility="Auto" 
                                       HorizontalScrollBarVisibility="Disabled"
                                       MaxHeight="580"
@@ -98,16 +114,28 @@
                         </ScrollViewer>
 
                         <!-- SEPARATOR -->
-                        <Border Grid.Row="2" 
+                        <Border Grid.Row="3" 
                                 Height="1" 
                                 Background="#F3F4F6" 
                                 Margin="0,8,0,0"/>
 
                         <!-- FOOTER (Stretched Buttons) -->
-                        <Grid Grid.Row="3" Margin="32,24,32,32">
+                        <Grid Grid.Row="4" Margin="32,24,32,32">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/> <!-- Col 0: Cancel -->
-                                <ColumnDefinition Width="Auto"/> <!-- Col 1: Extra (Optional Spacer) -->
+                                <ColumnDefinition> <!-- Col 1: Extra -->
+                                    <ColumnDefinition.Style>
+                                        <Style TargetType="ColumnDefinition">
+                                            <Setter Property="Width" Value="Auto"/>
+                                            <Style.Triggers>
+                                                <!-- If content exists, make it a '*' column to match neighbors -->
+                                                <DataTrigger Binding="{Binding ExtraFooterContent, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource NullToVisibilityConverter}}" Value="Visible">
+                                                    <Setter Property="Width" Value="*"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ColumnDefinition.Style>
+                                </ColumnDefinition>
                                 <ColumnDefinition Width="*"/> <!-- Col 2: Primary -->
                             </Grid.ColumnDefinitions>
                             
@@ -118,22 +146,24 @@
                                     IsCancel="True"
                                     Style="{DynamicResource Button.Pill.Outline}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="0,0,8,0"/>
+                                    Margin="0,0,12,0"/>
                             
                             <!-- Middle Button (Extra Content - e.g. a third action) -->
                             <ContentControl Grid.Column="1" 
                                             Content="{TemplateBinding ExtraFooterContent}" 
-                                            Margin="8,0"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Margin="0,0"
                                             Visibility="{Binding Content, RelativeSource={RelativeSource Self}, Converter={StaticResource NullToVisibilityConverter}}"/>
 
                             <!-- Primary Action (Stretched) -->
                             <Button Grid.Column="2" 
-                                    Command="{TemplateBinding RegisterCommand}"
+                                    Command="{TemplateBinding SaveCommand}"
                                     IsDefault="True"
                                     Style="{DynamicResource Button.Pill.Primary}"
                                     Content="{TemplateBinding PrimaryActionText}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="8,0,0,0"/>
+                                    Margin="12,0,0,0"/>
                         </Grid>
                     </Grid>
                 </Border>

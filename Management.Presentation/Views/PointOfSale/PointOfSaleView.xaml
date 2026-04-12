@@ -464,7 +464,7 @@
                          Width="80" Height="80" 
                          CornerRadius="40"
                          Margin="0,0,0,16">
-                     <TextBlock Text="âœ“" 
+                     <TextBlock Text="&#x2713;" 
                                 FontSize="48" 
                                 Foreground="White" 
                                 HorizontalAlignment="Center" 

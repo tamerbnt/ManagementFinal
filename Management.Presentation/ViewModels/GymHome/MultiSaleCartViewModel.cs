@@ -34,6 +34,8 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly MediatR.IMediator _mediator;
+        private readonly IMemberService _memberService;
+        private readonly IPricingService _pricingService;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsProductSelectionActive))]
@@ -74,7 +76,22 @@ namespace Management.Presentation.ViewModels.GymHome
         [NotifyPropertyChangedFor(nameof(GrandTotal))]
         private WalkInPlanDto? _selectedWalkInPlan;
 
-        public decimal WalkInPrice => SelectedWalkInPlan?.Price ?? 0m;
+        [ObservableProperty]
+        private MemberDto? _selectedMember;
+
+        [ObservableProperty]
+        private string _memberSearchQuery = string.Empty;
+
+        [ObservableProperty]
+        private bool _isMemberSearching;
+
+        [ObservableProperty]
+        private ObservableCollection<MemberDto> _searchedMembers = new();
+
+        public PricingResult? SelectedProductPricing { get; private set; }
+        public PricingResult? SelectedWalkInPricing { get; private set; }
+
+        public decimal WalkInPrice => SelectedWalkInPricing?.EffectivePrice.Amount ?? SelectedWalkInPlan?.Price ?? 0m;
 
         private List<WalkInPlanDto> _allWalkInPlans = new();
 
@@ -107,12 +124,14 @@ namespace Management.Presentation.ViewModels.GymHome
             IToastService toastService,
             IProductService productService, 
             ISaleService saleService,
-            ModalNavigationStore modalNavigationStore,
-            Management.Domain.Services.IDialogService dialogService,
             ProductStore productStore,
             IGymOperationService gymOperationService,
+            ModalNavigationStore modalNavigationStore,
+            Management.Domain.Services.IDialogService dialogService,
             ILocalizationService localizationService,
-            MediatR.IMediator mediator)
+            MediatR.IMediator mediator,
+            IMemberService memberService,
+            IPricingService pricingService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
@@ -122,6 +141,8 @@ namespace Management.Presentation.ViewModels.GymHome
             _productStore = productStore;
             _gymOperationService = gymOperationService;
             _mediator = mediator;
+            _memberService = memberService;
+            _pricingService = pricingService;
 
             Title = GetTerm("Strings.GymHome.MultiSaleCart") ?? "Multi-Sale / Cart";
             _productStore.StockUpdated += OnProductStockUpdated;
@@ -177,27 +198,119 @@ namespace Management.Presentation.ViewModels.GymHome
             FilterProducts(value);
         }
 
-        partial void OnWalkInSearchQueryChanged(string value)
+        private CancellationTokenSource? _memberSearchCts;
+
+        partial void OnMemberSearchQueryChanged(string value)
         {
-            FilterWalkInPlans(value);
+            _memberSearchCts?.Cancel();
+            if (string.IsNullOrWhiteSpace(value)) { SearchedMembers.Clear(); return; }
+            
+            _memberSearchCts = new CancellationTokenSource();
+            var token = _memberSearchCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(400, token);
+                    if (token.IsCancellationRequested) return;
+
+                    var request = new MemberSearchRequest(value);
+                    var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request, 1, 10);
+                    if (result.IsSuccess)
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => SearchedMembers.ReplaceAll(result.Value.Items));
+                    }
+                }
+                catch (TaskCanceledException) { }
+            }, token);
         }
 
-        partial void OnSelectedProductChanged(ProductDto? value)
+        [RelayCommand]
+        private async Task SelectMemberAsync(MemberDto member)
         {
+            SelectedMember = member;
+            MemberSearchQuery = string.Empty;
+            SearchedMembers.Clear();
+            await RecalculateAllPricesAsync();
+        }
+
+        [RelayCommand]
+        private async Task ClearSelectedMemberAsync()
+        {
+            SelectedMember = null;
+            await RecalculateAllPricesAsync();
+        }
+
+        private async Task RecalculateAllPricesAsync()
+        {
+            // 1. Recalculate current selections
+            await UpdateSelectedProductPricingAsync();
+            await UpdateSelectedWalkInPricingAsync();
+
+            // 2. Recalculate cart items
+            foreach (var item in CartItems)
+            {
+                var product = _allProducts.FirstOrDefault(p => p.Id == item.ProductId);
+                if (product != null)
+                {
+                    var result = await _pricingService.CalculateEffectivePriceAsync(
+                        _facilityContext.CurrentFacilityId, 
+                        product.Id, 
+                        new Management.Domain.ValueObjects.Money(product.Price, "DA"),
+                        SelectedMember?.Gender,
+                        SelectedMember?.MembershipPlanId);
+                    
+                    item.Price = result.EffectivePrice.Amount;
+                    item.OriginalPrice = result.OriginalPrice.Amount;
+                    item.IsDiscounted = result.IsDiscountApplied;
+                }
+            }
+
+            OnPropertyChanged(nameof(ProductsTotal));
+            OnPropertyChanged(nameof(GrandTotal));
+            OnPropertyChanged(nameof(CanCheckout));
+        }
+
+        private async Task UpdateSelectedProductPricingAsync()
+        {
+            if (SelectedProduct == null) { SelectedProductPricing = null; return; }
+            SelectedProductPricing = await _pricingService.CalculateEffectivePriceAsync(
+                _facilityContext.CurrentFacilityId,
+                SelectedProduct.Id,
+                new Management.Domain.ValueObjects.Money(SelectedProduct.Price, "DA"),
+                SelectedMember?.Gender,
+                SelectedMember?.MembershipPlanId);
+            
+            OnPropertyChanged(nameof(SelectedProductPricing));
             OnPropertyChanged(nameof(SelectedProductQuantity));
             OnPropertyChanged(nameof(IsSelectedProductInCart));
             OnPropertyChanged(nameof(IsProductSelectionActive));
             OnPropertyChanged(nameof(IsControlPanelEmpty));
         }
 
-        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? value)
+        private async Task UpdateSelectedWalkInPricingAsync()
         {
-            OnPropertyChanged(nameof(WalkInPrice));
-            OnPropertyChanged(nameof(WalkInTotal));
-            OnPropertyChanged(nameof(GrandTotal));
-            OnPropertyChanged(nameof(IsWalkInSelectionActive));
-            OnPropertyChanged(nameof(IsControlPanelEmpty));
+            if (SelectedWalkInPlan == null) { SelectedWalkInPricing = null; return; }
+            
+             SelectedWalkInPricing = await _pricingService.CalculateEffectivePriceAsync(
+                _facilityContext.CurrentFacilityId,
+                Guid.Empty, 
+                new Management.Domain.ValueObjects.Money(SelectedWalkInPlan.Price, "DA"),
+                SelectedMember?.Gender,
+                SelectedMember?.MembershipPlanId);
+             
+             OnPropertyChanged(nameof(SelectedWalkInPricing));
+             OnPropertyChanged(nameof(WalkInPrice));
+             OnPropertyChanged(nameof(WalkInTotal));
+             OnPropertyChanged(nameof(GrandTotal));
+             OnPropertyChanged(nameof(IsWalkInSelectionActive));
+             OnPropertyChanged(nameof(IsControlPanelEmpty));
         }
+
+        partial void OnSelectedProductChanged(ProductDto? value) => _ = UpdateSelectedProductPricingAsync();
+
+        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? value) => _ = UpdateSelectedWalkInPricingAsync();
 
         public bool IsProductSelectionActive => CurrentTab == CartTab.Products && SelectedProduct != null;
         public bool IsWalkInSelectionActive => CurrentTab == CartTab.WalkIn && SelectedWalkInPlan != null;
@@ -261,11 +374,14 @@ namespace Management.Presentation.ViewModels.GymHome
             }
             else
             {
+                var price = SelectedProductPricing?.EffectivePrice.Amount ?? product.Price;
                 CartItems.Add(new CartItemViewModel
                 {
                     ProductId = product.Id,
                     Name = product.Name,
-                    Price = product.Price,
+                    Price = price,
+                    OriginalPrice = product.Price,
+                    IsDiscounted = (SelectedProductPricing?.DiscountAmount.Amount ?? 0) > 0,
                     Quantity = 1
                 });
             }
@@ -415,7 +531,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     var productRequest = new CheckoutRequestDto(
                         Management.Domain.Enums.PaymentMethod.Cash,
                         ProductsTotal,
-                        null,
+                        SelectedMember?.Id,
                         itemsMap
                     );
 
@@ -514,6 +630,12 @@ namespace Management.Presentation.ViewModels.GymHome
         
         [ObservableProperty]
         private decimal _price;
+
+        [ObservableProperty]
+        private decimal _originalPrice;
+
+        [ObservableProperty]
+        private bool _isDiscounted;
         
         [ObservableProperty]
         private int _quantity;

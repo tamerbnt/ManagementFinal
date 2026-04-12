@@ -21,7 +21,7 @@ using Management.Presentation.Messages;
 
 namespace Management.Presentation.Views.Salon
 {
-    public class BookingViewModel : ViewModelBase
+    public partial class BookingViewModel : ViewModelBase
     {
         private readonly ISalonService _salonService;
         private readonly IMemberService _memberService;
@@ -44,6 +44,36 @@ namespace Management.Presentation.Views.Salon
         public ObservableCollection<MemberDto> Clients { get; } = new();
         public ObservableCollection<SalonService> AvailableServices { get; } = new();
         public ObservableCollection<string> AcquisitionSources { get; } = new() { "Walk-in", "Word of Mouth", "Instagram", "TikTok", "Facebook" };
+        public ObservableCollection<MemberDto> FilteredClients { get; } = new();
+
+        [ObservableProperty]
+        private bool _isExistingClientMode = true;
+
+        partial void OnIsExistingClientModeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(ShowSearchPanel));
+        }
+
+        [ObservableProperty]
+        private string _clientSearchText = string.Empty;
+
+        partial void OnClientSearchTextChanged(string value)
+        {
+            FilterClients(value);
+        }
+
+        private void FilterClients(string query)
+        {
+            FilteredClients.Clear();
+            if (string.IsNullOrWhiteSpace(query)) return;
+
+            var results = Clients
+                .Where(c => c.FullName.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Take(5);
+
+            foreach (var client in results)
+                FilteredClients.Add(client);
+        }
 
         private StaffMember? _selectedStaff;
         public StaffMember? SelectedStaff
@@ -113,22 +143,39 @@ namespace Management.Presentation.Views.Salon
             }
         }
 
+        private MemberDto? _selectedClient;
+        public MemberDto? SelectedClient
+        {
+            get => _selectedClient;
+            set
+            {
+                if (SetProperty(ref _selectedClient, value))
+                {
+                    OnPropertyChanged(nameof(HasSelectedClient));
+                    OnPropertyChanged(nameof(ShowSearchPanel));
+                }
+            }
+        }
+
+        public bool HasSelectedClient => SelectedClient != null;
+        public bool ShowSearchPanel => !HasSelectedClient && IsExistingClientMode;
+
         private Guid _selectedClientId;
         public Guid SelectedClientId
         {
             get => _selectedClientId;
             set
             {
-        if (SetProperty(ref _selectedClientId, value))
-        {
-            var matchedClient = Clients.FirstOrDefault(c => c.Id == value);
-            if (matchedClient != null)
-            {
-                _selectedClientName = matchedClient.FullName;
-                OnPropertyChanged(nameof(SelectedClientName));
-            }
-            ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
-        }
+                if (SetProperty(ref _selectedClientId, value))
+                {
+                    SelectedClient = Clients.FirstOrDefault(c => c.Id == value);
+                    if (SelectedClient != null)
+                    {
+                        _selectedClientName = SelectedClient.FullName;
+                        OnPropertyChanged(nameof(SelectedClientName));
+                    }
+                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                }
             }
         }
 
@@ -136,32 +183,32 @@ namespace Management.Presentation.Views.Salon
         public string SelectedClientName
         {
             get => _selectedClientName;
-        set 
-        {
-            if (SetProperty(ref _selectedClientName, value))
+            set 
             {
-                // Try to find a matching client by name
-                var match = Clients.FirstOrDefault(c => string.Equals(c.FullName, value, StringComparison.OrdinalIgnoreCase));
-                if (match != null)
+                if (SetProperty(ref _selectedClientName, value))
                 {
-                    if (_selectedClientId != match.Id)
+                    // Try to find a matching client by name
+                    var match = Clients.FirstOrDefault(c => string.Equals(c.FullName, value, StringComparison.OrdinalIgnoreCase));
+                    if (match != null)
                     {
-                        _selectedClientId = match.Id;
-                        OnPropertyChanged(nameof(SelectedClientId));
+                        if (_selectedClientId != match.Id)
+                        {
+                            _selectedClientId = match.Id;
+                            OnPropertyChanged(nameof(SelectedClientId));
+                        }
                     }
-                }
-                else
-                {
-                    // If no match, reset ID but keep name (allows new client booking)
-                    if (_selectedClientId != Guid.Empty)
+                    else
                     {
-                        _selectedClientId = Guid.Empty;
-                        OnPropertyChanged(nameof(SelectedClientId));
+                        // If no match, reset ID but keep name (allows new client booking)
+                        if (_selectedClientId != Guid.Empty)
+                        {
+                            _selectedClientId = Guid.Empty;
+                            OnPropertyChanged(nameof(SelectedClientId));
+                        }
                     }
+                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
                 }
-                ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
             }
-        }
         }
 
         private Guid? _selectedServiceId;
@@ -211,6 +258,7 @@ namespace Management.Presentation.Views.Salon
             set => SetProperty(ref _price, value);
         }
 
+        public IRelayCommand ClearSelectedClientCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand BookCommand => SaveCommand; // Alias for XAML
         public ICommand CancelCommand { get; }
@@ -257,6 +305,15 @@ namespace Management.Presentation.Views.Salon
             SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteSave, CanSave);
             CancelCommand = new Management.Presentation.Extensions.RelayCommand(() => _modalService.CloseModal());
             AutoAssignCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteAutoAssign);
+            ClearSelectedClientCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(ExecuteClearSelectedClient);
+        }
+
+        private void ExecuteClearSelectedClient()
+        {
+            SelectedClientId = Guid.Empty;
+            SelectedClientName = string.Empty;
+            SelectedClient = null;
+            ClientSearchText = string.Empty;
         }
 
         private async Task LoadInitialData()
@@ -319,14 +376,13 @@ namespace Management.Presentation.Views.Salon
         }
 
         private bool CanSave() => 
-            !string.IsNullOrWhiteSpace(SelectedClientName) && 
+            (IsExistingClientMode ? SelectedClientId != Guid.Empty : !string.IsNullOrWhiteSpace(SelectedClientName)) && 
             SelectedStaffId != Guid.Empty && 
             SelectedService != null &&
             BookingDate.Date >= DateTime.Today;
 
         private async Task ExecuteSave()
         {
-            // Fix 4: Robust Validation Guards
             if (SelectedService == null)
             {
                 _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.Required") ?? "Please select a service.", NotificationType.Error);
@@ -339,9 +395,15 @@ namespace Management.Presentation.Views.Salon
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(SelectedClientName))
+            if (!IsExistingClientMode && string.IsNullOrWhiteSpace(SelectedClientName))
             {
-                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.ClientRequired") ?? "Please enter or select a client name.", NotificationType.Error);
+                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Validation.ClientRequired") ?? "Please enter a client name.", NotificationType.Error);
+                return;
+            }
+
+            if (IsExistingClientMode && SelectedClientId == Guid.Empty)
+            {
+                _notificationService.ShowNotification("Please select an existing client.", NotificationType.Error);
                 return;
             }
 
@@ -351,76 +413,83 @@ namespace Management.Presentation.Views.Salon
                 return;
             }
 
-            var startTime = BookingDate.Add(BookingTime);
-            var duration = SelectedService?.DurationMinutes ?? 60;
-            if (duration <= 0) duration = 60;
-            var endTime = startTime.AddMinutes(duration);
-
-            if (await _salonService.HasConflictAsync(SelectedStaffId, SelectedClientId, startTime, endTime))
+            try 
             {
-                _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Conflict"), NotificationType.Error);
-                return;
-            }
+                var startTime = BookingDate.Date.Add(BookingTime);
+                var duration = SelectedService.DurationMinutes > 0 ? SelectedService.DurationMinutes : 60;
+                var endTime = startTime.AddMinutes(duration);
 
-            var clientId = SelectedClientId;
-            
-            // Auto-create client if it doesn't exist
-            if (clientId == Guid.Empty && !string.IsNullOrWhiteSpace(SelectedClientName))
-            {
-                var newClient = new MemberDto
+                if (await _salonService.HasConflictAsync(SelectedStaffId, SelectedClientId, startTime, endTime))
                 {
-                    FullName = SelectedClientName,
-                    Status = MemberStatus.Active,
-                    StartDate = DateTime.UtcNow,
-                    ExpirationDate = DateTime.UtcNow.AddYears(1),
-                    DateOfBirth = Age.HasValue ? DateTime.Today.AddYears(-Age.Value) : (DateTime?)null,
-                    Source = AcquisitionSource,
-                    Notes = "Auto-created from salon booking"
+                    _notificationService.ShowNotification(_terminologyService.GetTerm("Terminology.Salon.Booking.Conflict") ?? "Schedule conflict detected.", NotificationType.Error);
+                    return;
+                }
+
+                var clientId = SelectedClientId;
+                var clientName = SelectedClientName;
+                
+                if (clientId == Guid.Empty && !IsExistingClientMode)
+                {
+                    var newClient = new MemberDto
+                    {
+                        FullName = SelectedClientName,
+                        Status = MemberStatus.Active,
+                        StartDate = DateTime.UtcNow,
+                        ExpirationDate = DateTime.UtcNow.AddYears(1),
+                        DateOfBirth = Age.HasValue ? DateTime.Today.AddYears(-Age.Value) : (DateTime?)null,
+                        Source = AcquisitionSource,
+                        Notes = "Auto-created from salon booking"
+                    };
+
+                    var createResult = await _memberService.CreateMemberAsync(_facilityContext.CurrentFacilityId, newClient);
+                    if (createResult.IsSuccess)
+                    {
+                        clientId = createResult.Value;
+                        WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Member>(_facilityContext.CurrentFacilityId));
+                    }
+                    else
+                    {
+                        _notificationService.ShowNotification("Could not register new client. Proceeding as guest.", NotificationType.Warning);
+                    }
+                }
+                else if (IsExistingClientMode && SelectedClient != null)
+                {
+                    clientName = SelectedClient.FullName;
+                }
+
+                var appt = new Appointment
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = _tenantService.GetTenantId() ?? Guid.Empty,
+                    FacilityId = _facilityContext.CurrentFacilityId,
+                    ClientId = clientId,
+                    ClientName = !string.IsNullOrWhiteSpace(clientName) ? clientName : "Guest",
+                    StaffId = SelectedStaffId,
+                    StaffName = SelectedStaff.FullName,
+                    ServiceId = SelectedService.Id,
+                    ServiceName = SelectedService.Name,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Price = Price,
+                    Status = AppointmentStatus.Scheduled,
+                    Notes = Notes ?? string.Empty
                 };
 
-                var createResult = await _memberService.CreateMemberAsync(_facilityContext.CurrentFacilityId, newClient);
-                if (createResult.IsSuccess)
-                {
-                    clientId = createResult.Value;
-                    // Notify Members list to refresh
-                    WeakReferenceMessenger.Default.Send(new RefreshRequiredMessage<Member>(_facilityContext.CurrentFacilityId));
-                }
-                else
-                {
-                    _notificationService.ShowNotification("Failed to create client record, booking as guest.", NotificationType.Warning);
-                }
+                await _salonService.BookAppointmentAsync(appt);
+                
+                await _mediator.Publish(new Management.Application.Notifications.FacilityActionCompletedNotification(
+                    appt.FacilityId, 
+                    "Appointment", 
+                    appt.ClientName, 
+                    _terminologyService.GetTerm("Terminology.Salon.Booking.Success") ?? "Appointment Booked Successfully", 
+                    appt.Id.ToString()));
+
+                _modalService.CloseModal();
             }
-            // Logic for updating existing member membership removed as per requirements (membership plans deleted)
-
-            var appt = new Appointment
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid(),
-                TenantId = _tenantService.GetTenantId() ?? Guid.Empty,
-                FacilityId = _facilityContext.CurrentFacilityId,
-                ClientId = clientId,
-                ClientName = SelectedClientName ?? "Guest",
-                StaffId = SelectedStaffId,
-                StaffName = SelectedStaff?.FullName ?? "Unknown Staff", 
-                ServiceId = SelectedService?.Id ?? Guid.Empty,
-                ServiceName = SelectedService?.Name ?? "No Service",
-                StartTime = startTime,
-                EndTime = endTime,
-                Price = Price,
-                Status = AppointmentStatus.Scheduled,
-                Notes = Notes ?? string.Empty
-            };
-
-            await _salonService.BookAppointmentAsync(appt);
-            
-            // Fix: Publish Undo-enabled notification using Mediator bridge
-            await _mediator.Publish(new Management.Application.Notifications.FacilityActionCompletedNotification(
-                appt.FacilityId, 
-                "Appointment", 
-                appt.ClientName, 
-                _terminologyService.GetTerm("Terminology.Salon.Booking.Success") ?? "Appointment Booked Successfully", 
-                appt.Id.ToString()));
-
-            _modalService.CloseModal();
+                _notificationService.ShowNotification($"Error: {ex.Message}", NotificationType.Error);
+            }
         }
     }
 }

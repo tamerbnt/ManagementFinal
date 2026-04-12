@@ -106,10 +106,19 @@ namespace Management.Application.ViewModels.Base
         {
             if (IsBusy) return; // Quick synchronous check
 
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            
             // Wait for lock. If already locked, we wait instead of failing silently 
             // to ensure sequential processing of user commands (e.g., fast double-clicks).
             if (_isDisposed) return;
+            
             await _executionLock.WaitAsync(); 
+            
+            if (sw.ElapsedMilliseconds > 500)
+            {
+                _logger?.LogWarning("High contention on execution lock in {ViewModel}. Waited {Elapsed}ms.", this.GetType().Name, sw.ElapsedMilliseconds);
+            }
+
             try
             {
                 if (_isDisposed || IsBusy) return; // Double-check after acquiring lock
@@ -130,6 +139,11 @@ namespace Management.Application.ViewModels.Base
                 {
                     try { _executionLock.Release(); }
                     catch (ObjectDisposedException) { /* Handle race condition on disposal */ }
+                }
+
+                if (sw.ElapsedMilliseconds > 5000)
+                {
+                    _logger?.LogWarning("Long running operation detected in {ViewModel}: {Elapsed}ms", this.GetType().Name, sw.ElapsedMilliseconds);
                 }
             }
         }
