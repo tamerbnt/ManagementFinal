@@ -532,7 +532,6 @@ namespace Management.Presentation
                 mappingService.Register<AppExitViewModel, Management.Presentation.Views.Shell.AppExitView>();
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 mappingService.Register<InventoryHistoryViewModel, InventoryHistoryView>();
-                mappingService.Register<Management.Presentation.ViewModels.GymHome.RegisterWalkInViewModel, Management.Presentation.Views.GymHome.RegisterWalkInModal>();
                 mappingService.Register<LogoutConfirmationViewModel, LogoutConfirmationWindow>();
                 // LogRestockViewModel, SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.

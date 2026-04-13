@@ -409,70 +409,81 @@ namespace Management.Presentation.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Create a new scope for the modal
-            var scope = _scopeFactory.CreateScope();
-            
-            // Create ViewModel from the SCOPED provider
-            var viewModel = scope.ServiceProvider.GetService(typeof(TViewModel)) as TViewModel;
-            if (viewModel == null)
+            // Run heavy DI resolution and async Init logic completely off the UI thread!
+            var (scope, viewModel, size) = await Task.Run(async () =>
             {
-                scope.Dispose(); // Clean up if failed
-                throw new InvalidOperationException($"ViewModel {typeof(TViewModel).Name} not registered in DI container");
-            }
-
-            // Initialize ViewModel (Design System 33.1)
-            if (viewModel is IModalAware modalAware)
-            {
-                await modalAware.OnModalOpenedAsync(parameter, cancellationToken);
-            }
-            else if (viewModel is IInitializable<object?> initializable)
-            {
-                await initializable.InitializeAsync(parameter, cancellationToken);
-            }
-
-            // Determine modal size (Design System ?15.4)
-            var size = requestedSize ??
-                      (viewModel as IModalViewModel)?.PreferredSize ??
-                      ModalSize.Medium;
-
-            // Create View via mapping service
-            var window = _viewMappingService.CreateView(typeof(TViewModel), viewModel);
-            if (window == null)
-            {
-                throw new InvalidOperationException($"No View registered for ViewModel {typeof(TViewModel).Name}");
-            }
-
-            // Configure window properties
-            ConfigureModalWindow(window, size, StackDepth);
-
-            // Set up event handlers
-            window.Closed += OnModalWindowClosed;
-            window.PreviewKeyDown += OnModalWindowPreviewKeyDown;
-            
-            // Design System: Push logical focus inside the modal explicitly when loaded.
-            // This guarantees the 'IsDefault="True"' confirm buttons bind correctly to the Enter key.
-            window.Loaded += (s, e) =>
-            {
-                if (!window.IsKeyboardFocusWithin)
+                // Create a new scope for the modal
+                var s = _scopeFactory.CreateScope();
+                
+                // Create ViewModel from the SCOPED provider
+                var vm = s.ServiceProvider.GetService(typeof(TViewModel)) as TViewModel;
+                if (vm == null)
                 {
-                    window.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+                    s.Dispose(); // Clean up if failed
+                    throw new InvalidOperationException($"ViewModel {typeof(TViewModel).Name} not registered in DI container");
                 }
-            };
 
-            var state = new ModalState
+                // Initialize ViewModel (Design System 33.1)
+                if (vm is IModalAware modalAware)
+                {
+                    await modalAware.OnModalOpenedAsync(parameter, cancellationToken);
+                }
+                else if (vm is IInitializable<object?> initializable)
+                {
+                    await initializable.InitializeAsync(parameter, cancellationToken);
+                }
+
+                // Determine modal size (Design System 15.4)
+                var resolvedSize = requestedSize ??
+                          (vm as IModalViewModel)?.PreferredSize ??
+                          ModalSize.Medium;
+                          
+                return (s, vm, resolvedSize);
+            }, cancellationToken);
+
+            // Back on UI thread (due to synchronization context wrapper)
+            // But we must guarantee UI thread for View creation:
+            return await _dispatcher.InvokeAsync(() => 
             {
-                Window = window,
-                ViewModel = viewModel,
-                Scope = scope,
-                Size = size,
-                OpenedAt = DateTime.UtcNow
-            };
+                // Create View via mapping service ON DISPATCHER
+                var window = _viewMappingService.CreateView(typeof(TViewModel), viewModel);
+                if (window == null)
+                {
+                    throw new InvalidOperationException($"No View registered for ViewModel {typeof(TViewModel).Name}");
+                }
 
-            // ATTACH STATE TO WINDOW: Ensures OnModalWindowClosed can find the state 
-            // even if the stack has already been popped during programmatic closure.
-            window.Tag = state;
+                // Configure window properties
+                ConfigureModalWindow(window, size, StackDepth);
 
-            return state;
+                // Set up event handlers
+                window.Closed += OnModalWindowClosed;
+                window.PreviewKeyDown += OnModalWindowPreviewKeyDown;
+                
+                // Design System: Push logical focus inside the modal explicitly when loaded.
+                // This guarantees the 'IsDefault="True"' confirm buttons bind correctly to the Enter key.
+                window.Loaded += (s, e) =>
+                {
+                    if (!window.IsKeyboardFocusWithin)
+                    {
+                        window.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));
+                    }
+                };
+
+                var state = new ModalState
+                {
+                    Window = window,
+                    ViewModel = viewModel,
+                    Scope = scope,
+                    Size = size,
+                    OpenedAt = DateTime.UtcNow
+                };
+
+                // ATTACH STATE TO WINDOW: Ensures OnModalWindowClosed can find the state 
+                // even if the stack has already been popped during programmatic closure.
+                window.Tag = state;
+                
+                return state;
+            });
         }
 
         private async Task ShowModalWindowAsync(ModalState state, CancellationToken cancellationToken)

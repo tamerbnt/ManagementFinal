@@ -11,6 +11,15 @@ namespace Management.Domain.Services
         /// Calculates the effective price for a product, plan, or service given a client's context.
         /// </summary>
         Task<PricingResult> CalculateEffectivePriceAsync(Guid facilityId, Guid targetId, Money basePrice, Management.Domain.Enums.Gender? gender = null, Guid? currentPlanId = null);
+
+        /// <summary>
+        /// Calculates effective prices for a batch of items in a single pass.
+        /// </summary>
+        Task<System.Collections.Generic.IDictionary<Guid, PricingResult>> CalculateBatchPricesAsync(
+            Guid facilityId, 
+            System.Collections.Generic.IEnumerable<(Guid Id, Money Price)> items, 
+            Management.Domain.Enums.Gender? gender = null, 
+            Guid? currentPlanId = null);
         
         /// <summary>
         /// Invalidates the promotion cache for a facility.

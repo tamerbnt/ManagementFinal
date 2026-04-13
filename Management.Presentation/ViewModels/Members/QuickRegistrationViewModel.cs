@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Helpers;
 using Management.Application.DTOs;
 using Management.Application.Interfaces.App;
 using Management.Application.Notifications;
@@ -66,7 +67,7 @@ namespace Management.Presentation.ViewModels.Members
         private MembershipPlanDto? _selectedPlan;
 
         [ObservableProperty]
-        private ObservableCollection<MembershipPlanDto> _plans = new();
+        private ObservableRangeCollection<MembershipPlanDto> _plans = new();
 
         [ObservableProperty]
         private bool _isRenewMode;
@@ -80,7 +81,7 @@ namespace Management.Presentation.ViewModels.Members
         public ObservableCollection<Gender> GenderOptions { get; } = new() { Gender.Male, Gender.Female };
 
         [ObservableProperty]
-        private ObservableCollection<Management.Domain.Models.Salon.SalonService> _salonServices = new();
+        private ObservableRangeCollection<Management.Domain.Models.Salon.SalonService> _salonServices = new();
 
         [ObservableProperty]
         private Management.Domain.Models.Salon.SalonService? _selectedSalonService;
@@ -257,13 +258,15 @@ namespace Management.Presentation.ViewModels.Members
         public async override Task OnModalOpenedAsync(object parameter, System.Threading.CancellationToken cancellationToken = default)
         {
             _turnstileService.CardScanned += OnCardScanned;
-            await LoadPlansAsync();
+            
+            // Parallelize initial data loading
+            var loadTasks = new List<Task> { LoadPlansAsync() };
 
             if (parameter is Guid memberId)
             {
                 IsRenewMode = true;
                 MemberIdToUpdate = memberId;
-                await LoadMemberDetailsAsync(memberId);
+                loadTasks.Add(LoadMemberDetailsAsync(memberId));
             }
             else if (parameter is QuickRegistrationPrefillData prefillData)
             {
@@ -273,16 +276,13 @@ namespace Management.Presentation.ViewModels.Members
                 Gender = prefillData.Gender;
             }
 
+            await Task.WhenAll(loadTasks);
+
             // Initialize Sources
-            Sources.Clear();
-            Sources.Add("Walk-in");
-            Sources.Add("Word of Mouth");
-            Sources.Add("Instagram");
-            Sources.Add("TikTok");
-            Sources.Add("Facebook");
+            Sources.ReplaceRange(new[] { "Walk-in", "Word of Mouth", "Instagram", "TikTok", "Facebook" });
         }
 
-        public ObservableCollection<string> Sources { get; } = new ObservableCollection<string>();
+        public ObservableRangeCollection<string> Sources { get; } = new ObservableRangeCollection<string>();
 
         private async Task LoadMemberDetailsAsync(Guid memberId)
         {
@@ -331,26 +331,24 @@ namespace Management.Presentation.ViewModels.Members
                 if (planResult.IsSuccess)
                 {
                     var membershipPlans = planResult.Value.FindAll(p => !p.IsSessionPack);
-                    Plans.Clear();
-                    // Add "None" option
-                    Plans.Add(new MembershipPlanDto { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoMembershipPlan") ?? "No Membership Plan", Price = 0 });
-                    foreach (var plan in membershipPlans)
+                    var plansToAdd = new List<MembershipPlanDto>
                     {
-                        Plans.Add(plan);
-                    }
+                        new MembershipPlanDto { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoMembershipPlan") ?? "No Membership Plan", Price = 0 }
+                    };
+                    plansToAdd.AddRange(membershipPlans);
+                    Plans.ReplaceRange(plansToAdd);
                 }
 
                 // If Salon, also load Salon Services
                 if (IsSalonFacility)
                 {
                     await _salonService.LoadServicesAsync();
-                    SalonServices.Clear();
-                    // Add "None" option
-                    SalonServices.Add(new Management.Domain.Models.Salon.SalonService { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoService") ?? "No Service", BasePrice = 0 });
-                    foreach (var s in _salonService.Services)
+                    var servicesToAdd = new List<Management.Domain.Models.Salon.SalonService>
                     {
-                        SalonServices.Add(s);
-                    }
+                        new Management.Domain.Models.Salon.SalonService { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoService") ?? "No Service", BasePrice = 0 }
+                    };
+                    servicesToAdd.AddRange(_salonService.Services);
+                    SalonServices.ReplaceRange(servicesToAdd);
                 }
             });
         }

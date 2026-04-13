@@ -25,7 +25,33 @@ public class PricingService : IPricingService
         public async Task<PricingResult> CalculateEffectivePriceAsync(Guid facilityId, Guid targetId, Money basePrice, Management.Domain.Enums.Gender? gender = null, Guid? currentPlanId = null)
         {
             var promotions = await GetActivePromotionsAsync(facilityId);
-            
+            return CalculatePriceInternal(promotions, targetId, basePrice, gender, currentPlanId);
+        }
+
+        public async Task<IDictionary<Guid, PricingResult>> CalculateBatchPricesAsync(
+            Guid facilityId, 
+            IEnumerable<(Guid Id, Money Price)> items, 
+            Management.Domain.Enums.Gender? gender = null, 
+            Guid? currentPlanId = null)
+        {
+            var promotions = await GetActivePromotionsAsync(facilityId);
+            var results = new Dictionary<Guid, PricingResult>();
+
+            foreach (var item in items)
+            {
+                results[item.Id] = CalculatePriceInternal(promotions, item.Id, item.Price, gender, currentPlanId);
+            }
+
+            return results;
+        }
+
+        private PricingResult CalculatePriceInternal(
+            List<Promotion> promotions, 
+            Guid targetId, 
+            Money basePrice, 
+            Management.Domain.Enums.Gender? gender, 
+            Guid? currentPlanId)
+        {
             // Filter promotions that target this item and match criteria
             var matchingPromotions = promotions
                 .Where(p => p.TargetId == targetId && IsMatch(p, gender, currentPlanId))

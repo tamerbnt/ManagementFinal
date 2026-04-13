@@ -1,8 +1,8 @@
-using Management.Presentation.Resources.Controls;
-
+using System.Windows.Controls;
+ 
 namespace Management.Presentation.Views.GymHome
 {
-    public partial class RegisterWalkInModal : ModernWindow
+    public partial class RegisterWalkInModal : UserControl
     {
         public RegisterWalkInModal()
         {

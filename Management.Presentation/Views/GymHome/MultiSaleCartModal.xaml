@@ -156,8 +156,10 @@
                                  ItemContainerStyle="{StaticResource SelectionItemStyle}"
                                  Style="{StaticResource PremiumListBox}"
                                  BorderThickness="0"
-                                 Height="400"> 
-                                        <ListBox.ItemTemplate>
+                                 Height="400"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"> 
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -196,7 +198,9 @@
                                  ItemContainerStyle="{StaticResource SelectionItemStyle}"
                                  Style="{StaticResource PremiumListBox}"
                                  BorderThickness="0"
-                                 Height="400">
+                                 Height="400"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -368,8 +372,10 @@
                         <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16" Padding="20" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="Mini Cart" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
-                                <ItemsControl ItemsSource="{Binding CartItems}">
-                                    <ItemsControl.ItemTemplate>
+                                <ListBox ItemsSource="{Binding CartItems}" 
+                                         Style="{StaticResource PremiumListBox}"
+                                         MaxHeight="300">
+                                    <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid Margin="0,0,0,10">
                                                 <Grid.ColumnDefinitions>
@@ -399,8 +405,8 @@
                                                 </Button>
                                             </Grid>
                                         </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
 
                                 <!-- Guests Entry Item -->
                                 <Grid Margin="0,4,0,0" Visibility="{Binding WalkInCount, Converter={StaticResource GreaterThanZeroConverter}}">

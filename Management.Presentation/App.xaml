@@ -197,6 +197,9 @@
             <DataTemplate DataType="{x:Type gymhomevm:MultiSaleCartViewModel}">
                 <gymhome:MultiSaleCartModal/>
             </DataTemplate>
+            <DataTemplate DataType="{x:Type gymhomevm:RegisterWalkInViewModel}">
+                <gymhome:RegisterWalkInModal/>
+            </DataTemplate>
             <DataTemplate DataType="{x:Type gymhomevm:WalkInConfirmationViewModel}">
                 <gymhome:WalkInConfirmationModal/>
             </DataTemplate>

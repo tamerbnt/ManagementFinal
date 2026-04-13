@@ -1,19 +1,21 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Management.Application.DTOs;
 using CommunityToolkit.Mvvm.Messaging;
+using Management.Application.DTOs;
 using Management.Application.Interfaces.App;
 using Management.Application.Services;
 using Management.Application.Stores;
 using Management.Domain.Services;
 using Management.Presentation.Extensions;
+using Management.Presentation.Helpers;
 using Management.Presentation.Stores;
 using Management.Presentation.ViewModels.Base;
-using Management.Domain.Services;
 using Management.Presentation.Services.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -44,10 +46,10 @@ namespace Management.Presentation.ViewModels.GymHome
         private CartTab _currentTab = CartTab.Products;
 
         [ObservableProperty]
-        private ObservableCollection<ProductDto> _products = new();
+        private ObservableRangeCollection<ProductDto> _products = new();
         
         [ObservableProperty]
-        private ObservableCollection<CartItemViewModel> _cartItems = new();
+        private ObservableRangeCollection<CartItemViewModel> _cartItems = new();
 
         [ObservableProperty]
         private string _searchQuery = string.Empty;
@@ -55,8 +57,18 @@ namespace Management.Presentation.ViewModels.GymHome
         [ObservableProperty]
         private bool _isLoading;
 
-        [ObservableProperty]
         private ProductDto? _selectedProduct;
+        public ProductDto? SelectedProduct
+        {
+            get => _selectedProduct;
+            set
+            {
+                if (SetProperty(ref _selectedProduct, value))
+                {
+                    _ = RecalculateAllPricesAsync();
+                }
+            }
+        }
 
         [ObservableProperty]
         private int _walkInCount = 0;
@@ -65,16 +77,26 @@ namespace Management.Presentation.ViewModels.GymHome
         private string _walkInSearchQuery = string.Empty;
 
         [ObservableProperty]
-        private ObservableCollection<WalkInPlanDto> _walkInPlans = new();
+        private ObservableRangeCollection<WalkInPlanDto> _walkInPlans = new();
 
         [ObservableProperty]
-        private ObservableCollection<WalkInPlanDto> _filteredWalkInPlans = new();
+        private ObservableRangeCollection<WalkInPlanDto> _filteredWalkInPlans = new();
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(WalkInPrice))]
-        [NotifyPropertyChangedFor(nameof(WalkInTotal))]
-        [NotifyPropertyChangedFor(nameof(GrandTotal))]
         private WalkInPlanDto? _selectedWalkInPlan;
+        public WalkInPlanDto? SelectedWalkInPlan
+        {
+            get => _selectedWalkInPlan;
+            set
+            {
+                if (SetProperty(ref _selectedWalkInPlan, value))
+                {
+                    _ = RecalculateAllPricesAsync();
+                    OnPropertyChanged(nameof(WalkInPrice));
+                    OnPropertyChanged(nameof(WalkInTotal));
+                    OnPropertyChanged(nameof(GrandTotal));
+                }
+            }
+        }
 
         [ObservableProperty]
         private MemberDto? _selectedMember;
@@ -179,9 +201,7 @@ namespace Management.Presentation.ViewModels.GymHome
                 if (result.IsSuccess)
                 {
                     _allProducts = result.Value.ToList();
-                    Products.Clear();
-                    foreach (var p in _allProducts)
-                        Products.Add(p);
+                    Products.ReplaceRange(_allProducts);
 
                     FilterProducts(SearchQuery);
                 }
@@ -249,73 +269,67 @@ namespace Management.Presentation.ViewModels.GymHome
 
         private async Task RecalculateAllPricesAsync()
         {
-            // 1. Recalculate current selections
-            await UpdateSelectedProductPricingAsync();
-            await UpdateSelectedWalkInPricingAsync();
+            // 1. Prepare batch for both current selections
+            var batchItems = new List<(Guid Id, Management.Domain.ValueObjects.Money Price)>();
+            
+            if (SelectedProduct != null)
+                batchItems.Add((SelectedProduct.Id, new Management.Domain.ValueObjects.Money(SelectedProduct.Price, "DA")));
+            
+            if (SelectedWalkInPlan != null)
+                batchItems.Add((Guid.Empty, new Management.Domain.ValueObjects.Money(SelectedWalkInPlan.Price, "DA")));
 
-            // 2. Recalculate cart items
             foreach (var item in CartItems)
             {
                 var product = _allProducts.FirstOrDefault(p => p.Id == item.ProductId);
                 if (product != null)
+                    batchItems.Add((product.Id, new Management.Domain.ValueObjects.Money(product.Price, "DA")));
+            }
+
+            if (!batchItems.Any()) return;
+
+            // 2. Single Batch Call (High Performance)
+            var batchResults = await _pricingService.CalculateBatchPricesAsync(
+                _facilityContext.CurrentFacilityId,
+                batchItems,
+                SelectedMember?.Gender,
+                SelectedMember?.MembershipPlanId);
+
+            // 3. Apply Results
+            if (SelectedProduct != null && batchResults.TryGetValue(SelectedProduct.Id, out var prodPricing))
+            {
+                SelectedProductPricing = prodPricing;
+                OnPropertyChanged(nameof(SelectedProductPricing));
+            }
+
+            if (SelectedWalkInPlan != null && batchResults.TryGetValue(Guid.Empty, out var walkInPricing))
+            {
+                SelectedWalkInPricing = walkInPricing;
+                OnPropertyChanged(nameof(SelectedWalkInPricing));
+                OnPropertyChanged(nameof(WalkInPrice));
+            }
+
+            foreach (var item in CartItems)
+            {
+                if (batchResults.TryGetValue(item.ProductId, out var res))
                 {
-                    var result = await _pricingService.CalculateEffectivePriceAsync(
-                        _facilityContext.CurrentFacilityId, 
-                        product.Id, 
-                        new Management.Domain.ValueObjects.Money(product.Price, "DA"),
-                        SelectedMember?.Gender,
-                        SelectedMember?.MembershipPlanId);
-                    
-                    item.Price = result.EffectivePrice.Amount;
-                    item.OriginalPrice = result.OriginalPrice.Amount;
-                    item.IsDiscounted = result.IsDiscountApplied;
+                    item.Price = res.EffectivePrice.Amount;
+                    item.OriginalPrice = res.OriginalPrice.Amount;
+                    item.IsDiscounted = res.IsDiscountApplied;
                 }
             }
 
             OnPropertyChanged(nameof(ProductsTotal));
             OnPropertyChanged(nameof(GrandTotal));
             OnPropertyChanged(nameof(CanCheckout));
-        }
-
-        private async Task UpdateSelectedProductPricingAsync()
-        {
-            if (SelectedProduct == null) { SelectedProductPricing = null; return; }
-            SelectedProductPricing = await _pricingService.CalculateEffectivePriceAsync(
-                _facilityContext.CurrentFacilityId,
-                SelectedProduct.Id,
-                new Management.Domain.ValueObjects.Money(SelectedProduct.Price, "DA"),
-                SelectedMember?.Gender,
-                SelectedMember?.MembershipPlanId);
-            
-            OnPropertyChanged(nameof(SelectedProductPricing));
+            OnPropertyChanged(nameof(WalkInTotal));
             OnPropertyChanged(nameof(SelectedProductQuantity));
             OnPropertyChanged(nameof(IsSelectedProductInCart));
             OnPropertyChanged(nameof(IsProductSelectionActive));
+            OnPropertyChanged(nameof(IsWalkInSelectionActive));
             OnPropertyChanged(nameof(IsControlPanelEmpty));
         }
 
-        private async Task UpdateSelectedWalkInPricingAsync()
-        {
-            if (SelectedWalkInPlan == null) { SelectedWalkInPricing = null; return; }
-            
-             SelectedWalkInPricing = await _pricingService.CalculateEffectivePriceAsync(
-                _facilityContext.CurrentFacilityId,
-                Guid.Empty, 
-                new Management.Domain.ValueObjects.Money(SelectedWalkInPlan.Price, "DA"),
-                SelectedMember?.Gender,
-                SelectedMember?.MembershipPlanId);
-             
-             OnPropertyChanged(nameof(SelectedWalkInPricing));
-             OnPropertyChanged(nameof(WalkInPrice));
-             OnPropertyChanged(nameof(WalkInTotal));
-             OnPropertyChanged(nameof(GrandTotal));
-             OnPropertyChanged(nameof(IsWalkInSelectionActive));
-             OnPropertyChanged(nameof(IsControlPanelEmpty));
-        }
 
-        partial void OnSelectedProductChanged(ProductDto? oldValue, ProductDto? newValue) => _ = UpdateSelectedProductPricingAsync();
-
-        partial void OnSelectedWalkInPlanChanged(WalkInPlanDto? oldValue, WalkInPlanDto? newValue) => _ = UpdateSelectedWalkInPricingAsync();
 
         public bool IsProductSelectionActive => CurrentTab == CartTab.Products && SelectedProduct != null;
         public bool IsWalkInSelectionActive => CurrentTab == CartTab.WalkIn && SelectedWalkInPlan != null;
@@ -336,9 +350,7 @@ namespace Management.Presentation.ViewModels.GymHome
                 ).ToList();
             }
 
-            Products.Clear();
-            foreach (var p in filtered)
-                Products.Add(p);
+            Products.ReplaceRange(filtered);
         }
 
         private void FilterWalkInPlans(string query)
@@ -355,9 +367,7 @@ namespace Management.Presentation.ViewModels.GymHome
                 ).ToList();
             }
 
-            FilteredWalkInPlans.Clear();
-            foreach (var p in filtered)
-                FilteredWalkInPlans.Add(p);
+            FilteredWalkInPlans.ReplaceRange(filtered);
         }
 
         [RelayCommand]
@@ -474,13 +484,8 @@ namespace Management.Presentation.ViewModels.GymHome
             if (walkInResult != null)
             {
                 _allWalkInPlans = walkInResult.ToList();
-                WalkInPlans.Clear();
-                FilteredWalkInPlans.Clear();
-                foreach (var plan in _allWalkInPlans)
-                {
-                    WalkInPlans.Add(plan);
-                    FilteredWalkInPlans.Add(plan);
-                }
+                WalkInPlans.ReplaceRange(_allWalkInPlans);
+                FilteredWalkInPlans.ReplaceRange(_allWalkInPlans);
             }
         }
 
