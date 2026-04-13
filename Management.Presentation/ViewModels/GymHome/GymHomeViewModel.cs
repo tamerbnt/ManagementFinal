@@ -52,7 +52,6 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly ILocalizationService _localizationService;
         private readonly IAccessEventService _accessEventService;
         private readonly ISyncService _syncService;
-        private readonly IEnumerable<IHistoryProvider> _historyProviders;
         private readonly LiveChartsCore.Defaults.ObservableValue _occupancyValue = new(0);
         private readonly LiveChartsCore.Defaults.ObservableValue _remainingValue = new(100);
 
@@ -160,7 +159,6 @@ namespace Management.Presentation.ViewModels.GymHome
             IFacilityContextService facilityContext,
             ILocalizationService localizationService,
             IAccessEventService accessEventService,
-            IEnumerable<IHistoryProvider> historyProviders,
             ISyncService syncService) : base(logger, diagnosticService, toastService)
         {
             _scopeFactory = scopeFactory;
@@ -169,7 +167,6 @@ namespace Management.Presentation.ViewModels.GymHome
             _facilityContext = facilityContext;
             _localizationService = localizationService;
             _accessEventService = accessEventService;
-            _historyProviders = historyProviders;
             _syncService = syncService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
