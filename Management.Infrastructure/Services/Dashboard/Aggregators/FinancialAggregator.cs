@@ -131,16 +131,6 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                 .Select(x => (double)x)
                 .SumAsync();
 
-            var cogsCount = await _dbContext.SaleItems
-                .AsNoTracking()
-                .IgnoreQueryFilters()
-                .Where(si => salesIds.Contains(si.SaleId) && (si.TenantId == context.TenantId || si.TenantId == Guid.Empty))
-                .Join(_dbContext.Products.IgnoreQueryFilters().Where(p => p.FacilityId == facilityId && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty)), 
-                      si => si.ProductId, 
-                      p => p.Id, 
-                      (si, p) => si.Quantity * p.Cost.Amount)
-                .CountAsync();
-
             var cogs = (decimal)cogsSumDouble;
 
 
@@ -156,17 +146,6 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                     && EF.Property<bool>(p, "IsPaidShadow"))
                 .Select(p => (double)p.PaidAmount.Amount)
                 .SumAsync();
-
-            var payrollCount = await _dbContext.PayrollEntries
-                .AsNoTracking()
-                .IgnoreQueryFilters()
-                .Where(p => p.FacilityId == facilityId 
-                    && (p.TenantId == context.TenantId || p.TenantId == Guid.Empty) 
-                    && (p.UpdatedAt ?? p.CreatedAt) >= start 
-                    && (p.UpdatedAt ?? p.CreatedAt) < end
-                    && !p.IsDeleted
-                    && EF.Property<bool>(p, "IsPaidShadow"))
-                .CountAsync();
 
             var payroll = (decimal)payrollSumDouble;
 

@@ -23,7 +23,6 @@ namespace Management.Infrastructure.Services
     public class AuthenticationService : IAuthenticationService, IStateResettable
     {
         private readonly Supabase.Client _supabase;
-        private readonly IStaffRepository _staffRepository;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
 
         // Simple in-memory cache for the current session context
@@ -34,23 +33,18 @@ namespace Management.Infrastructure.Services
         private readonly IFacilityContextService _facilityContext;
         private readonly ITenantService _tenantService;
         private readonly Management.Domain.Services.ISessionStorageService _sessionStorage;
-        private readonly IOnboardingService _onboardingService;
 
         public AuthenticationService(
             Supabase.Client supabase,
-            IStaffRepository staffRepository,
             Management.Domain.Services.ISessionStorageService sessionStorage,
             IFacilityContextService facilityContext,
             ITenantService tenantService,
-            IOnboardingService onboardingService,
             Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory)
         {
             _supabase = supabase;
-            _staffRepository = staffRepository;
             _sessionStorage = sessionStorage;
             _facilityContext = facilityContext;
             _tenantService = tenantService;
-            _onboardingService = onboardingService;
             _scopeFactory = scopeFactory;
         }
 
@@ -153,6 +147,9 @@ namespace Management.Infrastructure.Services
 
         private async Task<Result<StaffMember>> ResolveStaffProfileAsync(string email, Guid? facilityId, FacilityType? targetType)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+
             // ROLE-AWARE REFINEMENT: Re-allow resolution for discovery.
             // Secure validation now happens in LoginAsync after the profile (and role) is resolved.
             // This ensures Owners can perform initial discovery on unconfigured PCs.
@@ -248,6 +245,10 @@ namespace Management.Infrastructure.Services
 
         private async Task<Result<StaffMember>> HandleOwnerOnboardingAsync(string email, List<SupabaseStaffMember> remoteProfiles, FacilityType targetType)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+            var _onboardingService = scope.ServiceProvider.GetRequiredService<IOnboardingService>();
+
             var ownerProfile = remoteProfiles.FirstOrDefault(m => m.Role == (int)StaffRole.Owner);
             if (ownerProfile == null) return Result.Failure<StaffMember>(new Error("Auth.NoOwnerProfile", "On-demand provisioning requires Owner permissions."));
 
@@ -289,6 +290,9 @@ namespace Management.Infrastructure.Services
 
         private async Task UpdateContextAndMetadataAsync(StaffMember staffEntity)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+
             _tenantService.SetTenantId(staffEntity.TenantId);
             _tenantService.SetUserId(staffEntity.Id);
             _tenantService.SetRole(staffEntity.Role.ToString());
@@ -364,6 +368,9 @@ namespace Management.Infrastructure.Services
 
         private async Task<Result<StaffDto>> HandleLoginFailureAsync(string email, string password, Guid? facilityId, Exception ex)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+
             // OFFLINE FALLBACK
             try 
             {
@@ -536,6 +543,9 @@ namespace Management.Infrastructure.Services
             {
                 return Result.Failure<StaffDto>(new Error("Auth.NoSession", "No active session."));
             }
+
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
 
             // 3. Re-hydrate User from DB
             var email = mySession.Email;
@@ -829,6 +839,9 @@ namespace Management.Infrastructure.Services
         private async Task SeedLocalFacilitiesFromSupabaseAsync(Guid tenantId)
         {
             if (tenantId == Guid.Empty) return;
+            using var scope = _scopeFactory.CreateScope();
+            var _staffRepository = scope.ServiceProvider.GetRequiredService<IStaffRepository>();
+
             try
             {
                 Serilog.Log.Information($"[AuthService] Seeding local Facilities table from Supabase for tenant {tenantId} via RPC...");

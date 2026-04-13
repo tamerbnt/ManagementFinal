@@ -196,13 +196,13 @@ namespace Management.Infrastructure.Services
             _logger.LogInformation("Processing {Count} outbox messages sequentially...", pending.Count);
 
             // Phase 3: Sequential processing to ensure DbContext thread-safety (CRITICAL for SQLite)
+            // Hoisted scope: use one context for the batch to eliminate massive GC/memory overhead per tick.
+            using var messageScope = _scopeFactory.CreateScope();
+            var messageContext = messageScope.ServiceProvider.GetRequiredService<AppDbContext>();
+
             foreach (var messageEntity in pending)
             {
                 if (ct.IsCancellationRequested) break;
-
-                // Each message gets its own scope/context for maximum isolation and safety
-                using var messageScope = _scopeFactory.CreateScope();
-                var messageContext = messageScope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 var message = await messageContext.OutboxMessages
                     .IgnoreQueryFilters()
@@ -234,7 +234,11 @@ namespace Management.Infrastructure.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Failed to process outbox message {message.Id} for {message.EntityType}");
+                    _logger.LogError(ex, $"Failed ATOMIC save for outbox message {message.Id} for {message.EntityType}. Safely breaking batch to clear EF ChangeTracker locks.");
+                    // Break out of the loop! We cannot continue on this context because SaveChanges failed 
+                    // and EF's change tracker retains the invalid entity. Resuming would cause "poison message wedge".
+                    // The background service will retry on the next tick with a fresh context.
+                    break;
                 }
             }
         }
