@@ -34,9 +34,9 @@
                     BorderBrush="#F3F4F6"
                     BorderThickness="1">
                 <StackPanel>
-                    <TextBlock Text="Convert Existing Lead (Optional)" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.ConvertLead}" Style="{StaticResource SectionTitle}"/>
                     <premium:PremiumSearchBox Text="{Binding LeadSearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="Search by Name or Phone..."
+                                             Placeholder="{DynamicResource Terminology.Modal.QuickRegistration.Placeholder.SearchLeads}"
                                              IconData="{StaticResource IconSearch}"/>
                     
                     <!-- Search Results (Shown only if query active) -->
@@ -44,6 +44,9 @@
                              SelectedItem="{Binding SelectedLead}"
                              Visibility="{Binding LeadResults.Count, Converter={StaticResource IntToVisibilityConverter}}"
                              MaxHeight="150" Margin="0,12,0,0"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling"
+                             ScrollViewer.CanContentScroll="True"
                              Style="{StaticResource PremiumListBox}"/>
                 </StackPanel>
             </Border>
@@ -58,7 +61,7 @@
 
                 <!-- Left Column: Personal Data & Gender (New Layout) -->
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Personal Details" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.PersonalDetails}" Style="{StaticResource SectionTitle}"/>
                     
                     <premium:PremiumSearchBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
                                              Placeholder="{DynamicResource Terminology.Staff.Add.FullName}"
@@ -84,17 +87,19 @@
 
                 <!-- Right Column: Identification & Plan -->
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="Identification &amp; Membership" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.Identification}" Style="{StaticResource SectionTitle}"/>
                     
                     <premium:PremiumSearchBox Text="{Binding CardId, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="Card ID / RFID"
+                                             Placeholder="{DynamicResource Terminology.Modal.QuickRegistration.Placeholder.CardId}"
                                              IconData="{StaticResource IconTag}"
                                              Margin="0,0,0,24"/>
 
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="Membership Plan" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.MembershipPlan}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding Plans}" 
                                   SelectedItem="{Binding SelectedPlan}"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                   Style="{StaticResource Input.ComboBox}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -106,9 +111,11 @@
 
                     <!-- Salon Service Selection (Conditional) -->
                     <StackPanel Margin="0,0,0,24" Visibility="{Binding IsSalonFacility, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock Text="Salon Service" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.SalonService}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding SalonServices}" 
                                   SelectedItem="{Binding SelectedSalonService}"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                   Style="{StaticResource Input.ComboBox}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -119,14 +126,14 @@
                     </StackPanel>
 
                     <StackPanel>
-                        <TextBlock Text="Acquisition Source" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.AcquisitionSource}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                         <ComboBox SelectedValue="{Binding Source}" 
-                                  SelectedValuePath="Content"
+                                  SelectedValuePath="Tag"
                                   Style="{StaticResource Input.ComboBox}">
-                            <ComboBoxItem Content="Walk-in"/>
-                            <ComboBoxItem Content="Social Media"/>
-                            <ComboBoxItem Content="Referral"/>
-                            <ComboBoxItem Content="Advertisement"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.WalkIn}" Tag="Walk-in"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.SocialMedia}" Tag="Social Media"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Referral}" Tag="Referral"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Advertisement}" Tag="Advertisement"/>
                         </ComboBox>
                     </StackPanel>
                 </StackPanel>
@@ -137,7 +144,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconCart}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"/>
-                        <TextBlock Text="Registration Total" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.RegistrationTotal}" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

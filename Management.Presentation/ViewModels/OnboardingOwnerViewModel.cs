@@ -17,7 +17,7 @@ using Management.Application.Services;
 
 namespace Management.Presentation.ViewModels
 {
-    public class OnboardingOwnerViewModel : FacilityAwareViewModelBase
+    public class OnboardingOwnerViewModel : FacilityAwareViewModelBase, IParameterReceiver
     {
         private readonly INavigationService _navigationService;
         private readonly IDialogService _dialogService;
@@ -92,6 +92,16 @@ namespace Management.Presentation.ViewModels
         }
 
         public ICommand CompleteOnboardingCommand { get; }
+        public ICommand SkipToSlidesCommand { get; }
+
+        public Task SetParameterAsync(object parameter)
+        {
+            if (parameter is string email)
+            {
+                AdminEmail = email;
+            }
+            return Task.CompletedTask;
+        }
 
         public OnboardingOwnerViewModel(
             INavigationService navigationService,
@@ -120,6 +130,17 @@ namespace Management.Presentation.ViewModels
                       !string.IsNullOrWhiteSpace(AdminEmail) && 
                       !string.IsNullOrWhiteSpace(Password) && 
                       !IsBusy);
+
+            SkipToSlidesCommand = new AsyncRelayCommand(ExecuteSkipToSlidesAsync);
+        }
+
+        private async Task ExecuteSkipToSlidesAsync()
+        {
+            await ExecuteSafeAsync(async () =>
+            {
+                Serilog.Log.Information("[OnboardingOwnerViewModel] User skipped account setup (expansion flow)");
+                await _navigationService.NavigateToAsync<SplashOnboardingViewModel>();
+            });
         }
 
         private async Task ExecuteCompleteOnboardingAsync()

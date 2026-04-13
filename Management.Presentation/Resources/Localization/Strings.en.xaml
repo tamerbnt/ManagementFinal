@@ -66,6 +66,97 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.Action.WalkIn">Walk-In</sys:String>
     <sys:String x:Key="Terminology.Home.Action.MultiSale">Multi-Sale</sys:String>
     
+    <!-- Quick Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.Title">Quick Sale</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.Subtitle">Sell a single item rapidly and optionally link to a member</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SearchPlaceholder">Search products by name...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.LoadingProducts">Loading products...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CustomerLinking">Customer Linking</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.NoProductsFound">No products match your search.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CompleteSale">Complete Sale</sys:String>
+    
+    <!-- Quick Registration Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Title">Quick Registration</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Subtitle">Process new enrollment or convert a lead.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.ConvertLead">Convert Existing Lead (Optional)</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.PersonalDetails">Personal Details</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Identification">Identification &amp; Membership</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.SearchLeads">Search by Name or Phone...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.CardId">Card ID / RFID</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.MembershipPlan">Membership Plan</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.SalonService">Salon Service</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.AcquisitionSource">Acquisition Source</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.RegistrationTotal">Registration Total</sys:String>
+    
+    <!-- Multi-Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SearchPlaceholder">Search inventory...</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.LinkMember">Link Member (Optional)</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.MiniCart">Mini Cart</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.StandardEntry">Standard Entry</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.ProductsTotal">Products Total</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.EntriesTotal">Entries Total</sys:String>
+    
+    <!-- Dashboard Extra -->
+    <sys:String x:Key="Terminology.Dashboard.MemberDemographics">Member Demographics</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.TotalActive">Total Active</sys:String>
+
+    <!-- Quick Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.ActiveSale">Active Selection</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SelectToContinue">Select a product to continue</sys:String>
+
+    <!-- Multi-Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SelectItem">Select an item to adjust quantity</sys:String>
+
+    <!-- Acquisition Sources -->
+    <sys:String x:Key="Terminology.Registration.Source.WalkIn">Walk-in</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.SocialMedia">Social Media</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Referral">Referral</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Advertisement">Advertisement</sys:String>
+
+    <!-- Walk-In Modal -->
+    <sys:String x:Key="Terminology.GymHome.WalkIn.NamePlaceholder">John Doe</sys:String>
+
+    <!-- Settings Sidebar Tabs -->
+    <sys:String x:Key="Terminology.Settings.Tab.Promotions">Promotions</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Backups">Backups</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.GymSettings">Gym Settings</sys:String>
+
+    <!-- Gym Facility Settings -->
+    <sys:String x:Key="Terminology.Settings.GymSettings.Title">Gym Facility Settings</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.Capacity">Capacity &amp; Occupancy</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.CapacityDesc">Configure your gym's operational limits and targets.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancy">Max Occupancy</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancyDesc">Maximum number of members allowed in the gym.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTarget">Daily Revenue Target</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTargetDesc">Your daily financial goal for this facility.</sys:String>
+
+    <!-- Promotions Section -->
+    <sys:String x:Key="Terminology.Settings.Promotions.Title">Promotions &amp; Discounts</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Subtitle">Manage demographic-based pricing for products and services.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Add">Add Promotion</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Edit">Edit Promotion</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Save">Save Changes</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.EditorSubtitle">Configure targeted discounts and eligibility rules</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Status.Active">Active</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Name">PROMOTION NAME</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Placeholder.Name">e.g., Summer Discount 20%</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Description">DESCRIPTION</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Discount">DISCOUNT SETTINGS</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Value">VALUE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Type">DISCOUNT TYPE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Fixed">Fixed (DA)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Percent">Percent (%)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.IsActive">IS ACTIVE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Target">TARGET CONFIGURATION</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetType">TARGET TYPE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetItem">SELECT TARGET ITEM</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Eligibility">ELIGIBILITY RULES</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Gender">GENDER</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.RequiredPlan">REQD. MEMBERSHIP</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.StartDate">START DATE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.EndDate">END DATE</sys:String>
+
+    
     <!-- Restaurant Specific -->
     <sys:String x:Key="Terminology.Inventory.Log.Quantity">Quantity</sys:String>
     <sys:String x:Key="Terminology.Inventory.Log.UnitPrice">Unit Price</sys:String>

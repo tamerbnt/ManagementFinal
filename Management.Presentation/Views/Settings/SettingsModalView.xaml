@@ -210,15 +210,15 @@
             <DataTemplate x:Key="GymSettingsTemplate">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,0,20">
-                        <TextBlock Text="Gym Facility Settings" 
+                        <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.Title}" 
                                    Style="{DynamicResource Title2}" 
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,24"/>
 
                         <Border Background="{DynamicResource ComponentBg}" CornerRadius="16" Padding="24" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1" Margin="0,0,0,24">
                             <StackPanel>
-                                <TextBlock Text="Capacity &amp; Occupancy" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                                <TextBlock Text="Configure your gym's operational limits and targets." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
+                                <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.Capacity}" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.CapacityDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,24"/>
 
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
@@ -226,8 +226,8 @@
                                         <ColumnDefinition Width="200"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Max Occupancy" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Maximum number of members allowed in the gym." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.MaxOccupancy}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.MaxOccupancyDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBox Grid.Column="1" Text="{Binding GymMaxOccupancy, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
                                 </Grid>
@@ -238,8 +238,8 @@
                                         <ColumnDefinition Width="200"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Daily Revenue Target" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Your daily financial goal for this facility." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.DailyTarget}" Style="{DynamicResource BodyMedium}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.GymSettings.DailyTargetDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBox Grid.Column="1" Text="{Binding GymDailyRevenueTarget, UpdateSourceTrigger=PropertyChanged}" Style="{DynamicResource Input.TextBox}" HorizontalContentAlignment="Center"/>
                                 </Grid>
@@ -552,7 +552,7 @@
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
-                                    <TextBlock Text="Backups" 
+                                    <TextBlock Text="{DynamicResource Terminology.Settings.Tab.Backups}" 
                                                Style="{StaticResource BodyMedium}"
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>
@@ -594,7 +594,7 @@
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
-                                    <TextBlock Text="Promotions" 
+                                    <TextBlock Text="{DynamicResource Terminology.Settings.Tab.Promotions}" 
                                                Style="{StaticResource BodyMedium}"
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>
@@ -609,7 +609,7 @@
                                           Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
                                           Style="{StaticResource Style.Icon.Small}"
                                           Margin="0,0,12,0"/>
-                                    <TextBlock Text="Gym Settings" 
+                                    <TextBlock Text="{DynamicResource Terminology.Settings.Tab.GymSettings}" 
                                                Style="{StaticResource BodyMedium}"
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>

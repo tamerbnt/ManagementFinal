@@ -657,6 +657,97 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Payroll.Method.BankTransfer">Virement bancaire</sys:String>
     <sys:String x:Key="Terminology.Payroll.Action.Process">PROCESSUS DE PAIEMENT</sys:String>
     <sys:String x:Key="Terminology.Payroll.Action.Cancel">ANNULER</sys:String>
+    
+    <!-- Quick Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.Title">Vente Rapide</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.Subtitle">Vendre un article rapidement et lier optionnellement à un membre</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SearchPlaceholder">Rechercher des produits par nom...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.LoadingProducts">Chargement des produits...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CustomerLinking">Liaison Client</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.NoProductsFound">Aucun produit ne correspond à votre recherche.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CompleteSale">Finaliser la Vente</sys:String>
+    
+    <!-- Quick Registration Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Title">Inscription Rapide</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Subtitle">Traiter une nouvelle inscription ou convertir un prospect.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.ConvertLead">Convertir un Prospect Existant (Optionnel)</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.PersonalDetails">Détails Personnels</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Identification">Identification &amp; Adhésion</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.SearchLeads">Rechercher par Nom ou Téléphone...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.CardId">ID de Carte / RFID</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.MembershipPlan">Plan d'Adhésion</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.SalonService">Service de Salon</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.AcquisitionSource">Source d'Acquisition</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.RegistrationTotal">Total d'Inscription</sys:String>
+    
+    <!-- Multi-Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SearchPlaceholder">Rechercher dans l'inventaire...</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.LinkMember">Lier un Membre (Optionnel)</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.MiniCart">Mini Panier</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.StandardEntry">Entrée Standard</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.ProductsTotal">Total Produits</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.EntriesTotal">Total Entrées</sys:String>
+    
+    <!-- Dashboard Extra -->
+    <sys:String x:Key="Terminology.Dashboard.MemberDemographics">Démographie des Membres</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.TotalActive">Total Actif</sys:String>
+
+    <!-- Quick Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.ActiveSale">Sélection active</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SelectToContinue">Sélectionnez un produit pour continuer</sys:String>
+
+    <!-- Multi-Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SelectItem">Sélectionnez un article pour ajuster la quantité</sys:String>
+
+    <!-- Acquisition Sources -->
+    <sys:String x:Key="Terminology.Registration.Source.WalkIn">Sans rendez-vous</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.SocialMedia">Réseaux sociaux</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Referral">Recommandation</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Advertisement">Publicité</sys:String>
+
+    <!-- Walk-In Modal -->
+    <sys:String x:Key="Terminology.GymHome.WalkIn.NamePlaceholder">Prénom Nom</sys:String>
+
+    <!-- Settings Sidebar Tabs -->
+    <sys:String x:Key="Terminology.Settings.Tab.Promotions">Promotions</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Backups">Sauvegardes</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.GymSettings">Paramètres salle</sys:String>
+
+    <!-- Gym Facility Settings -->
+    <sys:String x:Key="Terminology.Settings.GymSettings.Title">Paramètres de la salle de sport</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.Capacity">Capacité &amp; Occupation</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.CapacityDesc">Configurez les limites opérationnelles et les objectifs de votre établissement.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancy">Capacité maximale</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancyDesc">Nombre maximum de membres autorisés dans la salle.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTarget">Objectif de revenus quotidien</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTargetDesc">Votre objectif financier quotidien pour cet établissement.</sys:String>
+
+    <!-- Promotions Section -->
+    <sys:String x:Key="Terminology.Settings.Promotions.Title">Promotions &amp; Remises</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Subtitle">Gérez la tarification ciblée par groupe démographique.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Add">Ajouter une promotion</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Edit">Modifier la promotion</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Save">Enregistrer les modifications</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.EditorSubtitle">Configurez les remises et les règles d'éligibilité.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Status.Active">Actif</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Name">NOM DE LA PROMOTION</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Placeholder.Name">ex. : Remise été 20%</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Description">DESCRIPTION</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Discount">PARAMÈTRES DE REMISE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Value">VALEUR</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Type">TYPE DE REMISE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Fixed">Fixe (DA)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Percent">Pourcentage (%)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.IsActive">ACTIVER</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Target">CONFIGURATION CIBLE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetType">TYPE DE CIBLE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetItem">SÉLECTIONNER L'ÉLÉMENT CIBLE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Eligibility">RÈGLES D'ÉLIGIBILITÉ</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Gender">GENRE</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.RequiredPlan">ABONNEMENT REQUIS</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.StartDate">DATE DE DÉBUT</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.EndDate">DATE DE FIN</sys:String>
+
 
     <!-- Payroll History -->
     <sys:String x:Key="Terminology.PayrollHistory.Title">HISTORIQUE DE PAIE</sys:String>
@@ -1281,7 +1372,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Dashboard.KPI.ChurnRate">Taux d&apos;Atreinte</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.AvgVisits">Visites Moy/Sem</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.PeakCapacity">Capacité Pic</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">Upsell PT</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">Taux d'Upsell PT</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.FreezeRate">Taux de Gel</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.TrialConversion">Conv. Essai</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.ClassFillRate">Remplissage Cours</sys:String>

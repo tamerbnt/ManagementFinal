@@ -53,12 +53,12 @@
         </Style>
     </UserControl.Resources>
 
-    <premium:ModalShellControl Title="Quick Sale" 
-                             Subtitle="Sell a single item rapidly and optionally link to a member"
+    <premium:ModalShellControl Title="{DynamicResource Terminology.Modal.QuickSale.Title}" 
+                             Subtitle="{DynamicResource Terminology.Modal.QuickSale.Subtitle}"
                              MaxWidth="820" MaxHeight="500"
                              CancelCommand="{Binding CancelCommand}"
                              SaveCommand="{Binding ProcessSaleCommand}"
-                             PrimaryActionText="Complete Sale">
+                             PrimaryActionText="{DynamicResource Terminology.Modal.QuickSale.CompleteSale}">
         <Grid Margin="24,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="65*"/>
@@ -74,7 +74,7 @@
                 </Grid.RowDefinitions>
 
                 <premium:PremiumSearchBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                         Placeholder="Search products by name..."
+                                         Placeholder="{DynamicResource Terminology.Modal.QuickSale.SearchPlaceholder}"
                                          IconData="{StaticResource IconSearch}"
                                          Margin="0,0,0,16"/>
 
@@ -110,7 +110,7 @@
                         Opacity="0.7">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                         <ProgressBar IsIndeterminate="True" Width="100" Height="2" Margin="0,0,0,8"/>
-                        <TextBlock Text="Loading products..." FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.LoadingProducts}" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -121,7 +121,7 @@
                     <!-- 1. MEMBER SELECTION -->
                     <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="Customer Linking" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.CustomerLinking}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
                             
                             <!-- Search & Suggestion Control -->
                             <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
@@ -172,7 +172,7 @@
                     <!-- 2. ACTIVE SALE SUMMARY -->
                     <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16" Padding="20" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.ActiveSale}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
                             
                             <Grid Visibility="{Binding SelectedProduct, Converter={StaticResource NullToVisibilityConverter}}">
                                 <StackPanel>
@@ -207,7 +207,7 @@
 
                             <!-- Selection Feedback -->
                             <StackPanel Visibility="{Binding SelectedProduct, Converter={StaticResource InverseNullToVisibilityConverter}}" HorizontalAlignment="Center" Margin="0,20">
-                                <TextBlock Text="Select a product to continue" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}" FontStyle="Italic"/>
+                                <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.SelectToContinue}" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}" FontStyle="Italic"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

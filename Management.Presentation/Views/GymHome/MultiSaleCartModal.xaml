@@ -147,7 +147,7 @@
                     <!-- Products View -->
                     <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Products}">
                         <premium:PremiumSearchBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                                 Placeholder="Search inventory..."
+                                                 Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchPlaceholder}"
                                                  IconData="{StaticResource IconSearch}"
                                                  Margin="0,0,0,12"/>
                         
@@ -211,7 +211,7 @@
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
-                                            <TextBlock Text="Standard Entry" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                            <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.StandardEntry}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0"/>
 
@@ -235,7 +235,7 @@
                         <!-- 0. MEMBER SEARCH -->
                         <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="12" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Link Member (Optional)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                                <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.LinkMember}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                                 
                                 <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
                                     <premium:PremiumSearchBox Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
@@ -290,7 +290,7 @@
                                 </Grid.RowDefinitions>
                                 
                                 <!-- EMPTY STATE -->
-                                <TextBlock Text="Select an item to adjust quantity" 
+                                <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.SelectItem}" 
                                          FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"
                                          HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
                                          Visibility="{Binding IsControlPanelEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -299,7 +299,7 @@
                                 <!-- PRODUCT SELECTION CONTENT -->
                                 <StackPanel Visibility="{Binding IsProductSelectionActive, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.MiniCart}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         <Button Command="{Binding ClearSelectionCommand}" 
                                                 Style="{DynamicResource Button.Ghost}"
                                                 HorizontalAlignment="Right" Width="24" Height="24" Padding="6">
@@ -342,7 +342,7 @@
                                 <!-- WALK-IN SELECTION CONTENT -->
                                 <StackPanel Visibility="{Binding IsWalkInSelectionActive, Converter={StaticResource BooleanToVisibilityConverter}}">
                                     <Grid Margin="0,0,0,8">
-                                        <TextBlock Text="Active Selection" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.MiniCart}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         <Button Command="{Binding ClearSelectionCommand}" 
                                                 Style="{DynamicResource Button.Ghost}"
                                                 HorizontalAlignment="Right" Width="24" Height="24" Padding="6">
@@ -371,7 +371,7 @@
                         <!-- 2. MINI CART -->
                         <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16" Padding="20" Margin="0,0,0,16">
                             <StackPanel>
-                                <TextBlock Text="Mini Cart" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                                <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.MiniCart}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
                                 <ListBox ItemsSource="{Binding CartItems}" 
                                          Style="{StaticResource PremiumListBox}"
                                          MaxHeight="300">
@@ -416,7 +416,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
                                         <TextBlock Text="{Binding SelectedWalkInPlan.Name}" FontSize="13" FontWeight="SemiBold"/>
-                                        <TextBlock Text="Guest Entry" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.StandardEntry}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding WalkInCount, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </Grid>
@@ -427,16 +427,16 @@
                         <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" BorderBrush="#F3F4F6" BorderThickness="1">
                             <StackPanel>
                                 <Grid Margin="0,0,0,6">
-                                    <TextBlock Text="Products Total" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.ProductsTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     <TextBlock Text="{Binding ProductsTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="Services Total" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.EntriesTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     <TextBlock Text="{Binding WalkInTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                                 </Grid>
                                 <Separator Background="#F3F4F6" Margin="0,0,0,12"/>
                                 <StackPanel>
-                                    <TextBlock Text="Grand Total" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Global.Total}" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding GrandTotal, StringFormat='{}{0:N2} DA'}" FontSize="20" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
                                 </StackPanel>
                             </StackPanel>

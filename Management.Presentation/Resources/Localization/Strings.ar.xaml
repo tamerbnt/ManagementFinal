@@ -64,6 +64,97 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.Action.WalkIn">الدخول</sys:String>
     <sys:String x:Key="Terminology.Home.Action.MultiSale">بيع متعدد</sys:String>
     
+    <!-- Quick Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.Title">بيع سريع</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.Subtitle">إنهاء البيع السريع لمنتج واحد وربطه اختيارياً بعضو</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SearchPlaceholder">البحث عن المنتجات بالاسم...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.LoadingProducts">جاري تحميل المنتجات...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CustomerLinking">ربط العميل</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.NoProductsFound">لا توجد منتجات تطابق بحثك.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.CompleteSale">إتمام البيع</sys:String>
+    
+    <!-- Quick Registration Modal -->
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Title">تسجيل سريع</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Subtitle">معالجة تسجيل جديد أو تحويل عميل محتمل.</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.ConvertLead">تحويل عميل محتمل موجود (اختياري)</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.PersonalDetails">البيانات الشخصية</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Identification">الهوية والاشتراك</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.SearchLeads">البحث بالاسم أو الهاتف...</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.Placeholder.CardId">معرف البطاقة / RFID</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.MembershipPlan">خطة الاشتراك</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.SalonService">خدمة الصالون</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.AcquisitionSource">مصدر التسجيل</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickRegistration.RegistrationTotal">إجمالي التسجيل</sys:String>
+    
+    <!-- Multi-Sale Modal -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SearchPlaceholder">البحث في المخزن...</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.LinkMember">ربط عضو (اختياري)</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.MiniCart">سلة التسوق</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.StandardEntry">دخول قياسي</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.ProductsTotal">إجمالي المنتجات</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.EntriesTotal">إجمالي المداخل</sys:String>
+    
+    <!-- Dashboard Extra -->
+    <sys:String x:Key="Terminology.Dashboard.MemberDemographics">تركيبة الأعضاء</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.TotalActive">نشط إجمالاً</sys:String>
+
+    <!-- Quick Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.QuickSale.ActiveSale">التحديد النشط</sys:String>
+    <sys:String x:Key="Terminology.Modal.QuickSale.SelectToContinue">اختر منتجًا للمتابعة</sys:String>
+
+    <!-- Multi-Sale remaining -->
+    <sys:String x:Key="Terminology.Modal.MultiSale.SelectItem">اختر عنصرًا لضبط الكمية</sys:String>
+
+    <!-- Acquisition Sources -->
+    <sys:String x:Key="Terminology.Registration.Source.WalkIn">دخول مباشر</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.SocialMedia">وسائل التواصل</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Referral">إحالة</sys:String>
+    <sys:String x:Key="Terminology.Registration.Source.Advertisement">إعلان</sys:String>
+
+    <!-- Walk-In Modal -->
+    <sys:String x:Key="Terminology.GymHome.WalkIn.NamePlaceholder">محمد أمين</sys:String>
+
+    <!-- Settings Sidebar Tabs -->
+    <sys:String x:Key="Terminology.Settings.Tab.Promotions">العروض</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.Backups">النسخ الاحتياطية</sys:String>
+    <sys:String x:Key="Terminology.Settings.Tab.GymSettings">إعدادات الصالة</sys:String>
+
+    <!-- Gym Facility Settings -->
+    <sys:String x:Key="Terminology.Settings.GymSettings.Title">إعدادات الصالة الرياضية</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.Capacity">الطاقة الاستيعابية</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.CapacityDesc">قم بضبط الحدود التشغيلية وأهداف الأداء لمنشأتك.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancy">الحد الأقصى للإشغال</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancyDesc">أقصى عدد من الأعضاء المسموح بهم في الصالة.</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTarget">هدف الإيرادات اليومية</sys:String>
+    <sys:String x:Key="Terminology.Settings.GymSettings.DailyTargetDesc">هدفك المالي اليومي لهذه المنشأة.</sys:String>
+
+    <!-- Promotions Section -->
+    <sys:String x:Key="Terminology.Settings.Promotions.Title">العروض والخصومات</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Subtitle">إدارة التسعير المستهدف حسب الفئة الديموغرافية.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Add">إضافة عرض</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Edit">تعديل العرض</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Action.Save">حفظ التغييرات</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.EditorSubtitle">قم بضبط الخصومات وشروط الأهلية.</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Status.Active">نشط</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Name">اسم العرض</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Placeholder.Name">مثل: خصم الصيف 20%</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Description">الوصف</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Discount">إعدادات الخصم</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Value">القيمة</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Type">نوع الخصم</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Fixed">ثابت (DA)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Type.Percent">نسبة مئوية (%)</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.IsActive">مفعّل</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Target">إعداد الهدف</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetType">نوع الهدف</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.TargetItem">اختر العنصر المستهدف</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Section.Eligibility">شروط الأهلية</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.Gender">الجنس</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.RequiredPlan">الاشتراك المطلوب</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.StartDate">تاريخ البداية</sys:String>
+    <sys:String x:Key="Terminology.Settings.Promotions.Field.EndDate">تاريخ الانتهاء</sys:String>
+
+    
     <!-- Restaurant Specific -->
     <sys:String x:Key="Terminology.Inventory.Log.Quantity">الكمية</sys:String>
     <sys:String x:Key="Terminology.Inventory.Log.UnitPrice">سعر الوحدة</sys:String>
@@ -1270,7 +1361,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Dashboard.KPI.ChurnRate">معدل الانقطاع</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.AvgVisits">متوسط الزيارات</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.PeakCapacity">ذروة الاستيعاب</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">بيع إضافي مدرب</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.PtUpsell">نسبة بيع باقات المدرب</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.FreezeRate">معدل التجميد</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.TrialConversion">تحويل التجربة</sys:String>
     <sys:String x:Key="Terminology.Dashboard.KPI.ClassFillRate">امتلاء الحصص</sys:String>

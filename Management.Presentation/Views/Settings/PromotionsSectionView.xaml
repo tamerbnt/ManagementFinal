@@ -13,11 +13,11 @@
 
         <Grid Grid.Row="0" Margin="0,0,0,24">
             <StackPanel>
-                <TextBlock Text="Promotions &amp; Discounts" Style="{DynamicResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Text="Manage demographic-based pricing for products and services." Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Title}" Style="{DynamicResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Subtitle}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             
-            <Button Content="Add Promotion" 
+            <Button Content="{DynamicResource Terminology.Settings.Promotions.Action.Add}" 
                     HorizontalAlignment="Right" 
                     Style="{DynamicResource Button.Primary}"
                     Command="{Binding CreatePromotionCommand}"
@@ -76,7 +76,7 @@
                                     </StackPanel>
                                     
                                     <Border Background="#D1FAE5" CornerRadius="8" Padding="8,2" HorizontalAlignment="Left" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="Active" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Status.Active}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
                                     </Border>
                                 </Grid>
                             </Grid>

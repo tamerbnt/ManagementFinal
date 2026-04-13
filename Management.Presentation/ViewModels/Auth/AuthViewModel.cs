@@ -102,6 +102,8 @@ namespace Management.Presentation.ViewModels
                    typeName == "LoginViewModel" || 
                    typeName == "SplashOnboardingViewModel" ||
                    typeName == "FacilityOnboardingViewModel" ||
+                   typeName == "OnboardingOwnerViewModel" ||
+                   typeName == "OnboardingViewModel" ||
                    typeName == "LicenseEntryViewModel";
         }
 

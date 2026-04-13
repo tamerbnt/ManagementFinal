@@ -1161,7 +1161,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Member Demographics" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberDemographics}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
                                 <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}"/>
                             </Grid>
                         </Border>

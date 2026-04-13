@@ -151,7 +151,7 @@ namespace Management.Presentation.ViewModels.Members
                 HasLeadResults = false;
                 LeadSearchQuery = string.Empty;
             }
-            _ = UpdateTotalPriceAsync();
+            TriggerPriceUpdate();
         }
  
         [RelayCommand]
@@ -179,47 +179,88 @@ namespace Management.Presentation.ViewModels.Members
             }
         }
 
-        partial void OnGenderChanged(Gender value) => _ = UpdateTotalPriceAsync();
-        partial void OnSelectedPlanChanged(MembershipPlanDto? value) => _ = UpdateTotalPriceAsync();
-        partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => _ = UpdateTotalPriceAsync();
+        private System.Threading.CancellationTokenSource? _pricingDebounceCts;
 
-        private async Task UpdateTotalPriceAsync()
+        partial void OnGenderChanged(Gender value) => TriggerPriceUpdate();
+        partial void OnSelectedPlanChanged(MembershipPlanDto? value) => TriggerPriceUpdate();
+        partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => TriggerPriceUpdate();
+
+        private void TriggerPriceUpdate()
+        {
+            _pricingDebounceCts?.Cancel();
+            _pricingDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _pricingDebounceCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(150, token);
+                    if (!token.IsCancellationRequested)
+                    {
+                        await UpdateTotalPriceBatchAsync();
+                    }
+                }
+                catch (TaskCanceledException) { }
+            }, token);
+        }
+
+        private async Task UpdateTotalPriceBatchAsync()
         {
             decimal effectiveTotal = 0;
             decimal originalTotal = 0;
             string? promoName = null;
 
-            // Check plan promotion
+            var itemsToPrice = new List<(Guid Id, Management.Domain.ValueObjects.Money Price)>();
+
             if (SelectedPlan != null && SelectedPlan.Id != Guid.Empty)
             {
-                var planResult = await _pricingService.CalculateEffectivePriceAsync(
-                    _facilityContext.CurrentFacilityId,
-                    SelectedPlan.Id,
-                    new Management.Domain.ValueObjects.Money(SelectedPlan.Price, "DA"),
-                    Gender);
-                
-                effectiveTotal += planResult.EffectivePrice.Amount;
-                originalTotal += planResult.OriginalPrice.Amount;
-                if (planResult.IsDiscountApplied) promoName = planResult.AppliedPromotionName;
+                itemsToPrice.Add((SelectedPlan.Id, new Management.Domain.ValueObjects.Money(SelectedPlan.Price, "DA")));
             }
 
-            // Check salon service promotion
             if (SelectedSalonService != null && SelectedSalonService.Id != Guid.Empty)
             {
-                var svcResult = await _pricingService.CalculateEffectivePriceAsync(
-                    _facilityContext.CurrentFacilityId,
-                    SelectedSalonService.Id,
-                    new Management.Domain.ValueObjects.Money(SelectedSalonService.BasePrice, "DA"),
-                    Gender);
-
-                effectiveTotal += svcResult.EffectivePrice.Amount;
-                originalTotal += svcResult.OriginalPrice.Amount;
-                if (svcResult.IsDiscountApplied) promoName = svcResult.AppliedPromotionName;
+                itemsToPrice.Add((SelectedSalonService.Id, new Management.Domain.ValueObjects.Money(SelectedSalonService.BasePrice, "DA")));
             }
 
-            TotalPrice = effectiveTotal;
-            OriginalTotalPrice = (originalTotal > effectiveTotal) ? originalTotal : null;
-            AppliedPromotionName = promoName;
+            if (itemsToPrice.Any())
+            {
+                var dict = await _pricingService.CalculateBatchPricesAsync(
+                    _facilityContext.CurrentFacilityId,
+                    itemsToPrice,
+                    Gender);
+
+                if (SelectedPlan != null && dict.TryGetValue(SelectedPlan.Id, out var planResult))
+                {
+                    effectiveTotal += planResult.EffectivePrice.Amount;
+                    originalTotal += planResult.OriginalPrice.Amount;
+                    if (planResult.IsDiscountApplied) promoName = planResult.AppliedPromotionName;
+                }
+
+                if (SelectedSalonService != null && dict.TryGetValue(SelectedSalonService.Id, out var svcResult))
+                {
+                    effectiveTotal += svcResult.EffectivePrice.Amount;
+                    originalTotal += svcResult.OriginalPrice.Amount;
+                    if (svcResult.IsDiscountApplied) promoName = svcResult.AppliedPromotionName;
+                }
+            }
+
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher != null)
+            {
+                await dispatcher.InvokeAsync(() => 
+                {
+                    TotalPrice = effectiveTotal;
+                    OriginalTotalPrice = (originalTotal > effectiveTotal) ? originalTotal : null;
+                    AppliedPromotionName = promoName;
+                });
+            }
+            else
+            {
+                TotalPrice = effectiveTotal;
+                OriginalTotalPrice = (originalTotal > effectiveTotal) ? originalTotal : null;
+                AppliedPromotionName = promoName;
+            }
         }
 
         public QuickRegistrationViewModel(
@@ -252,15 +293,18 @@ namespace Management.Presentation.ViewModels.Members
             _pricingService = pricingService;
 
             _isSalonFacility = _facilityContext.CurrentFacility == FacilityType.Salon;
-            Title = "Quick Registration";
+            Title = _terminologyService.GetTerm("Terminology.Modal.QuickRegistration.Title") ?? "Quick Registration";
         }
 
         public async override Task OnModalOpenedAsync(object parameter, System.Threading.CancellationToken cancellationToken = default)
         {
             _turnstileService.CardScanned += OnCardScanned;
             
+            // Allow UI visual tree to paint before data binding blocks the thread
+            await Task.Delay(50, cancellationToken);
+            
             // Parallelize initial data loading
-            var loadTasks = new List<Task> { LoadPlansAsync() };
+            var loadTasks = new List<Task> { LoadPlansAndServicesAsync() };
 
             if (parameter is Guid memberId)
             {
@@ -322,34 +366,51 @@ namespace Management.Presentation.ViewModels.Members
             });
         }
 
-        private async Task LoadPlansAsync()
+        private async Task LoadPlansAndServicesAsync()
         {
             await ExecuteSafeAsync(async () =>
             {
-                // Always load normal membership plans
-                var planResult = await _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
-                if (planResult.IsSuccess)
+                var tasks = new List<Task>();
+
+                tasks.Add(Task.Run(async () => 
                 {
-                    var membershipPlans = planResult.Value.FindAll(p => !p.IsSessionPack);
-                    var plansToAdd = new List<MembershipPlanDto>
+                    var planResult = await _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
+                    if (planResult.IsSuccess)
                     {
-                        new MembershipPlanDto { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoMembershipPlan") ?? "No Membership Plan", Price = 0 }
-                    };
-                    plansToAdd.AddRange(membershipPlans);
-                    Plans.ReplaceRange(plansToAdd);
-                }
+                        var membershipPlans = planResult.Value.FindAll(p => !p.IsSessionPack);
+                        var plansToAdd = new List<MembershipPlanDto>
+                        {
+                            new MembershipPlanDto { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoMembershipPlan") ?? "No Membership Plan", Price = 0 }
+                        };
+                        plansToAdd.AddRange(membershipPlans);
+                        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                        if (dispatcher != null)
+                            await dispatcher.InvokeAsync(() => Plans.ReplaceRange(plansToAdd));
+                        else
+                            Plans.ReplaceRange(plansToAdd);
+                    }
+                }));
 
                 // If Salon, also load Salon Services
                 if (IsSalonFacility)
                 {
-                    await _salonService.LoadServicesAsync();
-                    var servicesToAdd = new List<Management.Domain.Models.Salon.SalonService>
+                    tasks.Add(Task.Run(async () => 
                     {
-                        new Management.Domain.Models.Salon.SalonService { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoService") ?? "No Service", BasePrice = 0 }
-                    };
-                    servicesToAdd.AddRange(_salonService.Services);
-                    SalonServices.ReplaceRange(servicesToAdd);
+                        await _salonService.LoadServicesAsync();
+                        var servicesToAdd = new List<Management.Domain.Models.Salon.SalonService>
+                        {
+                            new Management.Domain.Models.Salon.SalonService { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoService") ?? "No Service", BasePrice = 0 }
+                        };
+                        servicesToAdd.AddRange(_salonService.Services);
+                        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                        if (dispatcher != null)
+                            await dispatcher.InvokeAsync(() => SalonServices.ReplaceRange(servicesToAdd));
+                        else
+                            SalonServices.ReplaceRange(servicesToAdd);
+                    }));
                 }
+
+                await Task.WhenAll(tasks);
             });
         }
 

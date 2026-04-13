@@ -115,7 +115,22 @@ namespace Management.Presentation.ViewModels.Settings
             _planService = planService;
             _productService = productService;
             _salonService = salonService;
-            Title = "Promotion Editor";
+            Title = GetLocalizedTitle(false);
+        }
+
+        private string GetLocalizedTitle(bool isEditMode)
+        {
+            var key = isEditMode
+                ? "Terminology.Settings.Promotions.Action.Edit"
+                : "Terminology.Settings.Promotions.Action.Add";
+            return System.Windows.Application.Current?.TryFindResource(key) as string
+                ?? (isEditMode ? "Edit Promotion" : "Add Promotion");
+        }
+
+        protected override void OnLanguageChanged()
+        {
+            base.OnLanguageChanged();
+            Title = GetLocalizedTitle(IsEditMode);
         }
 
         public async Task InitializeAsync(Guid? id = null)
@@ -135,6 +150,7 @@ namespace Management.Presentation.ViewModels.Settings
                 IsEditMode = false;
                 ResetValues();
             }
+            Title = GetLocalizedTitle(IsEditMode);
         }
 
         public override async Task OnModalOpenedAsync(object parameter, System.Threading.CancellationToken cancellationToken = default)

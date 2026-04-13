@@ -28,19 +28,33 @@ namespace Management.Presentation.ViewModels.GymHome
         [NotifyCanExecuteChangedFor(nameof(SaveLeadCommand))]
         private string _phoneNumber = string.Empty;
 
-        public new string Title => "Register Walk-In Lead";
+
+        private readonly ITerminologyService _terminologyService;
+        private readonly Services.Localization.ILocalizationService _localizationService;
 
         public RegisterWalkInViewModel(
             IGymOperationService gymService,
             Management.Presentation.Services.IModalNavigationService modalNavigationService,
             IFacilityContextService facilityContext,
-            IMediator mediator)
+            IMediator mediator,
+            ITerminologyService terminologyService,
+            Services.Localization.ILocalizationService localizationService)
         {
             _gymService = gymService;
             _modalNavigationService = modalNavigationService;
             _facilityContext = facilityContext;
             _mediator = mediator;
-            base.Title = "Register Walk-In Lead";
+            _terminologyService = terminologyService;
+            _localizationService = localizationService;
+
+            _localizationService.LanguageChanged += (s, e) => UpdateTitle();
+            UpdateTitle();
+        }
+
+        private void UpdateTitle()
+        {
+            Title = System.Windows.Application.Current?.TryFindResource("Terminology.GymHome.WalkIn.Title") as string 
+                    ?? "Process Walk-In";
         }
 
         [RelayCommand(CanExecute = nameof(CanSave))]

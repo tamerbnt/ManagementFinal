@@ -166,7 +166,7 @@
                         </Border>
                         <StackPanel VerticalAlignment="Bottom" Margin="0,15,0,0">
                             <TextBlock Text="{Binding Summary.PtUpsellRate.Value, StringFormat={}{0:N1}%}" Style="{StaticResource KpiValueStyle}"/>
-                            <TextBlock Text="{DynamicResource Terminology.Dashboard.KPI.PtUpsell}" Style="{StaticResource KpiLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.KPI.PtUpsell}" Style="{StaticResource KpiLabelStyle}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding Summary.PtUpsellRate.ComparisonLabel}" Style="{StaticResource ComparisonTextStyle}"/>
                         </StackPanel>
                     </Grid>
@@ -248,7 +248,7 @@
                     <StackPanel VerticalAlignment="Bottom" Margin="0,15,0,0">
                         <TextBlock Text="{Binding Summary.ActiveMembers}" Style="{StaticResource KpiValueStyle}"/>
                         <TextBlock Text="{DynamicResource Terminology.Dashboard.KPI.ActiveBase}" Style="{StaticResource KpiLabelStyle}"/>
-                        <TextBlock Text="Total Active" Style="{StaticResource ComparisonTextStyle}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Dashboard.KPI.TotalActive}" Style="{StaticResource ComparisonTextStyle}"/>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -59,8 +59,23 @@
             <TextBlock Text="Finalize your workstation account to begin managing your facility."
                        FontSize="13" Foreground="#6B7280"
                        TextWrapping="Wrap" LineHeight="20"
-                       Margin="0,0,0,32"
+                       Margin="0,0,0,8"
                        FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+            <!-- SKIP LINK -->
+            <Button Margin="0,0,0,32" HorizontalAlignment="Left"
+                    Command="{Binding SkipToSlidesCommand}"
+                    Background="Transparent" BorderThickness="0" Cursor="Hand" Padding="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent">
+                            <TextBlock Foreground="#0EA5E9" FontSize="13" FontWeight="SemiBold">
+                                <Run Text="{DynamicResource Strings.Auth.Alreadyhaveanaccount}"/>
+                            </TextBlock>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
             <!-- FIELD 1: Business Name -->
             <StackPanel Margin="0,0,0,16">

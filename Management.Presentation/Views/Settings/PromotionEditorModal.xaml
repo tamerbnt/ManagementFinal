@@ -68,20 +68,14 @@
                           HorizontalAlignment="Center" 
                           VerticalAlignment="Center"/>
                 </Border>
-                <TextBlock Foreground="{DynamicResource Brush.Text.Primary}"
+                <TextBlock Text="{Binding Title}" 
+                           Foreground="{DynamicResource Brush.Text.Primary}"
                            HorizontalAlignment="Center">
                     <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource Title2}">
-                            <Setter Property="Text" Value="Add Promotion"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsEditMode}" Value="True">
-                                    <Setter Property="Text" Value="Edit Promotion"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource Title2}"/>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Text="Configure targeted discounts and eligibility rules" 
+                <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.EditorSubtitle}" 
                            Style="{DynamicResource Caption}" 
                            Foreground="{DynamicResource Brush.Text.Secondary}"
                            HorizontalAlignment="Center"
@@ -93,14 +87,14 @@
                 <StackPanel>
                     <!-- Basic Info -->
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="PROMOTION NAME" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.Name}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{DynamicResource Input.Field}"
-                                 Tag="e.g., Summer Discount 20%"/>
+                                 Tag="{DynamicResource Terminology.Settings.Promotions.Placeholder.Name}"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="DESCRIPTION" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.Description}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{DynamicResource Input.Field}"
                                  Height="60" AcceptsReturn="True" TextWrapping="Wrap"/>
@@ -109,7 +103,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Discount Values -->
-                    <TextBlock Text="DISCOUNT SETTINGS" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Discount}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
 
                     <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
@@ -119,12 +113,12 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="VALUE" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.Value}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding DiscountValue}" Style="{DynamicResource Input.Field}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Width="180">
-                            <TextBlock Text="DISCOUNT TYPE" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.Type}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <Border Background="{DynamicResource Brush.Surface.Secondary}" 
                                     CornerRadius="22" 
                                     Padding="4" 
@@ -136,12 +130,12 @@
                                     </Grid.ColumnDefinitions>
                                     
                                     <RadioButton Grid.Column="0" 
-                                                 Content="Fixed ($)" 
+                                                 Content="{DynamicResource Terminology.Settings.Promotions.Type.Fixed}" 
                                                  IsChecked="{Binding IsFixedAmount}" 
                                                  Style="{StaticResource SegmentedButtonStyle}"/>
                                     
                                     <RadioButton Grid.Column="1" 
-                                                 Content="Percent (%)" 
+                                                 Content="{DynamicResource Terminology.Settings.Promotions.Type.Percent}" 
                                                  IsChecked="{Binding IsPercentage}" 
                                                  Style="{StaticResource SegmentedButtonStyle}"/>
                                 </Grid>
@@ -150,24 +144,24 @@
                     </Grid>
 
                     <Grid Margin="0,0,0,24">
-                        <TextBlock Text="IS ACTIVE" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.IsActive}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
                         <CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
                     </Grid>
 
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Target Configuration -->
-                    <TextBlock Text="TARGET CONFIGURATION" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Target}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
 
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="TARGET TYPE" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.TargetType}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding TargetTypes}" 
                                   SelectedItem="{Binding TargetType}"
                                   Style="{StaticResource Input.ComboBox}"/>
                     </StackPanel>
 
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="SELECT TARGET ITEM" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.TargetItem}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding AvailableTargets}" 
                                   SelectedItem="{Binding SelectedTargetItem}"
                                   Style="{StaticResource Input.ComboBox}">
@@ -182,7 +176,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Eligibility -->
-                    <TextBlock Text="ELIGIBILITY RULES" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Eligibility}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
 
                     <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
@@ -192,14 +186,14 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="GENDER" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.Gender}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <ComboBox ItemsSource="{Binding GenderOptions}" 
                                       SelectedItem="{Binding RequiredGender}"
                                       Style="{StaticResource Input.ComboBox}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="REQD. MEMBERSHIP" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.RequiredPlan}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <ComboBox ItemsSource="{Binding MembershipPlans}" 
                                       SelectedValue="{Binding RequiredMembershipPlanId}"
                                       SelectedValuePath="Id"
@@ -221,7 +215,7 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="START DATE" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.StartDate}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <Border CornerRadius="22" 
                                     Background="{DynamicResource SurfaceBg}" 
                                     BorderThickness="1" 
@@ -248,7 +242,7 @@
                         </StackPanel>
 
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="END DATE" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.EndDate}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <Border CornerRadius="22" 
                                     Background="{DynamicResource SurfaceBg}" 
                                     BorderThickness="1" 
@@ -279,8 +273,8 @@
 
             <!-- 3. Footer -->
             <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,16,0,0">
-                <Button Command="{Binding SaveCommand}" Content="Save Changes" Style="{DynamicResource PrimaryButton}" Height="40" Margin="0,0,0,12"/>
-                <Button Command="{Binding CancelCommand}" Content="Cancel" Style="{DynamicResource GhostButton}" Height="40"/>
+                <Button Command="{Binding SaveCommand}" Content="{DynamicResource Terminology.Settings.Promotions.Action.Save}" Style="{DynamicResource PrimaryButton}" Height="40" Margin="0,0,0,12"/>
+                <Button Command="{Binding CancelCommand}" Content="{DynamicResource Terminology.Global.Cancel}" Style="{DynamicResource GhostButton}" Height="40"/>
             </StackPanel>
         </Grid>
     </Border>

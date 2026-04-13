@@ -24,7 +24,7 @@
                     <TextBlock Text="{DynamicResource Terminology.Gym.Registration.Name}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                     <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{DynamicResource Input.Apple}"
-                             Tag="John Doe"/>
+                             Tag="{DynamicResource Terminology.GymHome.WalkIn.NamePlaceholder}"/>
                 </StackPanel>
  
                 <!-- Phone -->

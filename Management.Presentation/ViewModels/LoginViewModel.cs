@@ -89,7 +89,7 @@ namespace Management.Presentation.ViewModels
         }
 
         public AsyncRelayCommand<object> LoginCommand { get; }
-        public ICommand ForgotPasswordCommand { get; }
+        public ICommand BackToAccountSetupCommand { get; }
         public ICommand ChangeFacilityCommand { get; }
 
         public LoginViewModel(
@@ -122,7 +122,7 @@ namespace Management.Presentation.ViewModels
             _isInitializingApp = false;
 
             LoginCommand = new AsyncRelayCommand<object>(ExecuteLogin, CanExecuteLogin);
-            ForgotPasswordCommand = new RelayCommand(ExecuteForgotPassword);
+            BackToAccountSetupCommand = new AsyncRelayCommand(ExecuteBackToAccountSetupAsync);
             ChangeFacilityCommand = new AsyncRelayCommand(() => _navigationService.NavigateToSplashAsync());
         }
 
@@ -269,9 +269,13 @@ namespace Management.Presentation.ViewModels
             if (parameter != null) await SetParameterAsync(parameter);
         }
 
-        private void ExecuteForgotPassword()
+        private async Task ExecuteBackToAccountSetupAsync()
         {
-            _dialogService.ShowAlertAsync("Forgot Password", "Contact administrator to reset.");
+            await ExecuteSafeAsync(async () =>
+            {
+                Serilog.Log.Information("[Login] User navigating back to Account Setup");
+                await _navigationService.NavigateToAsync<OnboardingOwnerViewModel>(Email);
+            });
         }
     }
 }
