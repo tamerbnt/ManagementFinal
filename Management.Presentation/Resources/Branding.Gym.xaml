@@ -42,7 +42,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     
     <!-- Illustration & UI Toggles -->
     <Visibility x:Key="Visibility.HomeIllustration">Visible</Visibility>
-    <SolidColorBrush x:Key="Brush.Card.Foreground" Color="#1E293B"/> <!-- Standard dark text for light-mode cards -->
+    <SolidColorBrush x:Key="Brush.Card.Foreground" Color="{DynamicResource TextPrimary.Color}"/> <!-- Use dynamic theme color -->
     
     <!-- Terminology -->
     <sys:String x:Key="TerminologyLabel">Member</sys:String>

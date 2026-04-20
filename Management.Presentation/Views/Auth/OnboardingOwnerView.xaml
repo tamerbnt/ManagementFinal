@@ -22,12 +22,7 @@
                 <Style.Triggers>
                     <Trigger Property="IsKeyboardFocusWithin" Value="True">
                         <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                        <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" 
-                                                  BlurRadius="12" ShadowDepth="0" Opacity="0.4"/>
-                            </Setter.Value>
-                        </Setter>
+                        <Setter Property="BorderThickness" Value="2"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>

@@ -23,7 +23,7 @@
     <!-- Contrast Tokens -->
     <SolidColorBrush x:Key="OnAccentPrimary" Color="#0B1224"/> <!-- Deep Navy text on Cyan for visibility -->
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#1E293B"/>
-
+    
     <!-- Status Backgrounds (Deep/Rich Colors for Dark Mode) -->
     <SolidColorBrush x:Key="StatusErrorBackground" Color="#450A0A" Opacity="0.4"/> <!-- Deep Red -->
     <SolidColorBrush x:Key="StatusSuccessBackground" Color="#064E3B" Opacity="0.4"/> <!-- Deep Green -->

@@ -867,7 +867,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- 1. Master Financial Card (Net Profit) -->
-                        <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="130" Background="{DynamicResource CardBackgroundBrush}">
+                        <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="130" Background="{DynamicResource FacilitySidebarBrush}">
                             <Grid Margin="24">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -968,7 +968,7 @@
                 </StackPanel>
 
                 <!-- RIGHT COLUMN: Analytics Chart — fills full height of KPI + Financial rows -->
-                <Border Grid.Column="1" Margin="16,0,0,0" CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}" BorderThickness="1.5" BorderBrush="{DynamicResource Brush.Surface.Border}">
+                <Border Grid.Column="1" Margin="16,0,0,0" CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}" BorderThickness="0">
                     <Grid Margin="16,12">
                         <!-- Gym Mode: Source of Acquisition -->
                         <Grid Visibility="{Binding IsGymMode, Converter={StaticResource BoolToVisibilityConverter}}">

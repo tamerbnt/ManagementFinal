@@ -23,7 +23,7 @@
                                               VerticalAlignment="Center">
                                 <ContentPresenter.Resources>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Secondary}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                         <Setter Property="FontWeight" Value="Medium"/>
                                         <Setter Property="FontSize" Value="13"/>
                                     </Style>
@@ -33,11 +33,6 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Border" Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="Border" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1"/>
-                                    </Setter.Value>
-                                </Setter>
                                 <Setter TargetName="Content" Property="TextElement.Foreground" Value="{DynamicResource Brush.Brand.Primary}"/>
                                 <Setter TargetName="Content" Property="TextElement.FontWeight" Value="SemiBold"/>
                             </Trigger>
@@ -103,7 +98,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Discount Values -->
-                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Discount}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Discount}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" FontSize="11"/>
 
                     <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
@@ -151,7 +146,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Target Configuration -->
-                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Target}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Target}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" FontSize="11"/>
 
                     <StackPanel Margin="0,0,0,24">
                         <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Field.TargetType}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
@@ -176,7 +171,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Eligibility -->
-                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Eligibility}" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Section.Eligibility}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" FontSize="11"/>
 
                     <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>

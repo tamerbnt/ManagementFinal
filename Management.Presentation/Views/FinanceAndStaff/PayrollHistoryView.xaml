@@ -15,9 +15,6 @@
     <Border Style="{DynamicResource GlobalModalContainerStyle}"
             Width="500"
             Margin="32">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="40" ShadowDepth="0" Opacity="0.15" Color="Black"/>
-        </Border.Effect>
 
         <Grid>
             <Grid.RowDefinitions>
@@ -57,8 +54,8 @@
                 </Border.Style>
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                        <TextBlock Text="{DynamicResource Terminology.Payroll.History.PaymentDueToday}" FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBlock Text=" âš " FontSize="12" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.Payroll.History.PaymentDueToday}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextOnAccentBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text=" âš " FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextOnAccentBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
                     
                     <ItemsControl ItemsSource="{Binding TodayAlerts}">
@@ -69,7 +66,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="{Binding Name}" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextOnAccentBrush}" VerticalAlignment="Center"/>
                                     <Button Grid.Column="1" 
                                             Content="{DynamicResource Terminology.Payroll.History.PayNow}" 
                                             Command="{Binding DataContext.PayCommand, RelativeSource={RelativeSource AncestorType=Window}}" 

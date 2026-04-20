@@ -29,11 +29,7 @@
                 <Style.Triggers>
                     <Trigger Property="IsKeyboardFocusWithin" Value="True">
                         <Setter Property="BorderBrush" Value="#0EA5E9"/>
-                        <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect Color="#0EA5E9" BlurRadius="12" ShadowDepth="0" Opacity="0.4"/>
-                            </Setter.Value>
-                        </Setter>
+                        <Setter Property="BorderThickness" Value="2"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>

@@ -41,7 +41,7 @@ namespace Management.Presentation.Controls.Premium
             double pillWidth = panelWidth / 2;
             
             // Only update width if it actually changed to avoid unnecessary layout passes
-            if (Math.Abs(SelectionPill.Width - pillWidth) > 0.1)
+            if (double.IsNaN(SelectionPill.Width) || Math.Abs(SelectionPill.Width - pillWidth) > 0.1)
             {
                 SelectionPill.Width = pillWidth;
             }

@@ -18,8 +18,8 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Width="44" Height="44" CornerRadius="22" Background="#FFF1F2FF" VerticalAlignment="Center">
-                    <Path Data="{StaticResource IconFinance}" Fill="#FF6366F1" Width="20" Height="20" Stretch="Uniform"/>
+                <Border Width="44" Height="44" CornerRadius="22" Background="{DynamicResource FacilityAccentDimBrush}" VerticalAlignment="Center">
+                    <Path Data="{StaticResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Stretch="Uniform"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" Margin="16,0">
@@ -28,7 +28,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <TextBlock Text="{Binding Amount, StringFormat={}{0:C}}" FontWeight="Bold" FontSize="16" Foreground="#FF6366F1" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding Amount, StringFormat={}{0:C}}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
                     <TextBlock Text="{Binding Timestamp, StringFormat=t}" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Right" Margin="0,4,0,0"/>
                 </StackPanel>
             </Grid>

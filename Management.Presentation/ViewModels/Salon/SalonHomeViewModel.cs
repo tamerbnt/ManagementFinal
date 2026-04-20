@@ -179,7 +179,31 @@ namespace Management.Presentation.ViewModels.Salon
         private string _currentTime = DateTime.Now.ToString("HH:mm:ss");
 
         [ObservableProperty]
-        private string _greeting = string.Empty;
+        private string _greetingLabel = string.Empty;
+
+        [ObservableProperty]
+        private string _greetingName = string.Empty;
+
+        [ObservableProperty]
+        private string _currentSidebarMode = "Guide";
+
+        [ObservableProperty]
+        private ObservableCollection<string> _systemAlerts = new();
+
+        [ObservableProperty]
+        private ObservableCollection<GuideTipViewModel> _guideTips = new();
+
+        [ObservableProperty]
+        private GuideTipViewModel? _currentGuide;
+
+        [ObservableProperty]
+        private int _currentGuideIndex;
+
+        [RelayCommand]
+        private void SetSidebarMode(string mode)
+        {
+            CurrentSidebarMode = mode;
+        }
 
 
 
@@ -233,6 +257,10 @@ namespace Management.Presentation.ViewModels.Salon
 
             _salonService.AppointmentStatusChanged += OnAppointmentStatusChanged;
 
+            // Setup Guide Tips Carousel
+            InitializeGuideTips();
+            StartGuideCarousel();
+
             StartClock();
 
             // Guard for immediate shimmer visibility
@@ -252,12 +280,13 @@ namespace Management.Presentation.ViewModels.Salon
         {
             IsActive = true;
             // Set initial clock values on UI Thread
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
             {
                 CurrentTime = DateTime.Now.ToString("HH:mm:ss");
                 CurrentDate = DateTime.Now.ToString(_terminologyService.GetTerm("Terminology.Salon.Home.DateFullFormat"), _localizationService.CurrentCulture);
                 UpdateGreeting();
                 StartClock();
+                await PopulateSystemAlertsAsync();
             });
 
             await RefreshDataAsync();
@@ -280,16 +309,75 @@ namespace Management.Presentation.ViewModels.Salon
         }
 
         [RelayCommand]
-        private void PreviousUpcoming()
+        public void NextGuideTip()
         {
-            if (TodayAgenda == null || !TodayAgenda.Any()) return;
+            if (GuideTips.Count == 0) return;
+            CurrentGuideIndex = (CurrentGuideIndex + 1) % GuideTips.Count;
+            CurrentGuide = GuideTips[CurrentGuideIndex];
+            ResetGuideCarouselTimer();
+        }
 
-            var currentIndex = NextAppointment != null ? TodayAgenda.IndexOf(NextAppointment) : 0;
-            if (currentIndex < 0) currentIndex = 0;
+        [RelayCommand]
+        public void PreviousGuideTip()
+        {
+            if (GuideTips.Count == 0) return;
+            CurrentGuideIndex = (CurrentGuideIndex - 1 + GuideTips.Count) % GuideTips.Count;
+            CurrentGuide = GuideTips[CurrentGuideIndex];
+            ResetGuideCarouselTimer();
+        }
 
-            var prevIndex = (currentIndex - 1 + TodayAgenda.Count) % TodayAgenda.Count;
-            NextAppointment = TodayAgenda[prevIndex];
-            ResetCarouselTimer();
+        private void InitializeGuideTips()
+        {
+            GuideTips.Clear();
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = "Welcome to the Dashboard", Description = "This is your central command center. Stay on top of appointments, sales, and client history seamlessly." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = "Record a walk-in visit", Description = "Track daily visitors who aren't members using the Walk-in quick action module." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = "Quick Point of Sale", Description = "Process products and services instantly using the Quick Sale flow." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = "Hardware Telemetry", Description = "Check the bottom footer to ensure your barcode scanners and receipt printers are online." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = "Multi-Item Sales", Description = "Handling a large checkout? Use the Multi-Sale Cart to bundle items securely." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = "Activity Stream", Description = "Watch the real-time event log update automatically as services are completed or products sold." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = "Creating New Clients", Description = "Use the Create Member action to rapidly enroll new clients directly from the Home screen." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = "End of Shift Protocol", Description = "Verify the expected Daily Cash Total matches your physical till before logging out." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = "Appointments Today", Description = "Monitor the Agenda card to see upcoming client appointments and manage chair utilization." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = "Next Appointment", Description = "The carousel in the top-left highlights your immediate next client. Click the arrows to browse the full daily schedule." });
+
+            if (GuideTips.Any())
+                CurrentGuide = GuideTips[0];
+            CurrentGuideIndex = 0;
+        }
+
+        private void StartGuideCarousel()
+        {
+            if (_carouselTimer != null) return;
+            _carouselTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            _carouselTimer.Tick += (s, e) => NextGuideTip();
+            _carouselTimer.Start();
+        }
+
+        private void ResetGuideCarouselTimer()
+        {
+            if (_carouselTimer != null)
+            {
+                _carouselTimer.Stop();
+                _carouselTimer.Start();
+            }
+        }
+
+        private async Task PopulateSystemAlertsAsync()
+        {
+            var alerts = new List<string>();
+            try
+            {
+                var diag = await _diagnosticService.TestSupabaseConnectivityAsync();
+                if (!diag.IsSuccess) alerts.Add("⚠️ Network latency detected or local database is in offline mode.");
+            }
+            catch { }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                SystemAlerts.Clear();
+                foreach (var alert in alerts) SystemAlerts.Add(alert);
+                if (!SystemAlerts.Any()) SystemAlerts.Add("✅ No critical system alerts at this time.");
+            });
         }
 
         private void UpdateCarousel(List<Appointment> orderedAgenda)
@@ -476,11 +564,9 @@ namespace Management.Presentation.ViewModels.Salon
             else if (now.Hour >= 12 && now.Hour < 18) greetingKey = "Terminology.Salon.Greeting.Afternoon";
             else greetingKey = "Terminology.Salon.Greeting.Evening";
 
-            var timeGreeting = _terminologyService.GetTerm(greetingKey);
-            var firstName = _sessionManager.CurrentUser?.FullName?.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() 
-                            ?? _terminologyService.GetTerm("Terminology.Salon.Greeting.There");
-
-            Greeting = $"{timeGreeting}, {firstName}";
+            GreetingLabel = _terminologyService.GetTerm(greetingKey).ToUpper();
+            GreetingName = _sessionManager.CurrentUser?.FullName?.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() 
+                            ?? _terminologyService.GetTerm("Terminology.Salon.Greeting.There") + ".";
         }
 
         private void StartClock()

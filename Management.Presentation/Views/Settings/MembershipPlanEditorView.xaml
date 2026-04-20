@@ -122,11 +122,6 @@
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsSelected" Value="True">
                                                             <Setter TargetName="Border" Property="Background" Value="{DynamicResource SurfaceBg}"/>
-                                                            <Setter TargetName="Border" Property="Effect">
-                                                                <Setter.Value>
-                                                                    <DropShadowEffect ShadowDepth="1" BlurRadius="6" Opacity="0.1" Direction="270"/>
-                                                                </Setter.Value>
-                                                            </Setter>
                                                             <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                         </Trigger>
                                                         <MultiTrigger>

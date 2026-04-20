@@ -29,7 +29,7 @@
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border x:Name="OuterBorder"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="#E5E7EB"
+                                BorderBrush="{DynamicResource SeparatorStroke}"
                                 BorderThickness="1"
                                 CornerRadius="12"
                                 Padding="16,12"
@@ -38,11 +38,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="OuterBorder" Property="Background" Value="#F9FAFB"/>
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
                                 <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentDimBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="OuterBorder" Property="Background" Value="#F0F9FF"/>
+                                <Setter TargetName="OuterBorder" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
                                 <Setter TargetName="OuterBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="OuterBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
@@ -135,7 +135,7 @@
                                        Placement="Bottom"
                                        StaysOpen="False"
                                        AllowsTransparency="True">
-                                    <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Width="240" MaxHeight="250">
+                                    <Border Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1" CornerRadius="8" Width="240" MaxHeight="250">
                                         <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" Padding="4">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
@@ -155,14 +155,14 @@
                             </Grid>
 
                             <!-- Selected Member Badge -->
-                            <Border Background="#EFF6FF" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Border Background="{DynamicResource StatusInfoBackground}" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <Path Data="{StaticResource IconMember}" Fill="#3B82F6" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
-                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="#1E40AF" FontSize="13" VerticalAlignment="Center"/>
+                                        <Path Data="{StaticResource IconMember}" Fill="{DynamicResource FacilityAccentBrush}" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center"/>
                                     </StackPanel>
                                     <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
-                                        <Path Data="{StaticResource IconClose}" Fill="#1E40AF" Stretch="Uniform"/>
+                                        <Path Data="{StaticResource IconClose}" Fill="{DynamicResource FacilityAccentBrush}" Stretch="Uniform"/>
                                     </Button>
                                 </Grid>
                             </Border>

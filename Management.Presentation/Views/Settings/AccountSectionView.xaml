@@ -12,9 +12,6 @@
                 Padding="24"
                 BorderBrush="{DynamicResource SeparatorStroke}"
                 BorderThickness="1">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.04" Color="Black"/>
-            </Border.Effect>
             
             <StackPanel>
                 <TextBlock Text="{DynamicResource Terminology.Settings.Account.Info}" 
@@ -99,7 +96,7 @@
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Verification" Style="{StaticResource Body}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                     <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
                         <TextBlock Text="{Binding EmailStatusMessage}" Style="{StaticResource BodyMedium}" 
-                                   Foreground="{Binding IsEmailVerified, Converter={StaticResource BoolToBrushConverter}, ConverterParameter='#10B981|#EF4444'}" 
+                                   Foreground="{DynamicResource TextSecondaryBrush}" 
                                    VerticalAlignment="Center" Margin="0,0,16,0"/>
                         
                         <Button Content="Validate &amp; Save" Command="{Binding SaveEmailSettingsCommand}" 

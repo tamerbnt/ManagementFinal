@@ -31,7 +31,7 @@
         </Grid>
 
         <!-- Grid Headers -->
-        <Grid Grid.Row="1" Margin="0,0,0,12" Opacity="0.6">
+        <Grid Grid.Row="1" Margin="0,0,0,12">
            <Grid.ColumnDefinitions>
                <ColumnDefinition Width="40"/>
                <ColumnDefinition Width="2*"/>

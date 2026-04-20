@@ -22,13 +22,28 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="WindowBg" Color="#1A1712" />
     <SolidColorBrush x:Key="SurfaceBg" Color="#231F19" />
     <SolidColorBrush x:Key="SurfaceBgDim" Color="#1A1712" />
+    <SolidColorBrush x:Key="SurfaceBgElevated" Color="#2D2D3F" />
     <SolidColorBrush x:Key="SurfaceAccentBg" Color="#3E3E3E" />
     <SolidColorBrush x:Key="ContentAreaBg" Color="#1A1712" />
+    
+    <!-- Status Backgrounds (Dark Mode - Translucent) -->
+    <SolidColorBrush x:Key="StatusSuccessBackground" Color="#1010B981" />
+    <SolidColorBrush x:Key="StatusErrorBackground" Color="#10EF4444" />
+    <SolidColorBrush x:Key="StatusWarningBackground" Color="#10FBBF24" />
+    <SolidColorBrush x:Key="StatusInfoBackground" Color="#103B82F6" />
+    
+    <SolidColorBrush x:Key="StatusSuccessBrush" Color="#10B981" />
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#EF4444" />
     
     <!-- Text Palette -->
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A0AEC0" />
-    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#718096" />
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="#94A3B8" />
+
+    <!-- Direct Semantic Aliases (Bypassing StaticResource stale issues) -->
+    <SolidColorBrush x:Key="TextPrimary" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TextSecondary" Color="#A0AEC0" />
+    <SolidColorBrush x:Key="TextTertiary" Color="#94A3B8" />
     
     <!-- State Brushes -->
     <SolidColorBrush x:Key="BorderBrush" Color="#3E3E3E" />
@@ -49,11 +64,15 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="Brush.Surface.Primary" Color="#231F19"/>
     <SolidColorBrush x:Key="Brush.Surface.Secondary" Color="#3E3E3E"/>
     <SolidColorBrush x:Key="Brush.Surface.Border" Color="#3E3E3E"/>
+    <SolidColorBrush x:Key="Brush.Surface.Card" Color="#231F19"/>
+    <SolidColorBrush x:Key="Brush.Surface.Hover" Color="#3E3E3E"/>
     <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#231F19" Opacity="0.8"/>
+    <SolidColorBrush x:Key="TextOnAccentBrush" Color="#1A1712"/>
+    <SolidColorBrush x:Key="OnAccentSecondary" Color="#1E293B"/>
     
     <SolidColorBrush x:Key="Brush.Text.Primary" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#D1D5DB" Opacity="0.8"/>
-    <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="#9CA3AF" Opacity="0.6"/>
+    <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="#94A3B8" Opacity="0.8"/>
     <SolidColorBrush x:Key="Brush.Border.Subtle" Color="#3E3E3E"/>
     <SolidColorBrush x:Key="Brush.Neutral.White" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="Brush.Status.Success" Color="#10B981"/>

@@ -282,8 +282,7 @@
                 ClipToBounds="True">
             <Border.Style>
                 <Style TargetType="Border">
-                    <!-- High-performance depth effect without DropShadowEffect -->
-                    <Setter Property="BorderBrush" Value="#26000000"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
                     <Setter Property="BorderThickness" Value="1"/>
                 </Style>
             </Border.Style>
@@ -303,8 +302,9 @@
                         Margin="0,16,16,0"
                         Panel.ZIndex="100"
                         Cursor="Hand"> 
-                    <Path Data="{DynamicResource IconClose}"
-                          Fill="{DynamicResource TextSecondaryBrush}"
+                    <Path Data="{StaticResource IconClose}"
+                          Stroke="{DynamicResource TextPrimaryBrush}"
+                          StrokeThickness="2.5"
                           Style="{DynamicResource Style.Icon.Small}"/>
                 </Button>
 
@@ -673,7 +673,7 @@
                 <!-- DRAWER OVERLAY (Side Panel) - Extended across both columns -->
                 <Border x:Name="DrawerOverlay" 
                         Grid.Column="0" Grid.ColumnSpan="2"
-                        Background="Black" 
+                        Background="{DynamicResource OverlayBackdropBrush}" 
                         Opacity="0"
                         Panel.ZIndex="99"
                         CornerRadius="24">
@@ -715,9 +715,9 @@
                         Grid.Column="1"
                         HorizontalAlignment="Right" 
                         Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
-                        Background="White" 
-                        BorderBrush="#1A000000" 
-                        BorderThickness="1,0,0,0"
+                        Background="{DynamicResource SurfaceBg}" 
+                        BorderBrush="{DynamicResource SeparatorStroke}" 
+                        BorderThickness="1,0,0,0" 
                         Panel.ZIndex="100"
                         CornerRadius="0,24,24,0"
                         ClipToBounds="True">

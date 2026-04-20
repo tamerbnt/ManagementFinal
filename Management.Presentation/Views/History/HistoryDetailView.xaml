@@ -7,7 +7,7 @@
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
-             Background="White">
+             Background="Transparent">
 
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -35,7 +35,7 @@
             <!-- Large Event Icon -->
             <Border Width="80" Height="80" 
                     CornerRadius="40" 
-                    Background="#F8FAFC"
+                    Background="{DynamicResource SurfaceBgDim}"
                     HorizontalAlignment="Center"
                     Margin="0,0,0,16">
                 <!-- Generic History Icon - In real app, bind this using a converter based on Event Type -->
@@ -77,9 +77,9 @@
                 <!-- Card: Audit Log -->
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Terminology.History.AuditLog}" Style="{DynamicResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
-                    <Border Background="#F8FAFC" 
+                    <Border Background="{DynamicResource SurfaceBgDim}" 
                             CornerRadius="8" 
-                            BorderBrush="#E2E8F0" 
+                            BorderBrush="{DynamicResource BorderBrush}" 
                             BorderThickness="1">
                         <TextBox Text="{Binding DataContext.AuditNote, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{DynamicResource UnderlineTextBox}" 

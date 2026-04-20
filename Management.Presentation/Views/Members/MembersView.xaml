@@ -160,7 +160,7 @@
                             Margin="{StaticResource MarginMediumRight}">
                         <StackPanel Orientation="Horizontal" Margin="4,0">
                             <Path Data="{StaticResource IconPlus}" 
-                                   Stroke="White"
+                                   Stroke="{DynamicResource TextSecondaryBrush}"
                                    Style="{StaticResource Style.Icon.Small}"
                                    Margin="{StaticResource MarginIconRight}"/>
                             <TextBlock Text="{DynamicResource Terminology.Members.AddMember}" FontWeight="SemiBold"/>
@@ -201,7 +201,7 @@
             <Grid Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
                 <StackPanel Orientation="Horizontal">
                     <!-- Filter Bar Container -->
-                    <Border Background="{DynamicResource Brush.Neutral.White}" CornerRadius="{DynamicResource Corner.MD}" Padding="4" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
+                    <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="{DynamicResource Corner.MD}" Padding="4" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton Content="{DynamicResource Terminology.Global.Filter.All}" 
                                          IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.All}}" 
@@ -436,7 +436,7 @@
                 <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border x:Name="RowBorder" 
-                            Background="White" 
+                            Background="{DynamicResource SurfaceBg}" 
                             CornerRadius="16" 
                             Padding="16"
                             Margin="4,4,4,12"
@@ -649,7 +649,7 @@
                 <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border x:Name="GridCard" 
-                            Background="White" 
+                            Background="{DynamicResource SurfaceBg}" 
                             CornerRadius="20" 
                             Padding="20"
                             Margin="0,0,20,20"
@@ -778,7 +778,7 @@
             <!-- B. Member Detail Drawer -->
             <Border Grid.Column="1" 
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
-                    Background="White" 
+                    Background="{DynamicResource SurfaceBg}" 
                     CornerRadius="32,0,0,32"
                     Effect="{StaticResource Shadow3}"
                     Visibility="{Binding IsDetailPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -817,7 +817,7 @@
                           Background="Transparent" BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="White" CornerRadius="12" Height="72" Margin="0,0,0,12">
+                            <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Height="72" Margin="0,0,0,12">
                                 <Border Style="{StaticResource ShimmerPlaceholderStyle}" Margin="16"/>
                             </Border>
                         </DataTemplate>
@@ -836,7 +836,7 @@
 
             
             <!-- Modal Card -->
-            <Border Background="White" 
+            <Border Background="{DynamicResource SurfaceBg}" 
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     CornerRadius="24"

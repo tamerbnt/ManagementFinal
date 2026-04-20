@@ -9,8 +9,7 @@
              d:DesignHeight="720" d:DesignWidth="980">
 
     <UserControl.Resources>
-        <!-- The Floating Card Shadow -->
-        <DropShadowEffect x:Key="HeavyFloatShadow" BlurRadius="60" Opacity="0.15" ShadowDepth="20" Direction="270" Color="Black"/>
+        <!-- The Floating Card Shadow Removed for Performance -->
     </UserControl.Resources>
 
     <!-- Master Clipping Grid to preserve rounded corners -->
@@ -74,7 +73,8 @@
 
             <!-- LEFT: Floating Action Card -->
             <Border Grid.Column="0" MaxWidth="400" VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Background="White" CornerRadius="24" Padding="32" Margin="40,0,0,0" Effect="{StaticResource HeavyFloatShadow}">
+                    Background="White" CornerRadius="24" Padding="32" Margin="40,0,0,0" 
+                    BorderBrush="#E2E8F0" BorderThickness="1">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

@@ -407,6 +407,9 @@ namespace Management.Presentation.ViewModels.Shell
             // Clear view cache on switch to ensure facility-specific styles/resources are fresh
             _viewCache.Clear();
             RefreshMenu();
+
+            // Sync ThemeManager state to ensure theme toggles use the correct facility context
+            ThemeManager.SetFacility(type);
             
             // Navigate to the new facility's home view
             var homeViewType = _navigationRegistry.GetHomeViewType(type);

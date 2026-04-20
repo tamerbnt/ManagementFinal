@@ -55,7 +55,7 @@
                                 <StackPanel Grid.Row="1" Margin="0,0,0,16">
                                     <TextBlock Text="{Binding Description}" Style="{DynamicResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="40" Margin="0,0,0,12"/>
                                     
-                                    <Border Background="#F3F4F6" CornerRadius="8" Padding="12,8">
+                                    <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="8" Padding="12,8">
                                         <StackPanel>
                                             <TextBlock Text="{Binding DiscountValue}" FontSize="18" FontWeight="ExtraBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock Text="{Binding DiscountType}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}"/>
@@ -71,12 +71,12 @@
                                             <Path Data="{StaticResource Icon.Edit}" Fill="{DynamicResource TextSecondaryBrush}" Style="{StaticResource Style.Icon.Small}"/>
                                         </Button>
                                         <Button Style="{DynamicResource IconButtonStyle}" Command="{Binding DataContext.DeletePromotionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}">
-                                            <Path Data="{StaticResource Icon.Delete}" Fill="#E74C3C" Style="{StaticResource Style.Icon.Small}"/>
+                                            <Path Data="{StaticResource Icon.Delete}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource Style.Icon.Small}"/>
                                         </Button>
                                     </StackPanel>
                                     
-                                    <Border Background="#D1FAE5" CornerRadius="8" Padding="8,2" HorizontalAlignment="Left" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Status.Active}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                                    <Border Background="{DynamicResource StatusSuccessBackground}" CornerRadius="8" Padding="8,2" HorizontalAlignment="Left" Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="{DynamicResource Terminology.Settings.Promotions.Status.Active}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}"/>
                                     </Border>
                                 </Grid>
                             </Grid>

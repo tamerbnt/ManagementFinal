@@ -240,8 +240,8 @@
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                     MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
                     VerticalAlignment="Stretch"
-                    Background="White" 
-                    BorderBrush="#E2E8F0" 
+                    Background="{DynamicResource SurfaceBg}" 
+                    BorderBrush="{DynamicResource BorderBrush}" 
                     BorderThickness="1,0,0,0"
                     Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Border.RenderTransform>

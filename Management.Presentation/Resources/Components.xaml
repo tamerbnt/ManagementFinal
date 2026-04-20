@@ -132,6 +132,21 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid>
+                        <!-- Premium Titan Glow (Restored name for Storyboard targeting) -->
+                        <Border x:Name="PART_Glow"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{DynamicResource RadiusButton}"
+                                Opacity="0.4"
+                                RenderTransformOrigin="0.5,0.5"
+                                IsHitTestVisible="False">
+                            <Border.Effect>
+                                <DropShadowEffect x:Name="PART_GlowEffect" BlurRadius="15" ShadowDepth="0" Color="{DynamicResource ElevationColor}"/>
+                            </Border.Effect>
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                        </Border>
+
                         <!-- Main Visual -->
                         <Border x:Name="PART_Border"
                                 Background="{TemplateBinding Background}"
@@ -148,9 +163,6 @@
                                     <TranslateTransform/>
                                 </TransformGroup>
                             </Border.RenderTransform>
-
-                            <!-- Premium Titan Glow (Restored name for Storyboard targeting) -->
-                            <!-- Glow Removed for Performance -->
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -189,12 +201,18 @@
                                             </DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                         <!-- Intensify Glow (Direct targeting avoids runtime path issues) -->
-                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                        <DoubleAnimation Storyboard.TargetName="PART_GlowEffect" 
                                                          Storyboard.TargetProperty="BlurRadius" 
                                                          To="25" Duration="0:0:0.2"/>
                                         <DoubleAnimation Storyboard.TargetName="PART_Glow" 
-                                                         Storyboard.TargetProperty="Opacity" 
-                                                         To="0.6" Duration="0:0:0.2"/>
+                                                          Storyboard.TargetProperty="Opacity" 
+                                                          To="0.6" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" 
+                                                          To="1.04" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" 
+                                                          To="1.04" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
@@ -207,12 +225,18 @@
                                         <DoubleAnimation Storyboard.TargetName="PART_Border" 
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" 
                                                          To="1" Duration="0:0:0.2"/>
-                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                        <DoubleAnimation Storyboard.TargetName="PART_GlowEffect" 
                                                          Storyboard.TargetProperty="BlurRadius" 
                                                          To="15" Duration="0:0:0.2"/>
                                         <DoubleAnimation Storyboard.TargetName="PART_Glow" 
                                                          Storyboard.TargetProperty="Opacity" 
                                                          To="0.4" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" 
+                                                         To="1" Duration="0:0:0.2"/>
+                                        <DoubleAnimation Storyboard.TargetName="PART_Glow" 
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" 
+                                                         To="1" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>

@@ -17,6 +17,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="WindowBg" Color="#F0E7D5" />
     <SolidColorBrush x:Key="SurfaceBg" Color="#FAF8F4" />
     <SolidColorBrush x:Key="SurfaceBgDim" Color="#F0E7D5" />
+    <SolidColorBrush x:Key="SurfaceBgElevated" Color="#F3F4F6" />
     <SolidColorBrush x:Key="SurfaceAccentBg" Color="#E5E7EB" />
     <SolidColorBrush x:Key="ContentAreaBg" Color="#F0E7D5" />
     <SolidColorBrush x:Key="TopBarBg" Color="#F8FAFC"/>

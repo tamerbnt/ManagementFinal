@@ -148,7 +148,7 @@
                    Height="280"
                    HorizontalAlignment="Right" 
                    VerticalAlignment="Bottom"
-                   Margin="0,-80,48,-4"
+                   Margin="0,-80,48,16"
                    IsHitTestVisible="False"/>
 
             <!-- ====================================================================== -->

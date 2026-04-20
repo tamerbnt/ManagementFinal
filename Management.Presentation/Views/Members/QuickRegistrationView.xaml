@@ -31,7 +31,7 @@
                     CornerRadius="16" 
                     Padding="24" 
                     Margin="0,0,0,32"
-                    BorderBrush="#F3F4F6"
+                    BorderBrush="{DynamicResource SeparatorStroke}"
                     BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.ConvertLead}" Style="{StaticResource SectionTitle}"/>
@@ -140,7 +140,7 @@
             </Grid>
 
             <!-- 3. PRICING SUMMARY -->
-            <Border Background="#F9FAFB" CornerRadius="12" Padding="20" Margin="0,32,0,0">
+            <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Padding="20" Margin="0,32,0,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconCart}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"/>
@@ -160,9 +160,9 @@
                                    VerticalAlignment="Bottom"/>
                         
                         <!-- Promo Badge -->
-                        <Border Background="#D1FAE5" CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Bottom"
+                        <Border Background="{DynamicResource StatusSuccessBackground}" CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Bottom"
                                 Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                                    <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}"/>
                         </Border>
                     </StackPanel>
                 </Grid>

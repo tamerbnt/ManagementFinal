@@ -16,15 +16,40 @@ namespace Management.Presentation.ViewModels.Salon
             _appointment = appointment;
             _walkInLabel = walkInLabel;
             _serviceLabel = serviceLabel;
+            
+            // Parity properties
+            Name = _appointment.ClientName ?? _walkInLabel;
+            Status = _appointment.Status.ToString();
+            AvatarInitials = !string.IsNullOrEmpty(Name) 
+                ? new string(Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper()
+                : "??";
+            Icon = "👤";
         }
 
         public Guid Id => _appointment.Id;
         public DateTime Timestamp => _appointment.StartTime;
-        public DateTime SortDate => Timestamp; // Implement Shared.IActivityItem
+        public DateTime SortDate => Timestamp;
 
-        public string Title => _appointment.ClientName ?? _walkInLabel;
+        public string Name { get; }
+        public string Status { get; }
+        public string AvatarInitials { get; }
+        public string Icon { get; }
+
+        public string RelativeTime
+        {
+            get
+            {
+                var diff = DateTime.Now - SortDate;
+                if (diff.TotalMinutes < 1) return "now";
+                if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}min ago";
+                if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
+                return $"{(int)diff.TotalDays}d ago";
+            }
+        }
+
+        public string Title => Name;
         public string Subtitle => _appointment.ServiceName ?? _serviceLabel;
-        public string StatusText => _appointment.Status.ToString();
+        public string StatusText => Status;
         public string AmountText => ""; 
         public bool IsSale => false;
 
@@ -48,13 +73,38 @@ namespace Management.Presentation.ViewModels.Salon
             _walkInLabel = walkInLabel;
             _moreLabel = moreLabel;
             _saleLabel = saleLabel;
+
+            // Parity properties
+            Name = string.IsNullOrEmpty(_sale.MemberName) ? _walkInLabel : _sale.MemberName;
+            Status = _saleLabel;
+            AvatarInitials = !string.IsNullOrEmpty(Name) && Name != _walkInLabel
+                ? new string(Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper()
+                : "$$";
+            Icon = "🛒";
         }
 
         public Guid Id => _sale.Id;
         public DateTime Timestamp => _sale.Timestamp;
-        public DateTime SortDate => Timestamp; // Implement Shared.IActivityItem
+        public DateTime SortDate => Timestamp;
+
+        public string Name { get; }
+        public string Status { get; }
+        public string AvatarInitials { get; }
+        public string Icon { get; }
+
+        public string RelativeTime
+        {
+            get
+            {
+                var diff = DateTime.Now - SortDate;
+                if (diff.TotalMinutes < 1) return "now";
+                if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}min ago";
+                if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
+                return $"{(int)diff.TotalDays}d ago";
+            }
+        }
         
-        public string Title => string.IsNullOrEmpty(_sale.MemberName) ? _walkInLabel : _sale.MemberName;
+        public string Title => Name;
         
         public string Subtitle 
         {
@@ -65,7 +115,7 @@ namespace Management.Presentation.ViewModels.Salon
             }
         }
 
-        public string StatusText => _saleLabel;
+        public string StatusText => Status;
         public string AmountText => $"{_sale.TotalAmount:N2} DA"; 
         public bool IsSale => true;
     }

@@ -39,7 +39,9 @@ namespace Management.Presentation.ViewModels.Shell
 
         partial void OnIsDarkThemeChanged(bool value)
         {
-            Management.Presentation.Services.ThemeManager.SetTheme(value ? Management.Presentation.Services.AppTheme.Dark : Management.Presentation.Services.AppTheme.Light);
+            Management.Presentation.Services.ThemeManager.SetTheme(
+                value ? Management.Presentation.Services.AppTheme.Dark : Management.Presentation.Services.AppTheme.Light,
+                _facilityContext.CurrentFacility);
             
             Task.Run(async () =>
             {

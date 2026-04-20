@@ -32,13 +32,13 @@
 
         <Border.Style>
             <Style TargetType="Border">
-                <Setter Property="Background" Value="White"/>
-                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 <Style.Triggers>
                     <!-- Hover Animation (Plan Section 3) -->
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#F8FAFC"/>
-                        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+                        <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                         <Trigger.EnterActions>
                             <BeginStoryboard>
                                 <Storyboard>
@@ -59,18 +59,11 @@
 
                     <!-- Active/Selected State (The "Titan Gradient") -->
                     <DataTrigger Binding="{Binding IsActive}" Value="True">
-                        <Setter Property="Background">
-                            <Setter.Value>
-                                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                                    <GradientStop Color="#F06292" Offset="0"/>
-                                    <GradientStop Color="#F48FB1" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Setter.Value>
-                        </Setter>
+                        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
                         <Setter Property="BorderBrush" Value="Transparent"/>
                         <Setter Property="Effect">
                             <Setter.Value>
-                                <DropShadowEffect Color="#F06292" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                                <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
                             </Setter.Value>
                         </Setter>
                     </DataTrigger>
@@ -95,9 +88,9 @@
                     Width="40" Height="40"
                     CornerRadius="20"
                     Margin="0,0,16,0"
-                    Background="#F1F5F9">
+                    Background="{DynamicResource SurfaceBgDim}">
                 <Path Data="{StaticResource IconDoor}" 
-                      Fill="#64748B"
+                      Fill="{DynamicResource TextSecondaryBrush}"
                       Stretch="Uniform"
                       Width="16" Height="16"
                       HorizontalAlignment="Center"
@@ -106,8 +99,8 @@
                     <Style TargetType="Border">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Background" Value="White"/>
-                                <Setter Property="Opacity" Value="0.2"/>
+                                <Setter Property="Background" Value="{DynamicResource TextOnAccentBrush}"/>
+                                <Setter Property="Opacity" Value="0.3"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -120,13 +113,13 @@
                 <TextBlock Text="{Binding Title}" 
                            FontWeight="Bold" 
                            FontSize="16"
-                           Foreground="#1E293B"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            Margin="0,0,0,4">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -142,7 +135,7 @@
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
                                     <Setter Property="Opacity" Value="0.8"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -155,7 +148,7 @@
             <!-- Hardcoded "Success" look for Access Granted, or "Fail" for denied -->
             <!-- TODO: Bind color to IsAccessGranted if available, defaulting to Green for now -->
             <Border Grid.Column="2" 
-                    Background="#DCFCE7" 
+                    Background="{DynamicResource StatusSuccessBackground}" 
                     CornerRadius="12" 
                     Padding="12,4"
                     VerticalAlignment="Center"
@@ -163,13 +156,13 @@
                 <TextBlock Text="{DynamicResource Terminology.History.Status.Success}" 
                            FontSize="12" 
                            FontWeight="SemiBold" 
-                           Foreground="#166534"/>
+                           Foreground="{DynamicResource StatusSuccessBrush}"/>
                  <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
                              <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Background" Value="White"/>
-                                <Setter Property="Opacity" Value="0.2"/>
+                                <Setter Property="Background" Value="{DynamicResource TextOnAccentBrush}"/>
+                                <Setter Property="Opacity" Value="0.3"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -186,7 +179,7 @@
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

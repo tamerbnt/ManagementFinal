@@ -51,7 +51,7 @@
                 <DataTemplate>
                     <Grid Margin="0,0,20,20" Width="260">
                         <!-- Shadow Border -->
-                        <Border CornerRadius="20" Background="White">
+                        <Border CornerRadius="20" Background="{DynamicResource CardBackgroundBrush}">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.1" Color="Black"/>
                             </Border.Effect>
@@ -59,7 +59,7 @@
 
                         <!-- Content Border -->
                         <Border x:Name="GridCard" 
-                                Background="White" 
+                                Background="{DynamicResource CardBackgroundBrush}" 
                                 CornerRadius="20" 
                                 Padding="24"
                                 BorderBrush="Transparent"
@@ -187,7 +187,7 @@
                 <DataTemplate>
                     <Grid Margin="0,0,0,12">
                         <!-- Shadow Border -->
-                        <Border CornerRadius="16" Background="White">
+                        <Border CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Black"/>
                             </Border.Effect>
@@ -195,7 +195,7 @@
 
                         <!-- Content Border -->
                         <Border x:Name="RowBorder" 
-                                Background="White" 
+                                Background="{DynamicResource CardBackgroundBrush}" 
                                 CornerRadius="16" 
                                 Padding="16"
                                 BorderBrush="Transparent"

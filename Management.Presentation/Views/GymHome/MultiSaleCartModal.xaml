@@ -31,7 +31,7 @@
                         <Border x:Name="ItemBorder" 
                                 CornerRadius="12" 
                                 BorderThickness="1.5" 
-                                BorderBrush="#F3F4F6"
+                                BorderBrush="{DynamicResource SeparatorStroke}"
                                 Background="{DynamicResource Brush.Surface.Glass}"
                                 Padding="12"
                                 Margin="0,0,0,8"
@@ -41,7 +41,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#F0FDFA"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
@@ -57,8 +57,8 @@
         <Style x:Key="StepperButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -67,7 +67,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -90,13 +90,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#FFFFFF"/>
-                                <Setter TargetName="border" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.06"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Foreground" Value="#111827"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -119,7 +114,7 @@
             </Grid.RowDefinitions>
 
             <!-- 1. TABS -->
-            <Border Grid.Row="0" Background="#F3F4F6" CornerRadius="14" Padding="4" HorizontalAlignment="Center" Margin="0,0,0,24">
+            <Border Grid.Row="0" Background="{DynamicResource SurfaceBgDim}" CornerRadius="14" Padding="4" HorizontalAlignment="Center" Margin="0,0,0,24">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton Content="{DynamicResource Terminology.GymHome.MultiSale.Tab.Products}" 
                                  IsChecked="{Binding CurrentTab, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=Products}"
@@ -233,7 +228,7 @@
                 <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Height="400">
                     <StackPanel>
                         <!-- 0. MEMBER SEARCH -->
-                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="12" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
+                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="12" Margin="0,0,0,16" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.LinkMember}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                                 
@@ -246,10 +241,7 @@
                                     <Popup IsOpen="{Binding SearchedMembers.Count, Converter={StaticResource CountToBooleanConverter}, Mode=OneWay}" 
                                            PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Grid}}"
                                            StaysOpen="False" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade">
-                                        <Border Background="White" CornerRadius="12" BorderThickness="1" BorderBrush="#E5E7EB" Width="260" Margin="4">
-                                            <Border.Effect>
-                                                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.1"/>
-                                            </Border.Effect>
+                                        <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource SeparatorStroke}" Width="260" Margin="4">
                                             <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" MaxHeight="250">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
@@ -268,14 +260,14 @@
                                 </Grid>
 
                                 <!-- Selected Member Badge -->
-                                <Border Background="#EFF6FF" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
+                                <Border Background="{DynamicResource StatusInfoBackground}" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
                                     <Grid>
                                         <StackPanel Orientation="Horizontal">
-                                            <Path Data="{StaticResource IconMember}" Fill="#3B82F6" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
-                                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="#1E40AF" FontSize="13" VerticalAlignment="Center"/>
+                                            <Path Data="{StaticResource IconMember}" Fill="{DynamicResource FacilityAccentBrush}" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
-                                            <Path Data="{StaticResource IconClose}" Fill="#1E40AF" Stretch="Uniform"/>
+                                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource FacilityAccentBrush}" Stretch="Uniform"/>
                                         </Button>
                                     </Grid>
                                 </Border>
@@ -283,7 +275,7 @@
                         </Border>
 
                         <!-- 1. ACTIVE SELECTION DETAILS -->
-                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
+                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
                             <Grid MinHeight="140">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -317,9 +309,9 @@
                                         <TextBlock Text="{Binding SelectedProductPricing.EffectivePrice.Amount, StringFormat='{}{0:N2} DA'}" 
                                                    FontSize="18" Foreground="{DynamicResource FacilityAccentBrush}" FontWeight="ExtraBold" VerticalAlignment="Bottom"/>
                                         
-                                        <Border Background="#D1FAE5" CornerRadius="10" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Bottom"
+                                        <Border Background="{DynamicResource StatusSuccessBackground}" CornerRadius="10" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Bottom"
                                                 Visibility="{Binding SelectedProductPricing.IsDiscountApplied, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding SelectedProductPricing.AppliedPromotionName, FallbackValue=PROMO}" FontSize="9" FontWeight="Bold" Foreground="#047857"/>
+                                            <TextBlock Text="{Binding SelectedProductPricing.AppliedPromotionName, FallbackValue=PROMO}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}"/>
                                         </Border>
                                     </StackPanel>
                                     
@@ -424,7 +416,7 @@
                         </Border>
 
                         <!-- 3. SUMMARY -->
-                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" BorderBrush="#F3F4F6" BorderThickness="1">
+                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
                             <StackPanel>
                                 <Grid Margin="0,0,0,6">
                                     <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.ProductsTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
@@ -434,7 +426,7 @@
                                     <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.EntriesTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     <TextBlock Text="{Binding WalkInTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold"/>
                                 </Grid>
-                                <Separator Background="#F3F4F6" Margin="0,0,0,12"/>
+                                <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,12"/>
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource Terminology.Global.Total}" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
                                     <TextBlock Text="{Binding GrandTotal, StringFormat='{}{0:N2} DA'}" FontSize="20" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>

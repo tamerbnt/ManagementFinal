@@ -16,7 +16,7 @@ namespace Management.Presentation.Services
         private static AppTheme _currentTheme = AppTheme.Light;
         private static FacilityType _currentFacility = FacilityType.Gym;
 
-        public static void SetTheme(AppTheme theme)
+        public static void SetTheme(AppTheme theme, FacilityType? facility = null)
         {
             _currentTheme = theme;
             var themeUri = theme == AppTheme.Light 
@@ -25,8 +25,9 @@ namespace Management.Presentation.Services
 
             UpdateDictionary("Theme.", themeUri);
             
-            // Re-apply facility branding to ensure the theme-specific variant is loaded
-            SetFacility(_currentFacility);
+            // Re-apply facility branding to ensure the theme-specific variant is loaded.
+            // Use the provided facility if available, otherwise fall back to the last known one.
+            SetFacility(facility ?? _currentFacility);
         }
 
         public static void SetFacility(FacilityType facility)

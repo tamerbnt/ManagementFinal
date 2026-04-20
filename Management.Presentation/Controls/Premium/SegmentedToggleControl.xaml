@@ -25,7 +25,7 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="#F3F4F6" CornerRadius="14" Padding="4">
+    <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="14" Padding="4">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -35,7 +35,7 @@
             <!-- Selection pill (Animation target) -->
             <Border x:Name="SelectionPill" 
                     Grid.Column="0" 
-                    Background="#FFFFFF" 
+                    Background="{DynamicResource SurfaceBg}" 
                     CornerRadius="10"
                     HorizontalAlignment="Left"
                     BorderThickness="1"
@@ -44,7 +44,7 @@
                     <TranslateTransform x:Name="PillTranslate" X="0"/>
                 </Border.RenderTransform>
                     <Border.BorderBrush>
-                        <SolidColorBrush Color="#E5E7EB"/>
+                        <SolidColorBrush Color="{DynamicResource BorderBrush.Color}"/>
                     </Border.BorderBrush>
             </Border>
 
@@ -55,7 +55,7 @@
                     Style="{StaticResource SegmentedButtonStyle}"
                     FontSize="14"
                     FontWeight="SemiBold" 
-                    Foreground="#111827" 
+                    Foreground="{DynamicResource TextPrimaryBrush}" 
                     Cursor="Hand"/>
             
             <!-- Female Segment -->
@@ -65,7 +65,7 @@
                     Style="{StaticResource SegmentedButtonStyle}"
                     FontSize="14"
                     FontWeight="SemiBold" 
-                    Foreground="#111827" 
+                    Foreground="{DynamicResource TextPrimaryBrush}" 
                     Cursor="Hand"/>
         </Grid>
     </Border>
