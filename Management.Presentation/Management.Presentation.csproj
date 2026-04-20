@@ -38,6 +38,7 @@
     <Resource Include="Resources\Images\Welcome_Salon.png" />
     <Resource Include="Resources\Images\access_granted_illustration.png" />
     <Resource Include="Resources\Images\access_denied_illustration.png" />
+    <Resource Include="Resources\Images\greeting_illustration.png" />
   </ItemGroup>
 
   <ItemGroup>

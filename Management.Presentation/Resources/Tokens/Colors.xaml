@@ -9,9 +9,11 @@
     <Color x:Key="Color.Gray.900">#1A1A1A</Color>
 
     <!-- Brand: Gym (Navy) -->
-    <Color x:Key="Color.Navy.900">#02122B</Color>
-    <Color x:Key="Color.Navy.700">#052659</Color>
-    <Color x:Key="Color.Blue.Accent">#5B8AB8</Color>
+    <Color x:Key="Color.Navy.900">#0B1224</Color> <!-- Window Bg (Rich Navy) -->
+    <Color x:Key="Color.Navy.800">#161F33</Color> <!-- Surface Bg -->
+    <Color x:Key="Color.Navy.700">#1C2945</Color> <!-- Surface Accent -->
+    <Color x:Key="Color.Navy.600">#2D3748</Color> <!-- Borders -->
+    <Color x:Key="Color.Blue.Accent">#00E5FF</Color> <!-- Laser Cyan Accent -->
 
     <!-- Brand: Salon (Plum - Legacy / Transitioning to Rose) -->
     <Color x:Key="Color.Plum.900">#2E0228</Color>

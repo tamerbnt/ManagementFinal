@@ -14,7 +14,9 @@ using Management.Domain.Services;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Management.Domain.Enums;
 
 namespace Management.Infrastructure.Services
 {
@@ -86,6 +88,21 @@ namespace Management.Infrastructure.Services
         public async Task<Result<int>> GetExpiringMemberCountAsync(Guid facilityId)
         {
             return await _sender.Send(new GetExpiringMemberCountQuery());
+        }
+
+        public async Task<Result<List<MemberDto>>> GetRecentlyExpiredMembersAsync(Guid facilityId, int daysBack)
+        {
+            var request = new MemberSearchRequest(
+                SearchTerm: string.Empty,
+                FilterType: MemberFilterType.Expired,
+                EndDate: DateTime.UtcNow,
+                StartDate: DateTime.UtcNow.AddDays(-daysBack)
+            );
+
+            var result = await SearchMembersAsync(facilityId, request, 1, 50);
+            if (result.IsFailure) return Result.Failure<List<MemberDto>>(result.Error);
+
+            return Result.Success(result.Value.Items.ToList());
         }
     }
 }

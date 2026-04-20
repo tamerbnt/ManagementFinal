@@ -636,7 +636,7 @@ namespace Management.Presentation.ViewModels.Shell
                         {
                             Labeler = value => $"{value:N0} DA",
                             LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#F1F5F9")) { StrokeThickness = 1 },
+                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
                             TextSize = 11,
                             MinLimit = 0
                         }
@@ -971,7 +971,7 @@ namespace Management.Presentation.ViewModels.Shell
                                 new Axis 
                                 { 
                                     Labeler = value => value.ToString("N0"),
-                                    SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#E5E7EB")) { StrokeThickness = 1 }
+                                    SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 }
                                 } 
                             };
                         }
@@ -1342,7 +1342,7 @@ namespace Management.Presentation.ViewModels.Shell
                  var trackSeries = new ColumnSeries<double>
                  {
                      Values = new[] { trackVal, trackVal, trackVal, trackVal },
-                     Fill = new SolidColorPaint(SKColor.Parse("#F1F5F9")), // Light Gray Track
+                     Fill = new SolidColorPaint(SKColor.Parse("#3F3F46")), // Light Gray Track
                      Rx = 80, Ry = 80,
                      MaxBarWidth = 40,
                      IgnoresBarPosition = true,
@@ -1380,14 +1380,16 @@ namespace Management.Presentation.ViewModels.Shell
                  MemberXAxes = new[] {
                      new Axis { 
                          Labels = new[] { "week 1", "week 2", "week 3", "week 4" },
-                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
                          TextSize = 12,
+                         SeparatorsPaint = null,
                          Padding = new LiveChartsCore.Drawing.Padding(0, 15, 0, 0)
                      }
                  };
                  MemberYAxes = new[] {
                      new Axis { 
-                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                         SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
                          MinLimit = 0, // Strictly enforce zero start
                          MaxLimit = trackVal > 0 ? trackVal : 10,
                          MinStep = 1.0, 
@@ -1481,7 +1483,7 @@ namespace Management.Presentation.ViewModels.Shell
                         {
                             Labeler = value => value.ToString("N0"),
                             LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
-                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#E5E7EB")) { StrokeThickness = 1 },
+                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
                             MinLimit = 0
                         }
                     };
@@ -1606,7 +1608,8 @@ namespace Management.Presentation.ViewModels.Shell
                     new Axis
                     {
                         Labels = ageGroups,
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                        SeparatorsPaint = null,
                         TextSize = 10
                     }
                 };
@@ -1616,7 +1619,8 @@ namespace Management.Presentation.ViewModels.Shell
                     new Axis
                     {
                         MinLimit = 0,
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                        SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
                         TextSize = 10
                     }
                 };
@@ -1672,7 +1676,8 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = new[] { "0 visits", "1 visit", "2 visits", "3 visits", "4 visits", "5+ visits" },
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            SeparatorsPaint = null,
                             TextSize = 10
                         }
                     };
@@ -1704,7 +1709,8 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = summary.GrowthTrend.Select(t => t.Month).ToArray(),
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            SeparatorsPaint = null,
                             TextSize = 10
                         }
                     };

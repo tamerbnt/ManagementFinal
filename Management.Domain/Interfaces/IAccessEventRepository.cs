@@ -12,5 +12,6 @@ namespace Management.Domain.Interfaces
         Task<System.Collections.Generic.IEnumerable<AccessEvent>> GetByMemberIdAsync(System.Guid memberId);
         Task<AccessEvent?> GetByIdAsync(System.Guid id, System.Guid? facilityId = null);
         Task<AccessEvent?> GetByTransactionIdAsync(string transactionId);
+        Task<System.Collections.Generic.IEnumerable<Member>> GetActiveMembersAsync(System.Guid facilityId);
     }
 }

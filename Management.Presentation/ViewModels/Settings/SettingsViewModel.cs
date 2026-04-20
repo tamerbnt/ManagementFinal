@@ -122,6 +122,9 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private CultureInfo? _selectedLanguage;
 
+        [ObservableProperty]
+        private bool _isDarkMode;
+
         public ObservableCollection<CultureInfo> SupportedLanguages { get; } = new();
         
         // Facility-specific visibility
@@ -467,6 +470,30 @@ namespace Management.Presentation.ViewModels.Settings
             }
         }
 
+        partial void OnIsDarkModeChanged(bool value)
+        {
+            ThemeManager.SetTheme(value ? AppTheme.Dark : AppTheme.Light);
+
+            // Phase 4: Persist appearance setting
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var result = await _settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
+                    if (result.IsSuccess)
+                    {
+                        var currentSettings = result.Value;
+                        var updatedSettings = currentSettings with { IsLightMode = !value }; // Boolean is inverted
+                        await _settingsService.UpdateAppearanceSettingsAsync(_facilityContext.CurrentFacilityId, updatedSettings);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error(ex, "Failed to persist theme setting");
+                }
+            });
+        }
+
 
         [RelayCommand]
         public async Task LoadPlansAsync(bool force = false)
@@ -698,6 +725,14 @@ namespace Management.Presentation.ViewModels.Settings
                 {
                     GymMaxOccupancy = result.Value.MaxOccupancy;
                     GymDailyRevenueTarget = result.Value.DailyRevenueTarget;
+                }
+
+                // Load Appearance for toggle initialization
+                var appearance = await _settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
+                if (appearance.IsSuccess)
+                {
+                    _isDarkMode = !appearance.Value.IsLightMode;
+                    OnPropertyChanged(nameof(IsDarkMode));
                 }
             }
             finally
@@ -1089,7 +1124,9 @@ namespace Management.Presentation.ViewModels.Settings
             {
                 _toastService.ShowError(result.Error?.Message ?? "Failed to delete plan.");
             }
-        }        [RelayCommand]
+        }
+
+        [RelayCommand]
         private async Task DeleteWalkInPlan(WalkInPlanViewModel plan)
         {
             if (plan == null) return;

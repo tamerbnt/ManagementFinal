@@ -35,6 +35,36 @@ namespace Management.Presentation.ViewModels.Shell
         private double _height = 80;
 
         [ObservableProperty]
+        private bool _isDarkTheme;
+
+        partial void OnIsDarkThemeChanged(bool value)
+        {
+            Management.Presentation.Services.ThemeManager.SetTheme(value ? Management.Presentation.Services.AppTheme.Dark : Management.Presentation.Services.AppTheme.Light);
+            
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var settingsService = _serviceProvider.GetService<Management.Domain.Interfaces.ISettingsService>();
+                    if (settingsService != null)
+                    {
+                        var result = await settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
+                        if (result.IsSuccess)
+                        {
+                            var currentSettings = result.Value;
+                            var updatedSettings = currentSettings with { IsLightMode = !value };
+                            await settingsService.UpdateAppearanceSettingsAsync(_facilityContext.CurrentFacilityId, updatedSettings);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to persist theme setting from TopBar");
+                }
+            });
+        }
+
+        [ObservableProperty]
         private int _notificationCount;
 
         [ObservableProperty]
@@ -161,6 +191,25 @@ namespace Management.Presentation.ViewModels.Shell
             IsOnline = _connectionService.IsOnline();
             
             IsRfidConnected = _rfidReader.IsConnected;
+
+            // Initialize Theme
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var settingsService = _serviceProvider.GetService<Management.Domain.Interfaces.ISettingsService>();
+                    if (settingsService != null)
+                    {
+                        var appearance = await settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
+                        if (appearance.IsSuccess)
+                        {
+                            _isDarkTheme = !appearance.Value.IsLightMode;
+                            OnPropertyChanged(nameof(IsDarkTheme));
+                        }
+                    }
+                }
+                catch { }
+            });
 
             // Subscription
             _connectionService.ConnectionStatusChanged += OnConnectionStatusChanged;

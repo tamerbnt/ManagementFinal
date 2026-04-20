@@ -55,5 +55,6 @@ namespace Management.Application.Services
 
         Task<Result<int>> GetActiveMemberCountAsync(Guid facilityId);
         Task<Result<int>> GetExpiringMemberCountAsync(Guid facilityId);
+        Task<Result<List<MemberDto>>> GetRecentlyExpiredMembersAsync(Guid facilityId, int daysBack);
     }
 }

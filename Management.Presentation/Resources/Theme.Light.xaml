@@ -3,13 +3,26 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Workspace Layer: LIGHT MODE -->
     
+    <!-- Color Keys for Brushes.xaml Mapping -->
+    <Color x:Key="WindowBg.Color">#F0E7D5</Color>
+    <Color x:Key="ContentAreaBg.Color">#F0E7D5</Color>
+    <Color x:Key="TextPrimary.Color">#1A1A1A</Color>
+    <Color x:Key="TextSecondary.Color">#6B7280</Color>
+    <Color x:Key="TextTertiary.Color">#9CA3AF</Color>
+    <Color x:Key="StatusSuccessColor">#10B981</Color>
+    <Color x:Key="StatusErrorColor">#EF4444</Color>
+    <Color x:Key="SurfaceBg.Color">#FAF8F4</Color>
+
     <!-- Backgrounds -->
-    <SolidColorBrush x:Key="WindowBg" Color="#F3F4F6"/>
-    <SolidColorBrush x:Key="ContentAreaBg" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="WindowBg" Color="#F0E7D5" />
+    <SolidColorBrush x:Key="SurfaceBg" Color="#FAF8F4" />
+    <SolidColorBrush x:Key="SurfaceBgDim" Color="#F0E7D5" />
+    <SolidColorBrush x:Key="SurfaceAccentBg" Color="#E5E7EB" />
+    <SolidColorBrush x:Key="ContentAreaBg" Color="#F0E7D5" />
     <SolidColorBrush x:Key="TopBarBg" Color="#F8FAFC"/>
-    <SolidColorBrush x:Key="SurfaceBg" Color="#FFFFFF"/> <!-- Changed to White for modern high-contrast cards -->
+    <SolidColorBrush x:Key="Brush.Surface.Subtle" Color="#F0E7D5" />
     <SolidColorBrush x:Key="SurfaceBgSecondary" Color="#F8FAFC"/> <!-- Light offset for secondary surfaces -->
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFFFF"/> <!-- Alias for compatibility -->
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FAF8F4"/> <!-- Alias for compatibility -->
 
     <!-- Status Backgrounds (Light) -->
     <SolidColorBrush x:Key="StatusSuccessBackground" Color="#ECFDF5"/>
@@ -20,6 +33,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Borders & Strokes -->
     <SolidColorBrush x:Key="SeparatorStroke" Color="#E5E7EB"/>
     <SolidColorBrush x:Key="BorderBrush" Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="#ddd4be"/>
 
     <!-- Text -->
     <SolidColorBrush x:Key="TextPrimary" Color="#1A1A1A"/>
@@ -32,8 +46,29 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="TextTertiaryBrush" Color="#9CA3AF"/>
     <SolidColorBrush x:Key="SeparatorBrush" Color="#E5E7EB"/>
     
-    <!-- Shadows (Light Mode specific opacity) -->
-    <Color x:Key="ShadowColor">#000000</Color>
-    <Color x:Key="ElevationColor">#000000</Color>
-    <sys:Double x:Key="ShadowOpacity">0.1</sys:Double>
+    <!-- Semantic Mappings for Brushes.xaml -->
+    <SolidColorBrush x:Key="Brush.Window.Background" Color="#F0E7D5"/>
+    <SolidColorBrush x:Key="Brush.Content.Background" Color="#F0E7D5"/>
+    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#F0E7D5"/>
+    <SolidColorBrush x:Key="Brush.Surface.Header" Color="#F0E7D5"/>
+    <SolidColorBrush x:Key="Brush.Surface.Primary" Color="#FAF8F4"/>
+    <SolidColorBrush x:Key="Brush.Surface.Secondary" Color="#F9FAFB"/>
+    <SolidColorBrush x:Key="Brush.Surface.Border" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#FAF8F4" Opacity="0.8"/>
+    
+    <SolidColorBrush x:Key="Brush.Text.Primary" Color="#1A1A1A"/>
+    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#6B7280" Opacity="0.8"/>
+    <SolidColorBrush x:Key="Brush.Text.Tertiary" Color="#9CA3AF" Opacity="0.8"/>
+    <SolidColorBrush x:Key="Brush.Border.Subtle" Color="#D1D5DB"/>
+    <SolidColorBrush x:Key="Brush.Neutral.White" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Status.Success" Color="#10B981"/>
+    <SolidColorBrush x:Key="Brush.Error" Color="#EF4444"/>
+
+    <!-- Elevation Shadows (Standard Light) - Disabled for Modern Flat UI -->
+    <DropShadowEffect x:Key="Shadow1" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Shadow2" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    <DropShadowEffect x:Key="Shadow3" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>
+    
+    <Color x:Key="ElevationColor">Transparent</Color>
+    <sys:Double x:Key="ShadowOpacity">0</sys:Double>
 </ResourceDictionary>

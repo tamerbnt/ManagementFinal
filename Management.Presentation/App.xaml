@@ -54,6 +54,8 @@
 
                 <!-- 3. THEME & CONSUMERS (Depends on Tokens) -->
                 <ResourceDictionary Source="Resources/Primitives/Brushes.xaml"/> <!-- Moved here to consume Tokens -->
+                
+                <!-- [WORKSPACE LAYER] Dynamic theme dictionary -->
                 <ResourceDictionary Source="Resources/Theme.Light.xaml"/>
 
                 <!-- 4. BASE STYLES (Depend on Tokens & Theme) -->
@@ -68,14 +70,18 @@
                 <ResourceDictionary Source="Resources/Controls/CheckBoxes.xaml"/>
                 <ResourceDictionary Source="Resources/Controls/TransitioningContentControl.xaml"/>
 
-                <!-- 6. BRANDING (Depends on Tokens) -->
+                <!-- 6. BRANDING / IDENTITY (Depends on Tokens) -->
+                <!-- [IDENTITY LAYER] Dynamic facility branding -->
                 <ResourceDictionary Source="Resources/Branding.Gym.xaml"/>
-                <ResourceDictionary Source="Resources/Branding.Restaurant.xaml"/>
+
+                <!-- Inactive Branding (Managed by ThemeManager) -->
+                <!-- <ResourceDictionary Source="Resources/Branding.Restaurant.xaml"/> -->
+                <!-- <ResourceDictionary Source="Resources/Branding.Salon.xaml"/> -->
+                
                 <ResourceDictionary Source="Resources/Terminology.Restaurant.xaml"/>
-                <ResourceDictionary Source="Resources/Branding.Salon.xaml"/>
-                <ResourceDictionary Source="Resources/Localization/Strings.en.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Base.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
+                <ResourceDictionary Source="Resources/Localization/Strings.en.xaml"/>
 
                 <!-- 7. COMPONENTS & COMPOSITES (Depend on Controls) -->
                 <ResourceDictionary Source="Resources/Components.xaml"/>

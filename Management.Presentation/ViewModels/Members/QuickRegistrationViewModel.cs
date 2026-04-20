@@ -105,7 +105,7 @@ namespace Management.Presentation.ViewModels.Members
         private string _leadSearchQuery = string.Empty;
  
         [ObservableProperty]
-        private ObservableCollection<MemberDto> _leadResults = new();
+        private ObservableRangeCollection<MemberDto> _leadResults = new();
  
         [ObservableProperty]
         private MemberDto? _selectedLead;
@@ -165,11 +165,7 @@ namespace Management.Presentation.ViewModels.Members
                 var result = await _memberService.SearchLeadAsync(_facilityContext.CurrentFacilityId, LeadSearchQuery);
                 if (result.IsSuccess)
                 {
-                    LeadResults.Clear();
-                    foreach (var lead in result.Value)
-                    {
-                        LeadResults.Add(lead);
-                    }
+                    LeadResults.ReplaceRange(result.Value);
                     HasLeadResults = LeadResults.Any();
                 }
             }
@@ -195,7 +191,7 @@ namespace Management.Presentation.ViewModels.Members
             {
                 try
                 {
-                    await Task.Delay(150, token);
+                    await Task.Delay(350, token);
                     if (!token.IsCancellationRequested)
                     {
                         await UpdateTotalPriceBatchAsync();

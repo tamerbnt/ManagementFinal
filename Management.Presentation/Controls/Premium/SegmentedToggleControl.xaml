@@ -38,13 +38,14 @@
                     Background="#FFFFFF" 
                     CornerRadius="10"
                     HorizontalAlignment="Left"
+                    BorderThickness="1"
                     IsHitTestVisible="False">
                 <Border.RenderTransform>
                     <TranslateTransform x:Name="PillTranslate" X="0"/>
                 </Border.RenderTransform>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.08" Direction="270" RenderingBias="Performance"/>
-                </Border.Effect>
+                    <Border.BorderBrush>
+                        <SolidColorBrush Color="#E5E7EB"/>
+                    </Border.BorderBrush>
             </Border>
 
             <!-- Male Segment -->

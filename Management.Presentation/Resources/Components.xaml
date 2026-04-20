@@ -22,7 +22,7 @@
     <Style x:Key="BaseButtonStyle" TargetType="ButtonBase">
         <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentPrimary}"/>
-        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Height" Value="{DynamicResource SizeButtonHeight}"/>
         <Setter Property="Padding" Value="24,0"/>
@@ -49,9 +49,6 @@
                                 </TransformGroup>
                             </Border.RenderTransform>
 
-                            <Border.Effect>
-                                <DynamicResource ResourceKey="Shadow.Level1" />
-                            </Border.Effect>
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -124,7 +121,7 @@
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentPrimary}"/>
-        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Height" Value="{DynamicResource SizeButtonHeight}"/>
         <Setter Property="Padding" Value="24,0"/>
@@ -153,12 +150,7 @@
                             </Border.RenderTransform>
 
                             <!-- Premium Titan Glow (Restored name for Storyboard targeting) -->
-                            <Border.Effect>
-                                <DropShadowEffect x:Name="PART_Glow" 
-                                                  Color="{DynamicResource FacilityAccentColor}" 
-                                                  Direction="270" BlurRadius="24" ShadowDepth="0" Opacity="0.3" 
-                                                  RenderingBias="Performance" />
-                            </Border.Effect>
+                            <!-- Glow Removed for Performance -->
 
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -432,7 +424,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="CaretBrush" Value="{DynamicResource Brush.Accent.Primary}"/>
@@ -454,7 +446,7 @@
     <Style x:Key="GlobalDetailTabStyle" TargetType="TabItem">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="FontWeight" Value="Medium"/>
         <Setter Property="Margin" Value="0,0,32,0"/>
         <Setter Property="Padding" Value="0,0,0,8"/>
@@ -506,7 +498,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="Height" Value="{DynamicResource SizeInputHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="0,0,0,4"/>
@@ -586,7 +578,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="FontSize" Value="18"/>
         <Setter Property="Height" Value="{DynamicResource SizeInputHeight}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="0,0,0,4"/>
@@ -626,7 +618,7 @@
                                  Style="{StaticResource GhostTextBox}"
                                  Margin="0,0,32,4"
                                  VerticalAlignment="Center"
-                                 FontSize="17"
+                                 FontSize="18"
                                  Visibility="{Binding IsChecked, ElementName=PART_Toggle, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         <!-- Eye Toggle -->
@@ -681,15 +673,15 @@
 
     <Style x:Key="StandardCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
         <Setter Property="Padding" Value="{DynamicResource PaddingCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         
-        <!-- Default Shadow (Level 1) -->
-        <Setter Property="Effect" Value="{StaticResource Shadow.Level1}"/>
+        <!-- Shadows removed for Modern Flat UI -->
+        <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
     <Style x:Key="InteractiveCardStyle" TargetType="Border" BasedOn="{StaticResource StandardCardStyle}">
@@ -735,18 +727,18 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Elevated Card Style (Level 2 Shadow - More Prominent) -->
+    <!-- Elevated Card Style (Focus / Selected State - Subtle Border Increase) -->
     <Style x:Key="ElevatedCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0.8"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
         <Setter Property="Padding" Value="{DynamicResource PaddingCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         
-        <!-- Enhanced Shadow (Level 2) for Elevated Content -->
-        <Setter Property="Effect" Value="{StaticResource Shadow.Level2}"/>
+        <!-- Shadows removed for Modern Flat UI -->
+        <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
     <!-- Elevated Card Style with Hover Interaction -->
@@ -789,16 +781,15 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Elevated Card Style Level 3 (Deep Shadow) -->
+    <!-- Elevated Card Style Level 3 (Deep Focus / Modals - Border Emphasis) -->
     <Style x:Key="ElevatedCardLevel3Style" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
         <Setter Property="Padding" Value="{DynamicResource PaddingCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect" Value="{StaticResource Shadow.Modal}"/>
     </Style>
 
     <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
@@ -807,11 +798,9 @@
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusModal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="48" ShadowDepth="12" Opacity="0.25" Direction="270" Color="{DynamicResource ElevationColor}"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{x:Null}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
     </Style>
 
     <!-- ============================================================= -->
@@ -1127,7 +1116,7 @@
                                 <TranslateTransform X="0"/>
                             </Border.RenderTransform>
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1"/>
+                                <x:Null/>
                             </Border.Effect>
                         </Border>
                     </Grid>

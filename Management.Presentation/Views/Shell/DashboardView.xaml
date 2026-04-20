@@ -32,7 +32,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="Track" Background="#F1F5F9" CornerRadius="14" BorderBrush="#CBD5E1" BorderThickness="1">
+                        <Border x:Name="Track" Background="{DynamicResource Brush.Surface.Header}" CornerRadius="14" BorderBrush="{DynamicResource Brush.Surface.Border}" BorderThickness="1">
                             <Grid>
                                 <!-- Icons -->
                                 <Grid Margin="8,0">
@@ -42,7 +42,7 @@
                                           Fill="#94A3B8" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Right" />
                                 </Grid>
                                 <!-- Thumb -->
-                                <Border x:Name="Thumb" Background="White" Width="36" Height="22" CornerRadius="11" HorizontalAlignment="Left" Margin="2">
+                                <Border x:Name="Thumb" Background="{DynamicResource Brush.Surface.Primary}" Width="36" Height="22" CornerRadius="11" HorizontalAlignment="Left" Margin="2">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
                                     </Border.Effect>
@@ -92,9 +92,9 @@
                         <Grid>
                             <!-- Outer Track (Grey/Dark Pill) -->
                             <Border x:Name="Track" 
-                                    Background="#F1F5F9" 
+                                    Background="{DynamicResource Brush.Surface.Header}" 
                                     CornerRadius="22" 
-                                    BorderBrush="#CBD5E1" 
+                                    BorderBrush="{DynamicResource Brush.Surface.Border}" 
                                     BorderThickness="1.5">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -319,7 +319,7 @@
                 <!-- 1. Hero Card: People Inside (Gym) / Today's Appointments (Salon) -->
                 <Grid Grid.Column="0" Margin="0,0,16,0">
                     <!-- Gym: People Inside -->
-                    <Border CornerRadius="16" Background="{DynamicResource FacilitySidebarBrush}">
+                    <Border CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -330,7 +330,6 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border.Effect><DynamicResource ResourceKey="Shadow.Level3"/></Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -339,10 +338,10 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="White" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconGym}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource Brush.Card.Foreground}" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Path Data="{StaticResource IconGym}" Stroke="{DynamicResource Brush.Card.Foreground}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Foreground="White" FontWeight="Bold" VerticalAlignment="Center">
+                                <TextBlock Foreground="{DynamicResource Brush.Card.Foreground}" FontWeight="Bold" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{DynamicResource Terminology.Dashboard.Stat.PeopleInside}"/>
@@ -355,7 +354,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Text="{Binding PeopleInside}" Foreground="White" FontSize="48" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Text="{Binding PeopleInside}" Foreground="{DynamicResource Brush.Card.Foreground}" FontSize="48" FontWeight="Bold" VerticalAlignment="Center"/>
                             <Border Grid.Row="2" CornerRadius="12" HorizontalAlignment="Left" Padding="8,4">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -370,7 +369,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                                <TextBlock Text="{Binding PeopleInsideTrendText}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                <TextBlock Text="{Binding PeopleInsideTrendText}" Foreground="{DynamicResource Brush.Card.Foreground}" FontSize="11" FontWeight="SemiBold"/>
                             </Border>
                             
                             <!-- Restaurant: Table Seating Percent -->
@@ -384,7 +383,7 @@
                         </Grid>
                     </Border>
                     <!-- Salon: Today's Appointments -->
-                    <Border CornerRadius="16" Background="{DynamicResource FacilitySidebarBrush}">
+                    <Border CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -395,7 +394,6 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border.Effect><DynamicResource ResourceKey="Shadow.Level3"/></Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -407,9 +405,9 @@
                                 <Border Width="24" Height="24" CornerRadius="8" Background="White" Opacity="0.15" Margin="0,0,12,0" VerticalAlignment="Center">
                                     <Path Data="{StaticResource IconClock}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.TodaysAppointments}" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.TodaysAppointments}" Foreground="{DynamicResource Brush.Card.Foreground}" FontWeight="Bold" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Text="{Binding TodayAppointmentsTotal}" Foreground="White" FontSize="48" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Text="{Binding TodayAppointmentsTotal}" Foreground="{DynamicResource Brush.Card.Foreground}" FontSize="48" FontWeight="Bold" VerticalAlignment="Center"/>
                             <StackPanel Grid.Row="2" Orientation="Horizontal">
                                 <Border Background="{DynamicResource StatusSuccessBrush}" CornerRadius="10" Padding="8,3" Margin="0,0,8,0">
                                     <TextBlock Foreground="White" FontSize="11" FontWeight="SemiBold">
@@ -460,9 +458,6 @@
                     
                     <!-- Expiring -->
                     <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                        <Border.Effect>
-                            <DynamicResource ResourceKey="Shadow.Level1"/>
-                        </Border.Effect>
                         <Grid Margin="16,12">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -473,7 +468,7 @@
                                 <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusWarningBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
                                     <Path Data="{DynamicResource IconClock}" Stroke="{DynamicResource StatusWarningBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">
+                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{DynamicResource Terminology.Dashboard.Stat.ExpiringSoon}"/>
@@ -505,9 +500,6 @@
 
                     <!-- Pending -->
                     <Border Grid.Row="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
-                        <Border.Effect>
-                            <DynamicResource ResourceKey="Shadow.Level1"/>
-                        </Border.Effect>
                         <Grid Margin="16,12">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -518,7 +510,7 @@
                                 <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusErrorBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
                                     <Path Data="{DynamicResource IconRegistrations}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">
+                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="{DynamicResource Terminology.Dashboard.Stat.PendingRegs}"/>
@@ -549,10 +541,7 @@
                 </Grid>
 
                 <!-- 4. Revenue Snapshot (Replaces Quick Actions) -->
-                 <Border Grid.Column="3" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16">
-                    <Border.Effect>
-                        <DynamicResource ResourceKey="Shadow.Level2"/>
-                    </Border.Effect>
+                 <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16">
                     <Grid Margin="20">
                          <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -561,16 +550,16 @@
                         </Grid.RowDefinitions>
                         
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                            <Border Background="#20FFFFFF" Width="24" Height="24" CornerRadius="8" Margin="0,0,12,0" VerticalAlignment="Center">
-                                <Path Data="{DynamicResource IconFinance}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
+                            <Border Background="{DynamicResource Brush.Card.Foreground}" Opacity="0.1" Width="24" Height="24" CornerRadius="8" Margin="0,0,12,0" VerticalAlignment="Center">
+                                <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource Brush.Card.Foreground}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
                             </Border>
-                            <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="13" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" VerticalAlignment="Center">
                              <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
                                  <TextBlock Text="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
-                                            FontSize="36" FontWeight="Bold" Foreground="White">
+                                            FontSize="36" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}">
                                      <TextBlock.ToolTip>
                                          <ToolTip Content="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" 
                                                   Style="{StaticResource ToolTip.Standard}"/>
@@ -626,9 +615,6 @@
 
                 <!-- Chart Section -->
             <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,24,0">
-                    <Border.Effect>
-                        <DynamicResource ResourceKey="Shadow.Level2"/>
-                    </Border.Effect>
                     <Grid Margin="32">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -768,9 +754,6 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <Border.Effect>
-                            <DynamicResource ResourceKey="Shadow.Level2" />
-                        </Border.Effect>
                         <Grid Margin="24">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -884,10 +867,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- 1. Master Financial Card (Net Profit) -->
-                        <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="130" Background="{DynamicResource FacilitySidebarBrush}">
-                            <Border.Effect>
-                                <StaticResource ResourceKey="Shadow.Modal" />
-                            </Border.Effect>
+                        <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="130" Background="{DynamicResource CardBackgroundBrush}">
                             <Grid Margin="24">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -988,10 +968,7 @@
                 </StackPanel>
 
                 <!-- RIGHT COLUMN: Analytics Chart — fills full height of KPI + Financial rows -->
-                <Border Grid.Column="1" Margin="16,0,0,0" CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}" BorderThickness="1.5" BorderBrush="#F1F5F9">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="15" ShadowDepth="2" Direction="270" Color="#E2E8F0" Opacity="0.3"/>
-                    </Border.Effect>
+                <Border Grid.Column="1" Margin="16,0,0,0" CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}" BorderThickness="1.5" BorderBrush="{DynamicResource Brush.Surface.Border}">
                     <Grid Margin="16,12">
                         <!-- Gym Mode: Source of Acquisition -->
                         <Grid Visibility="{Binding IsGymMode, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1032,9 +1009,6 @@
 
                 <!-- NEW: High-Fidelity Revenue Trend Chart -->
                 <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,24" Height="350">
-                    <Border.Effect>
-                        <StaticResource ResourceKey="Shadow.Level1" />
-                    </Border.Effect>
                     <Grid Margin="24">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -1275,9 +1249,6 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                             <Border.Effect>
-                                <StaticResource ResourceKey="Shadow1"/>
-                            </Border.Effect>
                             <Grid Margin="16">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1386,9 +1357,6 @@
 
                     <!-- Quick Actions -->
                      <Border Grid.Column="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" VerticalAlignment="Stretch">
-                         <Border.Effect>
-                            <StaticResource ResourceKey="Shadow1"/>
-                         </Border.Effect>
                         <Grid Margin="16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

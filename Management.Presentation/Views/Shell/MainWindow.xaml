@@ -20,7 +20,7 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         FlowDirection="{DynamicResource GlobalFlowDirection}"
-        Background="{DynamicResource Brush.Window.Background}">
+        Background="{DynamicResource SurfaceBgDim}">
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="0" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="8" />
@@ -68,7 +68,7 @@
     </Window.Resources>
 
     <!-- Root: Solid background to ground the atmospheric nebula and prevent corner artifacts when AllowsTransparency=False -->
-    <Grid x:Name="RootGrid" Background="{DynamicResource Brush.Window.Background}" Focusable="True">
+    <Grid x:Name="RootGrid" Background="{DynamicResource SurfaceBgDim}" Focusable="True">
         <Grid.InputBindings>
             <!-- Navigation shortcuts: Ctrl+1 through Ctrl+5 — number row (D1-D5) -->
             <KeyBinding Key="D1" Modifiers="Ctrl"
@@ -154,13 +154,10 @@
             
             <Border x:Name="SidebarPanel" Grid.Column="0" 
                     Style="{StaticResource SidebarPanelStyle}"
-                    CornerRadius="16"
+                    CornerRadius="40"
                     Background="{DynamicResource FacilitySidebarBrush}"
                     ClipToBounds="False"
                     shell:WindowChrome.IsHitTestVisibleInChrome="True">
-                <Border.Effect>
-                    <DynamicResource ResourceKey="Shadow.Level3" />
-                </Border.Effect>
                 <local:SidebarView DataContext="{Binding}"/>
             </Border>
             
@@ -173,10 +170,7 @@
                 </Grid.RowDefinitions>
                 
                 <!-- TOPBAR PANEL (Elite Glass Style) -->
-                <Border Grid.Row="0" CornerRadius="16" Background="{DynamicResource SurfaceBg}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0.8,0,0" ClipToBounds="False" MinHeight="80" VerticalAlignment="Stretch">
-                    <Border.Effect>
-                        <DynamicResource ResourceKey="Shadow.Level1" />
-                    </Border.Effect>
+                <Border Grid.Row="0" MinHeight="80" VerticalAlignment="Stretch">
                     <local:TopBarView DataContext="{Binding TopBar}" VerticalAlignment="Stretch" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 </Border>
                 
@@ -303,9 +297,6 @@
                         <Border.RenderTransform>
                             <TranslateTransform Y="-60"/>
                         </Border.RenderTransform>
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="28" Opacity="0.10" Color="Black" Direction="270" ShadowDepth="4"/>
-                        </Border.Effect>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>   <!-- icon badge -->

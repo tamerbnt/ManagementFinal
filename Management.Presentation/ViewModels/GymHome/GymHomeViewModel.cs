@@ -37,6 +37,12 @@ using Management.Presentation.Messages;
 
 namespace Management.Presentation.ViewModels.GymHome
 {
+    public enum SidebarMode
+    {
+        Guide,
+        Alerts
+    }
+
     public partial class GymHomeViewModel : ViewModelBase, IFacilityHomeViewModel, IStateResettable, 
         IRecipient<FacilityActionCompletedMessage>,
         IRecipient<RefreshRequiredMessage<Sale>>,
@@ -81,6 +87,12 @@ namespace Management.Presentation.ViewModels.GymHome
         private string _greetingText = string.Empty;
 
         [ObservableProperty]
+        private string _greetingLabel = string.Empty; // e.g. "GOOD MORNING"
+
+        [ObservableProperty]
+        private string _greetingName = string.Empty;  // e.g. "Bentouati."
+
+        [ObservableProperty]
         private string _occupancyTrendText = string.Empty;
 
         [ObservableProperty]
@@ -88,6 +100,12 @@ namespace Management.Presentation.ViewModels.GymHome
 
         [ObservableProperty]
         private bool _hasOccupancyTrend = false;
+
+        [ObservableProperty]
+        private int _maxCapacity = 100; // Default fallback
+
+        [ObservableProperty]
+        private bool _isOccupancyOverflow;
 
         [ObservableProperty]
         private int _activeMembersTotal;
@@ -114,6 +132,32 @@ namespace Management.Presentation.ViewModels.GymHome
         private decimal _revenueToday;
 
         [ObservableProperty]
+        private decimal _dailyRevenueTarget = 10_000m;
+
+        [ObservableProperty]
+        private double _revenueTodayProgress; // 0.0 – 1.0
+
+        // ── Expiring Soon enrichment ──────────────────────────────
+        [ObservableProperty]
+        private string _expiringSoonRatioText = string.Empty; // e.g. "50 from 200"
+
+        [ObservableProperty]
+        private double _expiringSoonPct; // 0-100
+
+        [ObservableProperty]
+        private bool _isHighExpiry; // true when > 20%
+
+        // ── Active Members delta ──────────────────────────────────
+        [ObservableProperty]
+        private string _activeMembersDeltaText = string.Empty; // e.g. "▲ +8 vs yesterday"
+
+        [ObservableProperty]
+        private bool _isMembersTrendPositive = true;
+
+        [ObservableProperty]
+        private bool _hasMembersTrend;
+
+        [ObservableProperty]
         private KpiMetricDto _ptUpsellRate = new();
 
         public IEnumerable<ISeries> DemographicSeries { get; set; }
@@ -136,6 +180,35 @@ namespace Management.Presentation.ViewModels.GymHome
         public IEnumerable<ISeries> OccupancyTrendSeries { get; set; }
         public IEnumerable<Axis> XAxes { get; set; }
         public IEnumerable<Axis> YAxes { get; set; }
+
+        [ObservableProperty]
+        private ObservableCollection<ActiveMemberAvatarViewModel> _activeAvatars = new();
+
+        [ObservableProperty]
+        private int _extraActiveCount;
+
+        [ObservableProperty]
+        private bool _hasActiveAvatars;
+        
+        [ObservableProperty]
+        private bool _isActivityEmpty;
+
+        [ObservableProperty]
+        private SidebarMode _currentSidebarMode = SidebarMode.Guide;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _systemAlerts = new();
+
+        [ObservableProperty]
+        private ObservableCollection<GuideTipViewModel> _guideTips = new();
+
+        [ObservableProperty]
+        private GuideTipViewModel? _currentGuide;
+
+        [ObservableProperty]
+        private int _currentGuideIndex;
+
+        private DispatcherTimer? _carouselTimer;
 
         private DispatcherTimer? _clockTimer;
         // Debounce token for HandleRefresh — coalesces rapid-fire RefreshRequiredMessages
@@ -198,6 +271,10 @@ namespace Management.Presentation.ViewModels.GymHome
             // Register for Messenger updates
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.RegisterAll(this);
 
+            // Setup Guide Tips Carousel
+            InitializeGuideTips();
+            StartCarousel();
+
             // Initial load - Clock only, stats deferred to Loaded event
             StartClock();
 
@@ -217,6 +294,12 @@ namespace Management.Presentation.ViewModels.GymHome
 
                 // Unregister Messenger
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.UnregisterAll(this);
+
+                if (_carouselTimer != null)
+                {
+                    _carouselTimer.Stop();
+                    _carouselTimer = null;
+                }
 
                 if (_clockTimer != null)
                 {
@@ -267,7 +350,13 @@ namespace Management.Presentation.ViewModels.GymHome
             };
 
             var name = _sessionManager?.CurrentUser?.FullName?.Split(' ').FirstOrDefault() ?? string.Empty;
+
+            // Legacy combined property (kept for backward compat)
             GreetingText = string.IsNullOrEmpty(name) ? salutation : $"{salutation}, {name}";
+
+            // Split properties for the redesigned 3-layer greeting card
+            GreetingLabel = salutation.ToUpperInvariant();
+            GreetingName  = string.IsNullOrEmpty(name) ? string.Empty : $"{name}.";
         }
 
         private static string GetResource(string key, string fallback)
@@ -298,16 +387,24 @@ namespace Management.Presentation.ViewModels.GymHome
                {
                    if (stats != null)
                    {
+                       MaxCapacity = stats.MaxCapacity;
                        UpdateOccupancy(stats.OccupancyCount, stats.OccupancyLastHour);
                        RevenueToday = stats.DailyCashTotal;
                    }
 
-                   if (summary != null)
-                   {
-                       ActiveMembersTotal = summary.ActiveMembers;
-                       ExpiringSoonCount = summary.ExpiringSoonCount;
-                       PendingRegistrationsCount = summary.PendingRegistrationsCount;
-                   }
+                    if (summary != null)
+                    {
+                        ActiveMembersTotal = summary.ActiveMembers;
+                        ExpiringSoonCount = summary.ExpiringSoonCount;
+                        PendingRegistrationsCount = summary.PendingRegistrationsCount;
+                        DailyRevenueTarget = summary.DailyRevenueTarget > 0 ? summary.DailyRevenueTarget : 10_000m;
+                        UpdateRevenueProgress();
+                        UpdateExpiringSoon();
+                        UpdateMembersDelta(summary.ActiveMembersYesterday);
+                    }
+
+                    // Populate Avatars
+                   _ = UpdateActiveAvatarsAsync(facilityId, operationService);
                });
            }
            catch (Exception ex)
@@ -392,23 +489,30 @@ namespace Management.Presentation.ViewModels.GymHome
             var timeStr = now.ToString("HH:mm:ss");
             var dateStr = now.ToString("dddd, MMMM dd, yyyy");
 
+            // Resolve dynamic accent color for LiveCharts SkiaSharp series
+            var accentColor = SKColors.DeepSkyBlue;
+            if (System.Windows.Application.Current.TryFindResource("FacilityAccentColor") is System.Windows.Media.Color mediaColor)
+            {
+                accentColor = new SKColor(mediaColor.R, mediaColor.G, mediaColor.B, mediaColor.A);
+            }
+
             var occupancySeries = new ISeries[]
             {
                 new PieSeries<ObservableValue>
                 {
                     Values = new ObservableValue[] { _occupancyValue },
-                    InnerRadius = 60,
-                    MaxRadialColumnWidth = 20,
+                    InnerRadius = 0.94,
+                    MaxRadialColumnWidth = 5,
                     Stroke = null,
-                    Fill = new SolidColorPaint(SKColors.DeepSkyBlue)
+                    Fill = new SolidColorPaint(accentColor)
                 },
                 new PieSeries<ObservableValue>
                 {
                     Values = new ObservableValue[] { _remainingValue },
-                    InnerRadius = 60,
-                    MaxRadialColumnWidth = 20,
+                    InnerRadius = 0.94,
+                    MaxRadialColumnWidth = 5,
                     Stroke = null,
-                    Fill = new SolidColorPaint(new SKColor(200, 200, 200, 30))
+                    Fill = new SolidColorPaint(new SKColor(accentColor.Red, accentColor.Green, accentColor.Blue, 15)) // Minimal track visibility
                 }
             };
 
@@ -482,6 +586,13 @@ namespace Management.Presentation.ViewModels.GymHome
             // Use the helper method for data loading to avoid duplication
             // But InitializeAsync also sets up charts, so we keep chart logic here
             await LoadDashboardStatsAsync();
+            
+            // Finalize capacity-aware progress after stats are loaded
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+            {
+                UpdateOccupancy(OccupancyCount);
+            });
+
             await LoadRecentActivityAsync();
 
             // 2. Batch UI Updates
@@ -510,6 +621,9 @@ namespace Management.Presentation.ViewModels.GymHome
                 OccupancySparklineData.Clear();
                 RevenueSparklineData.Clear();
             });
+
+            // 3. Dynamic Alerts & Telemetry
+            await PopulateSystemAlertsAsync();
         }
 
         private async Task LoadRecentActivityAsync()
@@ -585,12 +699,102 @@ namespace Management.Presentation.ViewModels.GymHome
             }
         }
 
+        private async Task UpdateActiveAvatarsAsync(Guid facilityId, IGymOperationService operationService)
+        {
+            try
+            {
+                var avatars = await operationService.GetPeopleInsideAvatarsAsync(facilityId);
+                var avatarList = avatars.ToList();
+
+                var palette = new[] { "#8B5CF6", "#06B6D4", "#F59E0B", "#10B981", "#EC4899", "#3B82F6" };
+                
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    ActiveAvatars.Clear();
+                    var displayList = avatarList.Take(4).ToList();
+                    
+                    for (int i = 0; i < displayList.Count; i++)
+                    {
+                        var color = palette[i % palette.Length];
+                        // Convert hex to Alpha-Dimmed (20% opacity = #33 or similar)
+                        var dimColor = "#33" + color.Substring(1);
+
+                        ActiveAvatars.Add(new ActiveMemberAvatarViewModel
+                        {
+                            FullName = displayList[i].FullName,
+                            Initials = displayList[i].Initials,
+                            ColorHex = color,
+                            DimColorHex = dimColor,
+                            OverlapMargin = i == 0 ? 0 : -10 // Overlap after first item
+                        });
+                    }
+
+                    ExtraActiveCount = Math.Max(0, avatarList.Count - displayList.Count);
+                    HasActiveAvatars = avatarList.Any();
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to update active avatars");
+            }
+        }
+
+        /// <summary>Recomputes revenue progress bar value (0–1).</summary>
+        private void UpdateRevenueProgress()
+        {
+            RevenueTodayProgress = DailyRevenueTarget > 0
+                ? Math.Min(1.0, (double)RevenueToday / (double)DailyRevenueTarget)
+                : 0;
+        }
+
+        /// <summary>Recomputes the expiring-soon ratio text and percentage.</summary>
+        private void UpdateExpiringSoon()
+        {
+            if (ActiveMembersTotal > 0)
+            {
+                ExpiringSoonRatioText = $"from {ActiveMembersTotal} active";
+                ExpiringSoonPct = Math.Round((double)ExpiringSoonCount / ActiveMembersTotal * 100, 1);
+                IsHighExpiry = ExpiringSoonPct > 20;
+            }
+            else
+            {
+                ExpiringSoonRatioText = string.Empty;
+                ExpiringSoonPct = 0;
+                IsHighExpiry = false;
+            }
+        }
+
+        /// <summary>Computes the active-members delta vs yesterday.</summary>
+        private void UpdateMembersDelta(int yesterday)
+        {
+            if (yesterday <= 0)
+            {
+                HasMembersTrend = false;
+                ActiveMembersDeltaText = string.Empty;
+                return;
+            }
+
+            var delta = ActiveMembersTotal - yesterday;
+            IsMembersTrendPositive = delta >= 0;
+            var arrow = delta >= 0 ? "▲" : "▼";
+            var vsYesterday = GetResource("Terminology.Dashboard.Stat.VsYesterday", "vs yesterday");
+            ActiveMembersDeltaText = delta == 0
+                ? vsYesterday
+                : $"{arrow} {(delta >= 0 ? "+" : "")}{delta} {vsYesterday}";
+            HasMembersTrend = true;
+        }
+
         private void UpdateOccupancy(int count, int lastHourCount = -1)
         {
             OccupancyCount = count;
-            _occupancyValue.Value = count;
-            _remainingValue.Value = Math.Max(0, 100 - count);
-            OccupancyPercentage = (count / 100.0) * 100;
+            
+            // Update Ring Progress (don't exceed 100% physically, use overflow flag for visuals)
+            _occupancyValue.Value = Math.Min(count, MaxCapacity);
+            _remainingValue.Value = Math.Max(0, MaxCapacity - count);
+            OccupancyPercentage = (count / (double)MaxCapacity) * 100;
+            
+            // Toggle Overflow State (triggers UI glow)
+            IsOccupancyOverflow = count >= MaxCapacity;
 
             // Compute trend text vs last hour
             if (lastHourCount < 0)
@@ -850,6 +1054,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     // OPTIMISTIC UPDATE: Add the log item immediately
                     ActivityStream.Insert(0, logItem);
                     if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
+                    IsActivityEmpty = !ActivityStream.Any();
                     
                     // CRITICAL FIX: Update ALL relevant cards immediately
                     if (stats != null)
@@ -863,6 +1068,10 @@ namespace Management.Presentation.ViewModels.GymHome
                         ActiveMembersTotal = summary.ActiveMembers;
                         ExpiringSoonCount = summary.ExpiringSoonCount;
                         PendingRegistrationsCount = summary.PendingRegistrationsCount;
+                        DailyRevenueTarget = summary.DailyRevenueTarget > 0 ? summary.DailyRevenueTarget : 10_000m;
+                        UpdateRevenueProgress();
+                        UpdateExpiringSoon();
+                        UpdateMembersDelta(summary.ActiveMembersYesterday);
                         PtUpsellRate = summary.PtUpsellRate ?? new KpiMetricDto();
 
                         // Map demographics to chart series
@@ -909,10 +1118,15 @@ namespace Management.Presentation.ViewModels.GymHome
             // 2. Reset Metrics
             OccupancyCount = 0;
             RevenueToday = 0;
+            RevenueTodayProgress = 0;
             ActiveMembersTotal = 0;
             ExpiringSoonCount = 0;
+            ExpiringSoonRatioText = string.Empty;
+            ExpiringSoonPct = 0;
             PendingRegistrationsCount = 0;
             OccupancyPercentage = 0;
+            HasMembersTrend = false;
+            ActiveMembersDeltaText = string.Empty;
             
             // 3. Reset Status Flags
             IsScanSuccessful = false;
@@ -948,6 +1162,155 @@ namespace Management.Presentation.ViewModels.GymHome
             }
         }
 
+        [RelayCommand]
+        public void SetSidebarMode(string modeStr)
+        {
+            if (Enum.TryParse<SidebarMode>(modeStr, out var mode))
+            {
+                CurrentSidebarMode = mode;
+            }
+        }
+
+        [RelayCommand]
+        public void NextGuideTip()
+        {
+            if (GuideTips.Count == 0) return;
+            CurrentGuideIndex = (CurrentGuideIndex + 1) % GuideTips.Count;
+            CurrentGuide = GuideTips[CurrentGuideIndex];
+            ResetCarouselTimer();
+        }
+
+        [RelayCommand]
+        public void PreviousGuideTip()
+        {
+            if (GuideTips.Count == 0) return;
+            CurrentGuideIndex = (CurrentGuideIndex - 1 + GuideTips.Count) % GuideTips.Count;
+            CurrentGuide = GuideTips[CurrentGuideIndex];
+            ResetCarouselTimer();
+        }
+
+        [RelayCommand]
+        public void SelectGuideTip(int index)
+        {
+            if (index < 0 || index >= GuideTips.Count) return;
+            CurrentGuideIndex = index;
+            CurrentGuide = GuideTips[CurrentGuideIndex];
+            ResetCarouselTimer();
+        }
+
+        private void InitializeGuideTips()
+        {
+            GuideTips.Clear();
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = "Welcome to the Dashboard", Description = "This is your central command center. Stay on top of memberships, sales, and access control seamlessly." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = "Record a walk-in visit", Description = "Track daily visitors who aren't members using the Walk-in quick action module." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = "Quick Point of Sale", Description = "Process water, towels, and supplements instantly using the Quick Sale flow." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = "Expiring Soon Alerts", Description = "Monitor the KPI cards to proactively engage members before their subscription lapses." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = "Hardware Telemetry", Description = "Check the bottom footer to ensure your barcode scanners and receipt printers are online." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = "Multi-Item Sales", Description = "Handling a large checkout? Use the Multi-Sale Cart to bundle items securely." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = "Occupancy Overflow", Description = "When the gym hits Max Capacity, the occupancy ring will glow to alert front-desk staff." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = "Activity Stream", Description = "Watch the real-time event log update automatically as people scan in or make purchases." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = "Creating New Members", Description = "Use the Create Member action to rapidly enroll walk-ins directly from the Home screen." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = "End of Shift Protocol", Description = "Verify the expected Daily Cash Total matches your physical till before logging out." });
+
+            if (GuideTips.Any())
+                CurrentGuide = GuideTips[0];
+            CurrentGuideIndex = 0;
+        }
+
+        private async Task PopulateSystemAlertsAsync()
+        {
+            if (_facilityContext.CurrentFacilityId == Guid.Empty) return;
+
+            var alerts = new List<string>();
+
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var memberService = scope.ServiceProvider.GetRequiredService<IMemberService>();
+                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                var facilityId = _facilityContext.CurrentFacilityId;
+
+                // 1. Connectivity Check
+                try
+                {
+                    var diag = await _diagnosticService.TestSupabaseConnectivityAsync();
+                    if (!diag.IsSuccess)
+                    {
+                        alerts.Add("⚠️ Network latency detected or local database is in offline mode.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogDebug(ex, "Alerts: Connectivity check failed.");
+                }
+
+                // 2. Low Stock Alerts
+                try
+                {
+                    var productsResult = await productService.GetLowStockProductsAsync(facilityId);
+                    if (productsResult.IsSuccess && productsResult.Value.Any())
+                    {
+                        foreach (var p in productsResult.Value.Take(3))
+                        {
+                            alerts.Add($"⚠️ Inventory warning: '{p.Name}' is below minimum threshold.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogDebug(ex, "Alerts: Low stock check failed.");
+                }
+
+                // 3. Expired Membership Alerts
+                try
+                {
+                    var membersResult = await memberService.GetRecentlyExpiredMembersAsync(facilityId, 7);
+                    if (membersResult.IsSuccess && membersResult.Value.Any())
+                    {
+                        foreach (var m in membersResult.Value.Take(3))
+                        {
+                            var days = (DateTime.UtcNow - m.ExpirationDate).Days;
+                            var dayStr = days <= 0 ? "today" : $"{days} days ago";
+                            alerts.Add($"🔴 Member {m.FullName} subscription expired {dayStr}.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogDebug(ex, "Alerts: Expired membership check failed.");
+                }
+            }
+
+            // Update on UI thread
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                SystemAlerts.Clear();
+                foreach (var alert in alerts)
+                {
+                    SystemAlerts.Add(alert);
+                }
+
+                if (!SystemAlerts.Any())
+                {
+                    SystemAlerts.Add("✅ No critical system alerts at this time.");
+                }
+            });
+        }
+
+        private void StartCarousel()
+        {
+            if (_carouselTimer != null) return;
+            _carouselTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            _carouselTimer.Tick += (s, e) => NextGuideTip();
+            _carouselTimer.Start();
+        }
+
+        private void ResetCarouselTimer()
+        {
+            if (_carouselTimer != null)
+            {
+                _carouselTimer.Stop();
+                _carouselTimer.Start();
+            }
+        }
     }
 }
-

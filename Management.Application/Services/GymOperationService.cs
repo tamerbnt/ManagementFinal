@@ -26,6 +26,7 @@ namespace Management.Application.Services
         private readonly IMemberRepository _memberRepo;
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantService _tenantService;
+        private readonly IGymSettingsRepository _gymSettingsRepo;
         private readonly Microsoft.Extensions.Logging.ILogger<GymOperationService> _logger;
 
         public GymOperationService(
@@ -37,6 +38,7 @@ namespace Management.Application.Services
             IMemberRepository memberRepo,
             ICurrentUserService currentUserService,
             ITenantService tenantService,
+            IGymSettingsRepository gymSettingsRepo,
             Microsoft.Extensions.Logging.ILogger<GymOperationService> logger)
         {
             _accessService = accessService;
@@ -47,6 +49,7 @@ namespace Management.Application.Services
             _memberRepo = memberRepo;
             _currentUserService = currentUserService;
             _tenantService = tenantService;
+            _gymSettingsRepo = gymSettingsRepo;
             _logger = logger;
         }
 
@@ -156,12 +159,17 @@ namespace Management.Application.Services
             var lastHourEvents = await _accessRepo.GetByDateRangeAsync(facilityId, twoHoursAgo, oneHourAgo);
             var occupancyLastHour = lastHourEvents.Count(e => e.IsAccessGranted);
 
+            // Fetch Gym Settings for Capacity
+            var settings = await _gymSettingsRepo.GetAsync(facilityId);
+            var maxCapacity = settings?.MaxOccupancy ?? 100;
+
             return new DailyStatsDto
             {
                 OccupancyCount = occupancy,
                 DailyCashTotal = revenue,
                 TotalVisitorsToday = occupancy,
-                OccupancyLastHour = occupancyLastHour
+                OccupancyLastHour = occupancyLastHour,
+                MaxCapacity = maxCapacity
             };
         }
 
@@ -258,6 +266,18 @@ namespace Management.Application.Services
                 _logger?.LogError(ex, "Failed to register lead {FullName}", fullName);
                 return LeadRegistrationResult.Failed("An internal error occurred while registering the lead.");
             }
+        }
+
+        public async Task<System.Collections.Generic.IEnumerable<ActiveMemberAvatarDto>> GetPeopleInsideAvatarsAsync(Guid facilityId)
+        {
+            var members = await _accessRepo.GetActiveMembersAsync(facilityId);
+            
+            return members.Select(m => new ActiveMemberAvatarDto
+            {
+                FullName = m.FullName,
+                CardId = m.CardId,
+                Initials = new string((m.FullName ?? "??").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(s => s[0]).Take(2).ToArray()).ToUpper()
+            });
         }
     }
 }

@@ -22,6 +22,7 @@ namespace Management.Presentation.Controls.Premium
         public SegmentedToggleControl()
         {
             InitializeComponent();
+            this.Loaded += (s, e) => UpdateVisualState(false);
         }
 
         private static void OnSelectedGenderChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -32,29 +33,34 @@ namespace Management.Presentation.Controls.Premium
             }
         }
 
-        private void UpdateVisualState()
+        private void UpdateVisualState(bool animate = true)
         {
-            double targetX = SelectedGender == Gender.Male ? 0 : this.ActualWidth / 2 - 4; // Subtraction for padding
-            
-            // Wait for measure if necessary
-            if (this.ActualWidth == 0)
-            {
-                this.Loaded += (s, e) => UpdateVisualState();
-                return;
-            }
+            if (this.ActualWidth == 0) return;
 
             double panelWidth = this.ActualWidth - 8; // Border padding
             double pillWidth = panelWidth / 2;
-            SelectionPill.Width = pillWidth;
+            
+            // Only update width if it actually changed to avoid unnecessary layout passes
+            if (Math.Abs(SelectionPill.Width - pillWidth) > 0.1)
+            {
+                SelectionPill.Width = pillWidth;
+            }
 
             double targetTranslate = SelectedGender == Gender.Male ? 0 : pillWidth;
 
-            var anim = new DoubleAnimation(targetTranslate, TimeSpan.FromSeconds(0.25))
+            if (animate)
             {
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-            };
-            
-            PillTranslate.BeginAnimation(TranslateTransform.XProperty, anim);
+                var anim = new DoubleAnimation(targetTranslate, TimeSpan.FromSeconds(0.2))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+                };
+                PillTranslate.BeginAnimation(TranslateTransform.XProperty, anim);
+            }
+            else
+            {
+                PillTranslate.BeginAnimation(TranslateTransform.XProperty, null);
+                PillTranslate.X = targetTranslate;
+            }
         }
 
         private void MaleButton_Click(object sender, RoutedEventArgs e) => SelectedGender = Gender.Male;
@@ -63,7 +69,7 @@ namespace Management.Presentation.Controls.Premium
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
-            UpdateVisualState();
+            UpdateVisualState(false);
         }
     }
 }

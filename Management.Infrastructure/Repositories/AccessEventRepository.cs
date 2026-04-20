@@ -102,5 +102,54 @@ namespace Management.Infrastructure.Repositories
             return await _dbSet.IgnoreQueryFilters()
                 .FirstOrDefaultAsync(e => e.TransactionId == transactionId && !e.IsDeleted);
         }
+
+        public async Task<IEnumerable<Member>> GetActiveMembersAsync(Guid facilityId)
+        {
+            var todayUtc = DateTime.UtcNow.Date;
+            var tomorrowUtc = todayUtc.AddDays(1);
+
+            // 1. Get all successful entries for today
+            var entries = await _dbSet.IgnoreQueryFilters()
+                .Where(e => e.FacilityId == facilityId
+                    && !e.IsDeleted
+                    && e.IsAccessGranted
+                    && e.Direction == ScanDirection.Enter
+                    && e.Timestamp >= todayUtc
+                    && e.Timestamp < tomorrowUtc)
+                .Select(e => new { e.CardId, e.Timestamp })
+                .ToListAsync();
+
+            if (!entries.Any()) return Enumerable.Empty<Member>();
+
+            // 2. Get all exits for today
+            var exits = await _dbSet.IgnoreQueryFilters()
+                .Where(e => e.FacilityId == facilityId
+                    && !e.IsDeleted
+                    && e.Direction == ScanDirection.Exit
+                    && e.Timestamp >= todayUtc
+                    && e.Timestamp < tomorrowUtc)
+                .Select(e => new { e.CardId, e.Timestamp })
+                .ToListAsync();
+
+            // 3. Find CardIds that are currently "inside" 
+            // (most recent event is an entry, or entry count > exit count)
+            var activeCardIds = entries
+                .GroupBy(e => e.CardId)
+                .Where(g => 
+                {
+                    var lastEntry = g.Max(e => e.Timestamp);
+                    var lastExit = exits.Where(x => x.CardId == g.Key).Select(x => x.Timestamp).DefaultIfEmpty(DateTime.MinValue).Max();
+                    return lastEntry > lastExit;
+                })
+                .Select(g => g.Key)
+                .ToList();
+
+            if (!activeCardIds.Any()) return Enumerable.Empty<Member>();
+
+            // 4. Resolve Members
+            return await _context.Set<Member>()
+                .Where(m => activeCardIds.Contains(m.CardId))
+                .ToListAsync();
+        }
     }
 }

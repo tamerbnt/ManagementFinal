@@ -10,5 +10,10 @@ namespace Management.Application.DTOs
         /// Number of people inside one hour ago. Used to compute a real trend delta.
         /// </summary>
         public int OccupancyLastHour { get; set; }
+
+        /// <summary>
+        /// Total capacity of the facility/zone.
+        /// </summary>
+        public int MaxCapacity { get; set; }
     }
 }

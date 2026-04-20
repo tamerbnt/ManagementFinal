@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              Height="44">
-    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="22" BorderThickness="1" BorderBrush="#E5E7EB">
+    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="24" BorderThickness="1.5" BorderBrush="{DynamicResource Brush.Surface.Border}">
         <Grid Margin="16,0" MouseDown="Container_MouseDown" Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -15,12 +15,12 @@
 
             <!-- Search Icon (Geometry Support) -->
             <Path Grid.Column="0" Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                  Fill="{DynamicResource Brush.Text.Tertiary}" Stretch="Uniform" Width="18" Height="18" VerticalAlignment="Center"
+                  Fill="{DynamicResource Brush.Text.Secondary}" Stretch="Uniform" Width="18" Height="18" VerticalAlignment="Center"
                   Visibility="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringToVisibilityConverter}}"/>
 
             <!-- Input Field -->
             <TextBox x:Name="PART_TextBox" Grid.Column="1" Background="Transparent" BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" 
-                     Margin="12,0" FontSize="14" Foreground="#111827" 
+                     Margin="12,0" FontSize="16" Foreground="{DynamicResource Brush.Text.Primary}" 
                      CaretBrush="{DynamicResource Brush.Brand.Primary}"
                      Text="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
                      Tag="{Binding Placeholder, RelativeSource={RelativeSource AncestorType=UserControl}}">
@@ -30,7 +30,7 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="TextBox">
                                     <Grid>
-                                        <TextBlock Text="{TemplateBinding Tag}" Foreground="#9CA3AF" Visibility="{TemplateBinding Text, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Inverse}" IsHitTestVisible="False" VerticalAlignment="Center" Margin="2,0,0,0"/>
+                                        <TextBlock Text="{TemplateBinding Tag}" Foreground="{DynamicResource Brush.Text.Secondary}" Visibility="{TemplateBinding Text, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Inverse}" IsHitTestVisible="False" VerticalAlignment="Center" Margin="2,0,0,0"/>
                                         <ScrollViewer x:Name="PART_ContentHost"/>
                                     </Grid>
                                 </ControlTemplate>

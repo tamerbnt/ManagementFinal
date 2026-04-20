@@ -337,7 +337,8 @@
                         </StackPanel>
 
                         <!-- Navigation Items -->
-                        <StackPanel Grid.Row="1">
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" PanningMode="VerticalOnly" Margin="0,0,-8,0" Padding="0,0,8,0">
+                            <StackPanel>
                             <!-- Shared Button Style with Active Indicator -->
                             <StackPanel.Resources>
                                 <Style TargetType="Button">
@@ -614,7 +615,8 @@
                                                Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </Border>
 

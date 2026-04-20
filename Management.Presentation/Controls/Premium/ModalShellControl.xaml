@@ -16,11 +16,9 @@
             <Grid Margin="16,16,16,32">
                 <Border Background="{DynamicResource SurfaceBg}"
                         CornerRadius="24">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="40" ShadowDepth="12" 
-                                          Opacity="0.12" Direction="270"
-                                          Color="Black" RenderingBias="Performance"/>
-                    </Border.Effect>
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="#E5E7EB" Opacity="0.5"/>
+                        </Border.BorderBrush>
 
                     <Grid Margin="0">
                         <Grid.RowDefinitions>
@@ -75,7 +73,7 @@
                                                 <ScaleTransform x:Name="scale" ScaleX="1" ScaleY="1"/>
                                             </Border.RenderTransform>
                                             <Path Data="M18 6L6 18M6 6l12 12" 
-                                                  Stroke="#6B7280" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                                  Stroke="{DynamicResource Brush.Text.Secondary}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                                   Stretch="Uniform" Margin="8"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -116,7 +114,7 @@
                         <!-- SEPARATOR -->
                         <Border Grid.Row="3" 
                                 Height="1" 
-                                Background="#F3F4F6" 
+                                Background="{DynamicResource Brush.Surface.Border}" 
                                 Margin="0,8,0,0"/>
 
                         <!-- FOOTER (Stretched Buttons) -->

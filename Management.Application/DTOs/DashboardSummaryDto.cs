@@ -28,6 +28,7 @@ namespace Management.Application.DTOs
         public decimal DailyExpenses { get; set; }
         public decimal NetProfit { get; set; }
         public decimal DailyRevenueTarget { get; set; }
+        public int ActiveMembersYesterday { get; set; }
         public int CheckInsToday { get; set; }
         public int OccupancyPercent { get; set; }
         public List<DateTimePoint> RevenueTrend { get; set; } = new();

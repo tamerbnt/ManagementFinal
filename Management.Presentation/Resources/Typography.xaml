@@ -30,9 +30,9 @@
     <!-- 72pt, Light, 86LH -->
     <Style x:Key="Hero" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-        <Setter Property="FontSize" Value="72"/>
+        <Setter Property="FontSize" Value="80"/>
         <Setter Property="FontWeight" Value="Light"/>
-        <Setter Property="LineHeight" Value="86"/>
+        <Setter Property="LineHeight" Value="92"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
     </Style>
 
@@ -40,7 +40,7 @@
     <!-- 96pt, SemiBold, Auto LH -->
     <Style x:Key="HeroLive" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-        <Setter Property="FontSize" Value="96"/>
+        <Setter Property="FontSize" Value="104"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <!-- Tabular alignment is CRITICAL for live numbers -->
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
@@ -50,16 +50,16 @@
     <!-- 32pt, Medium, 42LH -->
     <Style x:Key="Title1" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-        <Setter Property="FontSize" Value="32"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="LineHeight" Value="42"/>
+        <Setter Property="FontSize" Value="38"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="LineHeight" Value="48"/>
     </Style>
 
     <!-- TITLE 2 (Section Headers) -->
     <!-- 24pt, SemiBold -->
     <Style x:Key="Title2" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontSize" Value="28"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
@@ -67,8 +67,8 @@
     <!-- 18pt, Medium -->
     <Style x:Key="Title3" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI"/>
-        <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="FontSize" Value="21"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
     <!-- Aliases for namespaced access -->
@@ -81,9 +81,9 @@
     <!-- BODY (Reading) -->
     <!-- 15pt, Regular, 24LH (1.6 Ratio) -->
     <Style x:Key="Body" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="17"/>
         <Setter Property="FontWeight" Value="Regular"/>
-        <Setter Property="LineHeight" Value="24"/>
+        <Setter Property="LineHeight" Value="26"/>
     </Style>
 
     <Style x:Key="BodyMedium" TargetType="TextBlock" BasedOn="{StaticResource Body}">
@@ -98,14 +98,14 @@
     <!-- MICRO (Labels/Metadata) -->
     <!-- 11pt, Medium, Uppercase Spacing -->
     <Style x:Key="Micro" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
-        <Setter Property="FontSize" Value="11"/>
-        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
         <!-- 50 = +0.05em spacing -->
     </Style>
 
     <!-- CAPTION (Smallest readable) -->
     <Style x:Key="Caption" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="14"/>
         <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
     </Style>
 

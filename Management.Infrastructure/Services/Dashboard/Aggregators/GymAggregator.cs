@@ -40,6 +40,15 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             dto.TotalMembers = await _memberRepository.GetTotalCountAsync(facilityId);
             dto.ActiveMembers = await _memberRepository.GetActiveCountAsync(facilityId);
             dto.PendingRegistrationsCount = await _registrationRepository.GetCountByStatusAsync(Management.Domain.Enums.RegistrationStatus.Pending, facilityId);
+
+            // Active members as of yesterday (members whose plan hadn't expired by yesterday's start)
+            dto.ActiveMembersYesterday = await _dbContext.Members
+                .AsNoTracking()
+                .Where(m => m.FacilityId == facilityId
+                    && m.Status == Management.Domain.Enums.MemberStatus.Active
+                    && !m.IsDeleted
+                    && m.ExpirationDate > context.UtcYesterdayStart)
+                .CountAsync();
             dto.ExpiringSoonCount = await _memberRepository.GetExpiringCountAsync(context.LocalToday.AddDays(7), facilityId);
             
             // Occupancy

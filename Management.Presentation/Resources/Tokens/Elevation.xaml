@@ -11,56 +11,29 @@
     -->
 
     <!-- Level 1: Subtle (Cards / List Items) -->
-    <DropShadowEffect x:Key="Shadow.Level1" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="6" ShadowDepth="2" Opacity="0.06" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow.Level1" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
     
-    <DropShadowEffect x:Key="Shadow1" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="6" ShadowDepth="2" Opacity="0.06" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow1" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
     <!-- Level 2: Standard (Dropdowns / Popovers) -->
-    <DropShadowEffect x:Key="Shadow.Level2" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="10" ShadowDepth="4" Opacity="0.10" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow.Level2" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
-    <DropShadowEffect x:Key="Shadow2" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="10" ShadowDepth="4" Opacity="0.10" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow2" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
     <!-- Level 3: Floating (Modals / Sticky Headers) -->
-    <DropShadowEffect x:Key="Shadow.Level3" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="16" ShadowDepth="6" Opacity="0.14" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow.Level3" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
-    <DropShadowEffect x:Key="Shadow3" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="16" ShadowDepth="6" Opacity="0.14" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow3" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
     <!-- Level 4: Deep (Dialogs / Alerts) -->
-    <DropShadowEffect x:Key="Shadow.Modal" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="30" ShadowDepth="10" Opacity="0.22" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow.Modal" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
-    <DropShadowEffect x:Key="Shadow4" x:Shared="False"
-                      Color="#000000" 
-                      BlurRadius="30" ShadowDepth="10" Opacity="0.22" 
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow4" x:Shared="False" Color="Transparent" BlurRadius="0" ShadowDepth="0" Opacity="0" />
 
     <!-- Level 5: Brand Glow (Focus States / Accents) -->
-    <DropShadowEffect x:Key="ShadowGlow" x:Shared="False"
-                      Color="#06B6D4" 
-                      Direction="270" BlurRadius="24" ShadowDepth="0" Opacity="0.3"
-                      RenderingBias="Performance" />
+    <DropShadowEffect x:Key="ShadowGlow" x:Shared="False" Color="Transparent" Opacity="0" />
 
     <!-- Inner Shadow Placeholder -->
-    <DropShadowEffect x:Key="Shadow.Inner" BlurRadius="2" ShadowDepth="1" Opacity="0.2" Color="Black" RenderingBias="Performance" />
+    <DropShadowEffect x:Key="Shadow.Inner" Color="Transparent" Opacity="0" />
 
 </ResourceDictionary>

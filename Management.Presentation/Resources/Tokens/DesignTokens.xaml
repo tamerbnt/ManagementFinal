@@ -11,16 +11,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="Brush.Brand.Primary" Color="{StaticResource Color.Brand.Primary}" />
     <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="{StaticResource Color.Brand.Primary.Deep}" />
     -->
-    <SolidColorBrush x:Key="Brush.Background.Static" Color="#F1F5F9" />
-    <SolidColorBrush x:Key="Brush.Window.Background" Color="#F1F5F9" />
-    <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="Brush.Surface.Glass.Standard" Color="#33FFFFFF" /> <!-- 20% Alpha Tint -->
-    <SolidColorBrush x:Key="Brush.Surface.Glass.Eco" Color="#E61E293B" /> <!-- 90% Opacity #1E293B -->
-    <SolidColorBrush x:Key="Brush.Text.Primary" Color="#1A1A1A" />
-    <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#6B7280" />
-    <SolidColorBrush x:Key="Brush.Border.Subtle" Color="#E5E7EB" />
-    <SolidColorBrush x:Key="Brush.Neutral.White" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="Brush.Surface.Secondary" Color="#F8FAFC" />
+    <!-- Standardized Brushes Moved to Theme Dictionaries for Dynamic Switching -->
     <SolidColorBrush x:Key="Brush.Surface.Hover" Color="#14000000" />
     <SolidColorBrush x:Key="Brush.Border.Primary" Color="#0078D4" />
     <SolidColorBrush x:Key="Brush.Success" Color="#10B981" />

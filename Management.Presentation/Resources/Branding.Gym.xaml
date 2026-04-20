@@ -4,14 +4,15 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Identity Layer: GYM FACILITY -->
     
     <!-- Sidebar -->
-    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#0F172A"/>
+    <Color x:Key="FacilitySidebarBrush.Color">#212842</Color>
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="{StaticResource FacilitySidebarBrush.Color}"/>
     
     <!-- Accents -->
-    <Color x:Key="FacilityAccentColor">#06B6D4</Color>
-    <Color x:Key="FacilityAccentShadowColor">#06B6D4</Color>
+    <Color x:Key="FacilityAccentColor">#C9A96E</Color>
+    <Color x:Key="FacilityAccentShadowColor">#C9A96E</Color>
     <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Color="#06B6D4" Offset="0"/>
-        <GradientStop Color="#22D3EE" Offset="1"/>
+        <GradientStop Color="#C9A96E" Offset="0"/>
+        <GradientStop Color="#E0C28A" Offset="1"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
     <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
@@ -27,17 +28,21 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- ElevationColor moved to Theme.Light.xaml and Theme.Dark.xaml to avoid conflicts -->
     
     <!-- Aliases for compatibility/semantic naming -->
-    <SolidColorBrush x:Key="AccentBrush" Color="#06B6D4"/>
-    <Color x:Key="AccentColor">#06B6D4</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="#C9A96E"/>
+    <Color x:Key="AccentColor">#C9A96E</Color>
     <SolidColorBrush x:Key="IllustrationBackgroundBrush" Color="#E5E7EB"/>
     <SolidColorBrush x:Key="OverlayBackdropBrush" Color="#80000000"/>
     <SolidColorBrush x:Key="SidebarHoverBrush" Color="#0FFFFFFF" Opacity="0.06"/>
     <Color x:Key="AccentLightColor">#E0F2FE</Color>
     
     <!-- Legacy/Alias Tokens (Fix Startup Crash) -->
-    <SolidColorBrush x:Key="Brush.Brand.Primary" Color="#06B6D4"/>
-    <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="#0F172A"/>
-    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#06B6D4"/>
+    <SolidColorBrush x:Key="Brush.Brand.Primary" Color="#C9A96E"/>
+    <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="#212842"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#C9A96E"/>
+    
+    <!-- Illustration & UI Toggles -->
+    <Visibility x:Key="Visibility.HomeIllustration">Visible</Visibility>
+    <SolidColorBrush x:Key="Brush.Card.Foreground" Color="#1E293B"/> <!-- Standard dark text for light-mode cards -->
     
     <!-- Terminology -->
     <sys:String x:Key="TerminologyLabel">Member</sys:String>

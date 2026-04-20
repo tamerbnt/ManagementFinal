@@ -79,6 +79,18 @@ namespace Management.Infrastructure.Services
             return await _sender.Send(new UpdateProductStockCommand(productId, quantityChange, reason, facilityId));
         }
 
+        public async Task<Result<List<ProductDto>>> GetLowStockProductsAsync(Guid facilityId)
+        {
+            var result = await GetActiveProductsAsync(facilityId);
+            if (result.IsFailure) return result;
+
+            var lowStock = result.Value
+                .Where(p => p.StockQuantity <= p.ReorderLevel)
+                .ToList();
+
+            return Result.Success(lowStock);
+        }
+
         public async Task<Result> DeleteProductAsync(Guid facilityId, Guid id)
         {
             return await _sender.Send(new DeleteProductCommand(id, facilityId));

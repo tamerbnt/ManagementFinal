@@ -37,5 +37,10 @@ namespace Management.Application.Interfaces.App
         /// Registers a walk-in visitor as a Lead.
         /// </summary>
         Task<LeadRegistrationResult> RegisterLeadAsync(string fullName, string phoneNumber, System.Guid facilityId);
+
+        /// <summary>
+        /// Retrieves members currently inside the facility for avatar display.
+        /// </summary>
+        Task<System.Collections.Generic.IEnumerable<ActiveMemberAvatarDto>> GetPeopleInsideAvatarsAsync(System.Guid facilityId);
     }
 }

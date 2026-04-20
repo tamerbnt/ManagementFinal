@@ -135,13 +135,24 @@ namespace Management.Infrastructure.Repositories
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 string pattern = $"%{searchTerm}%";
-                System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] Applying Search Pattern: {pattern}");
-                query = query.Where(m => 
-                    EF.Functions.Like(m.FullName, pattern) ||
-                    (m.Email != null && EF.Functions.Like((string)(object)m.Email, pattern)) ||
-                    (m.PhoneNumber != null && EF.Functions.Like((string)(object)m.PhoneNumber, pattern)) ||
-                    (m.CardId != null && EF.Functions.Like(m.CardId, pattern))
-                );
+                
+                // Optimization: If search term is very short, limit the fields to reduce full-scan complexity
+                if (searchTerm.Length < 3)
+                {
+                    query = query.Where(m => 
+                        EF.Functions.Like(m.FullName, pattern) ||
+                        (m.CardId != null && EF.Functions.Like(m.CardId, pattern))
+                    );
+                }
+                else
+                {
+                    query = query.Where(m => 
+                        EF.Functions.Like(m.FullName, pattern) ||
+                        (m.Email != null && EF.Functions.Like((string)(object)m.Email, pattern)) ||
+                        (m.PhoneNumber != null && EF.Functions.Like((string)(object)m.PhoneNumber, pattern)) ||
+                        (m.CardId != null && EF.Functions.Like(m.CardId, pattern))
+                    );
+                }
             }
 
             System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] --- BuildSearchQuery End ---");
