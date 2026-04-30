@@ -113,13 +113,13 @@
                             Command="{Binding EditCommand}"
                             ToolTip="{DynamicResource TerminologyEditMemberLabel}"
                             Margin="8">
-                        <Path Data="{StaticResource IconEdit}" Fill="{DynamicResource TextOnDarkBrush}" Style="{StaticResource Style.Icon.Standard}"/>
+                        <Path Data="{DynamicResource Icon.Edit}" Fill="{DynamicResource TextOnDarkBrush}" Style="{StaticResource Style.Icon.Standard}"/>
                     </Button>
                     <Button Style="{StaticResource IconButtonStyle}" 
                             Command="{Binding DeleteCommand}"
                             ToolTip="{DynamicResource TerminologyDeleteMemberLabel}"
                             Margin="8">
-                        <Path Data="{StaticResource IconTrash}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource Style.Icon.Standard}"/>
+                        <Path Data="{DynamicResource Icon.Delete}" Fill="{DynamicResource StatusErrorBrush}" Style="{StaticResource Style.Icon.Standard}"/>
                     </Button>
                 </StackPanel>
             </Border>

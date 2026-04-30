@@ -338,9 +338,7 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource Brush.Card.Foreground}" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconGym}" Stroke="{DynamicResource Brush.Card.Foreground}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{StaticResource IconGym}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <TextBlock Foreground="{DynamicResource Brush.Card.Foreground}" FontWeight="Bold" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -402,9 +400,7 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="White" Opacity="0.15" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{StaticResource IconClock}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{StaticResource IconClock}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.TodaysAppointments}" Foreground="{DynamicResource Brush.Card.Foreground}" FontWeight="Bold" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1" Text="{Binding TodayAppointmentsTotal}" Foreground="{DynamicResource Brush.Card.Foreground}" FontSize="48" FontWeight="Bold" VerticalAlignment="Center"/>
@@ -465,9 +461,7 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusWarningBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{DynamicResource IconClock}" Stroke="{DynamicResource StatusWarningBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{DynamicResource IconClock}" Stroke="{DynamicResource StatusWarningBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -507,9 +501,7 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusErrorBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{DynamicResource IconRegistrations}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{DynamicResource IconRegistrations}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -550,9 +542,7 @@
                         </Grid.RowDefinitions>
                         
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                            <Border Background="{DynamicResource Brush.Card.Foreground}" Opacity="0.1" Width="24" Height="24" CornerRadius="8" Margin="0,0,12,0" VerticalAlignment="Center">
-                                <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource Brush.Card.Foreground}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/> 
-                            </Border>
+                            <Path Data="{DynamicResource IconFinance}" Stroke="#A78BFA" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/> 
                             <TextBlock Text="{DynamicResource Terminology.Home.RevenueToday}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
                         </StackPanel>
 
@@ -628,9 +618,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusSuccessBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{DynamicResource IconDashboard}" Fill="{DynamicResource StatusSuccessBrush}" Stroke="{DynamicResource StatusSuccessBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{DynamicResource IconDashboard}" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.Occupancy.Title}" FontWeight="Bold" FontSize="18" Foreground="{DynamicResource TextPrimaryBrush}" />
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.Occupancy.Subtitle}" FontSize="13" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -768,20 +756,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusSuccessBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconMembers}" Fill="{DynamicResource StatusSuccessBrush}" Stroke="{DynamicResource StatusSuccessBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <Path.Style>
-                                                <Style TargetType="Path">
-                                                    <Setter Property="Data" Value="{DynamicResource IconMembers}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsRestaurantMode}" Value="True">
-                                                            <Setter Property="Data" Value="{DynamicResource IconMembers}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Path.Style>
-                                        </Path>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconMembers}" Stroke="{DynamicResource TextSecondaryBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{DynamicResource Strings.Shell.MemberDevelopment}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{DynamicResource Strings.Shell.Totalactivememberstrend}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -875,9 +850,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="White" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconFinance}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="White" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.NetProfitToday}" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -911,9 +884,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource BackgroundBrush}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource BrandPrimaryBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="#A78BFA" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Revenue}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -944,9 +915,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusErrorBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Expenses}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -1055,7 +1024,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.VisitFrequency}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <lvc:CartesianChart Grid.Row="1" Series="{Binding FrequencySeries}" XAxes="{Binding FrequencyXAxes}" TooltipPosition="Top"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding FrequencySeries}" XAxes="{Binding FrequencyXAxes}" YAxes="{Binding FrequencyYAxes}" TooltipPosition="Top"/>
                         </Grid>
                     </Border>
 
@@ -1068,7 +1037,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.GrowthTrend}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <lvc:CartesianChart Grid.Row="1" Series="{Binding GrowthSeries}" XAxes="{Binding GrowthXAxes}" TooltipPosition="Top"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding GrowthSeries}" XAxes="{Binding GrowthXAxes}" YAxes="{Binding GrowthYAxes}" TooltipPosition="Top"/>
                         </Grid>
                     </Border>
 
@@ -1123,7 +1092,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="{DynamicResource Terminology.Salon.BI.ServiceProfitability}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Margin="0,0,0,16"/>
-                                <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonServiceProfitabilitySeries}"/>
+                                <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonServiceProfitabilitySeries}" XAxes="{Binding SalonServiceProfitabilityXAxes}" YAxes="{Binding SalonServiceProfitabilityYAxes}"/>
                             </Grid>
                         </Border>
 
@@ -1150,7 +1119,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="{DynamicResource Terminology.Salon.BI.StaffPerformance}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Margin="0,0,0,16"/>
-                            <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonStaffPerformanceSeries}"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonStaffPerformanceSeries}" XAxes="{Binding SalonStaffPerformanceXAxes}" YAxes="{Binding SalonStaffPerformanceYAxes}"/>
                         </Grid>
                     </Border>
                 </Grid>
@@ -1181,9 +1150,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Orientation="Horizontal">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource StatusErrorBackground}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconMembers}" Fill="{DynamicResource StatusErrorBrush}" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconMembers}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RetentionGuardian}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Opacity="0.8"/>
                                 </StackPanel>
                                 
@@ -1256,9 +1223,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-                                    <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <Path Data="{DynamicResource IconRunner}" Fill="{DynamicResource FacilityAccentBrush}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <Path Data="{DynamicResource IconRunner}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <TextBlock Text="{DynamicResource Terminology.Dashboard.TopPerformingStaff}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                                 
@@ -1323,9 +1288,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Background="{DynamicResource BackgroundBrush}" Width="32" Height="32" CornerRadius="16">
-                                                         <Path Data="{DynamicResource IconRunner}" Fill="{DynamicResource FacilityAccentBrush}" Width="12" Height="12" Stretch="Uniform"/>
-                                                    </Border>
+                                                    <Path Data="{DynamicResource IconRunner}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="20" Height="20" Stretch="Uniform" VerticalAlignment="Center"/>
                                                      <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
                                                         <TextBlock Text="{Binding StaffName, Converter={StaticResource TerminologyConverter}}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                         <TextBlock FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}">
@@ -1364,9 +1327,7 @@
                             </Grid.RowDefinitions>
                             <!-- HEADER: Icon + Label -->
                             <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
-                                <Border Width="24" Height="24" CornerRadius="8" Background="#20FFFFFF" Margin="0,0,12,0" VerticalAlignment="Center">
-                                    <Path Data="{DynamicResource IconDashboard}" Stroke="White" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
+                                <Path Data="{DynamicResource IconDashboard}" Stroke="White" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.QuickActions}" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
                             </StackPanel>
                             

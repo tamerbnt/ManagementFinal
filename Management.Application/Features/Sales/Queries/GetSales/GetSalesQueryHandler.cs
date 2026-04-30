@@ -26,16 +26,17 @@ namespace Management.Application.Features.Sales.Queries.GetSales
 
         public async Task<Result<List<SaleDto>>> Handle(GetSalesHistoryQuery request, CancellationToken cancellationToken)
         {
-            var sales = await _saleRepository.GetByDateRangeAsync(request.FacilityId, request.Start, request.End);
+            var sales = await _saleRepository.GetByDateRangeAsync(request.FacilityId, request.Start, request.End, request.IncludeDeleted);
             
             // Resolve member names and filter out sales from deleted members
+            // NOTE: If we are including deleted sales, we also want to try and resolve names for deleted members if possible.
             var memberIds = sales.Where(s => s.MemberId.HasValue).Select(s => s.MemberId!.Value).Distinct().ToList();
             var members = new Dictionary<Guid, Member>();
             
             if (memberIds.Any())
             {
-                // We use search or list; but to ensure we respect deletion, we just get them normally.
-                // Standard repository GetByIdAsync/GetAllAsync filters out IsDeleted by default.
+                // Standard repository GetByIdAsync filters out IsDeleted. 
+                // To show names for deleted members, we should use Search or a specific "IncludeDeleted" GetById.
                 foreach (var id in memberIds)
                 {
                     var m = await _memberRepository.GetByIdAsync(id);
@@ -44,7 +45,7 @@ namespace Management.Application.Features.Sales.Queries.GetSales
             }
 
             var dtos = sales
-                .Where(s => !s.MemberId.HasValue || members.ContainsKey(s.MemberId.Value)) // Exclude if member exists then was deleted
+                .Where(s => !s.MemberId.HasValue || members.ContainsKey(s.MemberId.Value) || request.IncludeDeleted) // If including deleted, don't filter out by member
                 .Take(2000)
                 .Select(s => new SaleDto
                 {
@@ -57,6 +58,7 @@ namespace Management.Application.Features.Sales.Queries.GetSales
                     PaymentMethod = s.PaymentMethod.ToString(),
                     TransactionType = s.TransactionType,
                     MemberId = s.MemberId,
+                    IsDeleted = s.IsDeleted,
                     MemberName = s.MemberId.HasValue && members.TryGetValue(s.MemberId.Value, out var m) ? m.FullName : "Guest",
                     ItemsSnapshot = s.Items.ToDictionary(i => i.ProductNameSnapshot, i => i.Quantity)
                 }).ToList();

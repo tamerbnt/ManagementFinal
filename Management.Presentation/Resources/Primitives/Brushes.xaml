@@ -18,11 +18,11 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource TextSecondary.Color}"/>
     <SolidColorBrush x:Key="TextTertiaryBrush" Color="{DynamicResource TextTertiary.Color}"/>
 
-    <StaticResource x:Key="TextPrimary" ResourceKey="TextPrimaryBrush"/>
-    <StaticResource x:Key="TextSecondary" ResourceKey="TextSecondaryBrush"/>
+    <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource TextPrimary.Color}"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource TextSecondary.Color}"/>
     
     <SolidColorBrush x:Key="SeparatorStroke" Color="{DynamicResource Color.Border.Subtle}"/>
-    <StaticResource x:Key="SeparatorBrush" ResourceKey="SeparatorStroke"/>
+    <SolidColorBrush x:Key="SeparatorBrush" Color="{DynamicResource Color.Border.Subtle}"/>
     
     <!-- Semantic surfaces are now managed directly in Theme.Light.xaml / Theme.Dark.xaml to ensure reliable object-level swapping -->
 

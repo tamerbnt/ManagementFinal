@@ -67,6 +67,11 @@
                             </Setter.Value>
                         </Setter>
                     </DataTrigger>
+
+                    <!-- Deleted/Undone State -->
+                    <DataTrigger Binding="{Binding IsDeleted}" Value="True">
+                        <Setter Property="Opacity" Value="0.6"/>
+                    </DataTrigger>
                 </Style.Triggers>
             </Style>
         </Border.Style>
@@ -121,27 +126,47 @@
                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                     <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
                                 </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                
-                <!-- Subtitle 13 Medium -->
-                <TextBlock Text="{Binding Details}" 
-                           FontWeight="Medium" 
-                           FontSize="13"
-                           Foreground="{DynamicResource BrandPrimaryBrush}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
-                                    <Setter Property="Opacity" Value="0.8"/>
+                                <DataTrigger Binding="{Binding IsDeleted}" Value="True">
+                                    <Setter Property="TextDecorations" Value="Strikethrough"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+                
+                <StackPanel Orientation="Horizontal">
+                    <!-- Subtitle 13 Medium -->
+                    <TextBlock Text="{Binding Details}" 
+                               FontWeight="Medium" 
+                               FontSize="13"
+                               Foreground="{DynamicResource BrandPrimaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
+                                        <Setter Property="Opacity" Value="0.8"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- UNDONE Badge -->
+                    <Border Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Background="#FFF1F2" 
+                            BorderBrush="#FECDD3" 
+                            BorderThickness="1" 
+                            CornerRadius="4" 
+                            Padding="6,1" 
+                            Margin="8,0,0,0" 
+                            VerticalAlignment="Center">
+                        <TextBlock Text="UNDONE" 
+                                   Foreground="#E11D48" 
+                                   FontSize="9" 
+                                   FontWeight="Bold"/>
+                    </Border>
+                </StackPanel>
             </StackPanel>
 
             <!-- 3. Status Pill -->

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="80" d:DesignWidth="800">
     <UserControl.Resources>
@@ -243,11 +244,10 @@
                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
             <StackPanel Orientation="Horizontal">
                 <!-- Theme Toggle -->
-                <CheckBox Style="{DynamicResource DayNightToggleStyle}" 
-                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                          Margin="0,0,8,0"
-                          VerticalAlignment="Center"
-                          shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                <premium:ThemeSegmentedToggle IsDarkTheme="{Binding IsDarkTheme, Mode=TwoWay}"
+                                              Margin="0,0,8,0"
+                                              VerticalAlignment="Center"
+                                              shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 
                 <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="8,12" Opacity="0.3"/>
                 

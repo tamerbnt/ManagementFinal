@@ -88,9 +88,48 @@ namespace Management.Presentation.ViewModels.Salon
         [ObservableProperty]
         private string _appointmentsTodayCount = "0";
 
-        public void Receive(FacilityActionCompletedMessage message)
+        public async void Receive(FacilityActionCompletedMessage message)
         {
             if (message.Value != _facilityContext.CurrentFacilityId) return;
+            
+            // OPTIMISTIC UPDATE: Create a log item immediately
+            string icon = message.ActionType switch
+            {
+                "Walk-In" or "WalkIn" => "🚶",
+                "Sale" or "QuickSale" => "🛒",
+                "Registration" => "👤",
+                _ => "✨"
+            };
+
+            string initials = message.ActionType switch
+            {
+                "Walk-In" or "WalkIn" => "WG",
+                "Sale" or "QuickSale" => "$$",
+                "Registration" => "++",
+                _ => "??"
+            };
+
+            string status = message.ActionType switch
+            {
+                "Walk-In" or "WalkIn" => _terminologyService.GetTerm("Terminology.Home.Status.WalkIn"),
+                "Sale" or "QuickSale" => _terminologyService.GetTerm("Terminology.Home.Status.Sale"),
+                "Registration" => _terminologyService.GetTerm("Terminology.Home.Status.Registration"),
+                _ => "Success"
+            };
+
+            var logItem = new ActivityLogItem(message.DisplayName, status, icon, initials)
+            {
+                Timestamp = DateTime.Now.ToString("HH:mm"),
+                SortDate = DateTime.Now
+            };
+
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                ActivityStream.Insert(0, logItem);
+                if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
+                IsActivityEmpty = !ActivityStream.Any();
+            });
+
             HandleRefreshAsync();
         }
 
@@ -198,6 +237,9 @@ namespace Management.Presentation.ViewModels.Salon
 
         [ObservableProperty]
         private int _currentGuideIndex;
+        
+        [ObservableProperty]
+        private bool _isActivityEmpty;
 
         [RelayCommand]
         private void SetSidebarMode(string mode)
@@ -528,6 +570,11 @@ namespace Management.Presentation.ViewModels.Salon
                 
                 // Revenue - Use the authoritative total from the SQL sum
                 TotalRevenueToday = totalRevenue;
+
+                System.Windows.Application.Current.Dispatcher.Invoke(() => 
+                {
+                    IsActivityEmpty = !ActivityStream.Any();
+                });
             });
         }
 
@@ -564,9 +611,9 @@ namespace Management.Presentation.ViewModels.Salon
             else if (now.Hour >= 12 && now.Hour < 18) greetingKey = "Terminology.Salon.Greeting.Afternoon";
             else greetingKey = "Terminology.Salon.Greeting.Evening";
 
-            GreetingLabel = _terminologyService.GetTerm(greetingKey).ToUpper();
+            GreetingLabel = _terminologyService.GetTerm(greetingKey);
             GreetingName = _sessionManager.CurrentUser?.FullName?.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() 
-                            ?? _terminologyService.GetTerm("Terminology.Salon.Greeting.There") + ".";
+                            ?? _terminologyService.GetTerm("Terminology.Salon.Greeting.There");
         }
 
         private void StartClock()

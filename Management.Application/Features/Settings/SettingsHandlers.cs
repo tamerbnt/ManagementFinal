@@ -14,6 +14,8 @@ namespace Management.Application.Features.Settings
         IRequestHandler<UpdateGeneralSettingsCommand, Result>,
         IRequestHandler<UpdateFacilitySettingsCommand, Result>,
         IRequestHandler<UpdateAppearanceSettingsCommand, Result>,
+        IRequestHandler<UpdateThemeModeCommand, Result>,
+        IRequestHandler<UpdateLightPaletteCommand, Result>,
         IRequestHandler<GetGymSettingsQuery, Result<GymSettings>>
     {
         private readonly IGymSettingsRepository _settingsRepository;
@@ -71,7 +73,24 @@ namespace Management.Application.Features.Settings
             settings.HighContrast = dto.HighContrast;
             settings.ReducedMotion = dto.ReducedMotion;
             settings.TextScale = dto.TextScale;
+            settings.LightPalette = dto.LightPalette;
 
+            await _settingsRepository.SaveAsync(settings);
+            return Result.Success();
+        }
+
+        public async Task<Result> Handle(UpdateThemeModeCommand request, CancellationToken cancellationToken)
+        {
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
+            settings.IsLightMode = request.IsLightMode;
+            await _settingsRepository.SaveAsync(settings);
+            return Result.Success();
+        }
+
+        public async Task<Result> Handle(UpdateLightPaletteCommand request, CancellationToken cancellationToken)
+        {
+            var settings = await _settingsRepository.GetAsync(request.FacilityId);
+            settings.LightPalette = request.LightPalette;
             await _settingsRepository.SaveAsync(settings);
             return Result.Success();
         }

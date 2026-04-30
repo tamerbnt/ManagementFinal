@@ -1,0 +1,8 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 
+        EMPTY PALETTE DICTIONARY
+        Used by ThemeManager to maintain the dictionary slot in MergedDictionaries
+        when transitioning to Dark Mode, preventing WPF caching bugs.
+    -->
+</ResourceDictionary>

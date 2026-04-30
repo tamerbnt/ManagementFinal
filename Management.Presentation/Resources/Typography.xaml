@@ -71,10 +71,10 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <!-- Aliases for namespaced access -->
-    <StaticResource x:Key="Text.Title1" ResourceKey="Title1"/>
-    <StaticResource x:Key="Text.Title2" ResourceKey="Title2"/>
-    <StaticResource x:Key="Text.Title3" ResourceKey="Title3"/>
+    <!-- Aliases for namespaced access (Fixed: Using Style BasedOn instead of invalid StaticResource alias) -->
+    <Style x:Key="Text.Title1" TargetType="TextBlock" BasedOn="{StaticResource Title1}"/>
+    <Style x:Key="Text.Title2" TargetType="TextBlock" BasedOn="{StaticResource Title2}"/>
+    <Style x:Key="Text.Title3" TargetType="TextBlock" BasedOn="{StaticResource Title3}"/>
 
     <!-- BODY (Reading) -->
     <!-- 15pt, Regular, 24LH (1.6 Ratio) -->

@@ -8,6 +8,7 @@ using Management.Application.Interfaces.App;
 using Management.Application.Services;
 using Management.Domain.Models;
 using Management.Domain.Models.Salon;
+using MediatR;
 
 namespace Management.Application.Services.History
 {
@@ -23,6 +24,7 @@ namespace Management.Application.Services.History
         private readonly IAccessEventService _accessEventService;
         private readonly IReservationService _reservationService;
         private readonly IFinanceService _financeService;
+        private readonly ISender _sender;
 
         public string SegmentName => "Gym";
 
@@ -32,7 +34,8 @@ namespace Management.Application.Services.History
             IAppointmentService appointmentService,
             IAccessEventService accessEventService,
             IReservationService reservationService,
-            IFinanceService financeService)
+            IFinanceService financeService,
+            ISender sender)
         {
             _transactionService = transactionService;
             _saleService = saleService;
@@ -40,17 +43,23 @@ namespace Management.Application.Services.History
             _accessEventService = accessEventService;
             _reservationService = reservationService;
             _financeService = financeService;
+            _sender = sender;
         }
 
-        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate, bool includeDeleted = false)
         {
             // FIX: Use sequential execution to prevent EF Core DbContext concurrency exceptions.
             // Even with a fresh scope per refresh, the individual service calls in GymHistoryProvider
             // attempt to use the SAME DbContext instance concurrently if Task.WhenAll is used.
-            var transactionsResult = await _transactionService.GetHistoryByRangeAsync(facilityId, startDate, endDate);
-            var salesResult = await _saleService.GetSalesByRangeAsync(facilityId, startDate, endDate);
+            var transactionsResult = await _transactionService.GetHistoryByRangeAsync(facilityId, startDate, endDate, includeDeleted);
+            var salesResult = await _sender.Send(new Management.Application.Features.Sales.Queries.GetSales.GetSalesHistoryQuery { 
+                FacilityId = facilityId, 
+                Start = startDate, 
+                End = endDate, 
+                IncludeDeleted = includeDeleted 
+            });
             var appointments = await _appointmentService.GetByRangeAsync(facilityId, startDate, endDate);
-            var accessResult = await _accessEventService.GetEventsByRangeAsync(facilityId, startDate, endDate);
+            var accessResult = await _sender.Send(new Management.Application.Features.Turnstiles.Queries.GetAccessEventsQuery(facilityId, null, startDate, includeDeleted));
             var reservationsResult = await _reservationService.GetReservationsByRangeAsync(startDate, endDate);
             var payrollResult = await _financeService.GetPayrollByRangeAsync(facilityId, startDate, endDate);
 
@@ -70,7 +79,8 @@ namespace Management.Application.Services.History
                         Details = string.Join(", ", tx.Items.Select(i => i.ProductName)),
                         Amount = tx.TotalAmount,
                         Metadata = tx.PaymentMethod.ToString(),
-                        AuditNote = tx.AuditNote
+                        AuditNote = tx.AuditNote,
+                        IsDeleted = tx.IsDeleted
                     });
                 }
             }
@@ -88,7 +98,8 @@ namespace Management.Application.Services.History
                         Title = $"Sale: {sale.TransactionType}",
                         Details = $"{(string.IsNullOrEmpty(sale.MemberName) ? "Guest" : sale.MemberName)} - {string.Join(", ", sale.ItemsSnapshot.Keys)}",
                         Amount = sale.TotalAmount,
-                        Metadata = sale.PaymentMethod
+                        Metadata = sale.PaymentMethod,
+                        IsDeleted = sale.IsDeleted
                     });
                 }
             }
@@ -119,7 +130,8 @@ namespace Management.Application.Services.History
                         Type = HistoryEventType.Access,
                         Title = ae.IsAccessGranted ? "Check-in" : "Access Denied",
                         Details = ae.IsAccessGranted ? (ae.MemberName ?? $"Card: {ae.CardId}") : $"Denied ({ae.FailureReason}): {ae.CardId}",
-                        IsSuccessful = ae.IsAccessGranted
+                        IsSuccessful = ae.IsAccessGranted,
+                        IsDeleted = ae.IsDeleted
                     });
                 }
             }

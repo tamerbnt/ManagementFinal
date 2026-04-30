@@ -11,6 +11,9 @@ using Management.Presentation.Helpers;
 using Management.Presentation.Resources.Controls;
 using Management.Presentation.Stores;
 using Microsoft.Extensions.DependencyInjection;
+using Management.Presentation.Controls.Premium;
+using System.Linq;
+using System.Windows.Media;
 
 namespace Management.Presentation.Views.Shell
 {
@@ -232,22 +235,57 @@ namespace Management.Presentation.Views.Shell
         {
             base.OnPreviewMouseLeftButtonDown(e);
 
-            // Robust collapse: detect if we clicked outside the search bar
-            // Find TopBarView in the visual tree
-            var topBar = FindChild<TopBarView>(this);
-            if (topBar != null)
+            var focusedElement = Keyboard.FocusedElement as DependencyObject;
+            if (focusedElement == null) return;
+
+            // 1. Identify if the focused element is a search bar (or part of one)
+            FrameworkElement? searchContainer = null;
+
+            if (focusedElement is TextBox tb)
+            {
+                // Check if it's inside a PremiumSearchBox
+                var premium = FindAncestor<PremiumSearchBox>(tb);
+                if (premium != null)
+                {
+                    searchContainer = premium;
+                }
+                // Check if it's a named search box (e.g. GlobalSearchBox, LocalMemberSearchBox)
+                else if (tb.Name != null && tb.Name.Contains("SearchBox", StringComparison.OrdinalIgnoreCase))
+                {
+                    searchContainer = tb;
+                }
+            }
+
+            // 2. If a search bar is focused, check if the click is outside its bounds
+            if (searchContainer != null)
             {
                 var point = e.GetPosition(this);
-                if (!topBar.IsPointInsideSearch(point))
+                
+                // Special Case: Global Search Box Popup
+                // If it's the global search box, we must also check if the click is inside its results popup
+                if (searchContainer is TextBox gtb && gtb.Name == "GlobalSearchBox")
                 {
-                    // Clicked outside search bar -> Clear focus to trigger collapse
-                    if (topBar.SearchBox.IsFocused || topBar.SearchPopupElement.IsOpen)
+                    var topBar = FindAncestor<TopBarView>(gtb);
+                    if (topBar != null && topBar.IsPointInsideSearch(point))
                     {
-                        // Transfer focus to the root layout or window
-                        this.Focus();
-                        System.Windows.Input.Keyboard.ClearFocus();
+                        return; // Click is inside the search box or its popup results
                     }
                 }
+                else
+                {
+                    // For other search bars, just check the container bounds
+                    var containerPoint = searchContainer.TranslatePoint(new Point(0, 0), this);
+                    var containerRect = new Rect(containerPoint, new Size(searchContainer.ActualWidth, searchContainer.ActualHeight));
+                    
+                    if (containerRect.Contains(point))
+                    {
+                        return; // Click is inside the search bar
+                    }
+                }
+
+                // 3. Click is outside -> Clear focus to trigger collapse/revert state
+                this.Focus();
+                Keyboard.ClearFocus();
             }
         }
 
@@ -306,6 +344,16 @@ namespace Management.Presentation.Views.Shell
                 if (child is T typedChild) return typedChild;
                 var result = FindChild<T>(child);
                 if (result != null) return result;
+            }
+            return null;
+        }
+
+        private T? FindAncestor<T>(DependencyObject? element) where T : DependencyObject
+        {
+            while (element != null)
+            {
+                if (element is T target) return target;
+                element = VisualTreeHelper.GetParent(element);
             }
             return null;
         }

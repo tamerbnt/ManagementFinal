@@ -2,6 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
 using Microsoft.Extensions.DependencyInjection;
 using Management.Presentation.Extensions;
 using Management.Application.Services;
@@ -125,6 +127,10 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private bool _isDarkMode;
 
+        /// <summary>Tracks which light-mode palette is active: "Default" or "Alternate".</summary>
+        [ObservableProperty]
+        private string _selectedLightPalette = "Default";
+
         public ObservableCollection<CultureInfo> SupportedLanguages { get; } = new();
         
         // Facility-specific visibility
@@ -206,6 +212,18 @@ namespace Management.Presentation.ViewModels.Settings
             _promotionService = promotionService;
             
             _modalNavigationStore = modalNavigationStore;
+
+            // Register for appearance sync messages
+            WeakReferenceMessenger.Default.Register<AppearanceChangedMessage>(this, (r, m) =>
+            {
+                var info = m.Value;
+                // Sync without re-triggering persistence
+                _isDarkMode = !info.IsLightMode;
+                OnPropertyChanged(nameof(IsDarkMode));
+                
+                _selectedLightPalette = info.LightPalette;
+                OnPropertyChanged(nameof(SelectedLightPalette));
+            });
 
             // Phase 4: Thread-safe collections
             System.Windows.Data.BindingOperations.EnableCollectionSynchronization(MembershipPlans, new object());
@@ -474,24 +492,57 @@ namespace Management.Presentation.ViewModels.Settings
         {
             ThemeManager.SetTheme(value ? AppTheme.Dark : AppTheme.Light);
 
-            // Phase 4: Persist appearance setting
+            // Broadcast change to other VMs (TopBar)
+            WeakReferenceMessenger.Default.Send(new AppearanceChangedMessage(new AppearanceChangeInfo(
+                !value, SelectedLightPalette, IsThemeChange: true)));
+
+            // Persist atomically
             Task.Run(async () =>
             {
                 try
                 {
-                    var result = await _settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
-                    if (result.IsSuccess)
-                    {
-                        var currentSettings = result.Value;
-                        var updatedSettings = currentSettings with { IsLightMode = !value }; // Boolean is inverted
-                        await _settingsService.UpdateAppearanceSettingsAsync(_facilityContext.CurrentFacilityId, updatedSettings);
-                    }
+                    await _settingsService.UpdateThemeModeAsync(_facilityContext.CurrentFacilityId, !value);
                 }
                 catch (Exception ex)
                 {
                     Serilog.Log.Error(ex, "Failed to persist theme setting");
                 }
             });
+        }
+
+        partial void OnSelectedLightPaletteChanged(string value)
+        {
+            var palette = value switch
+            {
+                "Alternate" => LightPalette.Alternate,
+                "Classic"   => LightPalette.Classic,
+                _           => LightPalette.Default
+            };
+            ThemeManager.SetLightPalette(palette);
+
+            // Broadcast change to other VMs (TopBar)
+            WeakReferenceMessenger.Default.Send(new AppearanceChangedMessage(new AppearanceChangeInfo(
+                !IsDarkMode, value, IsPaletteChange: true)));
+
+            // Persist atomically
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await _settingsService.UpdateLightPaletteAsync(_facilityContext.CurrentFacilityId, value);
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Error(ex, "Failed to persist light palette setting");
+                }
+            });
+        }
+
+        /// <summary>Called from the Appearance tab palette picker cards.</summary>
+        [RelayCommand]
+        private void SelectPalette(string paletteKey)
+        {
+            SelectedLightPalette = paletteKey;
         }
 
 
@@ -631,7 +682,7 @@ namespace Management.Presentation.ViewModels.Settings
                 }
             }
 
-            // Phase 4: Dynamic loading (Legacy plans logic)
+            // Dynamic loading (Legacy plans logic)
             if ((tabName == "MembershipPlans" || tabName == "WalkInPlans") && !_plansLoaded)
             {
                 await LoadPlansAsync();
@@ -662,6 +713,44 @@ namespace Management.Presentation.ViewModels.Settings
             if (tabName == "Promotions")
             {
                 await LoadPromotionsAsync();
+            }
+
+            // Load persisted light palette when Appearance tab opens
+            if (tabName == "Appearance")
+            {
+                await LoadAppearanceAsync();
+            }
+        }
+
+        private async Task LoadAppearanceAsync()
+        {
+            try
+            {
+                var result = await _settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
+                if (result.IsSuccess)
+                {
+                    var s = result.Value;
+                    // Sync dark mode toggle without triggering the Changed callback
+                    _isDarkMode = !s.IsLightMode;
+                    OnPropertyChanged(nameof(IsDarkMode));
+
+                    // Sync palette — suppress re-persist by setting backing field directly
+                    _selectedLightPalette = s.LightPalette ?? "Default";
+                    OnPropertyChanged(nameof(SelectedLightPalette));
+
+                    // Apply to ThemeManager without triggering persistence loop
+                    var palette = _selectedLightPalette switch
+                    {
+                        "Alternate" => LightPalette.Alternate,
+                        "Classic"   => LightPalette.Classic,
+                        _           => LightPalette.Default
+                    };
+                    ThemeManager.SetLightPalette(palette);
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "Failed to load appearance settings");
             }
         }
 

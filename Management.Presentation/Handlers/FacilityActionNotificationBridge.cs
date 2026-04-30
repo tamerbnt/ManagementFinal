@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Management.Presentation.Handlers
 {
@@ -24,6 +25,7 @@ namespace Management.Presentation.Handlers
         private readonly ISaleService _saleService;
         private readonly IMediator _mediator;
         private readonly ISalonService _salonService;
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public FacilityActionNotificationBridge(
             IMessenger messenger, 
@@ -31,7 +33,8 @@ namespace Management.Presentation.Handlers
             IMemberService memberService,
             ISaleService saleService,
             IMediator mediator,
-            ISalonService salonService)
+            ISalonService salonService,
+            IServiceScopeFactory scopeFactory)
         {
             _messenger = messenger;
             _toastService = toastService;
@@ -39,6 +42,7 @@ namespace Management.Presentation.Handlers
             _saleService = saleService;
             _mediator = mediator;
             _salonService = salonService;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task Handle(FacilityActionCompletedNotification notification, CancellationToken cancellationToken)
@@ -76,29 +80,33 @@ namespace Management.Presentation.Handlers
                         {
                             try 
                             {
-                                foreach (var idString in entityIdStrings)
+                                using (var scope = _scopeFactory.CreateScope())
                                 {
-                                    if (!Guid.TryParse(idString, out var entityId)) continue;
+                                    var scopedMediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                                    var scopedSalonService = scope.ServiceProvider.GetRequiredService<ISalonService>();
+                                    var scopedSaleService = scope.ServiceProvider.GetRequiredService<ISaleService>();
 
-                                    if (notification.ActionType == "Registration")
+                                    foreach (var idString in entityIdStrings)
                                     {
-                                        // Use the new atomic UndoRegistrationCommand to avoid AppDbContext concurrency issues
-                                        // and ensure data integrity (Member + Sales deleted correctly in one transaction)
-                                        await _mediator.Send(new Application.Features.Members.Commands.UndoRegistration.UndoRegistrationCommand(entityId, notification.FacilityId));
-                                        
-                                        _messenger.Send(new RefreshRequiredMessage<Member>(notification.FacilityId));
-                                        _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
-                                    }
-                                    else if (notification.ActionType == "Appointment")
-                                    {
-                                        await _salonService.CancelAppointmentAsync(entityId);
-                                        _messenger.Send(new RefreshRequiredMessage<Appointment>(notification.FacilityId));
-                                    }
-                                    else
-                                    {
-                                        // Sale, QuickSale, Walk-In, Checkout
-                                        await _saleService.CancelSaleAsync(entityId);
-                                        _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                        if (!Guid.TryParse(idString, out var entityId)) continue;
+
+                                        if (notification.ActionType == "Registration")
+                                        {
+                                            await scopedMediator.Send(new Application.Features.Members.Commands.UndoRegistration.UndoRegistrationCommand(entityId, notification.FacilityId));
+                                            
+                                            _messenger.Send(new RefreshRequiredMessage<Member>(notification.FacilityId));
+                                            _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                        }
+                                        else if (notification.ActionType == "Appointment")
+                                        {
+                                            await scopedSalonService.CancelAppointmentAsync(entityId);
+                                            _messenger.Send(new RefreshRequiredMessage<Appointment>(notification.FacilityId));
+                                        }
+                                        else
+                                        {
+                                            await scopedSaleService.CancelSaleAsync(entityId);
+                                            _messenger.Send(new RefreshRequiredMessage<Sale>(notification.FacilityId));
+                                        }
                                     }
                                 }
                                 

@@ -39,7 +39,7 @@ namespace Management.Infrastructure.Repositories
                 query = query.Where(s => s.FacilityId == facilityId.Value);
             }
 
-            return await query.FirstOrDefaultAsync();
+            return await query.OrderByDescending(s => s.Role).FirstOrDefaultAsync();
         }
 
         public async Task<StaffMember?> GetByEmailAndFacilityTypeAsync(string email, Management.Domain.Enums.FacilityType targetType)

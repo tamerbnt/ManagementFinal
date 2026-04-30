@@ -6,6 +6,7 @@ namespace Management.Application.DTOs
         string DateFormat,
         bool HighContrast,
         bool ReducedMotion,
-        string TextScale
+        string TextScale,
+        string LightPalette = "Default"   // "Default" | "Alternate" — light sub-theme per facility
     );
 }

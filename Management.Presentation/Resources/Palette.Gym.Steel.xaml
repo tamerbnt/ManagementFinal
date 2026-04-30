@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- GYM — "Steel" Palette (Alternate) -->
+    <!-- Slate backgrounds + muted steel blue accent recovered from Themes/Gym.xaml history -->
+
+    <SolidColorBrush x:Key="WindowBg"              Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="ContentAreaBg"          Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="SurfaceBg"              Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="SurfaceBgDim"           Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush"    Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="CardBorderBrush"        Color="#E2E8F0"/>
+    <SolidColorBrush x:Key="SurfaceBgSecondary"     Color="#F8FAFC"/>
+
+    <SolidColorBrush x:Key="Brush.Window.Background"  Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="Brush.Surface.Primary"    Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="Brush.Surface.Header"     Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="Brush.Surface.Subtle"     Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="Brush.Border.Subtle"      Color="#E2E8F0"/>
+
+    <!-- Steel accent — muted steel blue -->
+    <Color  x:Key="FacilityAccentColor">       #5B8AB8</Color>
+    <Color  x:Key="FacilityAccentShadowColor"> #4A73A0</Color>
+    <SolidColorBrush x:Key="FacilityAccentBrush"    Color="#5B8AB8"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="#5B8AB8" Opacity="0.15"/>
+    <SolidColorBrush x:Key="AccentBrush"            Color="#5B8AB8"/>
+    <Color  x:Key="AccentColor">               #5B8AB8</Color>
+    <Color  x:Key="AccentLightColor">          #DBEAFE</Color>
+    <SolidColorBrush x:Key="Brush.Brand.Primary"      Color="#5B8AB8"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush"         Color="#5B8AB8"/>
+
+    <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#4A73A0" Offset="0"/>
+        <GradientStop Color="#5B8AB8" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

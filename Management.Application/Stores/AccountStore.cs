@@ -78,10 +78,13 @@ namespace Management.Application.Stores
         /// <param name="permissionName">The name/code of the permission to check.</param>
         public bool HasPermission(string permissionName)
         {
-            if (!IsLoggedIn) return false;
+            if (!IsLoggedIn || CurrentAccount == null) return false;
+
+            // Owner override: Owners can do everything
+            if (CurrentAccount.Role == Domain.Enums.StaffRole.Owner || CurrentAccount.IsOwner) return true;
 
             // Assuming StaffDto has a List<PermissionDto> as defined in Domain layer
-            return CurrentAccount?.Permissions != null &&
+            return CurrentAccount.Permissions != null &&
                    CurrentAccount.Permissions.Any(p => p.Name.Equals(permissionName, StringComparison.OrdinalIgnoreCase) && p.IsGranted);
         }
 

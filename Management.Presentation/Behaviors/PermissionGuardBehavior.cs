@@ -6,32 +6,17 @@ namespace Management.Presentation.Behaviors
 {
     public class PermissionGuardBehavior : Behavior<UIElement>
     {
-        public static readonly DependencyProperty RequiredRolesProperty =
-            DependencyProperty.Register("RequiredRoles", typeof(string), typeof(PermissionGuardBehavior), 
-                new PropertyMetadata(string.Empty, OnRequiredRolesChanged));
+        public static readonly DependencyProperty RequiredPermissionProperty =
+            DependencyProperty.Register("RequiredPermission", typeof(string), typeof(PermissionGuardBehavior), 
+                new PropertyMetadata(string.Empty, OnRequiredPermissionChanged));
 
-        public string RequiredRoles
+        public string RequiredPermission
         {
-            get => (string)GetValue(RequiredRolesProperty);
-            set => SetValue(RequiredRolesProperty, value);
+            get => (string)GetValue(RequiredPermissionProperty);
+            set => SetValue(RequiredPermissionProperty, value);
         }
 
-        public static readonly DependencyProperty UserRoleProperty =
-            DependencyProperty.Register("UserRole", typeof(string), typeof(PermissionGuardBehavior), 
-                new PropertyMetadata(string.Empty, OnUserRoleChanged));
-
-        public string UserRole
-        {
-            get => (string)GetValue(UserRoleProperty);
-            set => SetValue(UserRoleProperty, value);
-        }
-
-        private static void OnRequiredRolesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((PermissionGuardBehavior)d).UpdateVisibility();
-        }
-
-        private static void OnUserRoleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnRequiredPermissionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((PermissionGuardBehavior)d).UpdateVisibility();
         }
@@ -40,21 +25,38 @@ namespace Management.Presentation.Behaviors
         {
             if (AssociatedObject == null) return;
 
-            if (string.IsNullOrEmpty(RequiredRoles))
+            if (string.IsNullOrEmpty(RequiredPermission))
             {
                 AssociatedObject.Visibility = Visibility.Visible;
                 return;
             }
 
-            var allowedRoles = RequiredRoles.Split(',').Select(r => r.Trim());
-            if (allowedRoles.Contains(UserRole))
+            // In design mode, always show
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
             {
                 AssociatedObject.Visibility = Visibility.Visible;
+                return;
             }
-            else
+
+            try 
             {
-                AssociatedObject.Visibility = Visibility.Collapsed;
+                var app = System.Windows.Application.Current as App;
+                if (app?.ServiceProvider != null)
+                {
+                    var accountStore = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<Management.Application.Stores.AccountStore>(app.ServiceProvider);
+                    if (accountStore != null && accountStore.HasPermission(RequiredPermission))
+                    {
+                        AssociatedObject.Visibility = Visibility.Visible;
+                        return;
+                    }
+                }
             }
+            catch 
+            {
+                // Fallback for missing services or unexpected errors
+            }
+
+            AssociatedObject.Visibility = Visibility.Collapsed;
         }
 
         protected override void OnAttached()

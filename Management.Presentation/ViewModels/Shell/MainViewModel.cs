@@ -465,16 +465,20 @@ namespace Management.Presentation.ViewModels.Shell
         private void RefreshMenu()
         {
             var items = _navigationRegistry.GetItems(_facilityContext.CurrentFacility);
+            var accountStore = _serviceProvider.GetRequiredService<AccountStore>();
 
             // Populate synchronously so MenuItems is ready before InitializeInitialView() is called
             MenuItems.Clear();
             foreach (var item in items)
             {
-                MenuItems.Add(new NavigationItemViewModel(
-                    _terminologyService.GetTerm(item.ResourceKey),
-                    item.ResourceKey,
-                    item.IconKey,
-                    item.TargetViewModelType));
+                if (string.IsNullOrEmpty(item.RequiredPermission) || accountStore.HasPermission(item.RequiredPermission))
+                {
+                    MenuItems.Add(new NavigationItemViewModel(
+                        _terminologyService.GetTerm(item.ResourceKey),
+                        item.ResourceKey,
+                        item.IconKey,
+                        item.TargetViewModelType));
+                }
             }
         }
 
@@ -732,12 +736,23 @@ namespace Management.Presentation.ViewModels.Shell
             try
             {
                 var navigationStore = _serviceProvider.GetRequiredService<NavigationStore>();
+                var accountStore = _serviceProvider.GetRequiredService<AccountStore>();
 
                 // Secondary guard: avoid redundant navigation to the same VM type
                 if (navigationStore.CurrentViewModel?.GetType() == viewModelType ||
                     navigationStore.NextViewModel?.GetType() == viewModelType)
                 {
                     Serilog.Log.Debug("[Navigation] Already on {Type} — shortcut ignored", viewModelType.Name);
+                    return;
+                }
+
+                // Security check
+                var items = _navigationRegistry.GetItems(_facilityContext.CurrentFacility);
+                var targetItem = items.FirstOrDefault(i => i.TargetViewModelType == viewModelType);
+                if (targetItem != null && !string.IsNullOrEmpty(targetItem.RequiredPermission) && !accountStore.HasPermission(targetItem.RequiredPermission))
+                {
+                    _toastService.ShowError("Access Denied: You do not have permission to view this screen.");
+                    Serilog.Log.Warning("[Navigation] Access Denied to {Type}", viewModelType.Name);
                     return;
                 }
 

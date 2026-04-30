@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,7 +22,6 @@ using Management.Presentation.Extensions;
 using Management.Application.Services;
 using Management.Domain.Services;
 
-using System.Linq;
 using Management.Application.DTOs;
 
 using Management.Presentation.Helpers;
@@ -31,6 +34,18 @@ namespace Management.Presentation.ViewModels.History
         Last15Days,
         Last30Days,
         All
+    }
+
+    public enum HistorySortOption
+    {
+        Time
+    }
+
+    public enum HistoryFilterOption
+    {
+        All,
+        Active,
+        Undone
     }
 
     public partial class HistoryViewModel : ViewModelBase,
@@ -72,21 +87,42 @@ namespace Management.Presentation.ViewModels.History
         
         [ObservableProperty] private DateTime _selectedDay = DateTime.Today;
         [ObservableProperty] private string _dateRangeText = "Filter Status";
+        [ObservableProperty] private HistoryFilterOption _selectedFilter = HistoryFilterOption.All;
 
         partial void OnSelectedDayChanged(DateTime value)
         {
              _ = LoadHistoryAsync();
         }
 
-        partial void OnSearchTextChanged(string value) => HistoryEventsView.Refresh();
+        partial void OnSelectedFilterChanged(HistoryFilterOption value) => ApplyViewSettings();
+
+        partial void OnSearchTextChanged(string value)
+        {
+            _refreshDebounceCts?.Cancel();
+            _refreshDebounceCts = new System.Threading.CancellationTokenSource();
+            var token = _refreshDebounceCts.Token;
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (!token.IsCancellationRequested)
+                    {
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => HistoryEventsView.Refresh());
+                    }
+                }
+                catch (TaskCanceledException) { }
+            }, token);
+        }
 
         public IAsyncRelayCommand PreviousDayCommand { get; }
         public IAsyncRelayCommand NextDayCommand { get; }
         public IAsyncRelayCommand LoadHistoryCommand { get; }
         public IAsyncRelayCommand SaveAuditNoteCommand { get; }
         public IAsyncRelayCommand PrintSelectedEventCommand { get; }
-        public IRelayCommand<HistoryDateRange> ChangeDateRangeCommand { get; }
         public IRelayCommand CloseDetailCommand { get; }
+        public IRelayCommand ClearSearchCommand { get; }
         public IRelayCommand SelectDateRangeCommand { get; }
         public IAsyncRelayCommand ExportCommand { get; }
         public IRelayCommand PrintReportCommand { get; }
@@ -129,40 +165,55 @@ namespace Management.Presentation.ViewModels.History
             _syncService.SyncCompleted += OnSyncCompleted;
             
             HistoryEventsView = System.Windows.Data.CollectionViewSource.GetDefaultView(HistoryEvents);
-            HistoryEventsView.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(HistoryEventItemViewModel.Timestamp), System.ComponentModel.ListSortDirection.Descending));
+            HistoryEventsView.Filter = FilterEvents;
+            
+            ApplyViewSettings();
 
             LoadHistoryCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(LoadHistoryAsync);
             SaveAuditNoteCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(SaveAuditNoteAsync);
             PrintSelectedEventCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(PrintSelectedEventAsync);
             CloseDetailCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(CloseDetail);
+            ClearSearchCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => SearchText = string.Empty);
             
             PreviousDayCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => { SelectedDay = SelectedDay.AddDays(-1); return Task.CompletedTask; });
             NextDayCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => { SelectedDay = SelectedDay.AddDays(1); return Task.CompletedTask; });
-
-            ChangeDateRangeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<HistoryDateRange>(range => { /* Legacy */ });
             SelectDateRangeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Use the navigation buttons to change dates."));
             ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExportHistoryAsync);
             PrintReportCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Preparing print..."));
-
-            HistoryEventsView.Filter = FilterHistory;
 
             // Subscribe to sale/payment events so history refreshes immediately on local actions
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<Sale>>(this);
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<PayrollEntry>>(this);
         }
 
-        private bool FilterHistory(object obj)
+        private void ApplyViewSettings()
         {
-            if (obj is not HistoryEventItemViewModel item) return false;
+            if (HistoryEvents.Count == 0) return;
 
-            // Search Filter
-            if (!string.IsNullOrWhiteSpace(SearchText))
+            // Simple chronological sort (Production Default)
+            var sortedList = HistoryEvents.OrderByDescending(x => x.Timestamp).ToList();
+
+            HistoryEvents.ReplaceRange(sortedList);
+            HistoryEventsView.Refresh();
+        }
+
+        private bool FilterEvents(object obj)
+        {
+            if (obj is not HistoryEventItemViewModel vm) return false;
+
+            // 1. Deep Search Filter (Matches against the aggregated SearchableContent)
+            bool matchesSearch = string.IsNullOrWhiteSpace(SearchText) ||
+                               vm.SearchableContent.Contains(SearchText.ToLower(), StringComparison.OrdinalIgnoreCase);
+
+            if (!matchesSearch) return false;
+
+            // 2. Status Filter
+            return SelectedFilter switch
             {
-                return item.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                       item.Details.Contains(SearchText, StringComparison.OrdinalIgnoreCase);
-            }
-
-            return true;
+                HistoryFilterOption.Active => !vm.IsDeleted,
+                HistoryFilterOption.Undone => vm.IsDeleted,
+                _ => true
+            };
         }
 
         private void CloseDetail()
@@ -200,7 +251,7 @@ namespace Management.Presentation.ViewModels.History
                 var startUtc = startLocal.ToUniversalTime();
                 var endUtc = endLocal.ToUniversalTime();
 
-                var events = await provider.GetHistoryAsync(facilityId, startUtc, endUtc);
+                var events = await provider.GetHistoryAsync(facilityId, startUtc, endUtc, true);
 
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                 {
@@ -227,11 +278,16 @@ namespace Management.Presentation.ViewModels.History
                         vm.Timestamp = e.Timestamp.ToLocalTime();
                         vm.AuditNote = e.AuditNote;
                         vm.Id = e.Id;
+                        vm.IsDeleted = e.IsDeleted;
+                        vm.UpdateSearchableContent(); // Pre-calculate for instant search
                         return vm;
                     });
 
-                    HistoryEvents.ReplaceRange(vms);
-                    HistoryEventsView.Refresh();
+                    // Default chronological sort
+                    var finalVms = vms.OrderByDescending(x => x.Timestamp).ToList();
+
+                    HistoryEvents.ReplaceRange(finalVms);
+                    ApplyViewSettings();
                 });
             }
             catch (Exception ex)

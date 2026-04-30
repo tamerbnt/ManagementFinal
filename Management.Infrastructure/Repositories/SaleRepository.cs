@@ -13,12 +13,12 @@ namespace Management.Infrastructure.Repositories
     {
         public SaleRepository(AppDbContext context) : base(context) { }
 
-        public async Task<IEnumerable<Sale>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        public async Task<IEnumerable<Sale>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false)
         {
             return await _dbSet.AsNoTracking()
                 .IgnoreQueryFilters() // Bypass global filter to allow explicit facility override
                 .Include(s => s.Items) // Eager load items for receipt details
-                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end && !s.IsDeleted)
+                .Where(s => s.FacilityId == facilityId && s.Timestamp >= start && s.Timestamp <= end && (includeDeleted || !s.IsDeleted))
                 .OrderByDescending(s => s.Timestamp)
                 .ToListAsync();
         }

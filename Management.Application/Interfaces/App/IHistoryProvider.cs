@@ -13,7 +13,7 @@ namespace Management.Application.Interfaces.App
         /// <summary>
         /// Gets history events for the specified range.
         /// </summary>
-        Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate);
+        Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate, bool includeDeleted = false);
         
         /// <summary>
         /// Gets the name of the segment this provider handles.

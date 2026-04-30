@@ -53,6 +53,7 @@
     <converters:RectConverter x:Key="RectConverter"/>
 
     <!-- Group 3: Text & Formatting -->
+    <converters:NullableIntToStringConverter x:Key="NullableIntToStringConverter"/>
     <converters:RelativeTimeConverter x:Key="RelativeTimeConverter"/>
     <converters:ResourceKeyToIconConverter x:Key="ResourceKeyToIconConverter"/>
     <converters:ResourceLookupConverter x:Key="ResourceLookupConverter"/>

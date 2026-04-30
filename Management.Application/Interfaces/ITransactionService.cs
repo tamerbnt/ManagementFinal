@@ -11,7 +11,7 @@ namespace Management.Application.Interfaces
         Task SaveAsync(Transaction transaction);
         Task<Transaction?> GetByIdAsync(Guid id, Guid? facilityId = null);
         Task<Result<IEnumerable<Transaction>>> GetHistoryAsync(Guid facilityId);
-        Task<Result<IEnumerable<Transaction>>> GetHistoryByRangeAsync(Guid facilityId, DateTime start, DateTime end);
+        Task<Result<IEnumerable<Transaction>>> GetHistoryByRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false);
         Task<Result> SaveAuditNoteAsync(Guid transactionId, Guid facilityId, string note);
     }
 }

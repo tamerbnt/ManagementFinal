@@ -13,6 +13,7 @@ using Management.Application.Interfaces.App;
 using Management.Domain.Enums;
 using Management.Domain.Services;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Management.Application.Features.Members.Commands.UpdateMember
 {
@@ -25,6 +26,7 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
         private readonly IFacilityContextService _facilityContext;
 
         private readonly IMediator _mediator;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly Microsoft.Extensions.Logging.ILogger<UpdateMemberCommandHandler> _logger;
 
         public UpdateMemberCommandHandler(
@@ -34,6 +36,7 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             IGymOperationService gymService,
             IFacilityContextService facilityContext,
             IMediator mediator,
+            IServiceScopeFactory scopeFactory,
             Microsoft.Extensions.Logging.ILogger<UpdateMemberCommandHandler> logger)
         {
             _memberRepository = memberRepository;
@@ -42,6 +45,7 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             _gymService = gymService;
             _facilityContext = facilityContext;
             _mediator = mediator;
+            _scopeFactory = scopeFactory;
             _logger = logger;
         }
 
@@ -159,12 +163,16 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
             {
                 try 
                 {
-                    await _mediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
-                        member.FacilityId,
-                        "MemberUpdate",
-                        member.FullName,
-                        $"Updated profile for {member.FullName}",
-                        member.Id.ToString()));
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var scopedMediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        await scopedMediator.Publish(new Application.Notifications.FacilityActionCompletedNotification(
+                            member.FacilityId,
+                            "MemberUpdate",
+                            member.FullName,
+                            $"Updated profile for {member.FullName}",
+                            member.Id.ToString()));
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -355,8 +355,8 @@ namespace Management.Presentation.ViewModels.GymHome
             GreetingText = string.IsNullOrEmpty(name) ? salutation : $"{salutation}, {name}";
 
             // Split properties for the redesigned 3-layer greeting card
-            GreetingLabel = salutation.ToUpperInvariant();
-            GreetingName  = string.IsNullOrEmpty(name) ? string.Empty : $"{name}.";
+            GreetingLabel = salutation;
+            GreetingName  = name;
         }
 
         private static string GetResource(string key, string fallback)
@@ -404,7 +404,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     }
 
                     // Populate Avatars
-                   _ = UpdateActiveAvatarsAsync(facilityId, operationService);
+                   _ = UpdateActiveAvatarsAsync(facilityId);
                });
            }
            catch (Exception ex)
@@ -691,6 +691,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     {
                         ActivityStream.Add(item);
                     }
+                    IsActivityEmpty = !ActivityStream.Any();
                 });
             }
             catch (Exception ex)
@@ -699,10 +700,12 @@ namespace Management.Presentation.ViewModels.GymHome
             }
         }
 
-        private async Task UpdateActiveAvatarsAsync(Guid facilityId, IGymOperationService operationService)
+        private async Task UpdateActiveAvatarsAsync(Guid facilityId)
         {
             try
             {
+                using var scope = _scopeFactory.CreateScope();
+                var operationService = scope.ServiceProvider.GetRequiredService<IGymOperationService>();
                 var avatars = await operationService.GetPeopleInsideAvatarsAsync(facilityId);
                 var avatarList = avatars.ToList();
 
@@ -1055,6 +1058,9 @@ namespace Management.Presentation.ViewModels.GymHome
                     ActivityStream.Insert(0, logItem);
                     if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
                     IsActivityEmpty = !ActivityStream.Any();
+                    
+                    // Refresh avatars after a check-in
+                    _ = UpdateActiveAvatarsAsync(_facilityContext.CurrentFacilityId);
                     
                     // CRITICAL FIX: Update ALL relevant cards immediately
                     if (stats != null)

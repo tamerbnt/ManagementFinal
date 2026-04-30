@@ -200,7 +200,7 @@ namespace Management.Infrastructure.Services
             }
 
             // Seed discovery
-            var firstProfile = remoteProfiles.First();
+            var firstProfile = remoteProfiles.OrderByDescending(p => p.Role).First();
             _tenantService.SetTenantId(firstProfile.TenantId);
             await SeedLocalFacilitiesFromSupabaseAsync(firstProfile.TenantId);
 
@@ -208,11 +208,12 @@ namespace Management.Infrastructure.Services
             SupabaseStaffMember? validRemoteProfile = null;
             if (facilityId.HasValue && facilityId.Value != Guid.Empty)
             {
-                validRemoteProfile = remoteProfiles.FirstOrDefault(p => p.FacilityId == facilityId.Value);
+                validRemoteProfile = remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault(p => p.FacilityId == facilityId.Value);
             }
             else if (targetType.HasValue)
             {
-                foreach (var profile in remoteProfiles)
+                // Sort by role descending inside the loop or pre-sort
+                foreach (var profile in remoteProfiles.OrderByDescending(p => p.Role))
                 {
                     var localFacilityType = await _staffRepository.GetFacilityTypeByIdAsync(profile.FacilityId);
                     if (localFacilityType.HasValue && localFacilityType.Value == targetType.Value)
@@ -224,7 +225,7 @@ namespace Management.Infrastructure.Services
             }
             else
             {
-                validRemoteProfile = remoteProfiles.FirstOrDefault();
+                validRemoteProfile = remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault();
             }
 
             if (validRemoteProfile != null)
@@ -575,7 +576,7 @@ namespace Management.Infrastructure.Services
                     };
 
                     var remoteProfiles = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SupabaseStaffMember>>(rpcResponse.Content, _snakeCaseSettings);
-                    var validRemoteProfile = remoteProfiles?.FirstOrDefault(p => p.FacilityId == facilityId) ?? remoteProfiles?.FirstOrDefault();
+                    var validRemoteProfile = remoteProfiles?.OrderByDescending(p => p.Role).FirstOrDefault(p => p.FacilityId == facilityId) ?? remoteProfiles?.OrderByDescending(p => p.Role).FirstOrDefault();
 
                     if (validRemoteProfile != null)
                     {
@@ -939,7 +940,8 @@ namespace Management.Infrastructure.Services
                 Role = entity.Role,
                 HireDate = entity.HireDate,
                 Status = entity.IsActive ? "Active" : "Inactive",
-                Permissions = GeneratePermissionsForRole(entity.Role)
+                Permissions = GeneratePermissionsForRole(entity.Role),
+                IsOwner = entity.Role == Management.Domain.Enums.StaffRole.Owner
             };
         }
 

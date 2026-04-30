@@ -719,6 +719,32 @@ namespace Management.Presentation
                     var mainWindow = ServiceProvider.GetRequiredService<Management.Presentation.Views.Shell.MainWindow>();
                     var oldWindow = Current.MainWindow;
 
+                    // CRITICAL: Orchestrate Startup Theme BEFORE showing the window to prevent UI flicker.
+                    // Read from the local theme-prefs.json file written by ThemeManager on every user change.
+                    // This bypasses the DB entirely, avoiding the Guid.Empty race condition that previously
+                    // caused GetAppearanceSettingsAsync to return default values and reset the user's preferences.
+                    try
+                    {
+                        var facilityContextService = ServiceProvider.GetRequiredService<Management.Domain.Services.IFacilityContextService>();
+                        var (savedTheme, savedPalette) = Management.Presentation.Services.ThemeManager.LoadPrefs();
+
+                        var palette = savedPalette ?? Management.Presentation.Services.LightPalette.Default;
+                        var theme   = savedTheme   ?? Management.Presentation.Services.AppTheme.Light;
+
+                        // Apply palette first, then theme (SetTheme also calls SetFacility which re-applies palette)
+                        Management.Presentation.Services.ThemeManager.SetLightPalette(palette);
+                        Management.Presentation.Services.ThemeManager.SetTheme(theme, facilityContextService.CurrentFacility);
+
+                        Serilog.Log.Information("[INIT] Startup theme applied from local prefs: Theme={Theme}, Palette={Palette}", theme, palette);
+                    }
+                    catch (Exception themeEx)
+                    {
+                        Serilog.Log.Error(themeEx, "[INIT] Failed to apply startup theme from local prefs. Falling back to defaults.");
+                        var facilityContextService = ServiceProvider.GetRequiredService<Management.Domain.Services.IFacilityContextService>();
+                        Management.Presentation.Services.ThemeManager.SetLightPalette(Management.Presentation.Services.LightPalette.Default);
+                        Management.Presentation.Services.ThemeManager.SetTheme(Management.Presentation.Services.AppTheme.Light, facilityContextService.CurrentFacility);
+                    }
+
                     Current.MainWindow = mainWindow;
                     mainWindow.Show();
                     Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
@@ -1847,33 +1873,33 @@ namespace Management.Presentation
 
             // --- GYM ---
             registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(GymHomeViewModel), 0));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Members", "Terminology.Sidebar.Members", "Icon.Users", typeof(MembersViewModel), 2));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Registrations", "Terminology.Sidebar.Registrations", "Icon.UserCheck", typeof(Management.Presentation.ViewModels.Registrations.RegistrationsViewModel), 3));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 4));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.Storefront", typeof(ShopViewModel), 6));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.ChartBar", typeof(DashboardViewModel), 1, Management.Domain.Constants.SystemPermissions.ViewDashboard));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Members", "Terminology.Sidebar.Members", "Icon.Members", typeof(MembersViewModel), 2, Management.Domain.Constants.SystemPermissions.CreateMember));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Registrations", "Terminology.Sidebar.Registrations", "Icon.RegistrationForm", typeof(Management.Presentation.ViewModels.Registrations.RegistrationsViewModel), 3));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.HistoryRewind", typeof(HistoryViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.StaffBadge", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5, Management.Domain.Constants.SystemPermissions.CreateStaff));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.ShoppingBag", typeof(ShopViewModel), 6, Management.Domain.Constants.SystemPermissions.ModifyProduct));
 
             // --- SALON ---
             registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(SalonHomeViewModel), 0));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Schedule", "Terminology.Sidebar.Schedule", "Icon.Calendar", typeof(AppointmentsViewModel), 2));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Clients", "Terminology.Sidebar.Clients", "Icon.Users", typeof(MembersViewModel), 3));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Bookings", "Terminology.Sidebar.Registrations", "Icon.UserCheck", typeof(RegistrationsViewModel), 4));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(FinanceAndStaffViewModel), 5));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 6));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.Storefront", typeof(ShopViewModel), 7));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.ChartBar", typeof(DashboardViewModel), 1, Management.Domain.Constants.SystemPermissions.ViewDashboard));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Schedule", "Terminology.Sidebar.Schedule", "Icon.Appointments", typeof(AppointmentsViewModel), 2));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Clients", "Terminology.Sidebar.Clients", "Icon.Members", typeof(MembersViewModel), 3, Management.Domain.Constants.SystemPermissions.CreateMember));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Bookings", "Terminology.Sidebar.Registrations", "Icon.RegistrationForm", typeof(RegistrationsViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.StaffBadge", typeof(FinanceAndStaffViewModel), 5, Management.Domain.Constants.SystemPermissions.CreateStaff));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.HistoryRewind", typeof(HistoryViewModel), 6));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.ShoppingBag", typeof(ShopViewModel), 7, Management.Domain.Constants.SystemPermissions.ModifyProduct));
 
             // --- RESTAURANT ---
             registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(RestaurantHomeViewModel), 0));
-            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.TrendingUp", typeof(DashboardViewModel), 1));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Dashboard", "Terminology.Sidebar.Dashboard", "Icon.ChartBar", typeof(DashboardViewModel), 1, Management.Domain.Constants.SystemPermissions.ViewDashboard));
             registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Floor Plan", "Terminology.Sidebar.FloorPlan", "IconDashboard", typeof(FloorPlanViewModel), 2));
             registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Menu", "Terminology.Settings.Menu", "IconShop", typeof(MenuManagementViewModel), 3));
-            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.Clock", typeof(HistoryViewModel), 4));
-            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.Users", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.HistoryRewind", typeof(HistoryViewModel), 4));
+            registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.StaffBadge", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5, Management.Domain.Constants.SystemPermissions.CreateStaff));
 
             // --- GENERAL (Neutral fallback) ---
-            registry.Register(Domain.Enums.FacilityType.General, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(DashboardViewModel), 0));
+            registry.Register(Domain.Enums.FacilityType.General, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(DashboardViewModel), 0, Management.Domain.Constants.SystemPermissions.ViewDashboard));
         }
 
         private void UpdateStartupStatus(string status)

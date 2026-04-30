@@ -1,0 +1,22 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- SALON — "Midnight Blush" Palette (Cool / Default) -->
+    <!-- Resets to the standard cool gray/white light backgrounds -->
+
+    <SolidColorBrush x:Key="WindowBg"              Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="ContentAreaBg"          Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="SurfaceBg"              Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceBgDim"           Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBorderBrush"        Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="SurfaceBgSecondary"     Color="#F8FAFC"/>
+
+    <SolidColorBrush x:Key="Brush.Window.Background"  Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Primary"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Header"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Subtle"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Border.Subtle"      Color="#E5E7EB"/>
+
+</ResourceDictionary>

@@ -45,6 +45,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:Double x:Key="SizeIconContainer">64</sys:Double>
     <sys:Double x:Key="SizeProductCardHeight">350</sys:Double>
     <GridLength x:Key="SizeProductImageHeight">180</GridLength>
+    <sys:Double x:Key="SizeMemberCardHeight">240</sys:Double>
+    <sys:Double x:Key="SizePaymentTileHeight">100</sys:Double>
 
     
     <!-- Component Widths -->

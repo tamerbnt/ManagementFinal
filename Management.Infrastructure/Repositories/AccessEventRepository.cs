@@ -23,10 +23,10 @@ namespace Management.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<AccessEvent>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        public async Task<IEnumerable<AccessEvent>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false)
         {
             return await _dbSet.IgnoreQueryFilters()
-                .Where(e => e.FacilityId == facilityId && !e.IsDeleted && e.Timestamp >= start && e.Timestamp <= end)
+                .Where(e => e.FacilityId == facilityId && (includeDeleted || !e.IsDeleted) && e.Timestamp >= start && e.Timestamp <= end)
                 .OrderByDescending(e => e.Timestamp)
                 .ToListAsync();
         }

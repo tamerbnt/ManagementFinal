@@ -11,6 +11,7 @@ namespace Management.Presentation.Services.Navigation
         string ResourceKey,
         string IconKey,
         Type TargetViewModelType,
-        int Order = 0
+        int Order = 0,
+        string? RequiredPermission = null
     );
 }

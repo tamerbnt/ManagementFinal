@@ -126,7 +126,7 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Grid>
+    <Grid Focusable="True" Background="Transparent">
         <!-- Liquid Layout Header -->
         <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
 using CommunityToolkit.Mvvm.Input;
 using Management.Application.Stores;
 using Management.Application.Interfaces.App;
@@ -43,6 +45,10 @@ namespace Management.Presentation.ViewModels.Shell
                 value ? Management.Presentation.Services.AppTheme.Dark : Management.Presentation.Services.AppTheme.Light,
                 _facilityContext.CurrentFacility);
             
+            // Broadcast change to other VMs (Settings)
+            WeakReferenceMessenger.Default.Send(new AppearanceChangedMessage(new AppearanceChangeInfo(
+                !value, ThemeManager.CurrentLightPalette.ToString(), IsThemeChange: true)));
+
             Task.Run(async () =>
             {
                 try
@@ -50,13 +56,7 @@ namespace Management.Presentation.ViewModels.Shell
                     var settingsService = _serviceProvider.GetService<Management.Domain.Interfaces.ISettingsService>();
                     if (settingsService != null)
                     {
-                        var result = await settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
-                        if (result.IsSuccess)
-                        {
-                            var currentSettings = result.Value;
-                            var updatedSettings = currentSettings with { IsLightMode = !value };
-                            await settingsService.UpdateAppearanceSettingsAsync(_facilityContext.CurrentFacilityId, updatedSettings);
-                        }
+                        await settingsService.UpdateThemeModeAsync(_facilityContext.CurrentFacilityId, !value);
                     }
                 }
                 catch (Exception ex)
@@ -179,6 +179,9 @@ namespace Management.Presentation.ViewModels.Shell
             _searchService = searchService;
             _navigationService = navigationService;
 
+            // Sync initial state from ThemeManager
+            _isDarkTheme = Management.Presentation.Services.ThemeManager.CurrentTheme == Management.Presentation.Services.AppTheme.Dark;
+
             _notificationStore.UnreadCountChanged += () =>
             {
                 NotificationCount = _notificationStore.UnreadCount;
@@ -191,29 +194,30 @@ namespace Management.Presentation.ViewModels.Shell
 
             // Initial State
             IsOnline = _connectionService.IsOnline();
-            
             IsRfidConnected = _rfidReader.IsConnected;
 
-            // Initialize Theme
-            Task.Run(async () =>
+            // Register for appearance sync messages
+            WeakReferenceMessenger.Default.Register<AppearanceChangedMessage>(this, (r, m) =>
             {
-                try
+                var info = m.Value;
+                // Sync without re-triggering persistence loop
+                _isDarkTheme = !info.IsLightMode;
+                OnPropertyChanged(nameof(IsDarkTheme));
+                
+                if (info.IsPaletteChange)
                 {
-                    var settingsService = _serviceProvider.GetService<Management.Domain.Interfaces.ISettingsService>();
-                    if (settingsService != null)
+                    var palette = info.LightPalette switch
                     {
-                        var appearance = await settingsService.GetAppearanceSettingsAsync(_facilityContext.CurrentFacilityId);
-                        if (appearance.IsSuccess)
-                        {
-                            _isDarkTheme = !appearance.Value.IsLightMode;
-                            OnPropertyChanged(nameof(IsDarkTheme));
-                        }
-                    }
+                        "Alternate" => Management.Presentation.Services.LightPalette.Alternate,
+                        "Classic"   => Management.Presentation.Services.LightPalette.Classic,
+                        _           => Management.Presentation.Services.LightPalette.Default
+                    };
+                    Management.Presentation.Services.ThemeManager.SetLightPalette(palette);
                 }
-                catch { }
             });
 
-            // Subscription
+            // Subscriptions
+            _facilityContext.FacilityChanged += OnFacilityChanged;
             _connectionService.ConnectionStatusChanged += OnConnectionStatusChanged;
             _connectionService.SupabaseStatusChanged += OnSupabaseStatusChanged;
             _rfidReader.ConnectionStatusChanged += OnRfidConnectionStatusChanged;
@@ -486,6 +490,11 @@ namespace Management.Presentation.ViewModels.Shell
             // Use the enhanced service to check real connectivity
             IsOnline = _connectionService.IsOnline();
             _logger.LogInformation("Connection status changed: {IsOnline}", IsOnline);
+        }
+
+        private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
+        {
+            // Logic handled by settings reloading
         }
 
         private void OnSupabaseStatusChanged(bool isReachable)

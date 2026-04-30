@@ -30,7 +30,7 @@ namespace Management.Application.Services.History
             _inventoryService = inventoryService;
         }
 
-        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate, bool includeDeleted = false)
         {
             // Parallel fetch for all restaurant history sources
             var ordersTask = _orderService.GetOrdersByRangeAsync(facilityId, startDate, endDate);

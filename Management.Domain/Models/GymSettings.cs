@@ -30,5 +30,6 @@ namespace Management.Domain.Models
         public bool HighContrast { get; set; } = false;
         public bool ReducedMotion { get; set; } = false;
         public string TextScale { get; set; } = "100%";
+        public string LightPalette { get; set; } = "Default";
     }
 }

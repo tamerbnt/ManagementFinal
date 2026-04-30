@@ -20,6 +20,12 @@ namespace Management.Presentation.Services.State
         private readonly object _lock = new object();
         private StaffDto? _currentUser;
         private FacilityType _currentFacility;
+        private readonly Management.Application.Stores.AccountStore _accountStore;
+
+        public SessionManager(Management.Application.Stores.AccountStore accountStore)
+        {
+            _accountStore = accountStore;
+        }
 
         public StaffDto? CurrentUser
         {
@@ -66,11 +72,13 @@ namespace Management.Presentation.Services.State
         public void SetUser(StaffDto user)
         {
             CurrentUser = user;
+            _accountStore.Login(user);
         }
 
         public void Clear()
         {
             CurrentUser = null;
+            _accountStore.Logout();
         }
     }
 }

@@ -27,17 +27,15 @@
                 
                 <!-- HEADER: Icon + Label -->
                 <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
-                    <Border Width="24" Height="24" CornerRadius="8" Background="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Opacity="0.1" Margin="0,0,12,0" VerticalAlignment="Center">
-                        <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                              Stroke="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              StrokeThickness="1.5"
-                              StrokeLineJoin="Round"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              Stretch="Uniform" 
-                              Width="12" Height="12" 
-                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    <Path Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                          Stroke="{Binding IconBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          StrokeThickness="1.8" Fill="Transparent"
+                          StrokeLineJoin="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Stretch="Uniform" 
+                          Width="18" Height="18" 
+                          VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                FontSize="13" 
                                FontWeight="Bold"

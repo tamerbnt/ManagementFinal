@@ -22,10 +22,10 @@ namespace Management.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Transaction>> GetByRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        public async Task<IEnumerable<Transaction>> GetByRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false)
         {
             return await _dbSet.IgnoreQueryFilters()
-                .Where(t => t.FacilityId == facilityId && !t.IsDeleted && t.Timestamp >= start && t.Timestamp <= end)
+                .Where(t => t.FacilityId == facilityId && (includeDeleted || !t.IsDeleted) && t.Timestamp >= start && t.Timestamp <= end)
                 .OrderByDescending(t => t.Timestamp)
                 .ToListAsync();
         }

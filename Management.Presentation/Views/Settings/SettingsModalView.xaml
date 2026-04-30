@@ -46,22 +46,472 @@
             </DataTemplate>
 
             <DataTemplate x:Key="AppearanceTemplate">
-                <StackPanel Margin="0,0,0,20">
-                    <TextBlock Text="{DynamicResource Terminology.Settings.Appearance}" 
-                               Style="{DynamicResource Title2}" 
-                               Foreground="{DynamicResource TextPrimaryBrush}"
-                               Margin="0,0,0,24"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,16,0">
+                <StackPanel Margin="0,0,0,32">
 
-                    <!-- Language Selector -->
-                    <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="{DynamicResource Terminology.Settings.Language}" Style="{DynamicResource Title3}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,8"/>
-                        <TextBlock Text="{DynamicResource Terminology.Settings.LanguageDesc}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,12"/>
-                        <ComboBox ItemsSource="{Binding SupportedLanguages}"
-                                   SelectedItem="{Binding SelectedLanguage}"
-                                    IsEditable="False"
-                                   DisplayMemberPath="NativeName" Width="300" HorizontalAlignment="Left" Style="{DynamicResource Input.ComboBox}"/>
+                    <!-- Page Title -->
+                    <TextBlock Text="{DynamicResource Terminology.Settings.Appearance}"
+                               Style="{DynamicResource Title2}"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Margin="0,0,0,32"/>
+
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <!-- SECTION: Light Mode Style                          -->
+                    <!-- Hidden when Dark Mode is on                        -->
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <StackPanel>
+                        <!-- Section Header -->
+                        <TextBlock Text="Light Mode Style"
+                                   Style="{DynamicResource Title3}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Choose a color palette for your workspace"
+                                   Style="{DynamicResource Caption}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,20"/>
+
+                        <!-- Palette Cards Row -->
+                        <UniformGrid Rows="1" Columns="3" HorizontalAlignment="Left">
+                            <UniformGrid.Resources>
+
+                                <!-- ── Shared inline style for every palette card ── -->
+                                <Style x:Key="PaletteCard" TargetType="Button">
+                                    <Setter Property="Background"   Value="{DynamicResource SurfaceBg}"/>
+                                    <Setter Property="BorderBrush"  Value="{DynamicResource BorderBrush}"/>
+                                    <Setter Property="BorderThickness" Value="1.5"/>
+                                    <Setter Property="Cursor"       Value="Hand"/>
+                                    <Setter Property="Margin"       Value="0,0,16,0"/>
+                                    <Setter Property="Width"        Value="220"/>
+                                    <Setter Property="Height"       Value="148"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="CardBorder"
+                                                        Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        CornerRadius="14"
+                                                        SnapsToDevicePixels="True">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="CardBorder" Property="BorderBrush"
+                                                                Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        <Setter TargetName="CardBorder" Property="Background"
+                                                                Value="{DynamicResource SurfaceBgSecondary}"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter TargetName="CardBorder" Property="Opacity" Value="0.85"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <!-- Selected state: thicker accent border + accent-tinted bg -->
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource EqualityConverter}">
+                                                    <Binding Path="DataContext.SelectedLightPalette"
+                                                             RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                    <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BorderBrush"    Value="{DynamicResource FacilityAccentBrush}"/>
+                                            <Setter Property="BorderThickness" Value="2.5"/>
+                                            <Setter Property="Background"     Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+
+                            </UniformGrid.Resources>
+
+                            <!-- ────────────────────────────────────── -->
+                            <!-- CARD 1 — Default palette               -->
+                            <!-- Salon: Midnight Blush  |  Gym: Arctic  -->
+                            <!-- ────────────────────────────────────── -->
+                            <Button Tag="Default"
+                                    Style="{StaticResource PaletteCard}"
+                                    Command="{Binding DataContext.SelectPaletteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="Default">
+                                <Grid Margin="16,14">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="4"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Color swatch strip -->
+                                    <UniformGrid Grid.Row="0" Rows="1" Columns="3" Height="28">
+                                        <Border CornerRadius="6,0,0,6" Background="#F3F4F6"/>
+                                        <Border Background="#FFFFFF"/>
+                                        <Border CornerRadius="0,6,6,0" Background="#06B6D4"/>
+                                    </UniformGrid>
+
+                                    <!-- Theme name -->
+                                    <TextBlock Grid.Row="2"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Midnight Blush"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Arctic"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Subtitle -->
+                                    <TextBlock Grid.Row="4"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Modern · High-Contrast"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Sharp · Electric · Performance"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Active badge -->
+                                    <Border Grid.Row="6"
+                                            HorizontalAlignment="Left"
+                                            CornerRadius="6" Padding="8,3">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.SelectedLightPalette,
+                                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 Value="Default">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M 0 4 L 2.5 7 L 8 1"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  Width="10" Height="8"
+                                                  Stretch="Uniform"
+                                                  Margin="0,0,5,0"
+                                                  VerticalAlignment="Center"/>
+                                            <TextBlock Text="Active"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource FacilityAccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Button>
+
+                            <!-- ────────────────────────────────────── -->
+                            <!-- CARD 2 — Alternate palette             -->
+                            <!-- Salon: Warm Linen  |  Gym: Steel       -->
+                            <!-- ────────────────────────────────────── -->
+                            <Button Tag="Alternate"
+                                    Style="{StaticResource PaletteCard}"
+                                    Command="{Binding DataContext.SelectPaletteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="Alternate">
+                                <Grid Margin="16,14">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="4"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Color swatch strip — Salon: warm linen tones, Gym: slate tones -->
+                                    <UniformGrid Grid.Row="0" Rows="1" Columns="3" Height="28">
+                                        <Border CornerRadius="6,0,0,6">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#F0E7D5"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                            <Setter Property="Background" Value="#F1F5F9"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <Border>
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#FAF8F4"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                            <Setter Property="Background" Value="#F8FAFC"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <Border CornerRadius="0,6,6,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="#F48FB1"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                            <Setter Property="Background" Value="#5B8AB8"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                    </UniformGrid>
+
+                                    <!-- Theme name -->
+                                    <TextBlock Grid.Row="2"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Warm Linen"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Steel"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Subtitle -->
+                                    <TextBlock Grid.Row="4"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Organic · Warm · Boutique"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Solid · Grounded · Industrial"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Active badge -->
+                                    <Border Grid.Row="6"
+                                            HorizontalAlignment="Left"
+                                            CornerRadius="6" Padding="8,3">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.SelectedLightPalette,
+                                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 Value="Alternate">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M 0 4 L 2.5 7 L 8 1"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  Width="10" Height="8"
+                                                  Stretch="Uniform"
+                                                  Margin="0,0,5,0"
+                                                  VerticalAlignment="Center"/>
+                                            <TextBlock Text="Active"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource FacilityAccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Button>
+
+                            <!-- ────────────────────────────────────── -->
+                            <!-- CARD 3 — Classic palette               -->
+                            <!-- Salon: (Coming Soon)  |  Gym: Gold     -->
+                            <!-- ────────────────────────────────────── -->
+                            <Button Tag="Classic"
+                                    Style="{StaticResource PaletteCard}"
+                                    Command="{Binding DataContext.SelectPaletteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="Classic">
+                                <Grid Margin="16,14">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="10"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="4"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Color swatch strip — Gold/Cream tones -->
+                                    <UniformGrid Grid.Row="0" Rows="1" Columns="3" Height="28">
+                                        <Border CornerRadius="6,0,0,6" Background="#F0E7D5"/>
+                                        <Border Background="#FAF8F4"/>
+                                        <Border CornerRadius="0,6,6,0" Background="#C9A96E"/>
+                                    </UniformGrid>
+
+                                    <!-- Theme name -->
+                                    <TextBlock Grid.Row="2"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Classic"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Gold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Subtitle -->
+                                    <TextBlock Grid.Row="4"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Coming Soon..."/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsGymFacility}" Value="True">
+                                                        <Setter Property="Text" Value="Classic · Warm · Premium"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Active badge -->
+                                    <Border Grid.Row="6"
+                                            HorizontalAlignment="Left"
+                                            CornerRadius="6" Padding="8,3">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.SelectedLightPalette,
+                                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 Value="Classic">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="M 0 4 L 2.5 7 L 8 1"
+                                                  Stroke="{DynamicResource FacilityAccentBrush}"
+                                                  StrokeThickness="1.8"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeEndLineCap="Round"
+                                                  Width="10" Height="8"
+                                                  Stretch="Uniform"
+                                                  Margin="0,0,5,0"
+                                                  VerticalAlignment="Center"/>
+                                            <TextBlock Text="Active"
+                                                       FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource FacilityAccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Button>
+
+                        </UniformGrid>
+
+                        <!-- Separator -->
+                        <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,28,0,0"/>
                     </StackPanel>
+
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <!-- SECTION: App Mode (Dark Mode toggle)               -->
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <StackPanel Margin="0,24,0,0">
+                        <TextBlock Text="App Mode"
+                                   Style="{DynamicResource Title3}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Switch between Light and Dark mode"
+                                   Style="{DynamicResource Caption}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,16"/>
+                        <Grid MaxWidth="420" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Dark Mode"
+                                           Style="{DynamicResource BodyMedium}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="Easier on the eyes in low-light environments"
+                                           Style="{DynamicResource Caption}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          IsChecked="{Binding IsDarkMode, Mode=TwoWay}"
+                                          Style="{DynamicResource ToggleSwitch}"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,24,0,0"/>
+                    </StackPanel>
+
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <!-- SECTION: Language                                  -->
+                    <!-- ══════════════════════════════════════════════════ -->
+                    <StackPanel Margin="0,24,0,0">
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Language}"
+                                   Style="{DynamicResource Title3}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.LanguageDesc}"
+                                   Style="{DynamicResource Caption}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,12"/>
+                        <ComboBox ItemsSource="{Binding SupportedLanguages}"
+                                  SelectedItem="{Binding SelectedLanguage}"
+                                  IsEditable="False"
+                                  DisplayMemberPath="NativeName"
+                                  Width="300"
+                                  HorizontalAlignment="Left"
+                                  Style="{DynamicResource Input.ComboBox}"/>
+                    </StackPanel>
+
                 </StackPanel>
+                </ScrollViewer>
             </DataTemplate>
 
             <DataTemplate x:Key="ApparatusTemplate">

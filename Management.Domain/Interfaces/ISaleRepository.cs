@@ -8,7 +8,7 @@ namespace Management.Domain.Interfaces
     public interface ISaleRepository : IRepository<Sale>
     {
         // For Finance Charts & History Timeline
-        Task<IEnumerable<Sale>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end);
+        Task<IEnumerable<Sale>> GetByDateRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false);
 
         // For KPI Cards (Aggregation)
         Task<decimal> GetTotalRevenueAsync(Guid facilityId, DateTime start, DateTime end);

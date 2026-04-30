@@ -11,5 +11,6 @@ namespace Management.Application.Features.Sales.Queries.GetSales
         public Guid FacilityId { get; set; }
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
+        public bool IncludeDeleted { get; set; }
     }
 }

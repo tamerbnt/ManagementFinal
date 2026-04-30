@@ -54,11 +54,11 @@ namespace Management.Infrastructure.Services
             }
         }
 
-        public async Task<Result<IEnumerable<Transaction>>> GetHistoryByRangeAsync(Guid facilityId, DateTime start, DateTime end)
+        public async Task<Result<IEnumerable<Transaction>>> GetHistoryByRangeAsync(Guid facilityId, DateTime start, DateTime end, bool includeDeleted = false)
         {
             try
             {
-                var history = await _transactionRepository.GetByRangeAsync(facilityId, start, end);
+                var history = await _transactionRepository.GetByRangeAsync(facilityId, start, end, includeDeleted);
                 return Result<IEnumerable<Transaction>>.Success(history);
             }
             catch (Exception ex)

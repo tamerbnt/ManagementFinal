@@ -41,7 +41,8 @@ namespace Management.Presentation.ViewModels.Shell
         IRecipient<RefreshRequiredMessage<PayrollEntry>>,
         IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>,
         IRecipient<FacilityActionCompletedMessage>,
-        IRecipient<TableStatusChangedMessage>
+        IRecipient<TableStatusChangedMessage>,
+        IRecipient<AppearanceChangedMessage>
     {
         private readonly IDashboardService _dashboardService;
         private readonly ISyncService _syncService;
@@ -57,6 +58,20 @@ namespace Management.Presentation.ViewModels.Shell
         private bool _needsRefreshDuringInit;
         private bool _isDirty = true; // Initial load is always dirty
         private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
+
+        // ── Theme-Aware Chart Styling ───────────────────────────────────────
+        private SKColor ChartSeparatorColor => ThemeManager.CurrentTheme == AppTheme.Dark 
+            ? SKColor.Parse("#3F3F46") // Zinc-700
+            : SKColor.Parse("#E4E4E7"); // Zinc-200
+
+        private SKColor ChartLabelColor => ThemeManager.CurrentTheme == AppTheme.Dark 
+            ? SKColor.Parse("#A1A1AA") // Zinc-400
+            : SKColor.Parse("#71717A"); // Zinc-500
+
+        private SKColor ChartTrackColor => ThemeManager.CurrentTheme == AppTheme.Dark 
+            ? SKColor.Parse("#3F3F46") 
+            : SKColor.Parse("#F4F4F5"); // Zinc-100
+        // ────────────────────────────────────────────────────────────────────
 
         [ObservableProperty]
         private string _title = string.Empty;
@@ -133,6 +148,12 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private Axis[] _occupancyYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _frequencyYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _growthYAxes = Array.Empty<Axis>();
 
         // ── Retention Guardian (Churn Risk) ──────────────────────────────────
         [ObservableProperty]
@@ -295,6 +316,18 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private ISeries[] _salonAcquisitionSeries = Array.Empty<ISeries>();
 
+        [ObservableProperty]
+        private Axis[] _salonServiceProfitabilityXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _salonServiceProfitabilityYAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _salonStaffPerformanceXAxes = Array.Empty<Axis>();
+
+        [ObservableProperty]
+        private Axis[] _salonStaffPerformanceYAxes = Array.Empty<Axis>();
+
         // Gym BI Metrics
         [ObservableProperty]
         private ISeries[] _combinedDemographicsSeries = Array.Empty<ISeries>();
@@ -385,6 +418,8 @@ namespace Management.Presentation.ViewModels.Shell
                 _logger?.LogInformation("[Dashboard] Registering for TableStatusChangedMessage (Restaurant Mode)");
                 WeakReferenceMessenger.Default.Register<TableStatusChangedMessage>(this);
             }
+
+            WeakReferenceMessenger.Default.Register<AppearanceChangedMessage>(this);
         }
 
         private void InitializeStrings()
@@ -622,7 +657,7 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = labels,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             TextSize = 11,
                             MinStep = 1,
                             SeparatorsPaint = null,
@@ -635,8 +670,8 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labeler = value => $"{value:N0} DA",
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                             TextSize = 11,
                             MinLimit = 0
                         }
@@ -962,6 +997,7 @@ namespace Management.Presentation.ViewModels.Shell
                                 { 
                                     Labels = summary.MemberTrend.Select(p => p.DateTime.ToString("HH:mm")).ToArray(),
                                     LabelsRotation = 0,
+                                    LabelsPaint = new SolidColorPaint(ChartLabelColor),
                                     SeparatorsPaint = new SolidColorPaint(SKColors.Transparent)
                                 } 
                             };
@@ -971,7 +1007,9 @@ namespace Management.Presentation.ViewModels.Shell
                                 new Axis 
                                 { 
                                     Labeler = value => value.ToString("N0"),
-                                    SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 }
+                                    LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                                    SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
+                                    MinLimit = 0
                                 } 
                             };
                         }
@@ -1212,6 +1250,18 @@ namespace Management.Presentation.ViewModels.Shell
             });
         }
 
+        public void Receive(AppearanceChangedMessage message)
+        {
+            _dispatcher.InvokeAsync(async () =>
+            {
+                _logger?.LogInformation("[Dashboard] Appearance changed. Refreshing chart aesthetics.");
+                // We mark dirty and reload to ensure all theme-aware properties (Labels, Separators) 
+                // are re-evaluated based on the new ThemeManager.CurrentTheme state.
+                _isDirty = true;
+                await LoadDeferredAsync();
+            });
+        }
+
         private void OnSyncCompleted(object? sender, EventArgs e)
         {
             if (!ShouldRefreshOnSync()) return;
@@ -1342,7 +1392,7 @@ namespace Management.Presentation.ViewModels.Shell
                  var trackSeries = new ColumnSeries<double>
                  {
                      Values = new[] { trackVal, trackVal, trackVal, trackVal },
-                     Fill = new SolidColorPaint(SKColor.Parse("#3F3F46")), // Light Gray Track
+                     Fill = new SolidColorPaint(ChartTrackColor), // Theme-aware Track
                      Rx = 80, Ry = 80,
                      MaxBarWidth = 40,
                      IgnoresBarPosition = true,
@@ -1380,7 +1430,7 @@ namespace Management.Presentation.ViewModels.Shell
                  MemberXAxes = new[] {
                      new Axis { 
                          Labels = new[] { "week 1", "week 2", "week 3", "week 4" },
-                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                         LabelsPaint = new SolidColorPaint(ChartLabelColor),
                          TextSize = 12,
                          SeparatorsPaint = null,
                          Padding = new LiveChartsCore.Drawing.Padding(0, 15, 0, 0)
@@ -1388,8 +1438,8 @@ namespace Management.Presentation.ViewModels.Shell
                  };
                  MemberYAxes = new[] {
                      new Axis { 
-                         LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                         SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
+                         LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                         SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                          MinLimit = 0, // Strictly enforce zero start
                          MaxLimit = trackVal > 0 ? trackVal : 10,
                          MinStep = 1.0, 
@@ -1472,7 +1522,7 @@ namespace Management.Presentation.ViewModels.Shell
                         {
                             Labels = trend.Select(p => p.DateTime.ToString("HH:mm")).ToArray(),
                             LabelsRotation = 0,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = new SolidColorPaint(SKColors.Transparent)
                         }
                     };
@@ -1482,8 +1532,8 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labeler = value => value.ToString("N0"),
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#71717A")),
-                            SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                             MinLimit = 0
                         }
                     };
@@ -1560,6 +1610,28 @@ namespace Management.Presentation.ViewModels.Shell
                     }
                 };
 
+                SalonServiceProfitabilityXAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = summary.ServiceProfitability.Select(s => s.ServiceName).ToArray(),
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                        SeparatorsPaint = null,
+                        TextSize = 10
+                    }
+                };
+
+                SalonServiceProfitabilityYAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                        SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
+                        TextSize = 10,
+                        MinLimit = 0
+                    }
+                };
+
                 // 2. Combined Demographics (Gym Style: Grouped Column)
                 var ageGroups = new[] { "Under 18", "18-25", "26-35", "36-50", "50+" };
                 var maleData = new double[5];
@@ -1608,7 +1680,7 @@ namespace Management.Presentation.ViewModels.Shell
                     new Axis
                     {
                         Labels = ageGroups,
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
                         SeparatorsPaint = null,
                         TextSize = 10
                     }
@@ -1619,8 +1691,8 @@ namespace Management.Presentation.ViewModels.Shell
                     new Axis
                     {
                         MinLimit = 0,
-                        LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
-                        SeparatorsPaint = new SolidColorPaint(SKColor.Parse("#3F3F46")) { StrokeThickness = 1 },
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                        SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                         TextSize = 10
                     }
                 };
@@ -1644,6 +1716,29 @@ namespace Management.Presentation.ViewModels.Shell
                         Fill = new SolidColorPaint(SKColor.Parse("#10B981")), // Emerald
                         Padding = 4,
                         Rx = 8, Ry = 8
+                    }
+                };
+
+                SalonStaffPerformanceXAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        Labels = summary.SalonStaffPerformance.Select(s => s.StaffName).ToArray(),
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                        SeparatorsPaint = null,
+                        TextSize = 10
+                    }
+                };
+
+                SalonStaffPerformanceYAxes = new Axis[]
+                {
+                    new Axis
+                    {
+                        LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                        SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
+                        TextSize = 10,
+                        MinLimit = 0,
+                        Labeler = value => $"{value:N0}%"
                     }
                 };
             });
@@ -1676,9 +1771,20 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = new[] { "0 visits", "1 visit", "2 visits", "3 visits", "4 visits", "5+ visits" },
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = null,
                             TextSize = 10
+                        }
+                    };
+
+                    FrequencyYAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
+                            TextSize = 10,
+                            MinLimit = 0
                         }
                     };
                 }
@@ -1709,9 +1815,20 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = summary.GrowthTrend.Select(t => t.Month).ToArray(),
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#A1A1AA")),
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = null,
                             TextSize = 10
+                        }
+                    };
+
+                    GrowthYAxes = new Axis[]
+                    {
+                        new Axis
+                        {
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
+                            TextSize = 10,
+                            MinLimit = 0
                         }
                     };
                 }
@@ -1807,8 +1924,9 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             Labels = ageLabels,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
-                            TextSize = 10
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            TextSize = 10,
+                            SeparatorsPaint = null
                         }
                     };
 
@@ -1817,7 +1935,8 @@ namespace Management.Presentation.ViewModels.Shell
                         new Axis
                         {
                             MinLimit = 0,
-                            LabelsPaint = new SolidColorPaint(SKColor.Parse("#94A3B8")),
+                            LabelsPaint = new SolidColorPaint(ChartLabelColor),
+                            SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                             TextSize = 10
                         }
                     };

@@ -28,6 +28,7 @@ namespace Management.Application.DTOs
         public string[]? DetailsLocalizationArgs { get; init; }
         public decimal? Amount { get; init; }
         public bool IsSuccessful { get; init; } = true;
+        public bool IsDeleted { get; init; }
         public string? AuditNote { get; init; }
         public string? Metadata { get; init; }
     }

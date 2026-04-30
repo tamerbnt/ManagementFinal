@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- GYM — "Arctic" Palette (Cool / Default) -->
+    <!-- Resets to the standard cool gray/white + cyan accent defaults -->
+
+    <SolidColorBrush x:Key="WindowBg"              Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="ContentAreaBg"          Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="SurfaceBg"              Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceBgDim"           Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBorderBrush"        Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="SurfaceBgSecondary"     Color="#F8FAFC"/>
+
+    <SolidColorBrush x:Key="Brush.Window.Background"  Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Primary"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Header"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Subtle"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Border.Subtle"      Color="#E5E7EB"/>
+
+    <!-- Arctic accent — vivid cyan (current default, explicitly pinned) -->
+    <Color  x:Key="FacilityAccentColor">       #06B6D4</Color>
+    <Color  x:Key="FacilityAccentShadowColor"> #06B6D4</Color>
+    <SolidColorBrush x:Key="FacilityAccentBrush"    Color="#06B6D4"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="#06B6D4" Opacity="0.15"/>
+    <SolidColorBrush x:Key="AccentBrush"            Color="#06B6D4"/>
+    <Color  x:Key="AccentColor">               #06B6D4</Color>
+    <Color  x:Key="AccentLightColor">          #E0F2FE</Color>
+    <SolidColorBrush x:Key="Brush.Brand.Primary"      Color="#06B6D4"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush"         Color="#06B6D4"/>
+
+    <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#06B6D4" Offset="0"/>
+        <GradientStop Color="#22D3EE" Offset="1"/>
+    </LinearGradientBrush>
+
+</ResourceDictionary>

@@ -242,8 +242,7 @@ namespace Management.Presentation.Services
                     if (dict.Source == null) continue;
                     
                     var source = dict.Source.OriginalString;
-                    if (source.Contains("Resources/Branding.") || 
-                        (source.Contains("Resources/Terminology.") && !source.Contains("Terminology.Base.xaml")))
+                    if (source.Contains("Resources/Terminology.") && !source.Contains("Terminology.Base.xaml"))
                     {
                         toRemove.Add(dict);
                     }
@@ -264,12 +263,9 @@ namespace Management.Presentation.Services
 
                 try
                 {
-                    string brandingPath = $"Resources/Branding.{type}.xaml";
-                    appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
-                    { 
-                        Source = new Uri(brandingPath, UriKind.Relative) 
-                    });
-
+                    // Branding is now managed exclusively by ThemeManager.cs
+                    // Terminology is managed here.
+                    
                     var lang = _localizationService.CurrentCulture.TwoLetterISOLanguageName;
                     string terminologyPath = $"Resources/Terminology.{type}.xaml";
                     
@@ -309,10 +305,6 @@ namespace Management.Presentation.Services
                     {
                         try
                         {
-                            appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
-                            { 
-                                Source = new Uri("Resources/Branding.Gym.xaml", UriKind.Relative) 
-                            });
                             appResources.MergedDictionaries.Add(new System.Windows.ResourceDictionary 
                             { 
                                 Source = new Uri("Resources/Terminology.Gym.xaml", UriKind.Relative) 

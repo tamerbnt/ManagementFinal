@@ -5,7 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              Height="44">
-    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="24" BorderThickness="1.5" BorderBrush="{DynamicResource Brush.Surface.Border}">
+    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="24">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Surface.Border}"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Style.Triggers>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
         <Grid Margin="16,0" MouseDown="Container_MouseDown" Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>

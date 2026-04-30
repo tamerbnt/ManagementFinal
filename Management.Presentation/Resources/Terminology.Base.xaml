@@ -15,6 +15,12 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyConfirmLabel">Confirm</sys:String>
     <sys:String x:Key="TerminologyViewDetailsLabel">View Details</sys:String>
     
+    <!-- Global Actions -->
+    <sys:String x:Key="Terminology.Global.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Terminology.Global.Save">Save Changes</sys:String>
+    <sys:String x:Key="Terminology.Global.Delete">Delete</sys:String>
+    <sys:String x:Key="Terminology.Global.Unknown">Unknown</sys:String>
+    
     <!-- Filters & Selection -->
     <sys:String x:Key="TerminologyFilterAllLabel">All</sys:String>
     <sys:String x:Key="TerminologyAllLabel">All</sys:String>
@@ -37,6 +43,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Member.Gender">Gender</sys:String>
     <sys:String x:Key="Terminology.Member.Gender.Male">Male</sys:String>
     <sys:String x:Key="Terminology.Member.Gender.Female">Female</sys:String>
+    <sys:String x:Key="Terminology.Member.Age">Age</sys:String>
     
     <!-- Tabs -->
     <sys:String x:Key="TerminologyInfoTabLabel">Info</sys:String>
@@ -182,4 +189,60 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyThisDeviceLabel">THIS DEVICE</sys:String>
     <sys:String x:Key="TerminologyRevokeAccessLabel">Revoke Access</sys:String>
     <sys:String x:Key="TerminologyLoadingDevicesLabel">Loading authorized devices...</sys:String>
+
+    <sys:String x:Key="TerminologyCheckoutTitle">Checkout Terminal</sys:String>
+    <sys:String x:Key="TerminologyTotalDueLabel">Total Due</sys:String>
+    <sys:String x:Key="TerminologyPaymentCash">Cash Payment</sys:String>
+    <sys:String x:Key="TerminologyPaymentCard">Card / Terminal</sys:String>
+    <sys:String x:Key="TerminologyPaymentAccount">Charge to Account</sys:String>
+    <sys:String x:Key="TerminologyAmountTenderedLabel">Amount Tendered</sys:String>
+    <sys:String x:Key="TerminologyChangeDueLabel">Change Due</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountPrefix">This will charge </sys:String>
+    <sys:String x:Key="TerminologyAccountLabel">Member Account</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountSuffix"> directly.</sys:String>
+    <sys:String x:Key="TerminologyAccountBalanceNote">Available balance is checked on completion.</sys:String>
+    <sys:String x:Key="TerminologyCompleteSaleLabel">Complete Sale</sys:String>
+    <sys:String x:Key="TerminologyCurrentSaleLabel">Current Sale</sys:String>
+    
+    <!-- Shop / Inventory (Cross-Facility) -->
+    <sys:String x:Key="Terminology.Shop.Header">Shop</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct">Add Product</sys:String>
+    <sys:String x:Key="Terminology.Shop.Filter.All">All</sys:String>
+    <sys:String x:Key="Terminology.Shop.Filter.Supplements">Supplements</sys:String>
+    <sys:String x:Key="Terminology.Shop.Filter.Apparel">Apparel</sys:String>
+    <sys:String x:Key="Terminology.Shop.Filter.Equipment">Equipment</sys:String>
+    <sys:String x:Key="Terminology.Shop.View.Grid">Grid</sys:String>
+    <sys:String x:Key="Terminology.Shop.View.List">List</sys:String>
+    <sys:String x:Key="Terminology.Shop.SelectAll">Select All</sys:String>
+    <sys:String x:Key="Terminology.Shop.ProductsSelected">{0} product(s) selected</sys:String>
+    <sys:String x:Key="Terminology.Shop.DeleteSelection">Delete Selection</sys:String>
+    <sys:String x:Key="Terminology.Shop.Status.Selected">SELECTED</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.AddToCart">Add to Cart</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Modify">Modify</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Restock">Restock</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.EditProduct">Edit Product</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.SaveChanges">Save Changes</sys:String>
+    <sys:String x:Key="Terminology.Shop.StockCount">{0} in stock</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.SkuPrefix">SKU: </sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.StockLevel">Stock Level</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.Price">Price</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.InventorySettings">INVENTORY SETTINGS</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.StockQuantity">Stock Quantity</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.Category">Category</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.ReorderLevel">Reorder Level</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.Description">DESCRIPTION</sys:String>
+    
+    <sys:String x:Key="Terminology.Shop.AddProduct.Title">New Product</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.Subtitle">Add a new item to your inventory</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.Name">Product Name</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.NameHint">e.g. Whey Protein</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.Sku">SKU / Barcode</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.SkuHint">SUP-WHEY-01</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.Category">Category</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.CategoryHint">Supplements</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.SalePrice">Sale Price</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.UnitCost">Unit Cost</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.InitialStock">Initial Stock</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.LowStockAlert">Low Stock Alert</sys:String>
+    <sys:String x:Key="Terminology.Shop.AddProduct.Action.Save">Save Product</sys:String>
 </ResourceDictionary>

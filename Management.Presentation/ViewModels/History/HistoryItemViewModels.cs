@@ -12,7 +12,15 @@ namespace Management.Presentation.ViewModels.History
         [ObservableProperty] private string _details = string.Empty;
         [ObservableProperty] private DateTime _timestamp;
         [ObservableProperty] private bool _isSuccessful = true;
+        [ObservableProperty] private bool _isDeleted;
+        [ObservableProperty] private decimal _amount;
         [ObservableProperty] private string? _auditNote;
+        [ObservableProperty] private string _searchableContent = string.Empty;
+
+        public void UpdateSearchableContent()
+        {
+            SearchableContent = $"{Title} {Details} {AuditNote} {Timestamp:G} {Amount:N2}".ToLower();
+        }
 
         public IRelayCommand ViewDetailsCommand { get; }
         public IRelayCommand CopyDetailsCommand { get; }
@@ -38,18 +46,26 @@ namespace Management.Presentation.ViewModels.History
 
     public partial class PaymentEventItemViewModel : HistoryEventItemViewModel
     {
-        [ObservableProperty] private decimal _amount;
         [ObservableProperty] private string _paymentMethod = "Visa";
 
         public PaymentEventItemViewModel(HistoryViewModel parent) : base(parent) { }
+
+        public new void UpdateSearchableContent()
+        {
+            SearchableContent = $"{Title} {Details} {AuditNote} {Timestamp:G} {Amount:N2} {PaymentMethod}".ToLower();
+        }
     }
 
     public partial class SaleEventItemViewModel : HistoryEventItemViewModel
     {
-        [ObservableProperty] private decimal _amount;
         [ObservableProperty] private string _itemsSummary = string.Empty;
 
         public SaleEventItemViewModel(HistoryViewModel parent) : base(parent) { }
+
+        public new void UpdateSearchableContent()
+        {
+            SearchableContent = $"{Title} {Details} {AuditNote} {Timestamp:G} {Amount:N2} {ItemsSummary}".ToLower();
+        }
     }
 
     public partial class ReservationEventItemViewModel : HistoryEventItemViewModel
@@ -64,17 +80,25 @@ namespace Management.Presentation.ViewModels.History
 
     public partial class PayrollEventItemViewModel : HistoryEventItemViewModel
     {
-        [ObservableProperty] private decimal _amount;
         [ObservableProperty] private string _paymentMethod = string.Empty;
 
         public PayrollEventItemViewModel(HistoryViewModel parent) : base(parent) { }
+
+        public new void UpdateSearchableContent()
+        {
+            SearchableContent = $"{Title} {Details} {AuditNote} {Timestamp:G} {Amount:N2} {PaymentMethod}".ToLower();
+        }
     }
 
     public partial class InventoryEventItemViewModel : HistoryEventItemViewModel
     {
-        [ObservableProperty] private decimal _amount;
         [ObservableProperty] private string _resourceName = string.Empty;
 
         public InventoryEventItemViewModel(HistoryViewModel parent) : base(parent) { }
+
+        public new void UpdateSearchableContent()
+        {
+            SearchableContent = $"{Title} {Details} {AuditNote} {Timestamp:G} {Amount:N2} {ResourceName}".ToLower();
+        }
     }
 }

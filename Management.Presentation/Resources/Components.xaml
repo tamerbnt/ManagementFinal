@@ -827,6 +827,112 @@
         <Setter Property="BorderThickness" Value="1.5"/>
     </Style>
 
+    <!-- Global Payment Method Tile Style (RadioButton as Card) -->
+    <Style x:Key="GlobalPaymentMethodTileStyle" TargetType="RadioButton">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="12"
+                            SnapsToDevicePixels="True">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Path x:Name="Icon"
+                                  Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                                  Style="{StaticResource Style.Icon.Large}"
+                                  Stroke="{DynamicResource TextSecondaryBrush}"
+                                  Margin="0,0,0,8"
+                                  HorizontalAlignment="Center"/>
+                            <ContentPresenter x:Name="Cp"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center">
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource BodyMedium}">
+                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                            <Setter TargetName="Icon" Property="Stroke" Value="{DynamicResource FacilityAccentBrush}"/>
+                            <Setter TargetName="Cp" Property="TextBlock.Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Global Terminal Waiting State Style -->
+    <Style x:Key="GlobalTerminalWaitingStateStyle" TargetType="ContentControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource SurfaceBgDim}" 
+                            CornerRadius="16" 
+                            Padding="32" 
+                            MinHeight="200"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Path Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"
+                                  Fill="{DynamicResource FacilityAccentBrush}"
+                                  Width="48" Height="48"
+                                  Stretch="Uniform"
+                                  HorizontalAlignment="Center"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <Path.RenderTransform>
+                                    <RotateTransform Angle="0"/>
+                                </Path.RenderTransform>
+                                <Path.Style>
+                                    <Style TargetType="Path">
+                                        <Style.Triggers>
+                                            <Trigger Property="Visibility" Value="Visible">
+                                                <Trigger.EnterActions>
+                                                    <BeginStoryboard>
+                                                        <Storyboard RepeatBehavior="Forever">
+                                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                             From="0" To="360" Duration="0:0:1.5"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </Trigger.EnterActions>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.Terminal.Waiting}"
+                                       Style="{StaticResource Title3}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,24,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.Shop.Terminal.Instruction}"
+                                       Style="{StaticResource Caption}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ============================================================= -->
     <!-- 4. PREMIUM DATAGRID                                           -->
     <!-- ============================================================= -->

@@ -22,6 +22,34 @@
 
         <!-- 1. Header Section -->
         <StackPanel Grid.Row="0" Margin="0,0,0,32">
+            <!-- Undone Banner -->
+            <Border Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="#FFF1F2" 
+                    BorderBrush="#FECDD3" 
+                    BorderThickness="1" 
+                    CornerRadius="12" 
+                    Padding="16,12" 
+                    Margin="0,0,0,24">
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                          Fill="#E11D48" 
+                          Width="16" Height="16" 
+                          Stretch="Uniform" 
+                          Margin="0,0,12,0" 
+                          VerticalAlignment="Center"/>
+                    <StackPanel>
+                        <TextBlock Text="UNDONE TRANSACTION" 
+                                   Foreground="#E11D48" 
+                                   FontSize="13" 
+                                   FontWeight="Bold"/>
+                        <TextBlock Text="This operation has been reverted." 
+                                   Foreground="#BE123C" 
+                                   FontSize="11" 
+                                   Opacity="0.8"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
             <!-- Close Button -->
             <Button Style="{DynamicResource IconButtonStyle}" 
                     HorizontalAlignment="Right" 

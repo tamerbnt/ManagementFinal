@@ -55,10 +55,11 @@ namespace Management.Application.Features.Turnstiles.Queries
             
             if (request.FromDate.HasValue)
             {
-                events = await _accessRepository.GetByDateRangeAsync(request.FacilityId, request.FromDate.Value, DateTime.MaxValue);
+                events = await _accessRepository.GetByDateRangeAsync(request.FacilityId, request.FromDate.Value, DateTime.MaxValue, request.IncludeDeleted);
             }
             else
             {
+                // NOTE: GetRecentEventsAsync doesn't support includeDeleted yet, but for history we usually use date range.
                 events = await _accessRepository.GetRecentEventsAsync(request.FacilityId, 100);
             }
 
@@ -78,7 +79,7 @@ namespace Management.Application.Features.Turnstiles.Queries
             }
 
             var dtos = events
-                .Where(e => e.CardId == "WALK-IN" || memberMap.ContainsKey(e.CardId)) // Exclude if member was deleted
+                .Where(e => e.CardId == "WALK-IN" || memberMap.ContainsKey(e.CardId) || request.IncludeDeleted) // If including deleted, don't filter out by member
                 .Select(e => new AccessEventDto
                 {
                     Id = e.Id,
@@ -88,7 +89,8 @@ namespace Management.Application.Features.Turnstiles.Queries
                     MemberName = memberMap.TryGetValue(e.CardId, out var m) ? m.FullName : (e.CardId == "WALK-IN" ? "Walk-In Guest" : "Unknown"),
                     IsAccessGranted = e.IsAccessGranted,
                     AccessStatus = e.AccessStatus.ToString(),
-                    FailureReason = e.FailureReason
+                    FailureReason = e.FailureReason,
+                    IsDeleted = e.IsDeleted
                 }).ToList();
 
             return Result.Success(dtos);

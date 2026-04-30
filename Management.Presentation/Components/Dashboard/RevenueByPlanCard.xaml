@@ -26,9 +26,7 @@
                 <!-- Interactive Header Toggle -->
                 <Button Command="{Binding CycleRevenueModeCommand}" Cursor="Hand" HorizontalAlignment="Left" Background="Transparent" BorderThickness="0" Padding="0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="24" Height="24" CornerRadius="8" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,12,0" VerticalAlignment="Center">
-                            <Path Data="{DynamicResource IconFinance}" Fill="{DynamicResource FacilityAccentBrush}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <TextBlock Text="{Binding RevenueBreakdownTitle}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                         <Path Data="M7,10L12,15L17,10H7Z" Fill="{DynamicResource TextSecondaryBrush}" Width="10" Height="8" Stretch="Uniform" Margin="6,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>

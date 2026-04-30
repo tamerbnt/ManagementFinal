@@ -75,12 +75,22 @@ namespace Management.Infrastructure.Services
 
             var s = result.Value;
             return Result.Success(new AppearanceSettingsDto(
-                s.IsLightMode, s.Language, s.DateFormat, s.HighContrast, s.ReducedMotion, s.TextScale));
+                s.IsLightMode, s.Language, s.DateFormat, s.HighContrast, s.ReducedMotion, s.TextScale, s.LightPalette));
         }
 
         public async Task<Result> UpdateAppearanceSettingsAsync(Guid facilityId, AppearanceSettingsDto dto)
         {
             return await _sender.Send(new UpdateAppearanceSettingsCommand(facilityId, dto));
+        }
+
+        public async Task<Result> UpdateThemeModeAsync(Guid facilityId, bool isLightMode)
+        {
+            return await _sender.Send(new UpdateThemeModeCommand(facilityId, isLightMode));
+        }
+
+        public async Task<Result> UpdateLightPaletteAsync(Guid facilityId, string palette)
+        {
+            return await _sender.Send(new UpdateLightPaletteCommand(facilityId, palette));
         }
 
         public async Task<Result<SalonSettingsDto>> GetSalonSettingsAsync(Guid facilityId)

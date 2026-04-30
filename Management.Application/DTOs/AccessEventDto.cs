@@ -14,6 +14,7 @@ namespace Management.Application.DTOs
         public bool IsAccessGranted { get; set; }
         public string AccessStatus { get; set; } = string.Empty;
         public string FailureReason { get; set; } = string.Empty;
+        public bool IsDeleted { get; set; }
         public Management.Domain.Enums.FacilityType FacilityType { get; set; }
     }
 }

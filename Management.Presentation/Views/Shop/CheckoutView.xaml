@@ -49,7 +49,7 @@
 
             <!-- 1. HEADER -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Path Data="{StaticResource Icon.Storefront}" 
+                <Path Data="{DynamicResource Icon.Storefront}" 
                       Style="{StaticResource Style.Icon.Large}" 
                       Stroke="{DynamicResource TextPrimaryBrush}"
                       Margin="0,0,12,0"/>
@@ -79,7 +79,7 @@
             <UniformGrid Grid.Row="2" Columns="3" Margin="{StaticResource MarginSectionBottom}">
                 <!-- Cash -->
                 <RadioButton Content="{DynamicResource TerminologyPaymentCash}"
-                             Tag="{StaticResource IconMoney}"
+                             Tag="{DynamicResource IconCash}"
                              IsChecked="{Binding IsCashSelected}"
                              Style="{StaticResource GlobalPaymentMethodTileStyle}"
                              Height="{StaticResource SizePaymentTileHeight}"
@@ -87,7 +87,7 @@
 
                 <!-- Card -->
                 <RadioButton Content="{DynamicResource TerminologyPaymentCard}"
-                             Tag="{StaticResource IconCreditCard}"
+                             Tag="{DynamicResource IconCreditCard}"
                              IsChecked="{Binding IsCardSelected}"
                              Style="{StaticResource GlobalPaymentMethodTileStyle}"
                              Height="{StaticResource SizePaymentTileHeight}"
@@ -95,7 +95,7 @@
 
                 <!-- Account -->
                 <RadioButton Content="{DynamicResource TerminologyPaymentAccount}"
-                             Tag="{StaticResource IconUser}"
+                             Tag="{DynamicResource IconUsers}"
                              IsChecked="{Binding IsAccountSelected}"
                              Style="{StaticResource GlobalPaymentMethodTileStyle}"
                              Height="{StaticResource SizePaymentTileHeight}"

@@ -8,6 +8,7 @@ using Management.Application.Interfaces.App;
 using Management.Application.Services;
 using Management.Domain.Models;
 using Management.Domain.Models.Salon;
+using MediatR;
 
 namespace Management.Application.Services.History
 {
@@ -20,23 +21,31 @@ namespace Management.Application.Services.History
         private readonly ISaleService _saleService;
         private readonly IAppointmentService _appointmentService;
         private readonly IFinanceService _financeService;
+        private readonly ISender _sender;
 
         public string SegmentName => "Salon";
 
         public SalonHistoryProvider(
             ISaleService saleService,
             IAppointmentService appointmentService,
-            IFinanceService financeService)
+            IFinanceService financeService,
+            ISender sender)
         {
             _saleService = saleService;
             _appointmentService = appointmentService;
             _financeService = financeService;
+            _sender = sender;
         }
 
-        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetHistoryAsync(Guid facilityId, DateTime startDate, DateTime endDate, bool includeDeleted = false)
         {
             // Fetch relevant salon data
-            var saleTask = _saleService.GetSalesByRangeAsync(facilityId, startDate, endDate);
+            var saleTask = _sender.Send(new Management.Application.Features.Sales.Queries.GetSales.GetSalesHistoryQuery { 
+                FacilityId = facilityId, 
+                Start = startDate, 
+                End = endDate, 
+                IncludeDeleted = includeDeleted 
+            });
             var appointmentTask = _appointmentService.GetByRangeAsync(facilityId, startDate, endDate);
             var payrollTask = _financeService.GetPayrollByRangeAsync(facilityId, startDate, endDate);
 
@@ -61,7 +70,8 @@ namespace Management.Application.Services.History
                         Title = $"Sale: {sale.TransactionType}",
                         Details = $"{sale.MemberName} - {string.Join(", ", sale.ItemsSnapshot.Keys)}",
                         Amount = sale.TotalAmount,
-                        Metadata = sale.PaymentMethod
+                        Metadata = sale.PaymentMethod,
+                        IsDeleted = sale.IsDeleted
                     });
                 }
             }
