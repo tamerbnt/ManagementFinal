@@ -34,7 +34,6 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- Common Statuses -->
     <sys:String x:Key="TerminologyStatusLabel">Status</sys:String>
     <sys:String x:Key="TerminologySuccessRateLabel">Success Rate</sys:String>
-    <sys:String x:Key="Terminology.Global.Unknown">Unknown</sys:String>
     
     <!-- Common Fields -->
     <sys:String x:Key="TerminologyPhoneLabel">Phone</sys:String>
