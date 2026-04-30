@@ -115,7 +115,7 @@
     <!-- Shop (Shopping Bag) -->
     <StreamGeometry x:Key="IconShop">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</StreamGeometry>
     <StreamGeometry x:Key="Icon.ShoppingBag">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</StreamGeometry>
-    <StaticResource x:Key="IconShoppingBag" ResourceKey="Icon.ShoppingBag"/>
+    <StreamGeometry x:Key="IconShoppingBag">M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0</StreamGeometry>
 
     <!-- Chart Bar (Analytics) -->
     <!-- Chart Bar (Analytics) -->

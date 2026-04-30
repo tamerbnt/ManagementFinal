@@ -1878,7 +1878,7 @@ namespace Management.Presentation
             registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Registrations", "Terminology.Sidebar.Registrations", "Icon.RegistrationForm", typeof(Management.Presentation.ViewModels.Registrations.RegistrationsViewModel), 3));
             registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.HistoryRewind", typeof(HistoryViewModel), 4));
             registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.StaffBadge", typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel), 5, Management.Domain.Constants.SystemPermissions.CreateStaff));
-            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.ShoppingBag", typeof(ShopViewModel), 6, Management.Domain.Constants.SystemPermissions.ModifyProduct));
+            registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "IconShop", typeof(ShopViewModel), 6, Management.Domain.Constants.SystemPermissions.ModifyProduct));
 
             // --- SALON ---
             registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(SalonHomeViewModel), 0));
@@ -1888,7 +1888,7 @@ namespace Management.Presentation
             registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Bookings", "Terminology.Sidebar.Registrations", "Icon.RegistrationForm", typeof(RegistrationsViewModel), 4));
             registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Staff", "Terminology.Sidebar.Staff", "Icon.StaffBadge", typeof(FinanceAndStaffViewModel), 5, Management.Domain.Constants.SystemPermissions.CreateStaff));
             registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("History", "Terminology.Sidebar.History", "Icon.HistoryRewind", typeof(HistoryViewModel), 6));
-            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "Icon.ShoppingBag", typeof(ShopViewModel), 7, Management.Domain.Constants.SystemPermissions.ModifyProduct));
+            registry.Register(Domain.Enums.FacilityType.Salon, new NavigationItemMetadata("Shop", "Terminology.Sidebar.Shop", "IconShop", typeof(ShopViewModel), 7, Management.Domain.Constants.SystemPermissions.ModifyProduct));
 
             // --- RESTAURANT ---
             registry.Register(Domain.Enums.FacilityType.Restaurant, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(RestaurantHomeViewModel), 0));

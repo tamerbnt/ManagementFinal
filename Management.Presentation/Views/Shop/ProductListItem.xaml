@@ -58,7 +58,7 @@
             <Grid Grid.Row="0">
                 <Border Background="{DynamicResource SurfaceBgTertiary}"
                         CornerRadius="12">
-                    <Path Data="{DynamicResource Icon.ShoppingBag}"
+                    <Path Data="{DynamicResource IconShop}"
                           Fill="{DynamicResource TextTertiaryBrush}"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"

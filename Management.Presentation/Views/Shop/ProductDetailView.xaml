@@ -36,7 +36,7 @@
                     Background="{DynamicResource SurfaceBg}"
                     HorizontalAlignment="Center"
                     Margin="0,0,0,16">
-                <Path Data="{DynamicResource Icon.ShoppingBag}" 
+                <Path Data="{DynamicResource IconShop}" 
                       Fill="{DynamicResource TextSecondaryBrush}" 
                       Stretch="Uniform" 
                       Width="32" Height="32"
