@@ -8,10 +8,12 @@ using Management.Domain.Interfaces;
 using Management.Infrastructure.Configuration;
 using Management.Domain.Primitives;
 using Supabase.Gotrue; // Required for Session handling
+using Supabase.Gotrue.Interfaces; // IGotrueClient<User, Session>
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Management.Application.Interfaces.App; // Added for ISyncService
 using Microsoft.Extensions.DependencyInjection;
 using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Domain.Models;
@@ -20,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Management.Infrastructure.Services
 {
-    public class AuthenticationService : IAuthenticationService, IStateResettable
+    public class AuthenticationService : IAuthenticationService
     {
         private readonly Supabase.Client _supabase;
         private readonly Microsoft.Extensions.DependencyInjection.IServiceScopeFactory _scopeFactory;
@@ -33,19 +35,65 @@ namespace Management.Infrastructure.Services
         private readonly IFacilityContextService _facilityContext;
         private readonly ITenantService _tenantService;
         private readonly Management.Domain.Services.ISessionStorageService _sessionStorage;
+        private readonly ISyncService _syncService;
 
         public AuthenticationService(
             Supabase.Client supabase,
             Management.Domain.Services.ISessionStorageService sessionStorage,
             IFacilityContextService facilityContext,
             ITenantService tenantService,
+            ISyncService syncService,
             Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory)
         {
             _supabase = supabase;
             _sessionStorage = sessionStorage;
             _facilityContext = facilityContext;
             _tenantService = tenantService;
+            _syncService = syncService;
             _scopeFactory = scopeFactory;
+
+            // FIX 1: Re-persist tokens whenever the Supabase SDK silently rotates them.
+            // AutoRefreshToken=true means the SDK updates _supabase.Auth.CurrentSession in memory
+            // but never calls our PersistSessionDataAsync. Without this listener, session.dat
+            // holds stale tokens after the first rotation, causing TryRestoreSupabaseSessionAsync
+            // to fail the next time the session must be restored from disk.
+            _supabase.Auth.AddStateChangedListener(OnSupabaseAuthStateChanged);
+        }
+
+        /// <summary>
+        /// Called by the Supabase SDK whenever auth state changes (SignedIn, TokenRefreshed, SignedOut, etc.).
+        /// On TokenRefreshed we write the new tokens to session.dat so disk always mirrors SDK memory.
+        /// </summary>
+        private void OnSupabaseAuthStateChanged(IGotrueClient<User, Session> sender, Constants.AuthState state)
+        {
+            if (state != Constants.AuthState.TokenRefreshed) return;
+            if (_currentUser == null) return; // No real user logged in — ignore background events
+
+            var newSession = sender.CurrentSession;
+            if (newSession == null) return;
+
+            // Fire-and-forget: safe because SaveSessionAsync only writes a file
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var existingSession = await _sessionStorage.LoadSessionAsync();
+                    if (existingSession == null) return; // Nothing to update — user logged out
+
+                    // Patch only the token fields; preserve all other fields (TenantId, FacilityId, etc.)
+                    existingSession.AccessToken  = newSession.AccessToken  ?? existingSession.AccessToken;
+                    existingSession.RefreshToken = newSession.RefreshToken ?? existingSession.RefreshToken;
+                    existingSession.ExpiresAt    = newSession.ExpiresAt();
+                    existingSession.IsOfflineSession = false;
+
+                    await _sessionStorage.SaveSessionAsync(existingSession);
+                    Serilog.Log.Information("[AuthService] TokenRefreshed: session.dat updated with new tokens for {Email}.", existingSession.Email);
+                }
+                catch (Exception ex)
+                {
+                    Serilog.Log.Warning(ex, "[AuthService] TokenRefreshed: Failed to update session.dat — next restore may use stale token.");
+                }
+            });
         }
 
         public async Task<Result<StaffDto>> LoginAsync(string email, string password, Guid? facilityId = null, Management.Domain.Enums.FacilityType? targetType = null)
@@ -135,6 +183,10 @@ namespace Management.Infrastructure.Services
                 // 5. Map to DTO and Cache
                 _isLogoutActive = false; // Successfully entering the app: disable the logout-guard
                 _currentUser = MapToDto(staffEntity);
+                
+                // 6. Notify Sync Service to wake up
+                _syncService.ResetSessionStatus();
+                
                 Serilog.Log.Information("[AuthService] Login SUCCESS: User logged in. LogoutGuard DISABLED.");
                 return Result.Success(_currentUser);
             }
@@ -354,14 +406,16 @@ namespace Management.Infrastructure.Services
 
             var sessionData = new Domain.Models.SessionData
             {
-                AccessToken = session.AccessToken ?? string.Empty,
-                RefreshToken = session.RefreshToken ?? string.Empty,
-                ExpiresAt = session.ExpiresAt(),
-                StaffId = staffEntity.Id,
-                FacilityId = staffEntity.FacilityId,
-                Email = staffEntity.Email.Value,
-                FullName = staffEntity.FullName,
-                Role = staffEntity.Role.ToString()
+                AccessToken      = session.AccessToken  ?? string.Empty,
+                RefreshToken     = session.RefreshToken ?? string.Empty,
+                ExpiresAt        = session.ExpiresAt(),
+                StaffId          = staffEntity.Id,
+                TenantId         = staffEntity.TenantId,
+                FacilityId       = staffEntity.FacilityId,
+                Email            = staffEntity.Email.Value,
+                FullName         = staffEntity.FullName,
+                Role             = staffEntity.Role.ToString(),
+                IsOfflineSession = false   // Explicit: this is a real cloud session
             };
 
             await _sessionStorage.SaveSessionAsync(sessionData);
@@ -426,14 +480,18 @@ namespace Management.Infrastructure.Services
 
                         var offlineSession = new Domain.Models.SessionData
                         {
-                            AccessToken = "OFFLINE_ACCESS_TOKEN", 
-                            RefreshToken = "OFFLINE_REFRESH_TOKEN",
-                            ExpiresAt = DateTime.UtcNow.AddHours(12),
-                            StaffId = localStaff.Id,
-                            FacilityId = localStaff.FacilityId,
-                            Email = localStaff.Email.Value,
-                            FullName = localStaff.FullName,
-                            Role = localStaff.Role.ToString()
+                            // Keep sentinel tokens for backward compat with existing session.dat files.
+                            // IsOfflineSession=true is the canonical check going forward.
+                            AccessToken      = "OFFLINE_ACCESS_TOKEN",
+                            RefreshToken     = "OFFLINE_REFRESH_TOKEN",
+                            ExpiresAt        = DateTime.UtcNow.AddHours(12),
+                            StaffId          = localStaff.Id,
+                            TenantId         = localStaff.TenantId,
+                            FacilityId       = localStaff.FacilityId,
+                            Email            = localStaff.Email.Value,
+                            FullName         = localStaff.FullName,
+                            Role             = localStaff.Role.ToString(),
+                            IsOfflineSession = true   // FIX 3b: flag for sync engine — no error toast
                         };
 
                         await _sessionStorage.SaveSessionAsync(offlineSession);
@@ -458,34 +516,6 @@ namespace Management.Infrastructure.Services
             return Result.Success();
         }
 
-        public void ResetState()
-        {
-            Serilog.Log.Information("[AuthService] Resetting internal authentication state...");
-            _currentUser = null;
-            
-            // Hard session termination in Supabase
-            try
-            {
-                _ = _supabase.Auth.SignOut();
-                // Explicitly clear Supabase headers/tokens in the underlying client if possible
-                if (_supabase.Auth.CurrentSession != null)
-                {
-                    _supabase.Auth.CurrentSession.AccessToken = null;
-                }
-            }
-            catch { }
-
-            // Clear local cached session if possible synchronously (best effort)
-            try
-            {
-                _ = _sessionStorage.ClearSessionAsync();
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Warning(ex, "[AuthService] Failed to clear session synchronously during ResetState");
-            }
-        }
-
         public async Task<Result<StaffDto>> GetCurrentUserAsync()
         {
             // 0. If we just logged out, block any restoration until next explicit login
@@ -501,32 +531,22 @@ namespace Management.Infrastructure.Services
             // 2. Check if Supabase has a persisted session on disk (OR load from our custom storage)
             // Note: Supabase client might handle its own storage, but we are enforcing ours.
             // If Supabase client is empty, try loading from our encrypted file
-            if (_supabase.Auth.CurrentSession == null)
+            if (_supabase.Auth.CurrentSession == null || _supabase.Auth.CurrentSession.ExpiresAt() < DateTime.UtcNow)
             {
                 var storedSession = await _sessionStorage.LoadSessionAsync();
-                if (storedSession != null && !storedSession.IsExpired)
+                if (storedSession != null && !storedSession.IsExpired && !storedSession.IsOfflineSession)
                 {
                     try 
                     {
-                        // Check if this is a real Supabase session (not offline mode)
-                        if (storedSession.AccessToken != "OFFLINE_ACCESS_TOKEN" && 
-                            storedSession.RefreshToken != "OFFLINE_REFRESH_TOKEN" &&
-                            !string.IsNullOrEmpty(storedSession.AccessToken) &&
-                            !string.IsNullOrEmpty(storedSession.RefreshToken))
+                        if (!string.IsNullOrEmpty(storedSession.AccessToken) && !string.IsNullOrEmpty(storedSession.RefreshToken))
                         {
-                            // Try to restore Supabase session
-                            // Note: Supabase C# client may auto-restore from its own storage,
-                            // but we attempt to trigger restoration here if needed
-                            // The client's AutoRefreshToken should handle this automatically
-                            Serilog.Log.Information($"[AuthService] Attempting to restore Supabase session for {storedSession.Email}");
-                            
-                            // The Supabase client should automatically restore sessions if AutoRefreshToken is enabled
-                            // If restoration fails, we'll fall back to DB validation below
+                            Serilog.Log.Information($"[AuthService] Restoring Supabase session for {storedSession.Email}...");
+                            await _supabase.Auth.SetSession(storedSession.AccessToken, storedSession.RefreshToken);
                         }
                     } 
                     catch (Exception restoreEx) 
                     { 
-                        Serilog.Log.Warning(restoreEx, "[AuthService] Failed to restore Supabase session, proceeding with DB validation");
+                        Serilog.Log.Warning(restoreEx, "[AuthService] Failed to restore Supabase session");
                     }
                 }
             }
@@ -641,14 +661,20 @@ namespace Management.Infrastructure.Services
             }
         }
 
-        public async Task<Result<Guid>> RegisterStaffAsync(string email, string password)
+        public async Task<Result<Guid>> RegisterStaffAsync(string email, string password, Guid tenantId)
         {
             try 
             {
                 // Note: SignUp typically triggers email confirmation.
                 // In production, you might want to use the Admin API to auto-confirm.
                 // For this implementation, we use SignUp as it's available via the regular key.
-                var result = await _supabase.Auth.SignUp(email, password);
+                // CRITICAL: Pass the tenant_id in user_metadata so RLS can authorize the SyncWorker later.
+                var options = new Supabase.Gotrue.SignUpOptions
+                {
+                    Data = new Dictionary<string, object> { { "tenant_id", tenantId.ToString() } }
+                };
+
+                var result = await _supabase.Auth.SignUp(email, password, options);
                 
                 if (result?.User == null || string.IsNullOrEmpty(result.User.Id))
                 {
@@ -919,6 +945,16 @@ namespace Management.Infrastructure.Services
 
                 await appContext.SaveChangesAsync();
                 Serilog.Log.Information($"[AuthService] Successfully seeded {supaFacilities.Count} facilities into local SQLite.");
+
+                // CRITICAL FIX: Update the global FacilityContext in-memory map so that the 
+                // application can immediately identify the Facility IDs without a restart.
+                var facilityMap = supaFacilities
+                    .Where(f => System.Enum.IsDefined(typeof(FacilityType), f.Type))
+                    .GroupBy(f => (FacilityType)f.Type)
+                    .ToDictionary(g => g.Key, g => g.First().Id);
+                
+                _facilityContext.UpdateFacilities(facilityMap);
+                Serilog.Log.Information("[AuthService] Global FacilityContext updated with cloud IDs.");
             }
             catch (Exception ex)
             {

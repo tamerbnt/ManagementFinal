@@ -174,11 +174,30 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN row_version BLOB;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN applied_promotion_name TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN manual_discount_id TEXT;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN manual_discount_amount__amount NUMERIC;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN manual_discount_amount__currency TEXT;", ct); } catch { }
 
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_amount NUMERIC;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN original_price_currency TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN discount_amount_amount NUMERIC;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sale_items ADD COLUMN discount_amount_currency TEXT;", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS discounts (
+                    id TEXT PRIMARY KEY,
+                    tenant_id TEXT,
+                    facility_id TEXT,
+                    name TEXT,
+                    description TEXT,
+                    value NUMERIC,
+                    is_percentage INTEGER DEFAULT 0,
+                    is_active INTEGER DEFAULT 1,
+                    created_at TEXT,
+                    updated_at TEXT,
+                    is_deleted INTEGER DEFAULT 0,
+                    is_synced INTEGER DEFAULT 0,
+                    row_version BLOB
+                );", ct); } catch { }
                 
                 _logger.LogInformation("Database optimization completed in {Elapsed}ms", schemaStopwatch.ElapsedMilliseconds);
             }
@@ -259,6 +278,7 @@ namespace Management.Infrastructure.Data
         public DbSet<GroupClass> GroupClasses { get; set; }
         public DbSet<ClassAttendance> ClassAttendances { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
 
         private static string UnescapeOverSerializedJson(string val)
         {
@@ -295,7 +315,7 @@ namespace Management.Infrastructure.Data
             // MembershipPlan configuration
             modelBuilder.Entity<MembershipPlan>(entity =>
             {
-                entity.Property(e => e.BaseSessionCount).HasColumnName("base_session_count");
+                entity.Property(e => e.SessionsPerWeek).HasColumnName("sessions_per_week");
 
                 entity.OwnsOne(e => e.Price, p => 
                 {
@@ -510,6 +530,10 @@ namespace Management.Infrastructure.Data
                 entity.OwnsOne(s => s.TotalAmount, p => {
                     p.Property(m => m.Amount).HasColumnName("total_amount__amount");
                     p.Property(m => m.Currency).HasColumnName("total_amount__currency");
+                });
+                entity.OwnsOne(s => s.ManualDiscountAmount, p => {
+                    p.Property(m => m.Amount).HasColumnName("manual_discount_amount__amount");
+                    p.Property(m => m.Currency).HasColumnName("manual_discount_amount__currency");
                 });
                 entity.Property(e => e.Category).HasColumnName("category");
                 entity.Property(e => e.CapturedLabel).HasColumnName("captured_label");

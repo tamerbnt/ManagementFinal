@@ -31,12 +31,12 @@
 
         <Border.Style>
             <Style TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 <Style.Triggers>
                     <!-- Hover Animation -->
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+                        <Setter Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                         <Trigger.EnterActions>
                             <BeginStoryboard>
@@ -94,17 +94,28 @@
                     Margin="0,0,16,0"
                     Background="{DynamicResource FacilityAccentDimBrush}">
                 <Path Data="{StaticResource IconCreditCard}" 
-                      Fill="{DynamicResource FacilityAccentBrush}"
                       Stretch="Uniform"
                       Width="16" Height="16"
                       HorizontalAlignment="Center"
-                      VerticalAlignment="Center"/>
+                      VerticalAlignment="Center">
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Setter Property="Fill" Value="{DynamicResource FacilityAccentBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Fill" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource TextOnAccentBrush}"/>
-                                <Setter Property="Opacity" Value="0.3"/>
+                                <Setter Property="Background">
+                                    <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                                </Setter>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -116,13 +127,13 @@
                 <TextBlock Text="{Binding Title}" 
                            FontWeight="Bold" 
                            FontSize="16"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
                            Margin="0,0,0,4">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding IsDeleted}" Value="True">
                                     <Setter Property="TextDecorations" Value="Strikethrough"/>
@@ -135,14 +146,13 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding PaymentMethod}" 
                                FontWeight="Medium" 
-                               FontSize="13"
-                               Foreground="{DynamicResource BrandPrimaryBrush}">
+                               FontSize="13">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{DynamicResource BrandPrimaryBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
-                                        <Setter Property="Opacity" Value="0.8"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource RowOnAccentSecondary}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -166,23 +176,34 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- 3. Status Pill (Amount) -->
+            <!-- 3. Amount Pill -->
             <Border Grid.Column="2" 
-                    Background="{DynamicResource SurfaceBgDim}" 
                     CornerRadius="12" 
                     Padding="12,4"
                     VerticalAlignment="Center"
                     Margin="0,0,16,0">
                 <TextBlock Text="{Binding Amount, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Format.Currency'}" 
                            FontSize="12" 
-                           FontWeight="Bold" 
-                           Foreground="#0F172A"/>
-                 <Border.Style>
+                           FontWeight="Bold">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <Border.Style>
                     <Style TargetType="Border">
+                        <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource TextOnAccentBrush}"/>
-                                <Setter Property="Opacity" Value="0.3"/>
+                                <Setter Property="Background">
+                                    <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.15"/></Setter.Value>
+                                </Setter>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -193,13 +214,13 @@
             <TextBlock Grid.Column="3" 
                        Text="{Binding Timestamp, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Format.Time'}" 
                        FontSize="13"
-                       VerticalAlignment="Center"
-                       Foreground="{DynamicResource TextTertiaryBrush}">
+                       VerticalAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

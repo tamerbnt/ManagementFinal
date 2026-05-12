@@ -96,6 +96,8 @@ namespace Management.Presentation.ViewModels.Shell
             ? string.Format(_terminologyService.GetTerm("Terminology.TopBar.Sync.Format"), GetTimeAgo(LastSyncTime.Value))
             : _terminologyService.GetTerm("Terminology.TopBar.Sync.Never");
 
+        public bool IsRemoteMode => _sessionManager.IsRemoteMode;
+
         public string UserInitials => !string.IsNullOrEmpty(UserName) && UserName.Length > 0 
             ? UserName[0].ToString().ToUpper() 
             : "A";
@@ -458,6 +460,10 @@ namespace Management.Presentation.ViewModels.Shell
         private void OnSessionPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             UpdateUserInfo();
+            if (e.PropertyName == nameof(SessionManager.IsRemoteMode))
+            {
+                OnPropertyChanged(nameof(IsRemoteMode));
+            }
         }
 
         private async Task UpdateNotificationCountAsync()
@@ -531,7 +537,13 @@ namespace Management.Presentation.ViewModels.Shell
             try
             {
                 var toastService = _serviceProvider.GetService<IToastService>();
-                toastService?.ShowWarning(_terminologyService.GetTerm("Terminology.TopBar.Status.Syncing"), "Syncing");
+
+                // FIX: Reset circuit breaker before every manual attempt.
+                // This clears any stale Offline/Error state from a previous automatic cycle
+                // and gives TryRestoreSupabaseSessionAsync a clean slate to re-evaluate.
+                _syncService.ResetSessionStatus();
+
+                toastService?.ShowInfo("Connecting to cloud...", "Syncing");
 
                 // DIAGNOSTIC START
                 using (var scope = _serviceProvider.CreateScope())

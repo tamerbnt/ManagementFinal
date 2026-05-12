@@ -131,6 +131,76 @@ namespace Management.Infrastructure.Migrations
                     b.ToTable("access_events");
                 });
 
+            modelBuilder.Entity("Management.Domain.Models.ClassAttendance", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CheckInTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("check_in_time");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("FacilityId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("facility_id");
+
+                    b.Property<string>("GroupClassId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("group_class_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_synced");
+
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("member_id");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsRequired()
+                        .HasColumnType("BLOB")
+                        .HasColumnName("row_version");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_class_attendances");
+
+                    b.HasIndex("FacilityId")
+                        .HasDatabaseName("ix_class_attendances_facility_id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_class_attendances_is_deleted");
+
+                    b.HasIndex("IsSynced")
+                        .HasDatabaseName("ix_class_attendances_is_synced");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_class_attendances_tenant_id");
+
+                    b.ToTable("class_attendances");
+                });
+
             modelBuilder.Entity("Management.Domain.Models.Facility", b =>
                 {
                     b.Property<string>("Id")
@@ -347,6 +417,89 @@ namespace Management.Infrastructure.Migrations
                     b.ToTable("facility_zones");
                 });
 
+            modelBuilder.Entity("Management.Domain.Models.GroupClass", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("color_hex");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("duration_minutes");
+
+                    b.Property<string>("FacilityId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("facility_id");
+
+                    b.Property<string>("InstructorName")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("instructor_name");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_synced");
+
+                    b.Property<int>("MaxCapacity")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("max_capacity");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsRequired()
+                        .HasColumnType("BLOB")
+                        .HasColumnName("row_version");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("start_time");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_group_classes");
+
+                    b.HasIndex("FacilityId")
+                        .HasDatabaseName("ix_group_classes_facility_id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_group_classes_is_deleted");
+
+                    b.HasIndex("IsSynced")
+                        .HasDatabaseName("ix_group_classes_is_synced");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_group_classes_tenant_id");
+
+                    b.ToTable("group_classes");
+                });
+
             modelBuilder.Entity("Management.Domain.Models.GymSettings", b =>
                 {
                     b.Property<string>("Id")
@@ -411,6 +564,11 @@ namespace Management.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("language");
+
+                    b.Property<string>("LightPalette")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("light_palette");
 
                     b.Property<string>("LogoUrl")
                         .IsRequired()
@@ -658,6 +816,10 @@ namespace Management.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("date_of_birth");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -730,6 +892,10 @@ namespace Management.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT")
                         .HasColumnName("segment_data_json");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("source");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("TEXT")
@@ -806,10 +972,6 @@ namespace Management.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("id");
 
-                    b.Property<int>("BaseSessionCount")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("base_session_count");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at");
@@ -840,9 +1002,9 @@ namespace Management.Infrastructure.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnName("is_deleted");
 
-                    b.Property<bool>("IsSessionPack")
+                    b.Property<bool>("IsPersonalTraining")
                         .HasColumnType("INTEGER")
-                        .HasColumnName("is_session_pack");
+                        .HasColumnName("is_personal_training");
 
                     b.Property<bool>("IsSynced")
                         .HasColumnType("INTEGER")
@@ -865,6 +1027,10 @@ namespace Management.Infrastructure.Migrations
                     b.Property<string>("ScheduleJson")
                         .HasColumnType("TEXT")
                         .HasColumnName("schedule_json");
+
+                    b.Property<int>("SessionsPerWeek")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("sessions_per_week");
 
                     b.Property<string>("TenantId")
                         .IsRequired()
@@ -1193,6 +1359,107 @@ namespace Management.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Product_StockNonNegative", "stock_quantity >= 0");
                         });
+                });
+
+            modelBuilder.Entity("Management.Domain.Models.Promotion", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CriteriaGender")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("criteria_gender");
+
+                    b.Property<string>("CriteriaMemberPlanId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("criteria_member_plan_id");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("description");
+
+                    b.Property<decimal?>("DiscountPercentage")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("discount_percentage");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("FacilityId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("facility_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_synced");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("name");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsRequired()
+                        .HasColumnType("BLOB")
+                        .HasColumnName("row_version");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("target_id");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("target_type");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotions");
+
+                    b.HasIndex("FacilityId")
+                        .HasDatabaseName("ix_promotions_facility_id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_promotions_is_deleted");
+
+                    b.HasIndex("IsSynced")
+                        .HasDatabaseName("ix_promotions_is_synced");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_promotions_tenant_id");
+
+                    b.HasIndex("FacilityId", "TargetId", "IsActive")
+                        .HasDatabaseName("idx_promotion_lookup");
+
+                    b.ToTable("promotions", (string)null);
                 });
 
             modelBuilder.Entity("Management.Domain.Models.Registration", b =>
@@ -1828,6 +2095,10 @@ namespace Management.Infrastructure.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("id");
 
+                    b.Property<string>("AppliedPromotionName")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("applied_promotion_name");
+
                     b.Property<string>("CapturedLabel")
                         .IsRequired()
                         .HasColumnType("TEXT")
@@ -1897,14 +2168,14 @@ namespace Management.Infrastructure.Migrations
                     b.HasIndex("IsSynced")
                         .HasDatabaseName("ix_sales_is_synced");
 
-                    b.HasIndex("MemberId")
-                        .HasDatabaseName("idx_sale_member_id");
-
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_sales_tenant_id");
 
-                    b.HasIndex("FacilityId", "CreatedAt")
+                    b.HasIndex("FacilityId", "Timestamp")
                         .HasDatabaseName("idx_sale_performance_composite");
+
+                    b.HasIndex("MemberId", "Timestamp")
+                        .HasDatabaseName("idx_sale_member_date");
 
                     b.ToTable("sales");
                 });
@@ -2083,6 +2354,9 @@ namespace Management.Infrastructure.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_appointments_tenant_id");
 
+                    b.HasIndex("ClientId", "StartTime")
+                        .HasDatabaseName("idx_appointment_member_date");
+
                     b.HasIndex("FacilityId", "StartTime", "IsDeleted")
                         .HasDatabaseName("idx_appointment_search");
 
@@ -2249,6 +2523,75 @@ namespace Management.Infrastructure.Migrations
                         .HasDatabaseName("ix_salon_services_tenant_id");
 
                     b.ToTable("salon_services", (string)null);
+                });
+
+            modelBuilder.Entity("Management.Domain.Models.SalonSettings", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("DailyRevenueTarget")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("daily_revenue_target");
+
+                    b.Property<string>("FacilityId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("facility_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<bool>("IsSynced")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("is_synced");
+
+                    b.Property<string>("OperatingHoursJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("operating_hours_json");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsRequired()
+                        .HasColumnType("BLOB")
+                        .HasColumnName("row_version");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("TotalChairs")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("total_chairs");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_salon_settings");
+
+                    b.HasIndex("FacilityId")
+                        .HasDatabaseName("ix_salon_settings_facility_id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_salon_settings_is_deleted");
+
+                    b.HasIndex("IsSynced")
+                        .HasDatabaseName("ix_salon_settings_is_synced");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_salon_settings_tenant_id");
+
+                    b.ToTable("salon_settings");
                 });
 
             modelBuilder.Entity("Management.Domain.Models.StaffMember", b =>
@@ -2873,6 +3216,36 @@ namespace Management.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Management.Domain.Models.Promotion", b =>
+                {
+                    b.OwnsOne("Management.Domain.ValueObjects.Money", "PromotionPrice", b1 =>
+                        {
+                            b1.Property<string>("PromotionId")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("price_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasColumnType("TEXT")
+                                .HasColumnName("price_currency");
+
+                            b1.HasKey("PromotionId")
+                                .HasName("pk_promotions");
+
+                            b1.ToTable("promotions");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PromotionId")
+                                .HasConstraintName("fk_promotions_promotions_id");
+                        });
+
+                    b.Navigation("PromotionPrice");
+                });
+
             modelBuilder.Entity("Management.Domain.Models.Restaurant.OrderItem", b =>
                 {
                     b.HasOne("Management.Domain.Models.Restaurant.RestaurantOrder", null)
@@ -2979,6 +3352,56 @@ namespace Management.Infrastructure.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_sale_items_sales_sale_id");
 
+                    b.OwnsOne("Management.Domain.ValueObjects.Money", "DiscountAmount", b1 =>
+                        {
+                            b1.Property<string>("SaleItemId")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("discount_amount_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasColumnType("TEXT")
+                                .HasColumnName("discount_amount_currency");
+
+                            b1.HasKey("SaleItemId")
+                                .HasName("pk_sale_items");
+
+                            b1.ToTable("sale_items");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleItemId")
+                                .HasConstraintName("fk_sale_items_sale_items_id");
+                        });
+
+                    b.OwnsOne("Management.Domain.ValueObjects.Money", "OriginalPrice", b1 =>
+                        {
+                            b1.Property<string>("SaleItemId")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("TEXT")
+                                .HasColumnName("original_price_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasColumnType("TEXT")
+                                .HasColumnName("original_price_currency");
+
+                            b1.HasKey("SaleItemId")
+                                .HasName("pk_sale_items");
+
+                            b1.ToTable("sale_items");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleItemId")
+                                .HasConstraintName("fk_sale_items_sale_items_id");
+                        });
+
                     b.OwnsOne("Management.Domain.ValueObjects.Money", "UnitPriceSnapshot", b1 =>
                         {
                             b1.Property<string>("SaleItemId")
@@ -3003,6 +3426,10 @@ namespace Management.Infrastructure.Migrations
                                 .HasForeignKey("SaleItemId")
                                 .HasConstraintName("fk_sale_items_sale_items_id");
                         });
+
+                    b.Navigation("DiscountAmount");
+
+                    b.Navigation("OriginalPrice");
 
                     b.Navigation("UnitPriceSnapshot")
                         .IsRequired();

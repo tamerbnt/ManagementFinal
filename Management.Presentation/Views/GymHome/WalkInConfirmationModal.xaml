@@ -170,6 +170,55 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Discount Card -->
+                <Border Background="{DynamicResource Brush.Surface.Card}" 
+                        CornerRadius="16" 
+                        Padding="24"
+                        Margin="0,0,0,24"
+                        BorderBrush="#F3F4F6"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                        <TextBlock Text="Select a manual discount" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
+                        
+                        <ComboBox ItemsSource="{Binding AvailableDiscounts}"
+                                  SelectedItem="{Binding SelectedDiscount}"
+                                  DisplayMemberPath="Name"
+                                  Style="{DynamicResource Input.ComboBox}"
+                                  HorizontalAlignment="Stretch">
+                            <ComboBox.ItemContainerStyle>
+                                <Style TargetType="ComboBoxItem">
+                                    <Setter Property="Padding" Value="12,8"/>
+                                </Style>
+                            </ComboBox.ItemContainerStyle>
+                        </ComboBox>
+                        
+                        <!-- Show discount details if selected -->
+                        <TextBlock Margin="0,12,0,0" 
+                                   FontSize="12" 
+                                   Foreground="{DynamicResource FacilityAccentBrush}"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Right">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedDiscount, Converter={StaticResource NullToVisibilityConverter}}" Value="Visible">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedDiscount.Type}" Value="0">
+                                            <Setter Property="Text" Value="{Binding SelectedDiscount.Percentage, StringFormat='- {0}%'}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedDiscount.Type}" Value="1">
+                                            <Setter Property="Text" Value="{Binding SelectedDiscount.FixedAmount, StringFormat='- {0:N2} DA'}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
                 <!-- Summary Card -->
                 <Border Background="{DynamicResource Brush.Surface.Glass}" 
                         CornerRadius="16" 
@@ -189,6 +238,15 @@
                                        Margin="0,4,0,0"/>
                         </StackPanel>
                         
+                        <!-- Discount Row (Optional) -->
+                        <Grid Margin="0,0,0,12" Visibility="{Binding SelectedDiscount, Converter={StaticResource NullToVisibilityConverter}}">
+                            <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="13" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                            <TextBlock Text="{Binding PricingResult.ManualDiscountAmount, StringFormat='- {0:N2} DA'}" 
+                                       FontSize="13" FontWeight="SemiBold" 
+                                       Foreground="{DynamicResource FacilityAccentBrush}"
+                                       HorizontalAlignment="Right"/>
+                        </Grid>
+
                         <Border Height="1" Background="#F3F4F6" Margin="0,0,0,20"/>
                         <TextBlock Text="Ready to process guest entry." FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" TextAlignment="Center"/>
                     </StackPanel>

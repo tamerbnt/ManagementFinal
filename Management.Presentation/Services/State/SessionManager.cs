@@ -16,10 +16,14 @@ namespace Management.Presentation.Services.State
             // the user stays the same across facility switches.
             // But we might want to clear facility-specific settings.
             CurrentFacility = FacilityType.General; // Default to general segment
+            // FIX Bug #4: Do NOT clear IsRemoteMode here. 
+            // This method is called during the login handoff (ResetApplicationState),
+            // and clearing it here wipes the choice made in SplashOnboarding.
         }
         private readonly object _lock = new object();
         private StaffDto? _currentUser;
         private FacilityType _currentFacility;
+        private bool _isRemoteMode;
         private readonly Management.Application.Stores.AccountStore _accountStore;
 
         public SessionManager(Management.Application.Stores.AccountStore accountStore)
@@ -53,6 +57,15 @@ namespace Management.Presentation.Services.State
             }
         }
 
+        public bool IsRemoteMode
+        {
+            get { lock (_lock) return _isRemoteMode; }
+            set 
+            { 
+                lock (_lock) SetProperty(ref _isRemoteMode, value); 
+            }
+        }
+
         public bool IsLoggedIn => CurrentUser != null;
 
         public Guid CurrentTenantId => CurrentUser?.TenantId ?? Guid.Empty;
@@ -78,6 +91,7 @@ namespace Management.Presentation.Services.State
         public void Clear()
         {
             CurrentUser = null;
+            IsRemoteMode = false;
             _accountStore.Logout();
         }
     }

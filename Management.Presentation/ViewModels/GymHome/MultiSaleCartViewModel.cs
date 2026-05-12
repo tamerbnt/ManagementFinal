@@ -38,6 +38,7 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly MediatR.IMediator _mediator;
         private readonly IMemberService _memberService;
         private readonly IPricingService _pricingService;
+        private readonly IDiscountService _discountService;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsProductSelectionActive))]
@@ -110,6 +111,14 @@ namespace Management.Presentation.ViewModels.GymHome
         [ObservableProperty]
         private ObservableCollection<MemberDto> _searchedMembers = new();
 
+        [ObservableProperty]
+        private ObservableCollection<DiscountDto> _availableDiscounts = new();
+
+        [ObservableProperty]
+        private DiscountDto? _selectedDiscount;
+
+        partial void OnSelectedDiscountChanged(DiscountDto? value) => _ = RecalculateAllPricesAsync();
+
         public PricingResult? SelectedProductPricing { get; private set; }
         public PricingResult? SelectedWalkInPricing { get; private set; }
 
@@ -153,7 +162,8 @@ namespace Management.Presentation.ViewModels.GymHome
             ILocalizationService localizationService,
             MediatR.IMediator mediator,
             IMemberService memberService,
-            IPricingService pricingService)
+            IPricingService pricingService,
+            IDiscountService discountService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
@@ -165,11 +175,22 @@ namespace Management.Presentation.ViewModels.GymHome
             _mediator = mediator;
             _memberService = memberService;
             _pricingService = pricingService;
+            _discountService = discountService;
 
             Title = GetTerm("Strings.GymHome.MultiSaleCart") ?? "Multi-Sale / Cart";
             _productStore.StockUpdated += OnProductStockUpdated;
             _ = LoadProductsAsync();
             _ = LoadWalkInPlansAsync();
+            _ = LoadDiscountsAsync();
+        }
+
+        private async Task LoadDiscountsAsync()
+        {
+            var result = await _discountService.GetDiscountsAsync(_facilityContext.CurrentFacilityId);
+            if (result.IsSuccess)
+            {
+                AvailableDiscounts = new ObservableCollection<DiscountDto>(result.Value.Where(d => d.IsActive));
+            }
         }
 
         protected override void OnLanguageChanged()
@@ -288,11 +309,21 @@ namespace Management.Presentation.ViewModels.GymHome
             if (!batchItems.Any()) return;
 
             // 2. Single Batch Call (High Performance)
+            decimal? manualVal = null;
+            bool isPerc = false;
+            if (SelectedDiscount != null)
+            {
+                isPerc = SelectedDiscount.IsPercentage;
+                manualVal = SelectedDiscount.Value;
+            }
+
             var batchResults = await _pricingService.CalculateBatchPricesAsync(
                 _facilityContext.CurrentFacilityId,
                 batchItems,
                 SelectedMember?.Gender,
-                SelectedMember?.MembershipPlanId);
+                SelectedMember?.MembershipPlanId,
+                manualDiscountValue: manualVal,
+                isManualDiscountPercentage: isPerc);
 
             // 3. Apply Results
             if (SelectedProduct != null && batchResults.TryGetValue(SelectedProduct.Id, out var prodPricing))
@@ -537,12 +568,17 @@ namespace Management.Presentation.ViewModels.GymHome
                 // 1. Process products via ISaleService for inventory tracking
                 if (CartItems.Any())
                 {
+                    decimal originalProductsTotal = CartItems.Sum(item => item.OriginalPrice * item.Quantity);
+                    decimal manualDiscountOnProducts = Math.Max(0, originalProductsTotal - ProductsTotal);
+
                     var itemsMap = CartItems.ToDictionary(i => i.ProductId, i => i.Quantity);
                     var productRequest = new CheckoutRequestDto(
                         Management.Domain.Enums.PaymentMethod.Cash,
                         ProductsTotal,
                         SelectedMember?.Id,
-                        itemsMap
+                        itemsMap,
+                        ManualDiscountId: SelectedDiscount?.Id,
+                        ManualDiscountAmount: manualDiscountOnProducts > 0 ? manualDiscountOnProducts : null
                     );
 
                     // Suppress notification to prevent fragmentation
@@ -562,12 +598,21 @@ namespace Management.Presentation.ViewModels.GymHome
                 // 2. Process walk-ins (Non-inventoried services)
                 for (int i = 0; i < WalkInCount; i++)
                 {
+                    decimal? walkInManualDiscount = null;
+                    if (!CartItems.Any() && i == 0 && SelectedDiscount != null)
+                    {
+                         // If no products, apply the manual discount to the first walk-in
+                         walkInManualDiscount = (SelectedWalkInPlan?.Price ?? 0) - WalkInPrice;
+                    }
+
                     // Suppress notification to prevent fragmentation
                     var walkInResult = await _gymOperationService.ProcessWalkInAsync(
                         WalkInPrice, 
                         _facilityContext.CurrentFacilityId, 
                         SelectedWalkInPlan?.Name ?? "Walk-In",
-                        publishNotification: false);
+                        publishNotification: false,
+                        manualDiscountId: walkInManualDiscount.HasValue ? SelectedDiscount?.Id : null,
+                        manualDiscountAmount: walkInManualDiscount);
 
                     if (walkInResult.Success)
                     {

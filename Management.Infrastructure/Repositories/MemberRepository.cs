@@ -17,12 +17,13 @@ namespace Management.Infrastructure.Repositories
         public async Task<IEnumerable<Member>> SearchAsync(
             string searchTerm, 
             Guid? facilityId = null,
+            MemberFilterType filterType = MemberFilterType.All,
             MemberStatus? status = null,
             Gender? gender = null,
             DateTime? joinedStart = null,
             DateTime? joinedEnd = null)
         {
-            var query = BuildSearchQuery(searchTerm, facilityId, status, gender, joinedStart, joinedEnd, null);
+            var query = BuildSearchQuery(searchTerm, facilityId, filterType, status, gender, joinedStart, joinedEnd, null);
 
             bool hasFilter = !string.IsNullOrWhiteSpace(searchTerm) || 
                              status.HasValue || 
@@ -51,6 +52,7 @@ namespace Management.Infrastructure.Repositories
             Guid? facilityId,
             int page,
             int pageSize,
+            MemberFilterType filterType = MemberFilterType.All,
             MemberStatus? status = null,
             Gender? gender = null,
             DateTime? joinedStart = null,
@@ -58,7 +60,7 @@ namespace Management.Infrastructure.Repositories
             bool? isActiveFilter = null,
             DateTime? expiringBefore = null)
         {
-            var query = BuildSearchQuery(searchTerm, facilityId, status, gender, joinedStart, joinedEnd, isActiveFilter, expiringBefore);
+            var query = BuildSearchQuery(searchTerm, facilityId, filterType, status, gender, joinedStart, joinedEnd, isActiveFilter, expiringBefore);
 
             var totalCount = await query.CountAsync();
 
@@ -74,6 +76,7 @@ namespace Management.Infrastructure.Repositories
         private IQueryable<Member> BuildSearchQuery(
             string searchTerm,
             Guid? facilityId,
+            MemberFilterType filterType,
             MemberStatus? status,
             Gender? gender,
             DateTime? joinedStart,
@@ -85,11 +88,16 @@ namespace Management.Infrastructure.Repositories
             System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] SearchTerm: '{searchTerm}'");
             System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] FacilityId Filter: {facilityId?.ToString() ?? "NULL"}");
             System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] Status Filter: {status?.ToString() ?? "NULL"}");
+            System.Diagnostics.Debug.WriteLine($"[REPO_DIAG] FilterType: {filterType}");
 
-            var query = _dbSet.AsNoTracking().Where(m => !m.IsDeleted);
+            // Switch base query based on whether we are looking for deleted members or not
+            var query = (filterType == MemberFilterType.Deleted)
+                ? _dbSet.AsNoTracking().Where(m => m.IsDeleted)
+                : _dbSet.AsNoTracking().Where(m => !m.IsDeleted);
+
             if (facilityId.HasValue)
             {
-                query = _dbSet.AsNoTracking().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted);
+                query = query.Where(m => m.FacilityId == facilityId.Value);
             }
 
             if (status.HasValue)
@@ -185,8 +193,8 @@ namespace Management.Infrastructure.Repositories
         {
             var now = DateTime.UtcNow;
             var query = facilityId.HasValue
-                ? _dbSet.Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now)
-                : _dbSet.Where(m => !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now);
+                ? _dbSet.IgnoreQueryFilters().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now)
+                : _dbSet.IgnoreQueryFilters().Where(m => !m.IsDeleted && m.Status == MemberStatus.Active && m.ExpirationDate > now);
 
             return await query.CountAsync();
         }
@@ -194,8 +202,8 @@ namespace Management.Infrastructure.Repositories
         public async Task<int> GetTotalCountAsync(Guid? facilityId = null)
         {
             var query = facilityId.HasValue
-                ? _dbSet.Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted)
-                : _dbSet.Where(m => !m.IsDeleted);
+                ? _dbSet.IgnoreQueryFilters().Where(m => m.FacilityId == facilityId.Value && !m.IsDeleted)
+                : _dbSet.IgnoreQueryFilters().Where(m => !m.IsDeleted);
 
             return await query.CountAsync();
         }
@@ -214,7 +222,7 @@ namespace Management.Infrastructure.Repositories
         {
             await _dbSet
                 .IgnoreQueryFilters()
-                .Where(m => m.Id == id)
+                .Where(m => m.Id == id && (!facilityId.HasValue || m.FacilityId == facilityId.Value))
                 .ExecuteUpdateAsync(m => m
                     .SetProperty(x => x.IsDeleted, false)
                     .SetProperty(x => x.UpdatedAt, DateTime.UtcNow));

@@ -16,6 +16,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyActiveLabel">Active</sys:String>
     <sys:String x:Key="TerminologyExpiringLabel">Expiring</sys:String>
     <sys:String x:Key="TerminologyExpiredLabel">Expired</sys:String>
+    <sys:String x:Key="TerminologyDeletedLabel">Deleted</sys:String>
+    <sys:String x:Key="TerminologyRestoreMemberLabel">Restore Member</sys:String>
+    <sys:String x:Key="Terminology.Global.Filter.Deleted">Deleted</sys:String>
+    <sys:String x:Key="Terminology.Members.RestoreMember">Restore Member</sys:String>
     <sys:String x:Key="TerminologyRenewAllLabel">Renew Selection</sys:String>
     <sys:String x:Key="TerminologyRegistrationsLabel">Pending Registrations</sys:String>
     <sys:String x:Key="TerminologyPendingLeadsLabel">Pending Leads</sys:String>

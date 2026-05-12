@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Management.Presentation.Services;
 using Management.Domain.Services;
 using Management.Presentation.Services.Localization;
+using Management.Presentation.Services.State;
 using Management.Presentation.ViewModels.Base;
 using Management.Presentation.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
@@ -346,6 +347,7 @@ namespace Management.Presentation.ViewModels.Shell
         private readonly IReportingService _reportingService;
         private readonly IEmailService _emailService;
         private readonly ISecureStorageService _secureStorage;
+        private readonly SessionManager _sessionManager;
 
         public DashboardViewModel(
             IDashboardService dashboardService, 
@@ -362,7 +364,8 @@ namespace Management.Presentation.ViewModels.Shell
             IServiceScopeFactory scopeFactory,
             IDispatcher dispatcher,
             IEmailService emailService,
-            ISecureStorageService secureStorage) 
+            ISecureStorageService secureStorage,
+            SessionManager sessionManager) 
             : base(terminologyService, facilityContextService, logger, diagnosticService, toastService, localizationService)
         {
             _refreshDebounceCts = new System.Threading.CancellationTokenSource();
@@ -376,6 +379,7 @@ namespace Management.Presentation.ViewModels.Shell
             _dispatcher = dispatcher;
             _emailService = emailService;
             _secureStorage = secureStorage;
+            _sessionManager = sessionManager;
             
             // Register for Messenger updates
             WeakReferenceMessenger.Default.RegisterAll(this);
@@ -904,16 +908,29 @@ namespace Management.Presentation.ViewModels.Shell
 
                     _initCts?.Cancel();
                     _initCts = new CancellationTokenSource();
-                    
                     try
                     {
-                        _logger?.LogInformation("[Dashboard] Loading data... (Facility: {Id})", _facilityContext.CurrentFacilityId);
-                    
-                    DashboardSummaryDto summary;
-                    using (var scope = _scopeFactory.CreateScope())
+                        DashboardSummaryDto? summary;
+
+                    if (_sessionManager.IsRemoteMode)
                     {
-                        var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
-                        summary = await scopedDashboardService.GetSummaryAsync();
+                        _logger?.LogInformation("[Dashboard] Remote Mode Active: Fetching snapshot from cloud for facility {Id}...", _facilityContext.CurrentFacilityId);
+                        summary = await _dashboardService.GetRemoteSummaryAsync(_facilityContext.CurrentFacilityId);
+                        
+                        if (summary == null)
+                        {
+                            _logger?.LogWarning("[Dashboard] Remote summary not found in cloud. Showing empty state.");
+                            summary = new DashboardSummaryDto(); // Fallback to empty
+                        }
+                    }
+                    else 
+                    {
+                        _logger?.LogInformation("[Dashboard] Loading data... (Facility: {Id})", _facilityContext.CurrentFacilityId);
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var scopedDashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                            summary = await scopedDashboardService.GetSummaryAsync();
+                        }
                     }
                     
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 

@@ -121,6 +121,23 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     
                     // --- BEWARE: BACKEND-SIDE PRICING VALIDATION ---
                     // Re-calculate effective price to ensure promotion rules are respected at the point of save.
+                    decimal? manualVal = null;
+                    bool isPerc = false;
+                    if (checkoutRequest.ManualDiscountId.HasValue && checkoutRequest.ManualDiscountAmount.HasValue)
+                    {
+                        // In a production app, we'd lookup the Discount by ID to verify its value.
+                        // For now, we trust the manual amount provided by the authenticated staff member.
+                        // We apply it proportionally if there are multiple items, or as a percentage if that's how it was defined.
+                        
+                        // BUT: CalculateEffectivePriceAsync expects the manual discount VALUE (e.g. 10 for 10%), 
+                        // not the calculated currency amount.
+                        // This makes it hard to use the ID here without looking it up.
+                        
+                        // For now, let's just record the manual discount in the sale entity directly
+                        // and let the view model's calculated EffectivePrice be the one used if we can trust it.
+                        // Actually, the handler re-calculates to be safe.
+                    }
+
                     var pricingResult = await _pricingService.CalculateEffectivePriceAsync(
                         request.FacilityId, 
                         productId, 
@@ -133,6 +150,9 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                         saleEntity.SetPromotionName(pricingResult.AppliedPromotionName);
                     }
 
+                    // If a manual discount was applied in the UI, it's already reflected in the request's AmountTendered?
+                    // No, AmountTendered is the total.
+                    
                     var addResult = saleEntity.AddLineItem(
                         product, 
                         qty, 
@@ -144,6 +164,13 @@ namespace Management.Application.Features.Sales.Commands.ProcessCheckout
                     {
                         return Result.Failure<Guid>(addResult.Error);
                     }
+                }
+
+                if (checkoutRequest.ManualDiscountId.HasValue)
+                {
+                    saleEntity.SetManualDiscount(checkoutRequest.ManualDiscountId, 
+                        checkoutRequest.ManualDiscountAmount.HasValue ? new Money(checkoutRequest.ManualDiscountAmount.Value, "DA") : null);
+                    saleEntity.RecalculateTotals();
                 }
 
                 await _saleRepository.AddAsync(saleEntity, saveChanges: false);

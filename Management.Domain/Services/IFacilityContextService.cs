@@ -22,5 +22,10 @@ namespace Management.Domain.Services
         void CommitFacility();
         Guid GetFacilityId(FacilityType type);
         void SaveTenantId(Guid tenantId);
+
+        /// <summary>
+        /// Temporarily overrides the current facility context for the current execution flow.
+        /// </summary>
+        IDisposable Impersonate(FacilityType type, Guid facilityId);
     }
 }

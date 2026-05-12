@@ -69,7 +69,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Filter Bar -->
-                    <Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton Content="{DynamicResource Terminology.Shop.Filter.All}" IsChecked="{Binding FilterAll}" Style="{StaticResource TogglePillStyle}"/>
                             <RadioButton Content="{DynamicResource Terminology.Shop.Filter.Supplements}" IsChecked="{Binding FilterSupplements}" Style="{StaticResource TogglePillStyle}"/>
@@ -330,13 +330,14 @@
                  <Border Grid.Column="1" 
                          Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                         Background="{DynamicResource CardBackgroundBrush}" 
-                        CornerRadius="32,0,0,32"
+                        CornerRadius="32"
+                        Margin="16,0,16,16"
                         Effect="{DynamicResource Shadow3}"
                         Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:ShopView}, Converter={StaticResource BoolToVisibilityConverter}}"
-                        BorderThickness="1,0,0,0"
+                        BorderThickness="1"
                         BorderBrush="{DynamicResource BorderBrush}">
                     <Border.RenderTransform>
-                        <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:ShopView}, Path=ActualWidth}"/>
+                        <TranslateTransform X="800"/>
                     </Border.RenderTransform>
                     <Border.Style>
                         <Style TargetType="Border">
@@ -346,7 +347,7 @@
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                                 To="0" Duration="{StaticResource DurationScreen}">
+                                                                 From="800" To="0" Duration="{StaticResource DurationScreen}">
                                                     <DoubleAnimation.EasingFunction>
                                                         <ExponentialEase Exponent="6" EasingMode="EaseOut"/>
                                                     </DoubleAnimation.EasingFunction>
@@ -358,7 +359,7 @@
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                                 To="1200" Duration="{StaticResource DurationScreen}">
+                                                                 To="800" Duration="{StaticResource DurationScreen}">
                                                     <DoubleAnimation.EasingFunction>
                                                         <ExponentialEase Exponent="6" EasingMode="EaseIn"/>
                                                     </DoubleAnimation.EasingFunction>

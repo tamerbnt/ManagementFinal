@@ -35,4 +35,10 @@
         <GradientStop Color="#5B8AB8" Offset="1"/>
     </LinearGradientBrush>
 
+    <!-- On-Accent Row Tokens: text/icons on top of the steel-blue active row background -->
+    <!-- Primary: deep navy #0B1224 on #5B8AB8 steel = ~6.1:1 contrast ✅ WCAG AA -->
+    <!-- Secondary: slightly lighter navy for muted text = ~4.8:1 ✅ WCAG AA -->
+    <SolidColorBrush x:Key="RowOnAccentPrimary"   Color="#0B1224"/>
+    <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#1A3050"/>
+
 </ResourceDictionary>

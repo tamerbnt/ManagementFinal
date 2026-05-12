@@ -248,14 +248,14 @@
             <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Command="{Binding EditPlanCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlanSectionView}}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource IconButtonStyle}"
+                        Style="{DynamicResource IconButtonStyle}"
                         Margin="0,0,4,0">
                     <Path Data="{StaticResource Icon.Edit}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
                 <Button Command="{Binding DeletePlanCommand, RelativeSource={RelativeSource AncestorType={x:Type local:PlanSectionView}}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource IconButtonStyle}">
-                    <Path Data="{StaticResource Icon.Delete}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource StatusErrorBrush}"/>
+                        Style="{DynamicResource IconButtonStyle}">
+                    <Path Data="{DynamicResource Icon.Delete}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource StatusErrorBrush}"/>
                 </Button>
             </StackPanel>
         </Grid>
@@ -306,13 +306,68 @@
             <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Command="{Binding EditServiceCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ServiceSectionView}}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource IconButtonStyle}"
+                        Style="{DynamicResource IconButtonStyle}"
                         Margin="0,0,4,0">
                     <Path Data="{StaticResource Icon.Edit}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
                 <Button Command="{Binding DeleteServiceCommand, RelativeSource={RelativeSource AncestorType={x:Type local:ServiceSectionView}}}"
                         CommandParameter="{Binding}"
-                        Style="{StaticResource IconButtonStyle}">
+                        Style="{DynamicResource IconButtonStyle}">
+                    <Path Data="{DynamicResource Icon.Delete}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource StatusErrorBrush}"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Discount Row Template -->
+    <DataTemplate x:Key="DiscountRowTemplate">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="100"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Status Dot -->
+            <Ellipse Grid.Column="0" Width="8" Height="8" HorizontalAlignment="Center">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="Fill" Value="{DynamicResource StatusSuccessBrush}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                <Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+
+            <!-- Discount Name -->
+            <TextBlock Grid.Column="1" Text="{Binding Name}" Style="{StaticResource BodyMedium}" VerticalAlignment="Center"/>
+
+            <!-- Type -->
+            <TextBlock Grid.Column="2" Text="{Binding DiscountType}" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+
+            <!-- Value -->
+            <TextBlock Grid.Column="3" 
+                       Text="{Binding DisplayValue}" 
+                       Style="{StaticResource BodyMedium}" 
+                       HorizontalAlignment="Right" 
+                       VerticalAlignment="Center"/>
+
+            <!-- Actions -->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Command="{Binding DataContext.EditDiscountCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DiscountsSectionView}}}"
+                        CommandParameter="{Binding}"
+                        Style="{DynamicResource IconButtonStyle}"
+                        Margin="0,0,4,0">
+                    <Path Data="{StaticResource Icon.Edit}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource TextSecondaryBrush}"/>
+                </Button>
+                <Button Command="{Binding DataContext.DeleteDiscountCommand, RelativeSource={RelativeSource AncestorType={x:Type local:DiscountsSectionView}}}"
+                        CommandParameter="{Binding}"
+                        Style="{DynamicResource IconButtonStyle}">
                     <Path Data="{StaticResource Icon.Delete}" Style="{StaticResource Style.Icon.Micro}" Fill="{DynamicResource StatusErrorBrush}"/>
                 </Button>
             </StackPanel>

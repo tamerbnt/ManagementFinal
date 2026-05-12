@@ -34,6 +34,7 @@ using Management.Presentation.ViewModels.Shared;
 using Management.Presentation.ViewModels.Base;
 using CommunityToolkit.Mvvm.Messaging;
 using Management.Presentation.Messages;
+using Management.Application.Messages;
 
 namespace Management.Presentation.ViewModels.GymHome
 {
@@ -58,6 +59,12 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly ILocalizationService _localizationService;
         private readonly IAccessEventService _accessEventService;
         private readonly ISyncService _syncService;
+        private readonly INotificationService _notificationService;
+        private readonly IMessenger _messenger;
+        private bool _remoteWelcomeShown = false;
+        
+        public bool IsRemoteMode => _sessionManager.IsRemoteMode;
+
         private readonly LiveChartsCore.Defaults.ObservableValue _occupancyValue = new(0);
         private readonly LiveChartsCore.Defaults.ObservableValue _remainingValue = new(100);
 
@@ -232,7 +239,9 @@ namespace Management.Presentation.ViewModels.GymHome
             IFacilityContextService facilityContext,
             ILocalizationService localizationService,
             IAccessEventService accessEventService,
-            ISyncService syncService) : base(logger, diagnosticService, toastService)
+            ISyncService syncService,
+            INotificationService notificationService,
+            IMessenger messenger) : base(logger, diagnosticService, toastService)
         {
             _scopeFactory = scopeFactory;
             _dialogService = dialogService;
@@ -241,6 +250,8 @@ namespace Management.Presentation.ViewModels.GymHome
             _localizationService = localizationService;
             _accessEventService = accessEventService;
             _syncService = syncService;
+            _notificationService = notificationService;
+            _messenger = messenger;
 
             _syncService.SyncCompleted += OnSyncCompleted;
             _facilityContext.FacilityChanged += OnFacilityChanged;
@@ -264,8 +275,8 @@ namespace Management.Presentation.ViewModels.GymHome
             ActivityStream = new ObservableRangeCollection<IActivityItem>();
             OccupancySeries = Array.Empty<ISeries>();
             OccupancyTrendSeries = Array.Empty<ISeries>();
-            XAxes = Array.Empty<Axis>();
-            YAxes = Array.Empty<Axis>();
+            XAxes = new Axis[] { new Axis { LabelsPaint = new SolidColorPaint(SKColors.LightGray), TextSize = 10 } };
+            YAxes = new Axis[] { new Axis { LabelsPaint = new SolidColorPaint(SKColors.LightGray), TextSize = 12 } };
 
             
             // Register for Messenger updates
@@ -366,31 +377,59 @@ namespace Management.Presentation.ViewModels.GymHome
 
         private async Task LoadDashboardStatsAsync()
         {
-           try
-           {
-               using var scope = _scopeFactory.CreateScope(); // Create scope
-               var operationService = scope.ServiceProvider.GetRequiredService<IGymOperationService>(); // Resolve service
-               var dashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>(); // Resolve service
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var dashboardService = scope.ServiceProvider.GetRequiredService<IDashboardService>();
+                var facilityId = _facilityContext.CurrentFacilityId;
 
-               var facilityId = _facilityContext.CurrentFacilityId;
-               if (facilityId == Guid.Empty)
-               {
-                   _logger?.LogWarning("[GymHome] LoadDashboardStatsAsync aborted: FacilityId is Guid.Empty.");
-                   return;
-               }
+                if (facilityId == Guid.Empty)
+                {
+                    _logger?.LogWarning("[GymHome] LoadDashboardStatsAsync aborted: FacilityId is Guid.Empty.");
+                    return;
+                }
 
-               // FIX: Execute sequentially to prevent EF Core DbContext concurrency exceptions
-               var stats = await operationService.GetDailyStatsAsync(facilityId);
-               var summary = await dashboardService.GetSummaryAsync(facilityId);
+                DashboardSummaryDto? summary;
+                DailyStatsDto? stats = null;
 
-               await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-               {
-                   if (stats != null)
-                   {
-                       MaxCapacity = stats.MaxCapacity;
-                       UpdateOccupancy(stats.OccupancyCount, stats.OccupancyLastHour);
-                       RevenueToday = stats.DailyCashTotal;
-                   }
+                if (_sessionManager.IsRemoteMode)
+                {
+                    _logger?.LogInformation("[GymHome] Remote Mode active. Fetching cloud snapshot for facility {Id}...", facilityId);
+                    summary = await dashboardService.GetRemoteSummaryAsync(facilityId);
+                    
+                    if (summary != null)
+                    {
+                        // Map cloud snapshot back to stats for UI consistency
+                        stats = new DailyStatsDto
+                        {
+                            OccupancyCount = summary.CheckInsToday,
+                            OccupancyLastHour = summary.PeopleInsideLastHour,
+                            DailyCashTotal = summary.DailyRevenue,
+                            MaxCapacity = 100 // Default fallback for remote view
+                        };
+                    }
+                    else
+                    {
+                        _logger?.LogWarning("[GymHome] Remote Mode: No cloud snapshot found. Requesting priority push from local data.");
+                        _messenger.Send(new SyncRequestedMessage(facilityId));
+                    }
+                }
+                else
+                {
+                    var operationService = scope.ServiceProvider.GetRequiredService<IGymOperationService>();
+                    // Local Mode: Execute sequentially to prevent EF Core DbContext concurrency exceptions
+                    stats = await operationService.GetDailyStatsAsync(facilityId);
+                    summary = await dashboardService.GetSummaryAsync(facilityId);
+                }
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    if (stats != null)
+                    {
+                        MaxCapacity = stats.MaxCapacity;
+                        UpdateOccupancy(stats.OccupancyCount, stats.OccupancyLastHour);
+                        RevenueToday = stats.DailyCashTotal;
+                    }
 
                     if (summary != null)
                     {
@@ -401,16 +440,26 @@ namespace Management.Presentation.ViewModels.GymHome
                         UpdateRevenueProgress();
                         UpdateExpiringSoon();
                         UpdateMembersDelta(summary.ActiveMembersYesterday);
+
+                        // Show Remote Welcome Notification
+                        if (_sessionManager.IsRemoteMode && !_remoteWelcomeShown && summary.LastUpdatedAt != default)
+                        {
+                            _remoteWelcomeShown = true;
+                            _notificationService.ShowInfo($"You are viewing remote data. Last cloud update: {summary.LastUpdatedAt:MMM dd, HH:mm}");
+                        }
                     }
 
-                    // Populate Avatars
-                   _ = UpdateActiveAvatarsAsync(facilityId);
-               });
-           }
-           catch (Exception ex)
-           {
-               _logger?.LogError(ex, "Failed to load dashboard stats");
-           }
+                    // Populate Avatars (Only in Local Mode - we don't sync individual member presence yet)
+                    if (!_sessionManager.IsRemoteMode)
+                    {
+                        _ = UpdateActiveAvatarsAsync(facilityId);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to load dashboard stats");
+            }
         }
 
         [RelayCommand]
@@ -628,6 +677,15 @@ namespace Management.Presentation.ViewModels.GymHome
 
         private async Task LoadRecentActivityAsync()
         {
+            // FIX Bug #6: In Remote Mode, activity events are embedded in the cloud snapshot
+            // that was already fetched by LoadDashboardStatsAsync. Reading local SQLite here
+            // would show stale on-premises data that doesn't belong to the remote viewer's context.
+            if (_sessionManager.IsRemoteMode)
+            {
+                _logger?.LogDebug("[GymHome] Remote Mode: Skipping local SQLite activity stream load.");
+                return;
+            }
+
             try
             {
                 // FIX: Use a fresh scope to resolve history providers.
@@ -830,7 +888,7 @@ namespace Management.Presentation.ViewModels.GymHome
         [RelayCommand]
         public async Task ScanAsync()
         {
-            if (string.IsNullOrWhiteSpace(ScanInput)) return;
+            if (_sessionManager.IsRemoteMode || string.IsNullOrWhiteSpace(ScanInput)) return;
 
             await ExecuteSafeAsync(async () =>
             {
@@ -886,24 +944,28 @@ namespace Management.Presentation.ViewModels.GymHome
         [RelayCommand]
         public async Task ProcessWalkInAsync()
         {
+            if (_sessionManager.IsRemoteMode) return;
             await _dialogService.ShowCustomDialogAsync<WalkInConfirmationViewModel>();
         }
 
         [RelayCommand]
         public async Task SellItemAsync()
         {
+            if (_sessionManager.IsRemoteMode) return;
             await _dialogService.ShowCustomDialogAsync<QuickSaleViewModel>();
         }
 
         [RelayCommand]
         public async Task RegisterMemberAsync()
         {
+            if (_sessionManager.IsRemoteMode) return;
             await _dialogService.ShowCustomDialogAsync<QuickRegistrationViewModel>();
         }
 
         [RelayCommand]
         public async Task OpenMultiSaleCartAsync()
         {
+            if (_sessionManager.IsRemoteMode) return;
             await _dialogService.ShowCustomDialogAsync<MultiSaleCartViewModel>();
         }
 
@@ -1098,6 +1160,12 @@ namespace Management.Presentation.ViewModels.GymHome
                         }
                     }
                 });
+
+                // Trigger a priority cloud snapshot push so Remote Viewers see this update immediately.
+                if (!_sessionManager.IsRemoteMode)
+                {
+                    _messenger.Send(new SyncRequestedMessage(_facilityContext.CurrentFacilityId));
+                }
             }
             catch (Exception ex)
             {

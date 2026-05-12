@@ -113,6 +113,8 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private bool _isOperational;
 
+        public bool IsRemoteMode => _sessionManager.IsRemoteMode;
+
         [ObservableProperty]
         private bool _isOnboarding;
 
@@ -471,6 +473,15 @@ namespace Management.Presentation.ViewModels.Shell
             MenuItems.Clear();
             foreach (var item in items)
             {
+                // In Remote Mode, ONLY allow Dashboard and History. Skip all other views.
+                if (_sessionManager.IsRemoteMode)
+                {
+                    if (item.DisplayName != "Dashboard" && item.DisplayName != "History")
+                    {
+                        continue;
+                    }
+                }
+
                 if (string.IsNullOrEmpty(item.RequiredPermission) || accountStore.HasPermission(item.RequiredPermission))
                 {
                     MenuItems.Add(new NavigationItemViewModel(

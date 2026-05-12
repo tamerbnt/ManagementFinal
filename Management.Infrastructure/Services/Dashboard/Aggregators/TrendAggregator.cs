@@ -58,28 +58,31 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var thirtyDaysAgo = today.AddDays(-29);
             var utcStartThreshold = thirtyDaysAgo.ToUniversalTime();
 
-            var salesData = await _dbContext.Sales
+            var salesDataRaw = await _dbContext.Sales
                 .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(s => s.FacilityId == context.FacilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty) && s.Timestamp >= utcStartThreshold && !s.IsDeleted)
-                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
-                .Select(g => new { Date = g.Key, Total = g.Sum(s => (double)s.TotalAmount.Amount) })
+                .Select(s => new { s.Timestamp, Amount = s.TotalAmount.Amount })
                 .ToListAsync();
-            
-            var salesMap = salesData.ToDictionary(x => x.Date, x => x.Total);
+
+            var salesMap = salesDataRaw
+                .GroupBy(s => s.Timestamp.ToLocalTime().Date)
+                .ToDictionary(g => g.Key, g => g.Sum(s => (double)s.Amount));
 
             var restaurantMap = new Dictionary<DateTime, double>();
             if (context.IsRestaurant)
             {
-                 var restaurantData = await _dbContext.RestaurantOrders
+                 var restaurantDataRaw = await _dbContext.RestaurantOrders
                     .AsNoTracking()
                     .Where(o => o.FacilityId == context.FacilityId && o.CompletedAt >= utcStartThreshold &&
                                 !o.IsDeleted &&
                                 (o.Status == OrderStatus.Completed || o.Status == OrderStatus.Paid))
-                    .GroupBy(o => o.CompletedAt!.Value.ToLocalTime().Date)
-                    .Select(g => new { Date = g.Key, Total = g.Sum(o => (double)(o.Subtotal + o.Tax)) })
+                    .Select(o => new { o.CompletedAt, Total = (double)(o.Subtotal + o.Tax) })
                     .ToListAsync();
-                restaurantMap = restaurantData.ToDictionary(x => x.Date, x => x.Total);
+
+                restaurantMap = restaurantDataRaw
+                    .GroupBy(o => o.CompletedAt!.Value.ToLocalTime().Date)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.Total));
             }
 
             for (int i = 29; i >= 0; i--)

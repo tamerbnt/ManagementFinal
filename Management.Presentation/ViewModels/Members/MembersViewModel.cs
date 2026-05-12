@@ -28,7 +28,8 @@ namespace Management.Presentation.ViewModels.Members
         All,
         Active,
         Expiring,
-        Expired
+        Expired,
+        Deleted
     }
 
     public enum MemberViewMode
@@ -284,9 +285,12 @@ namespace Management.Presentation.ViewModels.Members
         public IAsyncRelayCommand RenewSelectedCommand { get; }
         public IAsyncRelayCommand<MemberDto> GrantAccessCommand { get; }
         public IRelayCommand<MemberDto> DeleteSingleMemberCommand { get; }
+        public IAsyncRelayCommand<MemberDto> RestoreSingleMemberCommand { get; }
 
         public IRelayCommand DeleteSelectedCommand { get; }
+        public IRelayCommand RestoreSelectedCommand { get; }
         public IAsyncRelayCommand DeleteConfirmedCommand { get; }
+        public IAsyncRelayCommand RestoreConfirmedCommand { get; }
         public IRelayCommand CancelDeleteCommand { get; }
         public IAsyncRelayCommand ExportCommand { get; }
         public IRelayCommand ClearSelectionCommand { get; }
@@ -372,6 +376,37 @@ namespace Management.Presentation.ViewModels.Members
                 if (result.IsFailure)
                 {
                     _toastService.ShowError(result.Error.Message);
+                }
+            });
+
+            RestoreSingleMemberCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
+            {
+                if (member == null) return;
+                
+                var ids = new List<Guid> { member.Id };
+                var result = await _memberService.RestoreMembersAsync(_facilityContext.CurrentFacilityId, ids);
+                if (result.IsSuccess)
+                {
+                    if (SelectedFilter == MemberFilterStatus.Deleted)
+                    {
+                        FilteredMembers.Remove(member);
+                    }
+                    else
+                    {
+                        member.IsDeleted = false;
+                    }
+
+                    if (SelectedMember?.Id == member.Id)
+                    {
+                        // Refresh details if open
+                        OpenDetailCommand.Execute(member);
+                    }
+
+                    _toastService.ShowSuccess($"Member '{member.FullName}' restored.");
+                }
+                else
+                {
+                    _toastService.ShowError(result.Error?.Message ?? "Failed to restore member.");
                 }
             });
 
@@ -464,6 +499,49 @@ namespace Management.Presentation.ViewModels.Members
             CancelDeleteCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 IsDeleteConfirmationVisible = false;
+            });
+
+            RestoreSelectedCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
+            {
+                if (SelectedCount > 0) 
+                {
+                    // For restoration, we don't necessarily need a confirmation if it's less destructive, 
+                    // but for consistency with bulk actions we'll use a similar flow or just execute.
+                    RestoreConfirmedCommand.Execute(null);
+                }
+            });
+
+            RestoreConfirmedCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                var toRestore = FilteredMembers.Where(m => m.IsSelected).ToList();
+                var idsToRestore = toRestore.Select(m => m.Id).ToList();
+
+                if (!idsToRestore.Any()) return;
+
+                await ExecuteLoadingAsync(async () => 
+                {
+                    var result = await _memberService.RestoreMembersAsync(_facilityContext.CurrentFacilityId, idsToRestore);
+                    if (result.IsSuccess)
+                    {
+                        if (SelectedFilter == MemberFilterStatus.Deleted)
+                        {
+                            foreach(var item in toRestore) FilteredMembers.Remove(item);
+                        }
+                        else
+                        {
+                            foreach(var item in toRestore) item.IsDeleted = false;
+                        }
+                        
+                        _toastService.ShowSuccess($"{idsToRestore.Count} member(s) restored.");
+                        IsSelectionMode = false;
+                        SelectedCount = 0;
+                        SelectAll = false;
+                    }
+                    else
+                    {
+                        _toastService.ShowError($"Failed to restore member(s): {result.Error.Message}");
+                    }
+                });
             });
             
             ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
@@ -594,6 +672,7 @@ namespace Management.Presentation.ViewModels.Members
                     MemberFilterStatus.Active => MemberFilterType.Active,
                     MemberFilterStatus.Expiring => MemberFilterType.Expiring,
                     MemberFilterStatus.Expired => MemberFilterType.Expired,
+                    MemberFilterStatus.Deleted => MemberFilterType.Deleted,
                     _ => MemberFilterType.All
                 };
 

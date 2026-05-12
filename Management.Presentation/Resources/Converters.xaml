@@ -12,6 +12,7 @@
     <converters:BoolToVisibilityConverter x:Key="BooleanToVis"/>
     <converters:BooleanToThemeNameConverter x:Key="BooleanToThemeNameConverter"/>
     <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
+    <converters:EqualToVisibilityConverter x:Key="InverseEqualToVisibilityConverter" Inverted="True"/>
     <converters:EqualityConverter x:Key="EqualityConverter"/>
     <converters:StringEqualityConverter x:Key="StringEqualityConverter"/>
     <converters:IsGreaterThanConverter x:Key="IsGreaterThanConverter"/>

@@ -81,6 +81,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Text="Select Discovery" FontSize="26" FontWeight="Black" Foreground="#0F172A" Margin="0,0,0,4"/>
@@ -152,6 +153,23 @@
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="EnterBtn" Property="Opacity" Value="0.4"/></Trigger>
                                     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="EnterBtn" Property="Background" Value="#1E293B"/></Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Grid.Row="4" Command="{Binding EnterRemoteWorkspaceCommand}" Height="40" BorderThickness="0" Cursor="Hand" Margin="0,8,0,0" Background="Transparent">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="RemoteBtn" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="12">
+                                    <TextBlock Text="Remote View (Owner)" Foreground="#64748B" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False"><Setter TargetName="RemoteBtn" Property="Opacity" Value="0.4"/></Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="RemoteBtn" Property="Background" Value="#F1F5F9"/>
+                                        <Setter TargetName="RemoteBtn" Property="BorderBrush" Value="#94A3B8"/>
+                                    </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>

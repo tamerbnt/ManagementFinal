@@ -9,7 +9,7 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
-             Background="{DynamicResource SurfaceBg}">
+             Background="Transparent">
 
     <UserControl.Resources>
         <converters:NameToBrushConverter x:Key="NameToBrushConverter"/>
@@ -18,57 +18,92 @@
         <converters:IntToVisibilityConverter x:Key="ZeroIsVisibleConverter"/>
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
             <RowDefinition Height="Auto"/> <!-- Stats -->
             <RowDefinition Height="*"/>    <!-- Content/Tabs -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
         </Grid.RowDefinitions>
 
+        <!-- Top Right Close Button -->
+        <Button Width="32" Height="32" 
+                Style="{StaticResource IconButtonStyle}" 
+                Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"
+                HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Margin="0,24,24,0" Panel.ZIndex="10">
+            <Path Data="{StaticResource IconClose}" Stroke="{DynamicResource TextTertiaryBrush}" Width="12" Height="12" Stretch="Uniform"/>
+        </Button>
+
         <!-- 1. Profile Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <Grid x:Name="DetailAvatar">
-                <Ellipse Width="80" Height="80" HorizontalAlignment="Center"
-                         Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
-                <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
-                           Style="{StaticResource Title1}" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Foreground="White"/>
+        <Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,24,24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Center">
+                    <Ellipse Width="48" Height="48" Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
+                    <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
+                               FontSize="16" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding FullName}" Style="{StaticResource Title2}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                        <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="200"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        
+                        <ContentControl Content="{Binding Role}" 
+                                        Style="{StaticResource GlobalRoleBadgeStyle}" 
+                                        VerticalAlignment="Center"
+                                        Margin="0,2,0,0"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
-            <StackPanel x:Name="NameContainer" Margin="0,12,0,4" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding FullName}" Style="{StaticResource Title2}"
-                           Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                <!-- Editing Name (Placeholder) -->
-                <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="250"
-                         Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            </StackPanel>
-            
-            <ContentControl Content="{Binding Role}" 
-                            Style="{StaticResource GlobalRoleBadgeStyle}" 
-                            HorizontalAlignment="Center"
-                            Margin="0,4,0,0"/>
+        </Border>
 
-        </StackPanel>
+        <!-- 2. Stats Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Margin="24,24,24,16" Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <!-- 2. Stats Grid (Mock Data Match) -->
-        <UniformGrid Grid.Row="1" Columns="3" Margin="0,0,0,24">
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Joined}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding HireDate, StringFormat='{}{0:yyyy}'}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Permissions}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding Permissions.Count}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Status}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding EmploymentStatus}" Style="{StaticResource Title3}" HorizontalAlignment="Center" Foreground="{DynamicResource BrandPrimaryBrush}"/>
-            </StackPanel>
-        </UniformGrid>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Joined}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding HireDate, StringFormat='{}{0:yyyy}'}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Background="{DynamicResource BorderBrush}" Width="1" VerticalAlignment="Stretch" Margin="0,4"/>
+
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Permissions}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Permissions.Count}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <Border Grid.Column="3" Background="{DynamicResource BorderBrush}" Width="1" VerticalAlignment="Stretch" Margin="0,4"/>
+
+                <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Status}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding EmploymentStatus}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
         <!-- 3. Tabs -->
-        <TabControl Grid.Row="2" Style="{StaticResource PremiumTabControl}">
+        <TabControl Grid.Row="2" Style="{StaticResource PremiumTabControl}" Margin="24,0">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="TabItem" BasedOn="{StaticResource GlobalDetailTabStyle}">
+                    <Setter Property="Margin" Value="0,0,16,0"/>
+                </Style>
+            </TabControl.ItemContainerStyle>
             <TabItem Header="{DynamicResource Terminology.Staff.Tab.Overview}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,16,0,0">
@@ -131,29 +166,52 @@
         </TabControl>
 
         
-        <!-- Top Right Close Button -->
-        <Button Width="32" Height="32" 
-                Style="{StaticResource IconButtonStyle}" 
-                Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"
-                HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0">
-            <Path Data="{StaticResource IconClose}" Stroke="{DynamicResource TextTertiaryBrush}" Width="12" Height="12" Stretch="Uniform"/>
-        </Button>
-
-        <!-- Edit Actions Bar (Floating Footer) -->
-        <Border Grid.Row="2" VerticalAlignment="Bottom" Background="White" CornerRadius="16" Padding="16,12" Margin="0,0,0,12"
-                Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}}">
+        
+        <!-- 4. Sticky Footer -->
+        <Border Grid.Row="3" Padding="24,16" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="0,0,32,32" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.1" Color="Black"/>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="-2" Opacity="0.05" Color="Black"/>
             </Border.Effect>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Cancel}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
-                        Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"/>
-                <Button Grid.Column="1" Content="{DynamicResource Terminology.Members.Action.SaveChanges}" Style="{StaticResource PrimaryButton}"
-                        Command="{Binding DataContext.SaveStaffCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"/>
+                <!-- View Mode: Edit / Delete -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Edit}" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Height="40"
+                            Command="{Binding DataContext.EditStaffCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"
+                            CommandParameter="{Binding}"/>
+                    
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Global.Delete}" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Foreground="{DynamicResource StatusErrorBrush}"
+                            Height="40"
+                            Command="{Binding DataContext.DeleteStaffCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"/>
+                </Grid>
+
+                <!-- Edit Mode: Save / Cancel -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Cancel}" 
+                            Style="{StaticResource SecondaryButton}" 
+                            Height="40"
+                            Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"/>
+
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Members.Action.SaveChanges}" 
+                            Style="{StaticResource PrimaryButton}" 
+                            Height="40"
+                            Command="{Binding DataContext.SaveStaffCommand, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}}"/>
+                </Grid>
             </Grid>
         </Border>
         

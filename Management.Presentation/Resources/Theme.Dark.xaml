@@ -48,7 +48,13 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <!-- State Brushes -->
     <SolidColorBrush x:Key="BorderBrush" Color="#3E3E3E" />
     <SolidColorBrush x:Key="SeparatorBrush" Color="#3E3E3E" />
+    <SolidColorBrush x:Key="SeparatorStroke" Color="#3E3E3E" />
     <SolidColorBrush x:Key="CardBorderBrush" Color="#3E3E3E" />
+    <!-- Fix: override the Color primitive that SeparatorStroke resolves through.
+         Without this, Brushes.xaml's SeparatorStroke → Color.Border.Subtle stays
+         at the Colors.xaml light-mode value (#E5E7EB), making all top-bar
+         dividers and settings borders render as near-white in dark mode. -->
+    <Color x:Key="Color.Border.Subtle">#3E3E3E</Color>
     
     <!-- Specialized Brushes -->
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#231F19" />
@@ -67,8 +73,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="Brush.Surface.Card" Color="#231F19"/>
     <SolidColorBrush x:Key="Brush.Surface.Hover" Color="#3E3E3E"/>
     <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#231F19" Opacity="0.8"/>
-    <SolidColorBrush x:Key="TextOnAccentBrush" Color="#1A1712"/>
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#1E293B"/>
+
     
     <SolidColorBrush x:Key="Brush.Text.Primary" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="Brush.Text.Secondary" Color="#D1D5DB" Opacity="0.8"/>

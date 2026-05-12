@@ -32,11 +32,45 @@ namespace Management.Presentation.Services
         // Default seed IDs removed (Relying on discovery)
         private readonly ConcurrentDictionary<FacilityType, Guid> _dynamicFacilityIds = new();
 
-        public FacilityType CurrentFacility { get; private set; }
-        public Guid CurrentFacilityId => _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
+        // Global State (Singleton fields)
+        private FacilityType _globalFacility;
+        
+        // Ambient Overrides (Isolated to the current execution flow)
+        private static readonly System.Threading.AsyncLocal<FacilityType?> _overrideFacility = new();
+        private static readonly System.Threading.AsyncLocal<Guid?> _overrideFacilityId = new();
+
+        public FacilityType CurrentFacility 
+        { 
+            get => _overrideFacility.Value ?? _globalFacility; 
+            private set => _globalFacility = value; 
+        }
+
+        public Guid CurrentFacilityId => _overrideFacilityId.Value ?? _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
         public string LanguageCode { get; private set; } = "en";
         public string PublicSlug { get; private set; } = string.Empty;
         public event Action<FacilityType>? FacilityChanged;
+
+        public IDisposable Impersonate(FacilityType type, Guid facilityId)
+        {
+            var prevType = _overrideFacility.Value;
+            var prevId = _overrideFacilityId.Value;
+            
+            _overrideFacility.Value = type;
+            _overrideFacilityId.Value = facilityId;
+            
+            return new ContextRestorer(() => 
+            {
+                _overrideFacility.Value = prevType;
+                _overrideFacilityId.Value = prevId;
+            });
+        }
+
+        private class ContextRestorer : IDisposable
+        {
+            private readonly Action _restoreAction;
+            public ContextRestorer(Action restoreAction) => _restoreAction = restoreAction;
+            public void Dispose() => _restoreAction();
+        }
 
         public async void SetFacility(FacilityType type)
         {

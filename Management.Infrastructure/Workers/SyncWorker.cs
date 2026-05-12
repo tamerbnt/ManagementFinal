@@ -123,6 +123,16 @@ namespace Management.Infrastructure.Workers
                 // Scope Creation
                 using (var scope = _scopeFactory.CreateScope())
                 {
+                    var currentUser = scope.ServiceProvider.GetRequiredService<ICurrentUserService>();
+                    
+                    // CRITICAL: Only sync if a user is actually logged in. 
+                    // This prevents "Cloud Offline" warnings during the onboarding/guest phase.
+                    if (!currentUser.UserId.HasValue)
+                    {
+                        _logger.LogDebug("Sync skipped: No active user session.");
+                        return false;
+                    }
+
                     var sync = scope.ServiceProvider.GetRequiredService<ISyncService>();
                     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 

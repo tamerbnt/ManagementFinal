@@ -150,7 +150,6 @@
     <StreamGeometry x:Key="IconEdit">M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Edit">M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Delete">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>
-    <StaticResource x:Key="IconTrash" ResourceKey="Icon.Delete"/>
     <StreamGeometry x:Key="Icon.Search">M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 1 1 14 0z</StreamGeometry>
     <StreamGeometry x:Key="Icon.Account">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
     <StreamGeometry x:Key="IconDelete">M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2</StreamGeometry>

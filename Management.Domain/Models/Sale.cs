@@ -27,6 +27,8 @@ namespace Management.Domain.Models
         public string CapturedLabel { get; private set; } = string.Empty;
 
         public string? AppliedPromotionName { get; private set; }
+        public Guid? ManualDiscountId { get; private set; }
+        public Money? ManualDiscountAmount { get; private set; }
 
         private readonly List<SaleItem> _items = new();
         public IReadOnlyCollection<SaleItem> Items => _items.AsReadOnly();
@@ -54,6 +56,11 @@ namespace Management.Domain.Models
         }
 
         public void SetPromotionName(string? name) => AppliedPromotionName = name;
+        public void SetManualDiscount(Guid? discountId, Money? amount)
+        {
+            ManualDiscountId = discountId;
+            ManualDiscountAmount = amount;
+        }
 
         public Result AddLineItem(
             Product product, 
@@ -81,15 +88,21 @@ namespace Management.Domain.Models
 
         public void RecalculateTotals()
         {
-            // Net Total (What was actually paid)
+            // Net Total (What was actually paid before manual transaction-level discount)
             decimal netTotal = _items.Sum(i => i.TotalLinePrice.Amount);
             
+            // Apply Manual Transaction-level Discount if present
+            if (ManualDiscountAmount != null)
+            {
+                netTotal -= ManualDiscountAmount.Amount;
+            }
+
             // Gross Total (Before any discounts)
             decimal grossTotal = _items.Sum(i => (i.OriginalPrice?.Amount ?? i.UnitPriceSnapshot.Amount) * i.Quantity);
             
             SubtotalAmount = new Money(grossTotal, "DA");
             TaxAmount = Money.Zero(); 
-            TotalAmount = new Money(netTotal, "DA");
+            TotalAmount = new Money(Math.Max(0, netTotal), "DA");
         }
     }
 }

@@ -13,7 +13,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
             <RowDefinition Height="*"/>    <!-- Scrollable Content -->
@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
 
         <!-- 1. Header Section -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,32">
+        <StackPanel Grid.Row="0" Margin="24,24,24,32">
             <!-- Undone Banner -->
             <Border Visibility="{Binding IsDeleted, Converter={StaticResource BoolToVisibilityConverter}}"
                     Background="#FFF1F2" 
@@ -87,7 +87,7 @@
         </StackPanel>
 
         <!-- 2. Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,-8,0" Padding="0,0,8,0">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="24,0,16,0" Padding="0,0,8,0">
             <StackPanel>
                 <!-- Card: Event Details -->
                 <ContentControl Content="{Binding}" Margin="0,0,0,32">
@@ -110,14 +110,24 @@
                             BorderBrush="{DynamicResource BorderBrush}" 
                             BorderThickness="1">
                         <TextBox Text="{Binding DataContext.AuditNote, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{DynamicResource UnderlineTextBox}" 
                                  BorderThickness="0"
                                  Background="Transparent"
                                  MinHeight="120"
                                  Padding="12"
                                  AcceptsReturn="True" 
                                  TextWrapping="Wrap"
-                                 Tag="{DynamicResource Terminology.History.Placeholder.AuditNote}"/>
+                                 Tag="{DynamicResource Terminology.History.Placeholder.AuditNote}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource UnderlineTextBox}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsRemoteMode, RelativeSource={RelativeSource AncestorType=local:HistoryView}}" Value="True">
+                                            <Setter Property="IsReadOnly" Value="True"/>
+                                            <Setter Property="Opacity" Value="0.7"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                     </Border>
                     <TextBlock Text="{DynamicResource Terminology.History.AuditNoteInfo}" 
                                Style="{DynamicResource Micro}" 
@@ -129,22 +139,31 @@
         </ScrollViewer>
 
         <!-- 3. Footer -->
-        <Grid Grid.Row="2" Margin="0,24,0,0">
+        <Grid Grid.Row="2" Margin="24,24,24,24">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             
             <Button Content="{DynamicResource Terminology.History.Action.SaveNote}" 
-                    Style="{DynamicResource SecondaryButton}" 
                     Margin="0,0,8,0"
-                    Height="44"
-                    Command="{Binding DataContext.SaveAuditNoteCommand, RelativeSource={RelativeSource AncestorType=local:HistoryView}}"/>
+                    Height="40"
+                    Command="{Binding DataContext.SaveAuditNoteCommand, RelativeSource={RelativeSource AncestorType=local:HistoryView}}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsRemoteMode, RelativeSource={RelativeSource AncestorType=local:HistoryView}}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
 
             <Button Grid.Column="1" 
                     Content="{DynamicResource Terminology.History.Action.Print}" 
                     Style="{DynamicResource PrimaryButton}" 
-                    Height="44"
+                    Height="40"
                     Command="{Binding DataContext.PrintSelectedEventCommand, RelativeSource={RelativeSource AncestorType=local:HistoryView}}"/>
         </Grid>
     </Grid>

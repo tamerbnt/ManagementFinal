@@ -34,6 +34,11 @@ namespace Management.Presentation
                 new NullLogger<AppDbContext>());
         }
 
+        private class MockDisposable : IDisposable
+        {
+            public void Dispose() { }
+        }
+
         private class MockCurrentUserService : Management.Application.Interfaces.ICurrentUserService
         {
             public Guid? CurrentFacilityId => Guid.Empty;
@@ -50,12 +55,7 @@ namespace Management.Presentation
             public void SetRole(string role) { }
             public string GetHardwareId() => "DESIGN-TIME";
             public void Clear() { }
-        }
-
-        private class MockPublisher : MediatR.IPublisher
-        {
-            public System.Threading.Tasks.Task Publish(object notification, System.Threading.CancellationToken cancellationToken = default) => System.Threading.Tasks.Task.CompletedTask;
-            public System.Threading.Tasks.Task Publish<TNotification>(TNotification notification, System.Threading.CancellationToken cancellationToken = default) where TNotification : MediatR.INotification => System.Threading.Tasks.Task.CompletedTask;
+            public IDisposable Impersonate(Guid tenantId) => new MockDisposable();
         }
 
         private class MockFacilityContextService : Management.Domain.Services.IFacilityContextService
@@ -76,6 +76,7 @@ namespace Management.Presentation
             public void CommitFacility() { }
             public Guid GetFacilityId(Management.Domain.Enums.FacilityType type) => Guid.Empty;
             public void SaveTenantId(Guid tenantId) { }
+            public IDisposable Impersonate(Management.Domain.Enums.FacilityType type, Guid facilityId) => new MockDisposable();
         }
     }
 }

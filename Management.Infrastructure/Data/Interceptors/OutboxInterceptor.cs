@@ -56,6 +56,8 @@ namespace Management.Infrastructure.Data.Interceptors
                     Facility => true,
                     FacilitySchedule => true,
                     Turnstile => true,
+                    SalonSettings => true,
+                    IntegrationConfig => true,
                     _ => false
                 };
 

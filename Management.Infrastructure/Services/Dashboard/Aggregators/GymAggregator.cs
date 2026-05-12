@@ -55,14 +55,16 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             var currentOccupancy = await _accessEventRepository.GetCurrentOccupancyCountAsync(facilityId);
             dto.CheckInsToday = currentOccupancy;
 
-            var settings = await _dbContext.GymSettings
+            var maxOccupancy = await _dbContext.GymSettings
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(s => s.FacilityId == facilityId && !s.IsDeleted);
+                .Where(s => s.FacilityId == facilityId && !s.IsDeleted)
+                .Select(s => s.MaxOccupancy)
+                .FirstOrDefaultAsync();
 
-            if (settings != null && settings.MaxOccupancy > 0)
+            if (maxOccupancy > 0)
             {
-                var currentVal = (decimal)currentOccupancy / settings.MaxOccupancy * 100;
+                var currentVal = (decimal)currentOccupancy / maxOccupancy * 100;
                 dto.OccupancyPercent = (int)Math.Min(100, currentVal);
 
                 dto.PeakCapacityPercent.Value = Math.Min(100, currentVal);
@@ -71,7 +73,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
                 if (dto.PeopleInsideLastHour >= 0)
                 {
-                    dto.PeakCapacityPercent.ComparisonValue = (decimal)dto.PeopleInsideLastHour / settings.MaxOccupancy * 100;
+                    dto.PeakCapacityPercent.ComparisonValue = (decimal)dto.PeopleInsideLastHour / maxOccupancy * 100;
                     dto.PeakCapacityPercent.PercentChange = dto.PeakCapacityPercent.ComparisonValue > 0 
                         ? (dto.PeakCapacityPercent.Value - dto.PeakCapacityPercent.ComparisonValue) 
                         : 0;
@@ -101,6 +103,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
             // Trial Conversion Rate (Registration Approval Rate)
             var regStats = await _dbContext.Registrations
+                .IgnoreQueryFilters()
                 .Where(r => r.FacilityId == facilityId && !r.IsDeleted)
                 .GroupBy(r => r.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count() })
@@ -119,6 +122,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
             // Membership Breakdown
             var breakdown = await _dbContext.Members
+                .IgnoreQueryFilters()
                 .Where(m => m.FacilityId == facilityId && m.Status == MemberStatus.Active && !m.IsDeleted && m.ExpirationDate > context.UtcNow)
                 .GroupBy(m => m.MembershipPlanId)
                 .Select(g => new
@@ -129,6 +133,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                 .ToListAsync();
 
             var allPlans = await _dbContext.MembershipPlans
+                .IgnoreQueryFilters()
                 .Where(p => p.FacilityId == facilityId && !p.IsDeleted)
                 .ToDictionaryAsync(p => p.Id, p => p.Name);
 
@@ -169,6 +174,8 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
 
             // Gender Demographics
             var genderData = await _dbContext.Members
+                .AsNoTracking()
+                .IgnoreQueryFilters()
                 .Where(m => m.FacilityId == facilityId && !m.IsDeleted)
                 .GroupBy(m => m.Gender)
                 .Select(g => new { Gender = g.Key, Count = g.Count() })

@@ -152,7 +152,10 @@ namespace Management.Application.Features.Members.Commands.UpdateMember
                         _facilityContext.CurrentFacilityId,    // Facility Id (scoped)
                         planName,                             // Transaction Type
                         _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
-                        planName                              // Captured Label
+                        planName,                              // Captured Label
+                        publishNotification: true,
+                        manualDiscountId: dto.ManualDiscountId,
+                        manualDiscountAmount: dto.ManualDiscountAmount
                     );
                 }
             }

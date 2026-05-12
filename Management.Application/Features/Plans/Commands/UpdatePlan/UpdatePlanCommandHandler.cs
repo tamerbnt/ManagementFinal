@@ -36,13 +36,12 @@ namespace Management.Application.Features.Plans.Commands.UpdatePlan
                 dto.Description,
                 dto.DurationDays,
                 price,
-                null, // BaseSessionCount
+                dto.SessionsPerWeek,
                 dto.IsWalkIn,
                 dto.IsPersonalTraining);
 
             plan.GenderRule = dto.GenderRule;
             plan.ScheduleJson = dto.ScheduleJson;
-            plan.IsSessionPack = dto.IsSessionPack;
 
             if (dto.IsActive) plan.Activate(); else plan.Deactivate();
 

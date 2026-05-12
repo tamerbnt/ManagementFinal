@@ -132,7 +132,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
 
-                        <!-- ACTIVE / SELECTED STATE (Glowing Blue) -->
+                        <!-- ACTIVE / SELECTED STATE -->
                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
                             <Setter TargetName="GridCard" Property="Background">
                                 <Setter.Value>
@@ -142,14 +142,22 @@
                                     </LinearGradientBrush>
                                 </Setter.Value>
                             </Setter>
-                            <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
+                            <Setter TargetName="GridCard" Property="BorderBrush" Value="Transparent"/>
+                            <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                             <Setter TargetName="GridCard" Property="Effect">
                                 <Setter.Value>
                                     <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="30" ShadowDepth="0" Opacity="0.4"/>
                                 </Setter.Value>
                             </Setter>
-                            <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
-                            <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
+                            <Setter TargetName="AvatarPlaceholder" Property="Fill">
+                                <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            <!-- Role badge: brush-level opacity keeps text visible; Foreground → on-accent color -->
+                            <Setter TargetName="RoleBadgeGrid" Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RoleBadgeGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>
@@ -270,7 +278,7 @@
                     
                     <DataTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                            <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                             <Setter TargetName="RowBorder" Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
@@ -290,7 +298,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
 
-                        <!-- ACTIVE / SELECTED STATE (Glowing Blue) -->
+                        <!-- ACTIVE / SELECTED STATE -->
                         <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
                              <Setter TargetName="RowBorder" Property="Background">
                                 <Setter.Value>
@@ -306,13 +314,24 @@
                                 </Setter.Value>
                             </Setter>
                             <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
-                            <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                            <Setter TargetName="EmailText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
-                            <Setter TargetName="StatusBorder" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
-                            <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                            <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
-                            <Setter TargetName="DeleteIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                            <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
+                            <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            <Setter TargetName="EmailText" Property="Foreground" Value="{DynamicResource RowOnAccentSecondary}"/>
+                            <!-- Status pill: brush-level opacity only -->
+                            <Setter TargetName="StatusBorder" Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.15"/></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            <!-- Avatar: brush-level opacity on ellipse fill -->
+                            <Setter TargetName="AvatarPlaceholder" Property="Fill">
+                                <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="DeleteIcon" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            <!-- Role badge: brush-level opacity keeps text visible; Foreground → on-accent color -->
+                            <Setter TargetName="RoleBadge" Property="Background">
+                                <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RoleBadge" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>

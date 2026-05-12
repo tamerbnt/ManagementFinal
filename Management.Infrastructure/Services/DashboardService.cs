@@ -13,6 +13,9 @@ using OrderStatus = Management.Domain.Models.Restaurant.OrderStatus;
 using Microsoft.EntityFrameworkCore;
 using Management.Infrastructure.Services.Dashboard;
 using Microsoft.Extensions.Logging;
+using Supabase;
+using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Management.Infrastructure.Services
 {
@@ -30,6 +33,7 @@ namespace Management.Infrastructure.Services
         private readonly IFacilityContextService _facilityContext;
         private readonly Management.Infrastructure.Data.AppDbContext _dbContext;
         private readonly ILogger<DashboardService> _logger;
+        private readonly Supabase.Client? _supabaseClient;
 
         private readonly IEnumerable<IDashboardAggregator> _aggregators;
 
@@ -46,7 +50,8 @@ namespace Management.Infrastructure.Services
             IFacilityContextService facilityContext,
             Management.Infrastructure.Data.AppDbContext dbContext,
             ILogger<DashboardService> logger,
-            IEnumerable<IDashboardAggregator> aggregators)
+            IEnumerable<IDashboardAggregator> aggregators,
+            Supabase.Client? supabaseClient = null)
         {
             _memberRepository = memberRepository;
             _accessEventRepository = accessEventRepository;
@@ -61,6 +66,7 @@ namespace Management.Infrastructure.Services
             _dbContext = dbContext;
             _logger = logger;
             _aggregators = aggregators;
+            _supabaseClient = supabaseClient;
         }
 
         public async Task<DashboardSummaryDto> GetSummaryAsync(Guid? overrideFacilityId = null)
@@ -606,6 +612,99 @@ namespace Management.Infrastructure.Services
             if (start.HasValue && !end.HasValue) return $"Since {start.Value:MMM dd, yyyy}";
             if (!start.HasValue && end.HasValue) return $"Up to {end.Value:MMM dd, yyyy}";
             return $"{start.Value:MMM dd} - {end.Value:MMM dd, yyyy}";
+        }
+
+        public async Task<DashboardSummaryDto?> GetRemoteSummaryAsync(Guid facilityId)
+        {
+            if (_supabaseClient == null)
+            {
+                _logger.LogWarning("[DashboardRemote] Supabase client not available.");
+                return null;
+            }
+
+            if (facilityId == Guid.Empty)
+            {
+                _logger.LogWarning("[DashboardRemote] Facility ID is empty. Skipping fetch.");
+                return null;
+            }
+
+            try
+            {
+                _logger.LogInformation("[DashboardRemote] Fetching remote summary for facility {Id}...", facilityId);
+
+                // FIX Bug #3: Use .Get() + .FirstOrDefault() instead of .Single().
+                // .Single() throws HTTP 406 Not Acceptable when zero rows are returned by PostgREST,
+                // which was being silently swallowed by the catch block, making the UI look empty
+                // rather than revealing the real cause (no snapshot uploaded yet).
+                var result = await _supabaseClient
+                    .From<Management.Infrastructure.Integrations.Supabase.Models.SupabaseDashboardSnapshot>()
+                    .Where(x => x.FacilityId == facilityId)
+                    .Get();
+
+                var response = result.Models.FirstOrDefault();
+
+                if (response == null || response.SnapshotData == null)
+                {
+                    _logger.LogWarning("[DashboardRemote] No snapshot found for facility {Id}. The SnapshotSyncWorker may not have run yet.", facilityId);
+                    return null;
+                }
+
+                var dto = response.SnapshotData.ToObject<DashboardSummaryDto>();
+                if (dto != null)
+                {
+                    dto.LastUpdatedAt = response.LastUpdatedAt;
+                }
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[DashboardRemote] Failed to fetch remote summary from Supabase for facility {Id}.", facilityId);
+                return null;
+            }
+        }
+
+        public async Task<IEnumerable<UnifiedHistoryEventDto>> GetRemoteHistoryAsync(Guid facilityId, DateTime date)
+        {
+            if (_supabaseClient == null)
+            {
+                _logger.LogWarning("[HistoryRemote] Supabase client not available.");
+                return Enumerable.Empty<UnifiedHistoryEventDto>();
+            }
+
+            if (facilityId == Guid.Empty)
+            {
+                _logger.LogWarning("[HistoryRemote] Facility ID is empty. Skipping fetch.");
+                return Enumerable.Empty<UnifiedHistoryEventDto>();
+            }
+
+            try
+            {
+                _logger.LogInformation("[HistoryRemote] Fetching history for facility {Id} on {Date}...", facilityId, date.ToShortDateString());
+
+                // FIX Bug #3: Use .Get() + .FirstOrDefault() instead of .Single().
+                // .Single() throws HTTP 406 Not Acceptable when the day has no history row yet.
+                var result = await _supabaseClient
+                    .From<Management.Infrastructure.Integrations.Supabase.Models.SupabaseDailyHistorySummary>()
+                    .Where(x => x.FacilityId == facilityId)
+                    .Where(x => x.SummaryDate == date.Date)
+                    .Get();
+
+                var response = result.Models.FirstOrDefault();
+
+                if (response == null || string.IsNullOrEmpty(response.EventsJson))
+                {
+                    _logger.LogInformation("[HistoryRemote] No history found for facility {Id} on {Date}.", facilityId, date.ToShortDateString());
+                    return Enumerable.Empty<UnifiedHistoryEventDto>();
+                }
+
+                var events = JsonSerializer.Deserialize<List<UnifiedHistoryEventDto>>(response.EventsJson);
+                return events ?? Enumerable.Empty<UnifiedHistoryEventDto>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[HistoryRemote] Failed to fetch remote history from Supabase for facility {Id} on {Date}.", facilityId, date.ToShortDateString());
+                return Enumerable.Empty<UnifiedHistoryEventDto>();
+            }
         }
     }
 }

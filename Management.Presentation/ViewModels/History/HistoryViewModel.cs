@@ -14,6 +14,7 @@ using Management.Domain.Models;
 using Management.Presentation.Messages;
 
 using Management.Presentation.Services;
+using Management.Presentation.Services.State;
 using Management.Presentation.Models.History;
 using Management.Presentation.ViewModels.Members;
 using Management.Application.Interfaces.App;
@@ -60,7 +61,12 @@ namespace Management.Presentation.ViewModels.History
         private readonly ISyncService _syncService;
         private readonly IOrderService _orderService;
         private readonly IReportingService _reportingService;
+        private readonly IDashboardService _dashboardService;
+        private readonly SessionManager _sessionManager;
+        private readonly Dictionary<DateTime, IEnumerable<UnifiedHistoryEventDto>> _remoteCache = new();
         private System.Threading.CancellationTokenSource? _refreshDebounceCts;
+        
+        public bool IsRemoteMode => _sessionManager.IsRemoteMode;
 
         [ObservableProperty]
         private HistoryEventItemViewModel? _selectedEvent;
@@ -151,7 +157,9 @@ namespace Management.Presentation.ViewModels.History
             ITerminologyService terminologyService,
             ISyncService syncService,
             IOrderService orderService,
-            IReportingService reportingService) 
+            IReportingService reportingService,
+            SessionManager sessionManager,
+            IDashboardService dashboardService) 
             : base(logger, diagnosticService, toastService)
         {
             _navigationService = navigationService;
@@ -161,6 +169,8 @@ namespace Management.Presentation.ViewModels.History
             _syncService = syncService;
             _orderService = orderService;
             _reportingService = reportingService;
+            _sessionManager = sessionManager;
+            _dashboardService = dashboardService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
             
@@ -251,7 +261,32 @@ namespace Management.Presentation.ViewModels.History
                 var startUtc = startLocal.ToUniversalTime();
                 var endUtc = endLocal.ToUniversalTime();
 
-                var events = await provider.GetHistoryAsync(facilityId, startUtc, endUtc, true);
+                IEnumerable<UnifiedHistoryEventDto> events;
+
+                if (_sessionManager.IsRemoteMode)
+                {
+                    var cacheKey = SelectedDay.Date;
+                    if (_remoteCache.TryGetValue(cacheKey, out var cachedEvents))
+                    {
+                        _logger.LogInformation("[History] Loading history from local remote cache for {Date}.", cacheKey.ToShortDateString());
+                        events = cachedEvents;
+                    }
+                    else
+                    {
+                        _logger.LogInformation("[History] Remote Mode: Fetching history from cloud for {Date}...", cacheKey.ToShortDateString());
+                        events = await _dashboardService.GetRemoteHistoryAsync(facilityId, cacheKey);
+                        
+                        // Cache it to avoid redundant fetches while navigating days
+                        if (events.Any())
+                        {
+                            _remoteCache[cacheKey] = events;
+                        }
+                    }
+                }
+                else
+                {
+                    events = await provider.GetHistoryAsync(facilityId, startUtc, endUtc, true);
+                }
 
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                 {

@@ -22,24 +22,33 @@ public class PricingService : IPricingService
             _context = context;
         }
 
-        public async Task<PricingResult> CalculateEffectivePriceAsync(Guid facilityId, Guid targetId, Money basePrice, Management.Domain.Enums.Gender? gender = null, Guid? currentPlanId = null)
+        public async Task<PricingResult> CalculateEffectivePriceAsync(
+            Guid facilityId, 
+            Guid targetId, 
+            Money basePrice, 
+            Management.Domain.Enums.Gender? gender = null, 
+            Guid? currentPlanId = null,
+            decimal? manualDiscountValue = null,
+            bool isManualDiscountPercentage = false)
         {
             var promotions = await GetActivePromotionsAsync(facilityId);
-            return CalculatePriceInternal(promotions, targetId, basePrice, gender, currentPlanId);
+            return CalculatePriceInternal(promotions, targetId, basePrice, gender, currentPlanId, manualDiscountValue, isManualDiscountPercentage);
         }
 
         public async Task<IDictionary<Guid, PricingResult>> CalculateBatchPricesAsync(
             Guid facilityId, 
             IEnumerable<(Guid Id, Money Price)> items, 
             Management.Domain.Enums.Gender? gender = null, 
-            Guid? currentPlanId = null)
+            Guid? currentPlanId = null,
+            decimal? manualDiscountValue = null,
+            bool isManualDiscountPercentage = false)
         {
             var promotions = await GetActivePromotionsAsync(facilityId);
             var results = new Dictionary<Guid, PricingResult>();
 
             foreach (var item in items)
             {
-                results[item.Id] = CalculatePriceInternal(promotions, item.Id, item.Price, gender, currentPlanId);
+                results[item.Id] = CalculatePriceInternal(promotions, item.Id, item.Price, gender, currentPlanId, manualDiscountValue, isManualDiscountPercentage);
             }
 
             return results;
@@ -50,49 +59,76 @@ public class PricingService : IPricingService
             Guid targetId, 
             Money basePrice, 
             Management.Domain.Enums.Gender? gender, 
-            Guid? currentPlanId)
+            Guid? currentPlanId,
+            decimal? manualDiscountValue = null,
+            bool isManualDiscountPercentage = false)
         {
-            // Filter promotions that target this item and match criteria
+            // 1. Calculate best promotion result
             var matchingPromotions = promotions
                 .Where(p => p.TargetId == targetId && IsMatch(p, gender, currentPlanId))
                 .ToList();
 
+            PricingResult result;
             if (!matchingPromotions.Any())
-                return PricingResult.Default(basePrice);
-
-            // Calculate effective price for each matching promotion and pick the best (lowest)
-            PricingResult bestResult = PricingResult.Default(basePrice);
-
-            foreach (var promo in matchingPromotions)
             {
-                decimal effectiveAmount = basePrice.Amount;
-
-                if (promo.PromotionPrice != null && promo.PromotionPrice.Amount > 0)
+                result = PricingResult.Default(basePrice);
+            }
+            else
+            {
+                PricingResult bestResult = PricingResult.Default(basePrice);
+                foreach (var promo in matchingPromotions)
                 {
-                    effectiveAmount = promo.PromotionPrice.Amount;
-                }
-                else if (promo.DiscountPercentage.HasValue)
-                {
-                    var discount = basePrice.Amount * (promo.DiscountPercentage.Value / 100);
-                    effectiveAmount = basePrice.Amount - discount;
-                }
+                    decimal effectiveAmount = basePrice.Amount;
+                    if (promo.PromotionPrice != null && promo.PromotionPrice.Amount > 0)
+                        effectiveAmount = promo.PromotionPrice.Amount;
+                    else if (promo.DiscountPercentage.HasValue)
+                        effectiveAmount = basePrice.Amount - (basePrice.Amount * (promo.DiscountPercentage.Value / 100));
 
-                // Senior Dev Rule: Round to 2 decimal places (or based on currency rules)
-                effectiveAmount = Math.Round(effectiveAmount, 2);
+                    effectiveAmount = Math.Round(effectiveAmount, 2);
 
-                if (effectiveAmount < bestResult.EffectivePrice.Amount)
-                {
-                    bestResult = new PricingResult
+                    if (effectiveAmount < bestResult.EffectivePrice.Amount)
                     {
-                        EffectivePrice = new Money(effectiveAmount, basePrice.Currency),
-                        OriginalPrice = basePrice,
-                        DiscountAmount = new Money(basePrice.Amount - effectiveAmount, basePrice.Currency),
-                        AppliedPromotionName = promo.Name
-                    };
+                        bestResult = new PricingResult
+                        {
+                            EffectivePrice = new Money(effectiveAmount, basePrice.Currency),
+                            OriginalPrice = basePrice,
+                            DiscountAmount = new Money(basePrice.Amount - effectiveAmount, basePrice.Currency),
+                            AppliedPromotionName = promo.Name
+                        };
+                    }
                 }
+                result = bestResult;
             }
 
-            return bestResult;
+            // 2. Apply manual discount on top of the promotion result (if any)
+            if (manualDiscountValue.HasValue && manualDiscountValue.Value > 0)
+            {
+                decimal currentAmount = result.EffectivePrice.Amount;
+                decimal manualReduction = 0;
+
+                if (isManualDiscountPercentage)
+                {
+                    manualReduction = currentAmount * (manualDiscountValue.Value / 100);
+                }
+                else
+                {
+                    manualReduction = manualDiscountValue.Value;
+                }
+
+                decimal finalAmount = Math.Max(0, currentAmount - manualReduction);
+                finalAmount = Math.Round(finalAmount, 2);
+
+                result = new PricingResult
+                {
+                    EffectivePrice = new Money(finalAmount, basePrice.Currency),
+                    OriginalPrice = basePrice,
+                    DiscountAmount = new Money(basePrice.Amount - finalAmount, basePrice.Currency),
+                    AppliedPromotionName = result.AppliedPromotionName,
+                    ManualDiscountAmount = new Money(currentAmount - finalAmount, basePrice.Currency)
+                };
+            }
+
+            return result;
         }
 
         private bool IsMatch(Promotion promo, Management.Domain.Enums.Gender? gender, Guid? currentPlanId)

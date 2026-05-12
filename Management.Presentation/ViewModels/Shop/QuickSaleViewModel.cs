@@ -20,6 +20,7 @@ using Management.Presentation.Stores;
 using Management.Domain.Services;
 using Management.Presentation.Services.Localization;
 using Microsoft.Extensions.Logging;
+using Management.Presentation.Services;
 
 namespace Management.Presentation.ViewModels.Shop
 {
@@ -31,6 +32,7 @@ namespace Management.Presentation.ViewModels.Shop
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly ProductStore _productStore;
         private readonly IPricingService _pricingService;
+        private readonly IDiscountService _discountService;
 
         [ObservableProperty]
         private ObservableRangeCollection<ProductDto> _products = new();
@@ -77,6 +79,12 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty]
         private string? _appliedPromotionName;
 
+        [ObservableProperty]
+        private ObservableCollection<DiscountDto> _availableDiscounts = new();
+
+        [ObservableProperty]
+        private DiscountDto? _selectedDiscount;
+
         public bool IsDiscounted => DiscountAmount > 0;
 
         public bool CanProcessSale => SelectedProduct != null;
@@ -93,7 +101,8 @@ namespace Management.Presentation.ViewModels.Shop
             ModalNavigationStore modalNavigationStore,
             ProductStore productStore,
             ILocalizationService localizationService,
-            IPricingService pricingService)
+            IPricingService pricingService,
+            IDiscountService discountService)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService)
         {
             _productService = productService;
@@ -102,11 +111,23 @@ namespace Management.Presentation.ViewModels.Shop
             _modalNavigationStore = modalNavigationStore;
             _productStore = productStore;
             _pricingService = pricingService;
+            _discountService = discountService;
 
             
             Title = GetTerm("Strings.Shop.QuickSale") ?? "Quick Sale";
             _productStore.StockUpdated += OnProductStockUpdated;
             _ = LoadProductsAsync();
+            _ = LoadDiscountsAsync();
+        }
+
+        [RelayCommand]
+        private async Task LoadDiscountsAsync()
+        {
+            var result = await _discountService.GetDiscountsAsync(_facilityContext.CurrentFacilityId);
+            if (result.IsSuccess)
+            {
+                AvailableDiscounts = new ObservableCollection<DiscountDto>(result.Value.Where(d => d.IsActive));
+            }
         }
 
         protected override void OnLanguageChanged()
@@ -217,6 +238,8 @@ namespace Management.Presentation.ViewModels.Shop
             await UpdatePricingAsync();
         }
 
+        partial void OnSelectedDiscountChanged(DiscountDto? value) => _ = UpdatePricingAsync();
+
         private async Task UpdatePricingAsync()
         {
             if (SelectedProduct == null) 
@@ -229,12 +252,23 @@ namespace Management.Presentation.ViewModels.Shop
             }
 
             var basePrice = new Management.Domain.ValueObjects.Money(SelectedProduct.Price, "DA");
+            
+            decimal? manualVal = null;
+            bool isPerc = false;
+            if (SelectedDiscount != null)
+            {
+                isPerc = SelectedDiscount.IsPercentage;
+                manualVal = SelectedDiscount.Value;
+            }
+
             var result = await _pricingService.CalculateEffectivePriceAsync(
                 _facilityContext.CurrentFacilityId,
                 SelectedProduct.Id,
                 basePrice,
                 SelectedMember?.Gender,
-                SelectedMember?.MembershipPlanId);
+                SelectedMember?.MembershipPlanId,
+                manualDiscountValue: manualVal,
+                isManualDiscountPercentage: isPerc);
 
             EffectivePrice = result.EffectivePrice.Amount;
             OriginalPrice = result.IsDiscountApplied ? result.OriginalPrice.Amount : null;
@@ -287,7 +321,9 @@ namespace Management.Presentation.ViewModels.Shop
                     Management.Domain.Enums.PaymentMethod.Cash,
                     EffectivePrice, // Use discounted price
                     SelectedMember?.Id,
-                    itemsMap
+                    itemsMap,
+                    ManualDiscountId: SelectedDiscount?.Id,
+                    ManualDiscountAmount: OriginalPrice.HasValue ? (OriginalPrice.Value - EffectivePrice) : 0
                 );
 
 

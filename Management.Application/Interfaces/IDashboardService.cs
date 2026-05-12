@@ -19,5 +19,7 @@ namespace Management.Application.Interfaces
         Task<List<LiveChartsCore.Defaults.DateTimePoint>> GetRevenueTrendAsync(Guid facilityId, DateTime monthStart, DateTime monthEnd);
         Task<RevenueHistoryDto> GetRevenueHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null);
         Task<OccupancyHistoryDto> GetOccupancyHistoryAsync(Guid facilityId, DateTime? startDate = null, DateTime? endDate = null);
+        Task<DashboardSummaryDto?> GetRemoteSummaryAsync(Guid facilityId);
+        Task<IEnumerable<UnifiedHistoryEventDto>> GetRemoteHistoryAsync(Guid facilityId, DateTime date);
     }
 }

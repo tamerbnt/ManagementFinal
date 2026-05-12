@@ -273,6 +273,17 @@
                                 </Border>
                             </StackPanel>
                         </Border>
+                        <!-- 0.5. MANUAL DISCOUNT -->
+                        <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="12" Margin="0,0,0,16" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
+                                <ComboBox ItemsSource="{Binding AvailableDiscounts}"
+                                          SelectedItem="{Binding SelectedDiscount}"
+                                          DisplayMemberPath="Name"
+                                          Style="{DynamicResource Input.ComboBox}"
+                                          Height="42"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- 1. ACTIVE SELECTION DETAILS -->
                         <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">

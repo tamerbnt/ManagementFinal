@@ -38,5 +38,11 @@ namespace Management.Application.Interfaces.App
         /// Used for "Sync Draining" during facility switches or app exit.
         /// </summary>
         Task<bool> WaitForPendingSyncAsync(CancellationToken ct);
+        
+        /// <summary>
+        /// Resets any session-failure circuit breakers and re-evaluates the Supabase session.
+        /// Call this after a successful Login to wake up the sync engine.
+        /// </summary>
+        void ResetSessionStatus();
     }
 }

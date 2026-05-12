@@ -34,7 +34,7 @@ namespace Management.Application.Features.Plans.Queries.GetPlans
                 DurationDays = p.DurationDays,
                 Price = p.Price.Amount,
                 IsActive = p.IsActive,
-                IsSessionPack = p.IsSessionPack,
+                SessionsPerWeek = p.SessionsPerWeek,
                 IsWalkIn = p.IsWalkIn,
                 GenderRule = p.GenderRule,
                 IsPersonalTraining = p.IsPersonalTraining,

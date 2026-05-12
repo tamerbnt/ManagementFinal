@@ -190,7 +190,9 @@ namespace Management.Application.Features.Members.Commands.CreateMember
                             planName,                             // Transaction Type
                             _facilityContext.CurrentFacility == FacilityType.Salon ? SaleCategory.Service : SaleCategory.Membership,
                             planName,                             // Captured Label
-                            publishNotification: false            // FIX: suppress duplicate pre-commit notification
+                            publishNotification: false,            // FIX: suppress duplicate pre-commit notification
+                            manualDiscountId: dto.ManualDiscountId,
+                            manualDiscountAmount: dto.ManualDiscountAmount
                         );
 
                         if (!saleSuccess)

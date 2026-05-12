@@ -176,6 +176,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="TerminologyClearCartLabel">Clear Cart</sys:String>
     <sys:String x:Key="TerminologyCartEmptyTitle">Your cart is empty</sys:String>
     <sys:String x:Key="TerminologyCartEmptySubtitle">Add products to start a sale.</sys:String>
+    <sys:String x:Key="TerminologyManualDiscountLabel">Manual Discount</sys:String>
     
     <!-- Apparatus / Hardware Status -->
     <sys:String x:Key="Terminology.Settings.Apparatus.Status">Hardware Status</sys:String>

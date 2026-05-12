@@ -79,7 +79,7 @@
             <Grid>
                 <StackPanel Orientation="Horizontal">
                     <!-- Status Filter Container -->
-                    <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                    <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
                             <!-- WEBSITE REQUESTS TAB -->
                             <RadioButton GroupName="StatusFilterGroup"
@@ -142,7 +142,7 @@
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource SurfaceBg}" 
+                        <Border Background="{DynamicResource CardBackgroundBrush}" 
                                 CornerRadius="12" 
                                 Padding="16,12" 
                                 Margin="0,0,0,8" 

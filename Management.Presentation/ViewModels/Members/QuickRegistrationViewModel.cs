@@ -39,10 +39,12 @@ namespace Management.Presentation.ViewModels.Members
         private readonly ITerminologyService _terminologyService;
         private readonly ISaleService _saleService;
         private readonly IPricingService _pricingService;
+        private readonly IDiscountService _discountService;
 
         private Guid? _originalPlanId;
         private DateTime _originalExpirationDate;
         private CancellationTokenSource? _leadSearchCts;
+        private PricingResult? _lastPricingResult;
 
 
         [ObservableProperty]
@@ -98,7 +100,13 @@ namespace Management.Presentation.ViewModels.Members
         [ObservableProperty]
         private string? _appliedPromotionName;
 
-        public bool IsDiscounted => AppliedPromotionName != null;
+        [ObservableProperty]
+        private ObservableCollection<DiscountDto> _availableDiscounts = new();
+
+        [ObservableProperty]
+        private DiscountDto? _selectedDiscount;
+
+        public bool IsDiscounted => AppliedPromotionName != null || SelectedDiscount != null;
  
         // Lead Conversion
         [ObservableProperty]
@@ -180,6 +188,7 @@ namespace Management.Presentation.ViewModels.Members
         partial void OnGenderChanged(Gender value) => TriggerPriceUpdate();
         partial void OnSelectedPlanChanged(MembershipPlanDto? value) => TriggerPriceUpdate();
         partial void OnSelectedSalonServiceChanged(Management.Domain.Models.Salon.SalonService? value) => TriggerPriceUpdate();
+        partial void OnSelectedDiscountChanged(DiscountDto? value) => TriggerPriceUpdate();
 
         private void TriggerPriceUpdate()
         {
@@ -221,23 +230,45 @@ namespace Management.Presentation.ViewModels.Members
 
             if (itemsToPrice.Any())
             {
-                var dict = await _pricingService.CalculateBatchPricesAsync(
-                    _facilityContext.CurrentFacilityId,
-                    itemsToPrice,
-                    Gender);
-
-                if (SelectedPlan != null && dict.TryGetValue(SelectedPlan.Id, out var planResult))
+                decimal? manualVal = null;
+                bool isPerc = false;
+                if (SelectedDiscount != null)
                 {
-                    effectiveTotal += planResult.EffectivePrice.Amount;
-                    originalTotal += planResult.OriginalPrice.Amount;
-                    if (planResult.IsDiscountApplied) promoName = planResult.AppliedPromotionName;
+                    isPerc = SelectedDiscount.IsPercentage;
+                    manualVal = SelectedDiscount.Value;
+                    
+                    // If it's a fixed amount and we have multiple items, we have a problem with per-item pricing.
+                    // For now, if it's fixed, we only apply it to the FIRST item to avoid double-discounting the total.
+                    // A better way would be proportional distribution, but that's complex.
                 }
 
-                if (SelectedSalonService != null && dict.TryGetValue(SelectedSalonService.Id, out var svcResult))
+                if (manualVal.HasValue && !isPerc && itemsToPrice.Count > 1)
                 {
-                    effectiveTotal += svcResult.EffectivePrice.Amount;
-                    originalTotal += svcResult.OriginalPrice.Amount;
-                    if (svcResult.IsDiscountApplied) promoName = svcResult.AppliedPromotionName;
+                    // Calculate first item normally with discount
+                    var firstItem = itemsToPrice[0];
+                    var firstResult = await _pricingService.CalculateEffectivePriceAsync(
+                        _facilityContext.CurrentFacilityId, firstItem.Id, firstItem.Price, Gender, null, manualVal, false);
+                    
+                    // Calculate others without manual discount
+                    var otherItems = itemsToPrice.Skip(1).ToList();
+                    var otherResults = await _pricingService.CalculateBatchPricesAsync(
+                        _facilityContext.CurrentFacilityId, otherItems, Gender);
+                    
+                    var combinedDict = new Dictionary<Guid, PricingResult> { { firstItem.Id, firstResult } };
+                    foreach (var kv in otherResults) combinedDict[kv.Key] = kv.Value;
+
+                    ApplyResults(combinedDict, ref effectiveTotal, ref originalTotal, ref promoName);
+                }
+                else
+                {
+                    var dict = await _pricingService.CalculateBatchPricesAsync(
+                        _facilityContext.CurrentFacilityId,
+                        itemsToPrice,
+                        Gender,
+                        manualDiscountValue: manualVal,
+                        isManualDiscountPercentage: isPerc);
+                    
+                    ApplyResults(dict, ref effectiveTotal, ref originalTotal, ref promoName);
                 }
             }
 
@@ -257,6 +288,34 @@ namespace Management.Presentation.ViewModels.Members
                 OriginalTotalPrice = (originalTotal > effectiveTotal) ? originalTotal : null;
                 AppliedPromotionName = promoName;
             }
+
+            // Capture first item's pricing result for persistence metadata
+            if (itemsToPrice.Any())
+            {
+                var firstId = itemsToPrice[0].Id;
+                // Since we don't have the dictionary here anymore (it was in a branch), 
+                // we should re-calculate or better, just capture it during ApplyResults.
+            }
+        }
+
+        private void ApplyResults(IDictionary<Guid, PricingResult> dict, ref decimal effectiveTotal, ref decimal originalTotal, ref string? promoName)
+        {
+            _lastPricingResult = null;
+            if (dict.Any()) _lastPricingResult = dict.Values.First();
+
+            if (SelectedPlan != null && dict.TryGetValue(SelectedPlan.Id, out var planResult))
+            {
+                effectiveTotal += planResult.EffectivePrice.Amount;
+                originalTotal += planResult.OriginalPrice.Amount;
+                if (planResult.IsDiscountApplied) promoName = planResult.AppliedPromotionName;
+            }
+
+            if (SelectedSalonService != null && dict.TryGetValue(SelectedSalonService.Id, out var svcResult))
+            {
+                effectiveTotal += svcResult.EffectivePrice.Amount;
+                originalTotal += svcResult.OriginalPrice.Amount;
+                if (svcResult.IsDiscountApplied) promoName = svcResult.AppliedPromotionName;
+            }
         }
 
         public QuickRegistrationViewModel(
@@ -273,7 +332,8 @@ namespace Management.Presentation.ViewModels.Members
             Management.Presentation.Services.Salon.ISalonService salonService,
             ITerminologyService terminologyService,
             ISaleService saleService,
-            IPricingService pricingService)
+            IPricingService pricingService,
+            IDiscountService discountService)
             : base(logger, diagnosticService, toastService)
         {
             _memberService = memberService;
@@ -287,6 +347,7 @@ namespace Management.Presentation.ViewModels.Members
             _terminologyService = terminologyService;
             _saleService = saleService;
             _pricingService = pricingService;
+            _discountService = discountService;
 
             _isSalonFacility = _facilityContext.CurrentFacility == FacilityType.Salon;
             Title = _terminologyService.GetTerm("Terminology.Modal.QuickRegistration.Title") ?? "Quick Registration";
@@ -300,7 +361,7 @@ namespace Management.Presentation.ViewModels.Members
             await Task.Delay(50, cancellationToken);
             
             // Parallelize initial data loading
-            var loadTasks = new List<Task> { LoadPlansAndServicesAsync() };
+            var loadTasks = new List<Task> { LoadPlansAndServicesAsync(), LoadDiscountsAsync() };
 
             if (parameter is Guid memberId)
             {
@@ -320,6 +381,15 @@ namespace Management.Presentation.ViewModels.Members
 
             // Initialize Sources
             Sources.ReplaceRange(new[] { "Walk-in", "Word of Mouth", "Instagram", "TikTok", "Facebook" });
+        }
+
+        private async Task LoadDiscountsAsync()
+        {
+            var result = await _discountService.GetDiscountsAsync(_facilityContext.CurrentFacilityId);
+            if (result.IsSuccess)
+            {
+                AvailableDiscounts = new ObservableCollection<DiscountDto>(result.Value.Where(d => d.IsActive));
+            }
         }
 
         public ObservableRangeCollection<string> Sources { get; } = new ObservableRangeCollection<string>();
@@ -373,7 +443,7 @@ namespace Management.Presentation.ViewModels.Members
                     var planResult = await _planService.GetAllPlansAsync(_facilityContext.CurrentFacilityId);
                     if (planResult.IsSuccess)
                     {
-                        var membershipPlans = planResult.Value.FindAll(p => !p.IsSessionPack);
+                        var membershipPlans = planResult.Value;
                         var plansToAdd = new List<MembershipPlanDto>
                         {
                             new MembershipPlanDto { Id = Guid.Empty, Name = _terminologyService.GetTerm("Terminology.Salon.Booking.NoMembershipPlan") ?? "No Membership Plan", Price = 0 }
@@ -462,6 +532,10 @@ namespace Management.Presentation.ViewModels.Members
                 Management.Domain.Primitives.Result<Guid>? resultCreate = null;
                 Management.Domain.Primitives.Result? resultUpdate = null;
                 bool isSuccess = false;
+                
+                // Set manual discount info for persistence
+                member.ManualDiscountId = SelectedDiscount?.Id;
+                member.ManualDiscountAmount = _lastPricingResult?.ManualDiscountAmount?.Amount;
 
                 if (IsRenewMode)
                 {

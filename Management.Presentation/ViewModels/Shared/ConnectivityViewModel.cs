@@ -1,25 +1,48 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Management.Domain.Services;
+using Management.Application.Interfaces.App;
 using System;
+using System.Threading.Tasks;
 
 namespace Management.Presentation.ViewModels.Shared
 {
     public partial class ConnectivityViewModel : ObservableObject
     {
         private readonly IConnectionService _connectionService;
+        private readonly ISyncService _syncService;
 
         [ObservableProperty]
-        private bool _isConnected = true; // Default to true to avoid flashing offline on startup
+        private bool _isConnected = true; 
 
         [ObservableProperty]
-        private int _pendingSyncCount = 0; // Future use for "5 items pending"
+        private bool _isCloudOnline = false;
 
-        public ConnectivityViewModel(IConnectionService connectionService)
+        [ObservableProperty]
+        private int _pendingSyncCount = 0; 
+
+        public ConnectivityViewModel(IConnectionService connectionService, ISyncService syncService)
         {
             _connectionService = connectionService;
+            _syncService = syncService;
            
-            // Initial check/subscription
             _connectionService.ConnectionStatusChanged += OnConnectionStatusChanged;
+            _syncService.SyncStatusChanged += OnSyncStatusChanged;
+            
+            // Initial poll
+            IsCloudOnline = _syncService.Status != SyncStatus.Offline;
+        }
+
+        private void OnSyncStatusChanged(object? sender, SyncStatus status)
+        {
+            IsCloudOnline = status != SyncStatus.Offline;
+            
+            // Update pending count whenever sync state changes
+            UpdatePendingCountAsync().ConfigureAwait(false);
+        }
+
+        private async Task UpdatePendingCountAsync()
+        {
+            PendingSyncCount = await _syncService.GetPendingOutboxCountAsync();
         }
 
         private void OnConnectionStatusChanged(bool isConnected)

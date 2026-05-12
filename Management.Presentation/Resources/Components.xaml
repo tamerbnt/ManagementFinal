@@ -696,7 +696,7 @@
     <!-- ============================================================= -->
 
     <Style x:Key="StandardCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
@@ -753,7 +753,7 @@
 
     <!-- Elevated Card Style (Focus / Selected State - Subtle Border Increase) -->
     <Style x:Key="ElevatedCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="0.8"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
@@ -807,7 +807,7 @@
 
     <!-- Elevated Card Style Level 3 (Deep Focus / Modals - Border Emphasis) -->
     <Style x:Key="ElevatedCardLevel3Style" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusCardStandard}"/>
@@ -817,7 +817,7 @@
     </Style>
 
     <Style x:Key="GlobalModalContainerStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
         <Setter Property="Padding" Value="{DynamicResource PaddingModal}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource RadiusModal}"/>
         <Setter Property="BorderThickness" Value="1"/>

@@ -16,7 +16,7 @@ namespace Management.Application.Interfaces.App
         /// <summary>
         /// Handles a walk-in guest entry with cash collection.
         /// </summary>
-        Task<WalkInResult> ProcessWalkInAsync(decimal amount, System.Guid facilityId, string planName = "Walk-In", bool publishNotification = true);
+        Task<WalkInResult> ProcessWalkInAsync(decimal amount, System.Guid facilityId, string planName = "Walk-In", bool publishNotification = true, Guid? manualDiscountId = null, decimal? manualDiscountAmount = null);
 
         /// <summary>
         /// Retrieves daily operational statistics.
@@ -31,7 +31,7 @@ namespace Management.Application.Interfaces.App
         /// <summary>
         /// Sells a product (attached to member or guest).
         /// </summary>
-        Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true);
+        Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true, Guid? manualDiscountId = null, decimal? manualDiscountAmount = null);
         
         /// <summary>
         /// Registers a walk-in visitor as a Lead.

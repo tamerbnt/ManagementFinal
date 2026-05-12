@@ -100,7 +100,7 @@ namespace Management.Application.Features.Staff.Commands.CreateStaff
                     
                     if (canReachCloud)
                     {
-                        var authResult = await _authService.RegisterStaffAsync(dto.Email, dto.Password);
+                        var authResult = await _authService.RegisterStaffAsync(dto.Email, dto.Password, dto.TenantId);
                         if (authResult.IsSuccess)
                         {
                             staff.MarkAuthCompleted(authResult.Value.ToString());

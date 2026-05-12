@@ -43,7 +43,9 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty] private int _durationDays = 30;
         [ObservableProperty] private bool _isWalkIn;
         [ObservableProperty] private bool _isActive = true;
-        [ObservableProperty] private bool _isSessionPack;
+        [ObservableProperty] private int _sessionsPerWeek;
+        [ObservableProperty] private int _selectedDurationIndex; // 0=1 Month, 1=3 Months, 2=1 Year, 3=Other
+        [ObservableProperty] private bool _isCustomDuration;
         [ObservableProperty] private int _genderRule;
         [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private bool _isEditMode;
@@ -61,7 +63,9 @@ namespace Management.Presentation.ViewModels.Settings
             DurationDays = 30;
             IsWalkIn = false;
             IsActive = true;
-            IsSessionPack = false;
+            SessionsPerWeek = 0;
+            SelectedDurationIndex = 0;
+            IsCustomDuration = false;
             IsEditMode = false;
             IsPersonalTraining = false;
             GenderRule = 0;
@@ -81,7 +85,17 @@ namespace Management.Presentation.ViewModels.Settings
                 DurationDays = dto.DurationDays;
                 IsWalkIn = dto.IsWalkIn;
                 IsActive = dto.IsActive;
-                IsSessionPack = dto.IsSessionPack;
+                SessionsPerWeek = dto.SessionsPerWeek;
+
+                // Reverse map duration to dropdown index
+                if (DurationDays == 30) SelectedDurationIndex = 0;
+                else if (DurationDays == 90) SelectedDurationIndex = 1;
+                else if (DurationDays == 365) SelectedDurationIndex = 2;
+                else 
+                {
+                    SelectedDurationIndex = 3;
+                    IsCustomDuration = true;
+                }
                 IsPersonalTraining = dto.IsPersonalTraining;
                 GenderRule = dto.GenderRule;
                 IsEditMode = true;
@@ -154,7 +168,7 @@ namespace Management.Presentation.ViewModels.Settings
                     DurationDays = DurationDays,
                     IsWalkIn = IsWalkIn,
                     IsActive = IsActive,
-                    IsSessionPack = IsSessionPack,
+                    SessionsPerWeek = SessionsPerWeek,
                     IsPersonalTraining = IsPersonalTraining,
                     GenderRule = GenderRule,
                     ScheduleJson = scheduleJson
@@ -186,6 +200,27 @@ namespace Management.Presentation.ViewModels.Settings
         public void Cancel()
         {
             Canceled?.Invoke(this, EventArgs.Empty);
+        }
+        partial void OnSelectedDurationIndexChanged(int value)
+        {
+            switch (value)
+            {
+                case 0:
+                    DurationDays = 30;
+                    IsCustomDuration = false;
+                    break;
+                case 1:
+                    DurationDays = 90;
+                    IsCustomDuration = false;
+                    break;
+                case 2:
+                    DurationDays = 365;
+                    IsCustomDuration = false;
+                    break;
+                case 3:
+                    IsCustomDuration = true;
+                    break;
+            }
         }
     }
 }

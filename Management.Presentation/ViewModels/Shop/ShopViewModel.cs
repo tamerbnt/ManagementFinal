@@ -140,6 +140,7 @@ namespace Management.Presentation.ViewModels.Shop
         public IAsyncRelayCommand OpenEditProductCommand { get; }
         public IAsyncRelayCommand<ProductDto> OpenRestockProductCommand { get; }
         public IAsyncRelayCommand DeleteSelectedCommand { get; }
+        public IAsyncRelayCommand DeleteProductCommand { get; }
         public IRelayCommand ClearSelectionCommand { get; }
 
 
@@ -242,7 +243,6 @@ namespace Management.Presentation.ViewModels.Shop
                 var removedIds = toRemove.Select(p => p.Id).ToList();
                 var facilityId = _facilityContext.CurrentFacilityId;
 
-                // Atomic Pattern: Delete -> Save (Service handles) -> Notify with Undo
                 using var scope = _scopeFactory.CreateScope();
                 var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
                 
@@ -255,35 +255,52 @@ namespace Management.Presentation.ViewModels.Shop
 
                 if (!anyFailed)
                 {
-                    foreach (var item in toRemove)
-                    {
-                        Products.Remove(item);
-                    }
-
+                    foreach (var item in toRemove) Products.Remove(item);
                     IsSelectionMode = false;
                     SelectedCount = 0;
-
                     _toastService.ShowSuccess(
                         $"{toRemove.Count} product(s) deleted.",
-                        undoAction: async () => 
+                        undoAction: async () =>
                         {
                             using var undoScope = _scopeFactory.CreateScope();
                             var undoService = undoScope.ServiceProvider.GetRequiredService<IProductService>();
                             foreach (var id in removedIds)
-                            {
                                 await undoService.RestoreProductAsync(facilityId, id);
-                            }
-                            
-                            await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
-                            {
-                                await LoadProductsAsync(force: true);
-                            });
+                            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(
+                                new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(facilityId));
                         });
                 }
-                else
+                else _toastService.ShowError("Some products failed to delete.");
+            });
+
+            DeleteProductCommand = new AsyncRelayCommand(async () =>
+            {
+                if (SelectedProduct == null) return;
+                var productId = SelectedProduct.Id;
+                var productName = SelectedProduct.Name;
+                var facilityId = _facilityContext.CurrentFacilityId;
+
+                using var scope = _scopeFactory.CreateScope();
+                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
+                var result = await productService.DeleteProductAsync(facilityId, productId);
+
+                if (result.IsSuccess)
                 {
-                    _toastService.ShowError("Some products failed to delete.");
+                    Products.Remove(SelectedProduct);
+                    IsDetailOpen = false;
+                    SelectedProduct = null;
+                    _toastService.ShowSuccess(
+                        $"Product '{productName}' deleted.",
+                        undoAction: async () =>
+                        {
+                            using var undoScope = _scopeFactory.CreateScope();
+                            var undoService = undoScope.ServiceProvider.GetRequiredService<IProductService>();
+                            await undoService.RestoreProductAsync(facilityId, productId);
+                            CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(
+                                new Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>(facilityId));
+                        });
                 }
+                else _toastService.ShowError("Failed to delete product.");
             });
 
             ClearSelectionCommand = new RelayCommand(() => 

@@ -32,7 +32,7 @@
                 <Style.Triggers>
                     <!-- Hover Animation -->
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                        <Setter Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                         <Trigger.EnterActions>
                             <BeginStoryboard>

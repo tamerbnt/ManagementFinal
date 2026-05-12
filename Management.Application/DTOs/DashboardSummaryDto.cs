@@ -87,6 +87,12 @@ namespace Management.Application.DTOs
         public List<MemberSourceDto> GenderDemographics { get; set; } = new();
         public List<MemberSourceDto> AgeDemographics { get; set; } = new();
         public List<DemographicBucketDto> CombinedDemographics { get; set; } = new();
+
+        /// <summary>
+        /// The timestamp of when this snapshot was last generated in the cloud.
+        /// Only populated for remote data fetches.
+        /// </summary>
+        public DateTime LastUpdatedAt { get; set; }
     }
 
     public class SalonServiceProfitabilityDto

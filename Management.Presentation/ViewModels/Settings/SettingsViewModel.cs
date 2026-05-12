@@ -46,6 +46,7 @@ namespace Management.Presentation.ViewModels.Settings
         private readonly IToastService _toastService;
         private readonly ITerminologyService _terminologyService;
         private readonly IPromotionService _promotionService;
+        private readonly IDiscountService _discountService;
         private readonly INavigationRegistry _navigationRegistry;
 
         // Tab Navigation
@@ -99,6 +100,7 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private string _backupFolderPath = string.Empty;
 
+        private DiscountEditorViewModel? _discountEditorVm;
         private PromotionEditorViewModel? _promotionEditorVm;
 
         [ObservableProperty]
@@ -158,6 +160,10 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private ObservableCollection<PromotionViewModel> _promotions = new();
 
+        // Discounts
+        [ObservableProperty]
+        private ObservableCollection<DiscountDto> _discounts = new();
+
         // Keyboard Shortcuts
         public ObservableCollection<ShortcutItem> Shortcuts { get; } = new();
 
@@ -192,6 +198,7 @@ namespace Management.Presentation.ViewModels.Settings
             INavigationRegistry navigationRegistry,
             ITerminologyService terminologyService,
             IPromotionService promotionService,
+            IDiscountService discountService,
             ISecureStorageService secureStorage) : base(null, null, toastService)
         {
             _serviceProvider = serviceProvider;
@@ -210,6 +217,7 @@ namespace Management.Presentation.ViewModels.Settings
             _navigationRegistry = navigationRegistry;
             _terminologyService = terminologyService;
             _promotionService = promotionService;
+            _discountService = discountService;
             
             _modalNavigationStore = modalNavigationStore;
 
@@ -583,7 +591,7 @@ namespace Management.Presentation.ViewModels.Settings
                                     DurationDescription = durationDesc,
                                     Status = dto.IsActive ? "Active" : "Archived",
                                     IsActive = dto.IsActive,
-                                    IsSessionPack = dto.IsSessionPack,
+                                    SessionsPerWeek = dto.SessionsPerWeek,
                                     IsPersonalTraining = dto.IsPersonalTraining,
                                     GenderRule = dto.GenderRule,
                                     ScheduleJson = dto.ScheduleJson
@@ -600,7 +608,7 @@ namespace Management.Presentation.ViewModels.Settings
                                     DurationDescription = durationDesc,
                                     Status = dto.IsActive ? "Active" : "Archived",
                                     IsActive = dto.IsActive,
-                                    IsSessionPack = dto.IsSessionPack,
+                                    SessionsPerWeek = dto.SessionsPerWeek,
                                     IsPersonalTraining = dto.IsPersonalTraining,
                                     GenderRule = dto.GenderRule,
                                     ScheduleJson = dto.ScheduleJson
@@ -713,6 +721,11 @@ namespace Management.Presentation.ViewModels.Settings
             if (tabName == "Promotions")
             {
                 await LoadPromotionsAsync();
+            }
+
+            if (tabName == "Discounts")
+            {
+                await LoadDiscountsAsync();
             }
 
             // Load persisted light palette when Appearance tab opens
@@ -1112,6 +1125,11 @@ namespace Management.Presentation.ViewModels.Settings
                 promotionEditor.Saved -= OnPromotionSaved;
                 promotionEditor.Canceled -= OnPromotionCanceled;
             }
+            else if (CurrentDrawerContent is DiscountEditorViewModel discountEditor)
+            {
+                discountEditor.Saved -= OnDiscountSaved;
+                discountEditor.Canceled -= OnDiscountCanceled;
+            }
 
             CurrentDrawerContent = null;
         }
@@ -1162,7 +1180,7 @@ namespace Management.Presentation.ViewModels.Settings
                     DurationDays = m.DurationDays, 
                     IsWalkIn = false, 
                     IsActive = m.IsActive,
-                    IsSessionPack = m.IsSessionPack,
+                    SessionsPerWeek = m.SessionsPerWeek,
                     IsPersonalTraining = m.IsPersonalTraining,
                     GenderRule = m.GenderRule,
                     ScheduleJson = m.ScheduleJson
@@ -1178,7 +1196,7 @@ namespace Management.Presentation.ViewModels.Settings
                     DurationDays = w.DurationDays, 
                     IsWalkIn = true, 
                     IsActive = w.IsActive,
-                    IsSessionPack = w.IsSessionPack,
+                    SessionsPerWeek = w.SessionsPerWeek,
                     IsPersonalTraining = w.IsPersonalTraining,
                     GenderRule = w.GenderRule,
                     ScheduleJson = w.ScheduleJson
@@ -1321,6 +1339,96 @@ namespace Management.Presentation.ViewModels.Settings
                 _toastService.ShowSuccess($"Promotion '{promotion.Name}' deleted.");
             }
         }
+
+        private bool _discountsLoaded = false;
+
+        [RelayCommand]
+        public async Task LoadDiscountsAsync()
+        {
+            if (IsLoading) return;
+            IsLoading = true;
+            try
+            {
+                var result = await _discountService.GetDiscountsAsync(_facilityContext.CurrentFacilityId);
+                if (result.IsSuccess)
+                {
+                    Discounts.Clear();
+                    foreach (var d in result.Value)
+                    {
+                        Discounts.Add(d);
+                    }
+                    _discountsLoaded = true;
+                }
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task CreateDiscountAsync()
+        {
+            CleanupEditor();
+
+            if (_discountEditorVm == null)
+            {
+                _discountEditorVm = _serviceProvider.GetRequiredService<DiscountEditorViewModel>();
+            }
+
+            _discountEditorVm.Saved += OnDiscountSaved;
+            _discountEditorVm.Canceled += OnDiscountCanceled;
+
+            await _discountEditorVm.InitializeAsync(null);
+            
+            CurrentDrawerContent = _discountEditorVm;
+            IsDrawerOpen = true;
+        }
+
+        [RelayCommand]
+        private async Task EditDiscountAsync(DiscountDto discount)
+        {
+            if (discount == null) return;
+            CleanupEditor();
+
+            if (_discountEditorVm == null)
+            {
+                _discountEditorVm = _serviceProvider.GetRequiredService<DiscountEditorViewModel>();
+            }
+
+            _discountEditorVm.Saved += OnDiscountSaved;
+            _discountEditorVm.Canceled += OnDiscountCanceled;
+
+            await _discountEditorVm.InitializeAsync(discount.Id);
+
+            CurrentDrawerContent = _discountEditorVm;
+            IsDrawerOpen = true;
+        }
+
+        [RelayCommand]
+        private async Task DeleteDiscountAsync(DiscountDto discount)
+        {
+            if (discount == null) return;
+            var result = await _discountService.DeleteDiscountAsync(_facilityContext.CurrentFacilityId, discount.Id);
+            if (result.IsSuccess)
+            {
+                Discounts.Remove(discount);
+                _toastService.ShowSuccess($"Discount '{discount.Name}' deleted.");
+            }
+        }
+
+        private async void OnDiscountSaved(object? sender, Guid id)
+        {
+            IsDrawerOpen = false;
+            CleanupEditor();
+            await LoadDiscountsAsync();
+        }
+
+        private void OnDiscountCanceled(object? sender, EventArgs e)
+        {
+            IsDrawerOpen = false;
+            CleanupEditor();
+        }
     }
 
     // Simple ViewModel for membership plans in settings
@@ -1347,7 +1455,7 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private bool _isActive = true;
 
-        [ObservableProperty] private bool _isSessionPack;
+        [ObservableProperty] private int _sessionsPerWeek;
         [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private int _genderRule;
         [ObservableProperty] private string? _scheduleJson;
@@ -1376,7 +1484,7 @@ namespace Management.Presentation.ViewModels.Settings
         [ObservableProperty]
         private bool _isActive = true;
 
-        [ObservableProperty] private bool _isSessionPack;
+        [ObservableProperty] private int _sessionsPerWeek;
         [ObservableProperty] private bool _isPersonalTraining;
         [ObservableProperty] private int _genderRule;
         [ObservableProperty] private string? _scheduleJson;

@@ -5,148 +5,354 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Management.Presentation.Views.Members"
              xmlns:enums="clr-namespace:Management.Domain.Enums;assembly=Management.Domain"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
-             Background="{DynamicResource SurfaceBg}">
+             Background="Transparent">
 
-    <Grid Margin="24">
+    <UserControl.Resources>
+        <converters:DateProgressConverter x:Key="DateProgressConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
             <RowDefinition Height="Auto"/> <!-- Stats -->
-            <RowDefinition Height="*"/>    <!-- Content/Tabs -->
+            <RowDefinition Height="*"/>    <!-- Tabs/Content -->
+            <RowDefinition Height="Auto"/> <!-- Footer -->
         </Grid.RowDefinitions>
 
-        <!-- 1. Profile Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <Grid x:Name="DetailAvatar">
-                <Ellipse Width="80" Height="80" HorizontalAlignment="Center"
-                         Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
-                <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
-                           Style="{StaticResource Title1}" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Foreground="White"/>
-            </Grid>
-            <StackPanel x:Name="NameContainer" Margin="0,12,0,4" HorizontalAlignment="Center">
-                <TextBlock Text="{Binding FullName}" Style="{StaticResource Title2}"
-                           Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="250"
-                         Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-            </StackPanel>
-            <TextBlock Text="{Binding CardId, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Members.Id'}" Style="{StaticResource Caption}" HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}"/>
-        </StackPanel>
-
-        <!-- 2. Stats Grid -->
-        <UniformGrid Grid.Row="1" Columns="2" Margin="0,0,0,24">
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource Terminology.Members.Detail.Visits}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding VisitCount}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="{DynamicResource Terminology.Members.Balance}" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="{Binding Balance, StringFormat={}{0:N2} DA}" Style="{StaticResource Title3}" HorizontalAlignment="Center"/>
-            </StackPanel>
-        </UniformGrid>
-
-        <!-- 3. Tabs -->
-        <TabControl Grid.Row="2" Style="{StaticResource PremiumTabControl}">
-            <TabItem Header="{DynamicResource Terminology.Members.Detail.Overview}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="0,16,0,0">
-                        <TextBlock Text="{DynamicResource Terminology.Members.Detail.MembershipInfo}" Style="{StaticResource Title3}" Margin="0,0,0,12"/>
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.Plan}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding MembershipPlanName}" Style="{StaticResource Body}" FontWeight="SemiBold" Foreground="{DynamicResource BrandPrimaryBrush}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.ExpirationDate}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding ExpirationDate, StringFormat={}{0:M/d/yyyy}}" Style="{StaticResource Body}" VerticalAlignment="Center"/>
-                                <Border CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
-                                                    <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <TextBlock FontSize="11" FontWeight="Bold">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="{Binding DaysRemaining, StringFormat='{}{0} Days Left'}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
-                                                        <Setter Property="Text" Value="Expired"/>
-                                                        <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Border>
-
-                            </StackPanel>
-                        </StackPanel>
-
-
-                        <TextBlock Text="{DynamicResource Terminology.Members.Detail.ContactInfo}" Style="{StaticResource Title3}" Margin="0,8,0,12"/>
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.Email}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding Email}" Style="{StaticResource Body}"
-                                       Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                            <TextBox Text="{Binding Email, Mode=TwoWay}" Style="{StaticResource Input.Field}"
-                                     Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.Phone}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding PhoneNumber}" Style="{StaticResource Body}"
-                                       Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
-                            <TextBox Text="{Binding PhoneNumber, Mode=TwoWay}" Style="{StaticResource Input.Field}"
-                                     Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        </StackPanel>
-                        
-                        <TextBlock Text="{DynamicResource Terminology.Members.Detail.EmergencyContact}" Style="{StaticResource Title3}" Margin="0,8,0,12"/>
-                        <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.Name}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding EmergencyContactName}" Style="{StaticResource Body}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,32">
-                            <TextBlock Text="{DynamicResource Terminology.Members.Detail.Phone}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            <TextBlock Text="{Binding EmergencyContactPhone}" Style="{StaticResource Body}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-        </TabControl>
-
-        
+        <!-- Close Button (Absolute Top Right) -->
         <Button Width="32" Height="32" 
                 Style="{StaticResource IconButtonStyle}" 
                 Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}"
-                HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0">
+                HorizontalAlignment="Right" VerticalAlignment="Top" 
+                Margin="16" Grid.Row="0" Panel.ZIndex="10">
             <Path Data="{StaticResource IconClose}" Stroke="{DynamicResource TextTertiaryBrush}" Width="12" Height="12" Stretch="Uniform"/>
         </Button>
 
-        <!-- Edit Actions Bar -->
-        <Border Grid.Row="2" VerticalAlignment="Bottom" Background="White" CornerRadius="16" Padding="16,12" Margin="0,0,0,12"
-                Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="15" ShadowDepth="5" Opacity="0.1" Color="Black"/>
-            </Border.Effect>
+        <!-- 1. Header Section -->
+        <Border Grid.Row="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="24,24,24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Center">
+                    <Ellipse Width="48" Height="48" Fill="{Binding FullName, Converter={StaticResource NameToBrushConverter}}"/>
+                    <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}" 
+                               FontSize="16" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding FullName}" Style="{StaticResource Title2}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0"
+                                   Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                        <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="200"
+                                 Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        
+                        <Border CornerRadius="8" Padding="6,2" VerticalAlignment="Center" Margin="0,2,0,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                            <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}"/>
+                                        </DataTrigger>
+                                        <!-- Note: Expiring could be added if Status has it, or calculated -->
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" FontSize="10" FontWeight="Bold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding CardId, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.Members.IdPrefix'}" 
+                               Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- 2. Stats Bar -->
+        <Border Grid.Row="1" Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Margin="24,24,24,16" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Cancel}" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0"
-                        Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}"/>
-                <Button Grid.Column="1" Content="{DynamicResource Terminology.Members.Action.SaveChanges}" Style="{StaticResource PrimaryButton}"
-                        Command="{Binding DataContext.SaveMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}"/>
+
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="VISITS" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding VisitCount}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <Border Grid.Column="1" Background="{DynamicResource BorderBrush}" Width="1" VerticalAlignment="Stretch" Margin="0,4"/>
+
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="BALANCE" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                    <TextBlock Text="{Binding Balance, StringFormat={}{0:N2} DA}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                </StackPanel>
             </Grid>
         </Border>
+
+        <!-- 3. Tab Bar & Content -->
+        <TabControl Grid.Row="2" Style="{StaticResource PremiumTabControl}" Margin="24,0">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="TabItem" BasedOn="{StaticResource GlobalDetailTabStyle}">
+                    <Setter Property="Margin" Value="0,0,16,0"/>
+                </Style>
+            </TabControl.ItemContainerStyle>
+            <!-- OVERVIEW TAB -->
+            <TabItem Header="Overview">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,16,0,16">
+                    <StackPanel>
+                        <!-- Card 1: Membership Info -->
+                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="MEMBERSHIP INFO" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                                
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding MembershipPlanName}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource BrandPrimaryBrush}" Cursor="Hand"/>
+                                    
+                                    <Border Grid.Column="1" CornerRadius="10" Padding="8,2" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource StatusSuccessBackground}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                        <Setter Property="Background" Value="{DynamicResource StatusErrorBackground}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding ExpirationDate, StringFormat={}{0:MMM dd, yyyy}}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,4,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                                <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" FontWeight="Bold" VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="{Binding DaysRemaining, StringFormat='({0} left)'}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource StatusSuccessBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static enums:MemberStatus.Expired}">
+                                                                <Setter Property="Text" Value="(Expired)"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource StatusErrorBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Progress Bar -->
+                                <ProgressBar Height="4" BorderThickness="0" Background="{DynamicResource SurfaceBgDim}" Foreground="{DynamicResource BrandPrimaryBrush}">
+                                    <ProgressBar.Value>
+                                        <MultiBinding Converter="{StaticResource DateProgressConverter}">
+                                            <Binding Path="StartDate"/>
+                                            <Binding Path="ExpirationDate"/>
+                                        </MultiBinding>
+                                    </ProgressBar.Value>
+                                </ProgressBar>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Card 2: Payment Info -->
+                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="PAYMENT INFO" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                                
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Last Payment Method" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="Cash" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Grid>
+                                
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Amount" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="-" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Grid>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Date" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock Grid.Column="1" Text="-" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Extra Card: Contact Info (Retained from previous for completeness) -->
+                        <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="CONTACT INFO" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                                
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Phone" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{Binding PhoneNumber}" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Email" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBlock Text="{Binding Email}" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Emergency Contact" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{Binding EmergencyContactName}" FontSize="13" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{Binding EmergencyContactPhone}" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- HISTORY TAB -->
+            <TabItem Header="History">
+                <Grid Margin="0,16,0,0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding AccessEvents}">
+                            <ItemsControl.Style>
+                                <Style TargetType="ItemsControl">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding AccessEvents.Count}" Value="0">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ItemsControl">
+                                                        <TextBlock Text="No recent visits." Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding AccessEvents}" Value="{x:Null}">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ItemsControl">
+                                                        <TextBlock Text="No recent visits." Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,0"/>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ItemsControl.Style>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Grid.Column="0" Margin="0,0,12,0" VerticalAlignment="Center">
+                                                <Ellipse Width="32" Height="32" Fill="{DynamicResource StatusSuccessBackground}" Visibility="{Binding IsAccessGranted, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                <Path Data="{StaticResource IconCheck}" Fill="{DynamicResource StatusSuccessBrush}" Width="16" Height="16" Stretch="Uniform" Visibility="{Binding IsAccessGranted, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                
+                                                <Ellipse Width="32" Height="32" Fill="{DynamicResource StatusErrorBackground}" Visibility="{Binding IsAccessGranted, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                                <Path Data="{StaticResource IconClose}" Fill="{DynamicResource StatusErrorBrush}" Width="16" Height="16" Stretch="Uniform" Visibility="{Binding IsAccessGranted, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                            </Grid>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Timestamp, StringFormat={}{0:MMM dd, yyyy - HH:mm}}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding FacilityName}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
+                                                <TextBlock Text="{Binding FailureReason}" FontSize="12" Foreground="{DynamicResource StatusErrorBrush}" Margin="0,2,0,0"
+                                                           Visibility="{Binding IsAccessGranted, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Notes">
+                <Grid Margin="0,16,0,0">
+                    <TextBox Text="{Binding Notes, Mode=TwoWay}" Style="{StaticResource Input.Field}" TextWrapping="Wrap" AcceptsReturn="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="12"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- 4. Sticky Footer -->
+        <Border Grid.Row="3" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="24,16" CornerRadius="0,0,32,32">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="15" ShadowDepth="-2" Opacity="0.05" Color="Black"/>
+            </Border.Effect>
+            
+            <Grid>
+                <!-- Only show when NOT editing -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Edit}" Style="{DynamicResource SecondaryButton}" Height="40"
+                            Command="{Binding DataContext.EditMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" CommandParameter="{Binding}"/>
+                    
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Global.Delete}" Style="{DynamicResource SecondaryButton}" Height="40" Foreground="{DynamicResource StatusErrorBrush}"
+                            Command="{Binding DataContext.DeleteSingleMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" CommandParameter="{Binding}"/>
+                </Grid>
+
+                <!-- Show when Editing -->
+                <Grid Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:MembersView}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="{DynamicResource Terminology.Global.Cancel}" Style="{DynamicResource SecondaryButton}" Height="40"
+                            Command="{Binding DataContext.CloseDetailCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}"/>
+                    
+                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Members.Action.SaveChanges}" Style="{DynamicResource PrimaryButton}" Height="40"
+                            Command="{Binding DataContext.SaveMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}"/>
+                </Grid>
+            </Grid>
+        </Border>
+
     </Grid>
 </UserControl>

@@ -47,7 +47,7 @@ namespace Management.Application.Services
         /// <param name="email">Staff email.</param>
         /// <param name="password">Initial password.</param>
         /// <returns>The Supabase User ID (Guid) if successful.</returns>
-        Task<Result<Guid>> RegisterStaffAsync(string email, string password);
+        Task<Result<Guid>> RegisterStaffAsync(string email, string password, Guid tenantId);
 
         /// <summary>
         /// Ensures all standard facilities exist for the tenant, determining IDs (and auto-provisioning if Owner).

@@ -130,7 +130,7 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <StackPanel>
+                    <StackPanel Margin="0,0,0,24">
                         <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.AcquisitionSource}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
                         <ComboBox SelectedValue="{Binding Source}" 
                                   SelectedValuePath="Tag"
@@ -139,6 +139,15 @@
                             <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.SocialMedia}" Tag="Social Media"/>
                             <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Referral}" Tag="Referral"/>
                             <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Advertisement}" Tag="Advertisement"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{Binding AvailableDiscounts}" 
+                                  SelectedItem="{Binding SelectedDiscount}"
+                                  DisplayMemberPath="Name"
+                                  Style="{StaticResource Input.ComboBox}">
                         </ComboBox>
                     </StackPanel>
                 </StackPanel>
@@ -164,10 +173,21 @@
                                    FontSize="24" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" 
                                    VerticalAlignment="Bottom"/>
                         
-                        <!-- Promo Badge -->
+                        <!-- Promo/Discount Badge -->
                         <Border Background="{DynamicResource StatusSuccessBackground}" CornerRadius="12" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Bottom"
                                 Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}"/>
+                            <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{Binding AppliedPromotionName}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AppliedPromotionName}" Value="{x:Null}">
+                                                <Setter Property="Text" Value="{Binding SelectedDiscount.Name}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Border>
                     </StackPanel>
                 </Grid>

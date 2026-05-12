@@ -72,15 +72,36 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0">
                             <TextBlock Text="{DynamicResource Terminology.Settings.Editor.DurationDays}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
-                            <TextBox Text="{Binding DurationDays}" Style="{DynamicResource Input.Field}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox Grid.Column="0" 
+                                          SelectedIndex="{Binding SelectedDurationIndex}" 
+                                          Style="{DynamicResource Input.ComboBox}">
+                                    <ComboBoxItem Content="1 Month"/>
+                                    <ComboBoxItem Content="3 Months"/>
+                                    <ComboBoxItem Content="1 Year"/>
+                                    <ComboBoxItem Content="Other"/>
+                                </ComboBox>
+                                <TextBox Grid.Column="1" 
+                                         Text="{Binding DurationDays}" 
+                                         Style="{DynamicResource Input.Field}" 
+                                         Width="80" 
+                                         Margin="8,0,0,0" 
+                                         Visibility="{Binding IsCustomDuration, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            </Grid>
                         </StackPanel>
                     </Grid>
 
+                    <!-- Sessions Per Week -->
                     <StackPanel Margin="0,0,0,24">
-                        <Grid Margin="0,0,0,16">
-                            <TextBlock Text="{DynamicResource Terminology.Settings.Editor.SessionPack}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
-                            <CheckBox IsChecked="{Binding IsSessionPack}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
-                        </Grid>
+                        <TextBlock Text="Sessions Per Week (0 = Unlimited)" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBox Text="{Binding SessionsPerWeek}" Style="{DynamicResource Input.Field}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,24">
                         <Grid Margin="0,0,0,16">
                             <TextBlock Text="{DynamicResource Terminology.Settings.Editor.IsActive}" VerticalAlignment="Center" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Medium"/>
                             <CheckBox IsChecked="{Binding IsActive}" HorizontalAlignment="Right" Style="{StaticResource GlobalToggleSwitchStyle}"/>
@@ -95,7 +116,7 @@
                     <StackPanel Margin="0,0,0,32">
                         <TextBlock Text="{DynamicResource Terminology.Settings.Editor.GenderRestriction}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         
-                        <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Padding="4">
+                        <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="22" Padding="4" Height="44">
                             <ListBox SelectedIndex="{Binding GenderRule}" 
                                      Background="Transparent"
                                      BorderThickness="0"
@@ -110,13 +131,13 @@
                                     <Style TargetType="ListBoxItem">
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-                                        <Setter Property="Padding" Value="0,8"/>
+                                        <Setter Property="Padding" Value="0,4"/>
                                         <Setter Property="HorizontalContentAlignment" Value="Center"/>
                                         <Setter Property="FontWeight" Value="SemiBold"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ListBoxItem">
-                                                    <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="8">
+                                                    <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="18">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>

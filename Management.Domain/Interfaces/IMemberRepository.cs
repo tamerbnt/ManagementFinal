@@ -13,6 +13,7 @@ namespace Management.Domain.Interfaces
         Task<System.Collections.Generic.IEnumerable<Member>> SearchAsync(
             string searchTerm, 
             Guid? facilityId = null,
+            MemberFilterType filterType = MemberFilterType.All,
             MemberStatus? status = null,
             Gender? gender = null,
             DateTime? joinedStart = null,
@@ -23,6 +24,7 @@ namespace Management.Domain.Interfaces
             Guid? facilityId,
             int page,
             int pageSize,
+            MemberFilterType filterType = MemberFilterType.All,
             MemberStatus? status = null,
             Gender? gender = null,
             DateTime? joinedStart = null,

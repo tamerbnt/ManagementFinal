@@ -13,6 +13,8 @@ namespace Management.Application.DTOs
         PaymentMethod Method,
         decimal AmountTendered,
         Guid? MemberId,
-        IReadOnlyDictionary<Guid, int> Items
+        IReadOnlyDictionary<Guid, int> Items,
+        Guid? ManualDiscountId = null,
+        decimal? ManualDiscountAmount = null
     );
 }

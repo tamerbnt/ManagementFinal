@@ -30,6 +30,7 @@ using Management.Presentation.ViewModels.Shop;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.Messaging;
 using Management.Presentation.Messages;
+using Management.Application.Messages;
 
 namespace Management.Presentation.ViewModels.Salon
 {
@@ -129,6 +130,12 @@ namespace Management.Presentation.ViewModels.Salon
                 if (ActivityStream.Count > 50) ActivityStream.RemoveAt(ActivityStream.Count - 1);
                 IsActivityEmpty = !ActivityStream.Any();
             });
+
+            // Trigger a priority cloud snapshot push so Remote Viewers see this update immediately.
+            if (!_sessionManager.IsRemoteMode)
+            {
+                CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Send(new SyncRequestedMessage(_facilityContext.CurrentFacilityId));
+            }
 
             HandleRefreshAsync();
         }

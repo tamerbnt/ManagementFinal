@@ -170,6 +170,9 @@ namespace Management.Infrastructure.Services
 
         private async Task ProcessOutboxAsync(AppDbContext context, CancellationToken ct, Guid? facilityId = null)
         {
+            if (_supabase.Auth.CurrentSession == null || _supabase.Auth.CurrentSession.ExpiresAt() < DateTime.UtcNow)
+                await TryRestoreSupabaseSessionAsync();
+
             const int BatchSize = 25;
             
             // If facilityId is provided, we ONLY process messages for that facility.
@@ -772,6 +775,7 @@ namespace Management.Infrastructure.Services
                 CardId = GetVal<string>(snapshot, "CardId"),
                 PermissionsJson = snapshot.ContainsKey("Permissions") ? JToken.Parse(snapshot["Permissions"].GetRawText()) : null,
                 AllowedModulesJson = snapshot.ContainsKey("AllowedModules") ? JToken.Parse(snapshot["AllowedModules"].GetRawText()) : null,
+                // FIX: Ensure SupabaseUserId is mapped from the snapshot
                 SupabaseUserId = GetVal<Guid?>(snapshot, "SupabaseUserId"),
                 CreatedAt = GetVal<DateTime>(snapshot, "CreatedAt"),
                 UpdatedAt = GetVal<DateTime>(snapshot, "UpdatedAt")
@@ -1028,5 +1032,6 @@ namespace Management.Infrastructure.Services
                 return false;
             }
         }
+        public void ResetSessionStatus() { }
     }
 }

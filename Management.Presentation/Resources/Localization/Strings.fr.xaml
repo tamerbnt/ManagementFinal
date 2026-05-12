@@ -14,6 +14,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Global.Maximize">Maximiser</sys:String>
     <sys:String x:Key="Terminology.Global.Close">Fermer</sys:String>
     <sys:String x:Key="Terminology.Global.Cancel">Annuler</sys:String>
+    <sys:String x:Key="Terminology.Global.Edit">Modifier</sys:String>
+    <sys:String x:Key="Terminology.Global.Action.Renew">Renouveler</sys:String>
     <sys:String x:Key="Terminology.Global.Confirm">Confirmer</sys:String>
     <sys:String x:Key="Terminology.Global.Save">Enregistrer les modifications</sys:String>
     <sys:String x:Key="Terminology.Global.Date">Date</sys:String>

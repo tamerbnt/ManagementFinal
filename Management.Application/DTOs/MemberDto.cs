@@ -80,10 +80,19 @@ namespace Management.Application.DTOs
         private DateTime _joinedDate = DateTime.Now.AddYears(-1);
 
         [ObservableProperty]
+        private Guid? _manualDiscountId;
+
+        [ObservableProperty]
+        private decimal? _manualDiscountAmount;
+
+        [ObservableProperty]
         private bool _isSelected;
 
         [ObservableProperty]
         private bool _isActive;
+
+        [ObservableProperty]
+        private bool _isDeleted;
 
         [ObservableProperty]
         private int _visitCount;

@@ -101,7 +101,7 @@
 				</Grid.ColumnDefinitions>
 
 				<!-- Status Filter Pills -->
-				<Border Grid.Column="0" Background="{DynamicResource SurfaceBg}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" HorizontalAlignment="Left">
+				<Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" HorizontalAlignment="Left">
 					<StackPanel Orientation="Horizontal">
 						<RadioButton Content="{DynamicResource Terminology.Staff.Filter.All}" 
 									 IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=All}" 
@@ -170,21 +170,26 @@
 						<local:StaffList DataContext="{Binding}"/>
 					</Border>
 
-					<!-- Staff Detail Drawer -->
-					<Grid Grid.Column="1" 
+					<Border Grid.Column="1" 
 						  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
-						  Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
-						<Grid.RenderTransform>
-							<TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Path=ActualWidth}"/>
-						</Grid.RenderTransform>
-						<Grid.Style>
-							<Style TargetType="Grid">
+						  Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+                          Background="{DynamicResource CardBackgroundBrush}"
+                          CornerRadius="32"
+                          Margin="16,0,16,16"
+                          Effect="{DynamicResource Shadow3}"
+                          BorderThickness="1"
+                          BorderBrush="{DynamicResource BorderBrush}">
+						<Border.RenderTransform>
+							<TranslateTransform X="800"/>
+						</Border.RenderTransform>
+						<Border.Style>
+							<Style TargetType="Border">
 								<Style.Triggers>
 									<DataTrigger Binding="{Binding IsDetailOpen}" Value="True">
 										<DataTrigger.EnterActions>
 											<BeginStoryboard>
 												<Storyboard>
-													<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+													<DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="800" To="0" Duration="0:0:0.4">
 														<DoubleAnimation.EasingFunction>
 															<CubicEase EasingMode="EaseOut"/>
 														</DoubleAnimation.EasingFunction>
@@ -195,24 +200,10 @@
 									</DataTrigger>
 								</Style.Triggers>
 							</Style>
-						</Grid.Style>
+						</Border.Style>
 
-						<!-- Shadow Layer -->
-						<Border Background="White" CornerRadius="32,0,0,32">
-							<Border.Effect>
-								<DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.15" Color="Black"/>
-							</Border.Effect>
-						</Border>
-
-						<!-- Content Layer -->
-						<Border Background="White" 
-								CornerRadius="32,0,0,32"
-								BorderThickness="1,0,0,0"
-								BorderBrush="{DynamicResource BorderBrush}"
-								ClipToBounds="True">
-							<local:StaffDetailView DataContext="{Binding SelectedStaff}"/>
-						</Border>
-					</Grid>
+						<local:StaffDetailView DataContext="{Binding SelectedStaff}"/>
+					</Border>
 				</Grid>
 			</Border>
 	</Grid>

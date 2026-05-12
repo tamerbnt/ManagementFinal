@@ -8,6 +8,7 @@ namespace Management.Domain.Enums
         All = 0,
         Active = 1,
         Expiring = 2, // Active + Expires within threshold
-        Expired = 3
+        Expired = 3,
+        Deleted = 4
     }
 }

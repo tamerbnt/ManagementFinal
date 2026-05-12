@@ -102,16 +102,26 @@ namespace Management.Infrastructure.Services
             
             try
             {
-                // Quick health check - just verify we can reach Supabase
-                // Use a lightweight query to minimize overhead
-                await _supabase.From<Management.Infrastructure.Integrations.Supabase.Models.SupabaseProfile>()
-                    .Select("id")
+                // Quick health check - just verify we can reach the Supabase endpoint.
+                // We use profiles table, but we must catch ANY response (including 401/403/400).
+                // If the server responds with a status code, it is REACHABLE.
+                var response = await _supabase.From<Management.Infrastructure.Integrations.Supabase.Models.SupabaseProfile>()
                     .Limit(1)
                     .Get();
+
                 return true;
             }
-            catch
+            catch (Supabase.Postgrest.Exceptions.PostgrestException)
             {
+                // A PostgrestException means we reached the server and it gave us an error 
+                // (like 401 Unauthorized or 403 Forbidden).
+                // This means the CLOUD IS ONLINE.
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Other exceptions (like HttpRequestException) mean the server is unreachable.
+                System.Diagnostics.Debug.WriteLine($"[ConnectionService] Supabase unreachable: {ex.Message}");
                 return false;
             }
         }

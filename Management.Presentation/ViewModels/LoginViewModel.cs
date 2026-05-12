@@ -210,7 +210,19 @@ namespace Management.Presentation.ViewModels
                         return;
                     }
 
+                    // FIX Bug #4: Capture IsRemoteMode BEFORE LaunchMainWindow fires ResetApplicationState().
+                    // LaunchMainWindowAsync → ResetApplicationState() → SessionManager.ResetState()
+                    // sets IsRemoteMode = false, erasing the flag set by SplashOnboardingViewModel.
+                    // We re-apply it immediately after the launch so ViewModels see the correct value.
+                    bool wasRemoteMode = _sessionManager.IsRemoteMode;
+
                     ((App)System.Windows.Application.Current).LaunchMainWindow();
+
+                    if (wasRemoteMode)
+                    {
+                        _sessionManager.IsRemoteMode = true;
+                        Serilog.Log.Information("[Login] Remote Mode preserved after main window launch.");
+                    }
 
                     _ = Task.Run(async () =>
                     {

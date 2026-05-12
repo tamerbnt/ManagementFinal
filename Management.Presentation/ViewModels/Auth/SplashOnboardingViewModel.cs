@@ -82,6 +82,7 @@ namespace Management.Presentation.ViewModels.Auth
         public ICommand NextSlideCommand { get; }
         public ICommand PrevSlideCommand { get; }
         public AsyncRelayCommand EnterWorkspaceCommand { get; }
+        public AsyncRelayCommand EnterRemoteWorkspaceCommand { get; }
         public ICommand SelectFacilityCommand { get; }
 
         public SplashOnboardingViewModel(
@@ -111,6 +112,7 @@ namespace Management.Presentation.ViewModels.Auth
             PrevSlideCommand = new RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex - 1 + Slides.Count) % Slides.Count);
             
             EnterWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterWorkspace, CanExecuteEnterWorkspace);
+            EnterRemoteWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterRemoteWorkspace, CanExecuteEnterWorkspace);
             SelectFacilityCommand = new RelayCommand<FacilityTypeOption>(f => SelectedFacility = f);
 
             InitializeSlides();
@@ -213,6 +215,44 @@ namespace Management.Presentation.ViewModels.Auth
             }
             
             // No valid session or facility mismatch: Navigate to Login, passing the selected facility as context
+            await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
+        }
+
+        private async Task ExecuteEnterRemoteWorkspace()
+        {
+            if (SelectedFacility == null) return;
+            
+            // Set global remote mode flag
+            _sessionManager.IsRemoteMode = true;
+            
+            // Persist the choice
+            _facilityContext.SetFacility(SelectedFacility.Type);
+            
+            // FORCED LOGIN: We disable auto-login for Remote Mode to ensure explicit authentication 
+            // and role verification for the specific remote workspace.
+            /*
+            var currentUserResult = _authService.IsLogoutActive 
+                ? Result.Failure<StaffDto>(new Error("Auth.ForcedLogin", "Forcing login after logout."))
+                : await _authService.GetCurrentUserAsync();
+
+            if (currentUserResult.IsSuccess && currentUserResult.Value != null)
+            {
+                var user = currentUserResult.Value;
+                if (user.Role == Management.Domain.Enums.StaffRole.Owner)
+                {
+                    Serilog.Log.Information("[Splash] Valid Owner session found for {Email}. Launching Remote View.", user.Email);
+                    _sessionManager.SetUser(user);
+                    
+                    if (System.Windows.Application.Current is Management.Presentation.App app)
+                    {
+                        await app.LaunchMainWindowAsync();
+                    }
+                    return;
+                }
+            }
+            */
+            
+            // Not logged in or not Owner: Navigate to Login
             await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
         }
 

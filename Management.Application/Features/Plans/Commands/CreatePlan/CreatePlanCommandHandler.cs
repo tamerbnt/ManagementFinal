@@ -37,7 +37,7 @@ namespace Management.Application.Features.Plans.Commands.CreatePlan
                 dto.Description,
                 dto.DurationDays,
                 price,
-                0, // BaseSessionCount
+                dto.SessionsPerWeek,
                 dto.IsWalkIn,
                 dto.IsPersonalTraining);
 
@@ -46,7 +46,6 @@ namespace Management.Application.Features.Plans.Commands.CreatePlan
             var plan = planResult.Value;
             plan.GenderRule = dto.GenderRule;
             plan.ScheduleJson = dto.ScheduleJson;
-            plan.IsSessionPack = dto.IsSessionPack;
 
             // Set multi-tenancy IDs
             var tenantId = _tenantService.GetTenantId();

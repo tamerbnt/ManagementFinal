@@ -439,7 +439,44 @@ namespace Management.Presentation
                 trackerService.UpdateStatus("Initializing database...", 0.3);
                 
                 var dbInitTask = InitializeDatabaseAsync(ct);
-                await dbInitTask; 
+                await dbInitTask;
+
+                // FIX 6: Pre-warm Supabase session from disk before SyncWorker's first cycle.
+                // The SDK starts cold on every launch. SyncWorker fires its first PerformSyncAsync
+                // within seconds. If the session is not warmed, any sync in that early window must
+                // call TryRestoreSupabaseSessionAsync on-demand, which adds latency and could race.
+                // This call is silent: it does NOT set SessionManager.CurrentUser (UI login still required).
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var sessionStorage = ServiceProvider.GetRequiredService<Management.Domain.Services.ISessionStorageService>();
+                        var supabase = ServiceProvider.GetRequiredService<Supabase.Client>();
+                        var storedSession = await sessionStorage.LoadSessionAsync();
+
+                        if (storedSession != null &&
+                            !storedSession.IsExpired &&
+                            !storedSession.IsOfflineSession &&
+                            storedSession.AccessToken != "OFFLINE_ACCESS_TOKEN")
+                        {
+                            var result = await supabase.Auth.SetSession(storedSession.AccessToken, storedSession.RefreshToken);
+                            if (result?.User != null)
+                                Serilog.Log.Information("[App] Startup: Supabase session pre-warmed for {Email}.", storedSession.Email);
+                            else
+                                Serilog.Log.Debug("[App] Startup: SetSession returned null \u2014 session will be restored on first sync attempt.");
+                        }
+                        else
+                        {
+                            Serilog.Log.Debug("[App] Startup: No valid cloud session on disk to pre-warm.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Non-fatal: startup continues normally
+                        Serilog.Log.Warning(ex, "[App] Startup: Session pre-warm failed \u2014 will restore on first sync attempt.");
+                    }
+                }, ct);
+
 
                 // --- Phase 6 HEALING: Full Auto-Discovery ---
                 // Always run discovery to build the complete FacilityType → Guid map.
@@ -1168,6 +1205,7 @@ namespace Management.Presentation
             services.AddTransient<IAccessControlService, AccessControlService>();
             services.AddScoped<IPricingService, PricingService>();
             services.AddTransient<IPromotionService, PromotionService>();
+            services.AddScoped<IDiscountService, DiscountService>();
             // The line below was moved up as part of the change.
             // services.AddSingleton<IAccessControlCache, AccessControlCache>();
 
@@ -1226,6 +1264,7 @@ namespace Management.Presentation
             services.AddHostedService(provider => provider.GetRequiredService<SupabaseRealtimeService>());
             
             services.AddHostedService<AccessMonitoringWorker>();
+            services.AddHostedService<SnapshotSyncWorker>();
 
             // History Providers
             services.AddTransient<Management.Application.Interfaces.App.IHistoryProvider, Management.Application.Services.History.GymHistoryProvider>();
@@ -1389,6 +1428,7 @@ namespace Management.Presentation
             services.AddTransient<OccupancyHistoryViewModel>();
             services.AddTransient<InventoryHistoryViewModel>();
             services.AddTransient<LogRestockViewModel>();
+            services.AddTransient<DiscountEditorViewModel>();
             services.AddTransient<AppExitViewModel>();
 
             // --- VIEWS ---

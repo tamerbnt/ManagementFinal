@@ -16,5 +16,10 @@ namespace Management.Domain.Services
         string GetHardwareId();
         
         void Clear();
+
+        /// <summary>
+        /// Temporarily overrides the current tenant context for the current execution flow.
+        /// </summary>
+        IDisposable Impersonate(Guid tenantId);
     }
 }

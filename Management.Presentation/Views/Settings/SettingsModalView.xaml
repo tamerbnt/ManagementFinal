@@ -708,6 +708,10 @@
             <DataTemplate x:Key="PromotionsTemplate">
                 <local:PromotionsSectionView/>
             </DataTemplate>
+
+            <DataTemplate x:Key="DiscountsTemplate">
+                <local:DiscountsSectionView/>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -764,8 +768,9 @@
                         Background="{DynamicResource FacilitySidebarBrush}"
                         CornerRadius="16"
                         Margin="12,12,0,12"
-                        BorderBrush="#1A000000"
-                        BorderThickness="0,0,1,1">
+                        BorderBrush="{DynamicResource SeparatorStroke}"
+                        BorderThickness="0,0,1,1"
+                        Opacity="0.4">
                     <Grid Margin="20,28">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -1051,6 +1056,20 @@
                                 </StackPanel>
                             </Button>
 
+                            <!-- Discounts Tab -->
+                            <Button Command="{Binding SelectTabCommand}" CommandParameter="Discounts">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource IconTag}" 
+                                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                          Style="{StaticResource Style.Icon.Small}"
+                                          Margin="0,0,12,0"/>
+                                    <TextBlock Text="Discounts" 
+                                               Style="{StaticResource BodyMedium}"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                                </StackPanel>
+                            </Button>
+
                             <!-- Gym Settings Tab -->
                             <Button Command="{Binding SelectTabCommand}" 
                                     CommandParameter="GymSettings"
@@ -1112,6 +1131,9 @@
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding SelectedTab}" Value="Promotions">
                                             <Setter Property="ContentTemplate" Value="{StaticResource PromotionsTemplate}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SelectedTab}" Value="Discounts">
+                                            <Setter Property="ContentTemplate" Value="{StaticResource DiscountsTemplate}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -1219,6 +1241,12 @@
                             </DataTemplate>
                             <DataTemplate DataType="{x:Type vm:SalonServiceEditorViewModel}"> 
                                 <local:SalonServiceEditorView/>
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type vm:PromotionEditorViewModel}"> 
+                                <local:PromotionEditorModal/>
+                            </DataTemplate>
+                            <DataTemplate DataType="{x:Type vm:DiscountEditorViewModel}"> 
+                                <local:DiscountEditorModal/>
                             </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>

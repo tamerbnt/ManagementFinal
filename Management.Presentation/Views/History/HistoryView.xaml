@@ -173,7 +173,7 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="{DynamicResource SurfaceBg}" 
+                    Background="{DynamicResource CardBackgroundBrush}" 
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="12" 
@@ -229,7 +229,7 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0,0,0">
                 
                 <!-- Status Filter Group Card -->
-                <Border Background="{DynamicResource SurfaceBg}" 
+                <Border Background="{DynamicResource CardBackgroundBrush}" 
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
                         CornerRadius="12" 
@@ -362,12 +362,15 @@
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                     MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"
                     VerticalAlignment="Stretch"
-                    Background="{DynamicResource SurfaceBg}" 
+                    Background="{DynamicResource CardBackgroundBrush}" 
+                    CornerRadius="32"
+                    Margin="16,0,16,16"
+                    Effect="{DynamicResource Shadow3}"
                     BorderBrush="{DynamicResource BorderBrush}" 
-                    BorderThickness="1,0,0,0"
+                    BorderThickness="1"
                     Visibility="{Binding DataContext.IsDetailOpen, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Border.RenderTransform>
-                    <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:HistoryView}, Path=ActualWidth}"/>
+                    <TranslateTransform X="800"/>
                 </Border.RenderTransform>
                 <Border.Style>
                     <Style TargetType="Border">
@@ -376,7 +379,7 @@
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="800" To="0" Duration="0:0:0.4">
                                                 <DoubleAnimation.EasingFunction>
                                                     <CubicEase EasingMode="EaseOut"/>
                                                 </DoubleAnimation.EasingFunction>

@@ -31,12 +31,12 @@
 
         <Border.Style>
             <Style TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 <Style.Triggers>
                     <!-- Hover Animation -->
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+                        <Setter Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                         <Trigger.EnterActions>
                             <BeginStoryboard>

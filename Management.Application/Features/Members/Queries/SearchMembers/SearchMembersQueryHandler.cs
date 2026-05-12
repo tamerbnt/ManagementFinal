@@ -46,6 +46,7 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
                 facilityId,
                 request.Page,
                 request.PageSize,
+                filterType,
                 MapFilterToStatus(filterType),
                 request.Request.Gender,
                 request.Request.StartDate,
@@ -92,7 +93,8 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
                 Notes = entity.Notes,
                 Gender = entity.Gender,
                 DateOfBirth = entity.DateOfBirth,
-                Source = entity.Source
+                Source = entity.Source,
+                IsDeleted = entity.IsDeleted
             }).ToList();
 
             var result = new PagedResult<MemberDto>
@@ -135,7 +137,8 @@ namespace Management.Application.Features.Members.Queries.SearchMembers
                 Notes = entity.Notes,
                 Gender = entity.Gender,
                 DateOfBirth = entity.DateOfBirth,
-                Source = entity.Source
+                Source = entity.Source,
+                IsDeleted = entity.IsDeleted
             };
         }
 

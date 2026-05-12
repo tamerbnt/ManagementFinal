@@ -17,8 +17,7 @@ namespace Management.Domain.Models
         public Money Price { get; set; }
         public bool IsActive { get; set; }
         public virtual System.Collections.Generic.ICollection<Management.Domain.Models.Facility> AccessibleFacilities { get; set; } = new System.Collections.Generic.List<Management.Domain.Models.Facility>();
-        public bool IsSessionPack { get; set; }
-        public int BaseSessionCount { get; private set; }
+        public int SessionsPerWeek { get; private set; }
         public bool IsWalkIn { get; set; }
         public bool IsPersonalTraining { get; set; }
 
@@ -26,13 +25,13 @@ namespace Management.Domain.Models
         public int GenderRule { get; set; } // 0: Both, 1: MaleOnly, 2: FemaleOnly
         public string? ScheduleJson { get; set; } // JSON serialized schedule windows
 
-        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false, bool isPersonalTraining = false) : base(id)
+        private MembershipPlan(Guid id, string name, string description, int durationDays, Money price, int sessionsPerWeek = 0, bool isWalkIn = false, bool isPersonalTraining = false) : base(id)
         {
             Name = name;
             Description = description;
             DurationDays = durationDays;
             Price = price;
-            BaseSessionCount = baseSessionCount;
+            SessionsPerWeek = sessionsPerWeek;
             IsActive = true;
             IsWalkIn = isWalkIn;
             IsPersonalTraining = isPersonalTraining;
@@ -45,7 +44,7 @@ namespace Management.Domain.Models
             Price = default!;
         }
 
-        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price, int baseSessionCount = 0, bool isWalkIn = false, bool isPersonalTraining = false)
+        public static Result<MembershipPlan> Create(string name, string description, int durationDays, Money price, int sessionsPerWeek = 0, bool isWalkIn = false, bool isPersonalTraining = false)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Result.Failure<MembershipPlan>(new Error("Plan.EmptyName", "Name is required"));
@@ -53,10 +52,10 @@ namespace Management.Domain.Models
             if (durationDays <= 0)
                 return Result.Failure<MembershipPlan>(new Error("Plan.InvalidDuration", "Duration must be positive"));
 
-            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price, baseSessionCount, isWalkIn, isPersonalTraining));
+            return Result.Success(new MembershipPlan(Guid.NewGuid(), name, description, durationDays, price, sessionsPerWeek, isWalkIn, isPersonalTraining));
         }
 
-        public void UpdateDetails(string name, string description, int durationDays, Money price, int? baseSessionCount = null, bool? isWalkIn = null, bool? isPersonalTraining = null)
+        public void UpdateDetails(string name, string description, int durationDays, Money price, int? sessionsPerWeek = null, bool? isWalkIn = null, bool? isPersonalTraining = null)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Name cannot be empty");
@@ -65,7 +64,7 @@ namespace Management.Domain.Models
             Description = description;
             DurationDays = durationDays;
             Price = price;
-            if (baseSessionCount.HasValue) BaseSessionCount = baseSessionCount.Value;
+            if (sessionsPerWeek.HasValue) SessionsPerWeek = sessionsPerWeek.Value;
             if (isWalkIn.HasValue) IsWalkIn = isWalkIn.Value;
             if (isPersonalTraining.HasValue) IsPersonalTraining = isPersonalTraining.Value;
             UpdateTimestamp();

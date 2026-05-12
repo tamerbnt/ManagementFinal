@@ -18,9 +18,9 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="52,0,10,0"/>
-            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource SeparatorStroke}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
@@ -30,7 +30,10 @@
                                 Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="10">
+                                CornerRadius="14">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" Opacity="0.04" BlurRadius="15" ShadowDepth="4" Direction="270" RenderingBias="Performance"/>
+                            </Border.Effect>
                             <Grid>
                                 <!-- Search Icon -->
                                 <Path x:Name="SearchIcon"
@@ -123,7 +126,7 @@
             </Setter>
         </Style>
     </UserControl.Resources>
-    <Border Background="Transparent" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SeparatorStroke}" SnapsToDevicePixels="True">
+    <Border Background="Transparent" BorderThickness="0" BorderBrush="{DynamicResource SeparatorStroke}" SnapsToDevicePixels="True">
         <Grid Background="Transparent" VerticalAlignment="Stretch" MouseLeftButtonDown="OnHeaderMouseLeftButtonDown">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/> <!-- Search Bar (left-aligned) -->
@@ -136,6 +139,15 @@
 
         <!-- SEARCH BAR (Expanding Dropdown) -->
         <Grid Grid.Column="0" VerticalAlignment="Top" Margin="0,0,0,0">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
             <StackPanel HorizontalAlignment="Left">
                 <TextBox x:Name="GlobalSearchBox"
                          Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
@@ -230,18 +242,24 @@
             </StackPanel>
         </Grid>
 
-        <!-- CONSOLIDATED ACTION & WINDOW CONTROL CARD -->
+        <!-- CONSOLIDATED ACTION CARD -->
         <Border Grid.Column="2" Grid.ColumnSpan="2" 
                 Height="60" 
-                Background="{DynamicResource SurfaceBg}" 
+                Background="{DynamicResource CardBackgroundBrush}" 
                 CornerRadius="14" 
-                BorderThickness="1" 
-                BorderBrush="{DynamicResource SeparatorStroke}"
+                BorderThickness="0" 
+                BorderBrush="Transparent"
                 VerticalAlignment="Top" 
                 HorizontalAlignment="Right"
                 Margin="0,0,0,0"
-                Padding="10,0"
+                Padding="12,0"
                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.04" BlurRadius="15" ShadowDepth="4" Direction="270" RenderingBias="Performance"/>
+            </Border.Effect>
+            <Border.CacheMode>
+                <BitmapCache EnableClearType="True" RenderAtScale="1" SnapsToDevicePixels="True"/>
+            </Border.CacheMode>
             <StackPanel Orientation="Horizontal">
                 <!-- Theme Toggle -->
                 <premium:ThemeSegmentedToggle IsDarkTheme="{Binding IsDarkTheme, Mode=TwoWay}"
@@ -249,16 +267,34 @@
                                               VerticalAlignment="Center"
                                               shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                 
-                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="8,12" Opacity="0.3"/>
+                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="12,12" Opacity="0.3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
                 
                 <!-- 1. Sync Button -->
                 <Button Command="{Binding ManualSyncCommand}"
                         ToolTip="{Binding LastSyncText}"
-                        Style="{DynamicResource Button.Ghost}"
                         Width="40" Height="40"
                         Padding="0"
                         VerticalAlignment="Center"
                         shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <Path x:Name="SyncIcon"
                           Data="M12,18A6,6 0 0,1 6,12C6,11 6.25,10.03 6.7,9.2L5.24,7.74C4.46,8.97 4,10.43 4,12A8,8 0 0,0 12,20V23L16,19L12,15M12,4V1L8,5L12,9V6A6,6 0 0,1 18,12C18,13 17.75,13.97 17.3,14.8L18.76,16.26C19.54,15.03 20,13.57 20,12A8,8 0 0,0 12,4Z"
                           Fill="{DynamicResource TextPrimaryBrush}"
@@ -270,24 +306,44 @@
                     </Path>
                 </Button>
 
-                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="8,12" Opacity="0.3"/>
+                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="12,12" Opacity="0.3">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
 
                 <!-- 2. Notifications -->
                 <Grid>
                     <ToggleButton x:Name="NotifToggle" 
-                                  Style="{DynamicResource ToggleButton.Ghost}"
                                   Width="40" Height="40"
                                   Padding="0"
                                   VerticalAlignment="Center"
                                   shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        <ToggleButton.Style>
+                            <Style TargetType="ToggleButton" BasedOn="{StaticResource ToggleButton.Ghost}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ToggleButton.Style>
                         <Grid>
                             <Path Data="M12,21A2,2 0 0,0 14,19H10A2,2 0 0,0 12,21M18,15V10C18,6.93 16.36,4.36 13.5,3.68V3A1.5,1.5 0 0,0 12,1.5A1.5,1.5 0 0,0 10.5,3V3.68C7.63,4.36 6,6.92 6,10V15L4,17V18H20V17L18,15Z" 
                                   Fill="{DynamicResource TextPrimaryBrush}" 
                                   Width="16" Height="16" 
                                   Stretch="Uniform" />
                             <Border Background="{DynamicResource StatusErrorBrush}" 
-                                    Width="6" Height="6" 
-                                    CornerRadius="3"
+                                    Width="8" Height="8" 
+                                    CornerRadius="4"
+                                    BorderThickness="1.5"
+                                    BorderBrush="{DynamicResource SurfaceBg}"
                                     HorizontalAlignment="Right" VerticalAlignment="Top"
                                     Margin="0,2,2,0"
                                     Visibility="{Binding NotificationCount, Converter={StaticResource IntToVisibilityConverter}}"/>
@@ -377,19 +433,47 @@
                            HorizontalOffset="-100">
                         <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Padding="8" Width="200" Margin="12">
                             <StackPanel>
-                                <Button Command="{Binding OpenProfileCommand}" Style="{DynamicResource Button.Ghost}" Padding="12,10" HorizontalContentAlignment="Left">
+                                <Button Command="{Binding OpenAccountSettingsCommand}" Padding="12,10" HorizontalContentAlignment="Left">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="{DynamicResource IconUsers}" Fill="{DynamicResource TextSecondaryBrush}" Width="14" Height="14" Margin="0,0,12,0" Stretch="Uniform"/>
-                                        <TextBlock Text="Account Settings" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="Account" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Command="{Binding OpenSettingsCommand}" Style="{DynamicResource Button.Ghost}" Padding="12,10" HorizontalContentAlignment="Left">
+                                <Button Command="{Binding OpenSettingsCommand}" Padding="12,10" HorizontalContentAlignment="Left">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="{DynamicResource IconSettings}" Fill="{DynamicResource TextSecondaryBrush}" Width="14" Height="14" Margin="0,0,12,0" Stretch="Uniform"/>
-                                        <TextBlock Text="Facility Preferences" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="Settings" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </StackPanel>
                                 </Button>
-                                <Border Height="1" Background="{DynamicResource SeparatorStroke}" Margin="8,4" Opacity="0.5"/>
+                                <Border Height="1" Background="{DynamicResource SeparatorStroke}" Margin="8,4" Opacity="0.5">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsRemoteMode}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
                                 <Button Command="{Binding LogoutCommand}" Style="{DynamicResource Button.Ghost}" Padding="12,10" HorizontalContentAlignment="Left">
                                     <StackPanel Orientation="Horizontal">
                                         <Path Data="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" Fill="{DynamicResource StatusErrorBrush}" Width="14" Height="14" Margin="0,0,12,0" Stretch="Uniform"/>
@@ -401,10 +485,10 @@
                     </Popup>
                 </Grid>
 
-                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="8,12" Opacity="0.3"/>
+                <Border Width="1" Background="{DynamicResource SeparatorStroke}" Margin="24,12,8,12" Opacity="0.3"/>
 
-                <!-- 4. Window Controls -->
-                <StackPanel Orientation="Horizontal" Margin="8,0,0,0">
+                <!-- 4. Window Controls (Integrated) -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,-12,0">
                     <Button Click="OnMinimize" Width="44" Height="44" Style="{DynamicResource Button.Ghost}" shell:WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="{DynamicResource Terminology.Global.Minimize}">
                         <Path Data="M0,5 L12,5" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2" Width="12" Height="10" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
@@ -414,17 +498,27 @@
                     <Button Click="OnClose" Width="44" Height="44" shell:WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="{DynamicResource Terminology.Global.Close}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E81123"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </Trigger>
-                                </Style.Triggers>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" Background="Transparent" CornerRadius="0,14,14,0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#E81123"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
                             </Style>
                         </Button.Style>
                         <Path Data="M0,0 L12,12 M12,0 L0,12" Stroke="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.5" Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
+
             </StackPanel>
         </Border>
 

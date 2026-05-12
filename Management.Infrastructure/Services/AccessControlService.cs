@@ -133,9 +133,20 @@ namespace Management.Infrastructure.Services
                 if (!planOk) return ScanResult.Denied(planReason ?? "Plan Outside Active Hours", member);
             }
 
-            if (plan != null && plan.IsSessionPack)
+            if (plan != null && plan.SessionsPerWeek > 0)
             {
-                if (member.RemainingSessions <= 0) return ScanResult.Denied("No Sessions Left", member);
+                var now = DateTime.UtcNow;
+                var offset = now.DayOfWeek - DayOfWeek.Monday;
+                if (offset < 0) offset += 7;
+                var startOfWeek = now.AddDays(-offset).Date; // Midnight Monday
+
+                var weeklyAccessCount = await _context.AccessEvents
+                    .CountAsync(e => e.CardId == barcode && e.Direction == ScanDirection.Enter && e.Timestamp >= startOfWeek);
+
+                if (weeklyAccessCount >= plan.SessionsPerWeek)
+                {
+                    return ScanResult.Denied("Weekly Limit Reached", member);
+                }
             }
 
             var daysLeft = (member.ExpirationDate - DateTime.UtcNow).TotalDays;
@@ -155,21 +166,8 @@ namespace Management.Infrastructure.Services
             MembershipPlan? plan = null;
             if (member.MembershipPlanId.HasValue) plan = await _planRepository.GetByIdAsync(member.MembershipPlanId.Value);
 
-            // Exit Penalty Fix
-            if (direction == ScanDirection.Enter && plan != null && plan.IsSessionPack)
-            {
-                var rowsAffected = await _context.Database.ExecuteSqlRawAsync(
-                    @"UPDATE members 
-                      SET remaining_sessions = remaining_sessions - 1, 
-                          updated_at = datetime('now'), 
-                          row_version = row_version + 1 
-                      WHERE id = {0} 
-                        AND remaining_sessions > 0 
-                        AND facility_id = {1}",
-                    member.Id, facilityId);
-
-                if (rowsAffected == 0) return ScanResult.Denied("No Sessions Left", member);
-            }
+            // Sessions per week logic is tracked in ValidateAccessAsync dynamically.
+            // We do not decrement remaining sessions anymore.
 
             return ScanResult.Granted("Commit Success", member);
         }

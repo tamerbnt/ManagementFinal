@@ -20,6 +20,8 @@ namespace Management.Presentation.ViewModels.GymHome
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly Management.Presentation.Services.IModalNavigationService _modalNavigationService;
         private readonly MediatR.IMediator _mediator;
+        private readonly IPricingService _pricingService;
+        private readonly IDiscountService _discountService;
 
         [ObservableProperty]
         private ObservableCollection<WalkInPlanDto> _plans = new();
@@ -33,6 +35,15 @@ namespace Management.Presentation.ViewModels.GymHome
         [ObservableProperty]
         private decimal _totalPrice;
 
+        [ObservableProperty]
+        private ObservableCollection<DiscountDto> _availableDiscounts = new();
+
+        [ObservableProperty]
+        private DiscountDto? _selectedDiscount;
+
+        [ObservableProperty]
+        private PricingResult? _pricingResult;
+
         public new string Title => "Process Walk-In";
 
         public WalkInConfirmationViewModel(
@@ -41,7 +52,9 @@ namespace Management.Presentation.ViewModels.GymHome
             IFacilityContextService facilityContext,
             Management.Domain.Services.IDialogService dialogService,
             Management.Presentation.Services.IModalNavigationService modalNavigationService,
-            MediatR.IMediator mediator)
+            MediatR.IMediator mediator,
+            IPricingService pricingService,
+            IDiscountService discountService)
         {
             _gymService = gymService;
             _modalNavigationStore = modalNavigationStore;
@@ -49,6 +62,8 @@ namespace Management.Presentation.ViewModels.GymHome
             _dialogService = dialogService;
             _modalNavigationService = modalNavigationService;
             _mediator = mediator;
+            _pricingService = pricingService;
+            _discountService = discountService;
             base.Title = "Process Walk-In";
             
             _ = InitializeAsync();
@@ -64,16 +79,47 @@ namespace Management.Presentation.ViewModels.GymHome
             var plans = await _gymService.GetWalkInPlansAsync(_facilityContext.CurrentFacilityId);
             Plans = new ObservableCollection<WalkInPlanDto>(plans);
             
+            var discounts = await _discountService.GetDiscountsAsync(_facilityContext.CurrentFacilityId);
+            if (discounts.IsSuccess)
+            {
+                AvailableDiscounts = new ObservableCollection<DiscountDto>(discounts.Value.Where(d => d.IsActive));
+            }
+
             SelectedPlan = Plans.FirstOrDefault();
-            UpdateTotalPrice();
+            await UpdatePriceAsync();
         }
 
-        partial void OnSelectedPlanChanged(WalkInPlanDto? value) => UpdateTotalPrice();
-        partial void OnGuestCountChanged(int value) => UpdateTotalPrice();
+        partial void OnSelectedPlanChanged(WalkInPlanDto? value) => _ = UpdatePriceAsync();
+        partial void OnGuestCountChanged(int value) => _ = UpdatePriceAsync();
+        partial void OnSelectedDiscountChanged(DiscountDto? value) => _ = UpdatePriceAsync();
 
-        private void UpdateTotalPrice()
+        private async Task UpdatePriceAsync()
         {
-            TotalPrice = (SelectedPlan?.Price ?? 0) * GuestCount;
+            if (SelectedPlan == null)
+            {
+                TotalPrice = 0;
+                PricingResult = null;
+                return;
+            }
+
+            var basePrice = new Management.Domain.ValueObjects.Money(SelectedPlan.Price, "DA");
+            decimal? manualVal = null;
+            bool isPerc = false;
+            if (SelectedDiscount != null)
+            {
+                isPerc = SelectedDiscount.IsPercentage;
+                manualVal = SelectedDiscount.Value;
+            }
+
+            var result = await _pricingService.CalculateEffectivePriceAsync(
+                _facilityContext.CurrentFacilityId,
+                Guid.Empty,
+                basePrice,
+                manualDiscountValue: manualVal,
+                isManualDiscountPercentage: isPerc);
+
+            PricingResult = result;
+            TotalPrice = result.EffectivePrice.Amount * GuestCount;
         }
 
         [RelayCommand]
@@ -102,7 +148,7 @@ namespace Management.Presentation.ViewModels.GymHome
         [RelayCommand(CanExecute = nameof(CanConfirm))]
         private async Task ConfirmWalkInAsync()
         {
-            if (SelectedPlan == null) return;
+            if (SelectedPlan == null || PricingResult == null) return;
 
             await ExecuteLoadingAsync(async () =>
             {
@@ -113,10 +159,12 @@ namespace Management.Presentation.ViewModels.GymHome
                 {
                     // Suppress individual notifications to prevent "Toast Storm"
                     var result = await _gymService.ProcessWalkInAsync(
-                        SelectedPlan.Price, 
+                        PricingResult.EffectivePrice.Amount, 
                         _facilityContext.CurrentFacilityId, 
                         SelectedPlan.Name, 
-                        publishNotification: false);
+                        publishNotification: false,
+                        manualDiscountId: SelectedDiscount?.Id,
+                        manualDiscountAmount: PricingResult.ManualDiscountAmount?.Amount);
 
                     if (result.Success)
                     {

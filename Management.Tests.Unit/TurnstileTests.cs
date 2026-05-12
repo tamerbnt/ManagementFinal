@@ -108,6 +108,7 @@ namespace Management.Tests.Unit.Turnstile
             scheduleRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new System.Collections.Generic.List<FacilitySchedule>());
             cache.Setup(c => c.GetFacilitySchedules()).Returns(new System.Collections.Generic.List<ScheduleWindow>());
             cache.Setup(c => c.GetPlanSchedule(It.IsAny<Guid>())).Returns(new System.Collections.Generic.List<ScheduleWindow>());
+            cache.Setup(c => c.TryMarkMemberInside(It.IsAny<string>())).Returns(true);
 
             facilityCtx.SetupGet(f => f.CurrentFacilityId).Returns(_facilityId);
             facilityCtx.SetupGet(f => f.CurrentFacility).Returns(FacilityType.General);
@@ -268,7 +269,7 @@ namespace Management.Tests.Unit.Turnstile
         }
 
         [Fact]
-        public async Task SessionPackMember_WithSessions_ShouldDeductSessionAndGrantAccess()
+        public async Task WeeklyLimitMember_UnderLimit_ShouldGrantAccess()
         {
             // Arrange
             var planId = Guid.NewGuid();
@@ -276,28 +277,32 @@ namespace Management.Tests.Unit.Turnstile
             var staffRepo = new Mock<IStaffRepository>();
             var planRepo = new Mock<IRepository<MembershipPlan>>();
 
-            var member = MakeActiveMember("CARD-S1", planId: planId, sessions: 5);
+            var member = MakeActiveMember("CARD-S1", planId: planId);
             memberRepo.Setup(r => r.GetByCardIdAsync("CARD-S1", It.IsAny<Guid?>())).ReturnsAsync(member);
             staffRepo.Setup(r => r.GetByCardIdAsync("CARD-S1", It.IsAny<Guid?>())).ReturnsAsync((StaffMember?)null);
 
-            // SessionPack plan, belongs to same facility
-            var plan = new MembershipPlan { IsSessionPack = true, FacilityId = _facilityId };
-            plan.GetType().GetProperty("Id")!.SetValue(plan, planId); // set the Id via reflection
+            var plan = MembershipPlan.Create("Test", "Test", 30, new Money(100, "DA"), 2).Value;
+            plan.GetType().GetProperty("Id")!.SetValue(plan, planId);
+            plan.FacilityId = _facilityId;
             planRepo.Setup(r => r.GetByIdAsync(planId, It.IsAny<Guid?>())).ReturnsAsync(plan);
 
             var svc = BuildService(memberRepo, staffRepo, planRepo);
+            
+            // Add 1 event in current week (under limit of 2)
+            var context = (AppDbContext)svc.GetType().GetField("_context", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(svc)!;
+            context.AccessEvents.Add(CreateForTest("CARD-S1", ScanDirection.Enter, DateTime.UtcNow.AddHours(-1), _facilityId));
+            context.AccessEvents.Add(CreateForTest("CARD-S1", ScanDirection.Exit, DateTime.UtcNow.AddMinutes(-30), _facilityId));
+            await context.SaveChangesAsync();
 
             // Act
             var result = await svc.ValidateAccessAsync("CARD-S1", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Granted);
-            // Verify UpdateAsync was called (session was deducted)
-            memberRepo.Verify(r => r.UpdateAsync(It.IsAny<Member>(), It.IsAny<bool>()), Times.Once);
         }
 
         [Fact]
-        public async Task SessionPackMember_NoSessionsRemaining_ShouldDeny()
+        public async Task WeeklyLimitMember_OverLimit_ShouldDeny()
         {
             // Arrange
             var planId = Guid.NewGuid();
@@ -305,22 +310,29 @@ namespace Management.Tests.Unit.Turnstile
             var staffRepo = new Mock<IStaffRepository>();
             var planRepo = new Mock<IRepository<MembershipPlan>>();
 
-            var member = MakeActiveMember("CARD-S2", planId: planId, sessions: 0);
+            var member = MakeActiveMember("CARD-S2", planId: planId);
             memberRepo.Setup(r => r.GetByCardIdAsync("CARD-S2", It.IsAny<Guid?>())).ReturnsAsync(member);
             staffRepo.Setup(r => r.GetByCardIdAsync("CARD-S2", It.IsAny<Guid?>())).ReturnsAsync((StaffMember?)null);
 
-            var plan = new MembershipPlan { IsSessionPack = true, FacilityId = _facilityId };
+            var plan = MembershipPlan.Create("Test", "Test", 30, new Money(100, "DA"), 1).Value;
             plan.GetType().GetProperty("Id")!.SetValue(plan, planId);
+            plan.FacilityId = _facilityId;
             planRepo.Setup(r => r.GetByIdAsync(planId, It.IsAny<Guid?>())).ReturnsAsync(plan);
 
             var svc = BuildService(memberRepo, staffRepo, planRepo);
+
+            // Add 1 event in current week (limit is 1)
+            var context = (AppDbContext)svc.GetType().GetField("_context", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.GetValue(svc)!;
+            context.AccessEvents.Add(CreateForTest("CARD-S2", ScanDirection.Enter, DateTime.UtcNow.AddHours(-1), _facilityId));
+            context.AccessEvents.Add(CreateForTest("CARD-S2", ScanDirection.Exit, DateTime.UtcNow.AddMinutes(-30), _facilityId));
+            await context.SaveChangesAsync();
 
             // Act
             var result = await svc.ValidateAccessAsync("CARD-S2", null, ScanDirection.Enter);
 
             // Assert
             result.Status.Should().Be(AccessResult.Denied);
-            result.Message.Should().Contain("Sessions");
+            result.Message.Should().Contain("Limit");
         }
 
         [Fact]
@@ -354,6 +366,16 @@ namespace Management.Tests.Unit.Turnstile
             // Assert
             result.Status.Should().Be(AccessResult.Warning);
             result.Message.Should().Contain("Expires in");
+        }
+
+        public static AccessEvent CreateForTest(string cardId, ScanDirection direction, DateTime timestamp, Guid facilityId = default)
+        {
+            var evt = AccessEvent.Create(Guid.Empty, cardId, "TEST", true, AccessStatus.Granted, direction, "");
+            
+            // Use reflection to set the private Timestamp property for testing
+            typeof(AccessEvent).GetProperty("Timestamp")!.SetValue(evt, timestamp);
+            evt.FacilityId = facilityId;
+            return evt;
         }
     }
 

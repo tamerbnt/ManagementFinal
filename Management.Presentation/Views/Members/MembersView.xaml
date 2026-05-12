@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:Management.Presentation.Views.Members"
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Members"
              xmlns:enums="clr-namespace:Management.Domain.Enums;assembly=Management.Domain"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -17,113 +18,36 @@
              Background="Transparent">
 
     <UserControl.Resources>
-        <!-- Polymorphic Templates / Local logic only -->
-        <Style x:Key="LocalSearchTextBox" TargetType="TextBox">
-            <Setter Property="Width" Value="250"/>
-            <Setter Property="Height" Value="40"/>
+        <!-- Apple-style filter radio button — text-only, accent when checked (mirrors HistoryView) -->
+        <Style x:Key="AppleFilterRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="40,0,10,0"/>
-            <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="Border" 
-                                Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="10">
-                            <Grid>
-                                <!-- Search Icon -->
-                                <Path x:Name="SearchIcon"
-                                      Data="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" 
-                                      Fill="{DynamicResource FacilityAccentBrush}" 
-                                      Width="16" Height="16" 
-                                      HorizontalAlignment="Left" 
-                                      Margin="14,0,0,0" 
-                                      VerticalAlignment="Center"/>
-
-                                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
-                                
-                                <!-- Placeholder -->
-                                <TextBlock x:Name="Placeholder" 
-                                           Text="{DynamicResource Terminology.TopBar.SearchPlaceholder}" 
-                                           Foreground="{DynamicResource TextSecondaryBrush}" 
-                                           VerticalAlignment="Center" 
-                                           Margin="40,0,0,0" 
-                                           IsHitTestVisible="False"
-                                           Visibility="Collapsed"
-                                           FontSize="13"/>
-                                
-                                <!-- Loading Spinner -->
-                                <Path x:Name="LoadingSpinner"
-                                      Visibility="Collapsed"
-                                      Data="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"
-                                      Fill="{DynamicResource FacilityAccentBrush}"
-                                      Width="16" Height="16"
-                                      HorizontalAlignment="Right"
-                                      Margin="0,0,10,0"
-                                      VerticalAlignment="Center"
-                                      RenderTransformOrigin="0.5,0.5">
-                                    <Path.RenderTransform>
-                                        <RotateTransform Angle="0"/>
-                                    </Path.RenderTransform>
-                                </Path>
-                            </Grid>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="Text" Value="">
-                                <Setter TargetName="Placeholder" Property="Visibility" Value="Visible"/>
-                            </Trigger>
-                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
-                                <Setter TargetName="LoadingSpinner" Property="Visibility" Value="Visible"/>
-                                <DataTrigger.EnterActions>
-                                    <BeginStoryboard x:Name="SpinSearch">
-                                        <Storyboard RepeatBehavior="Forever">
-                                            <DoubleAnimation Storyboard.TargetName="LoadingSpinner"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                             From="0" To="360" Duration="0:0:1"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </DataTrigger.EnterActions>
-                                <DataTrigger.ExitActions>
-                                    <StopStoryboard BeginStoryboardName="SpinSearch"/>
-                                </DataTrigger.ExitActions>
-                            </DataTrigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter TargetName="Border" Property="BorderThickness" Value="2"/>
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="Width" To="400" Duration="0:0:0.25">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CircleEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="Width" To="250" Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CircleEase EasingMode="EaseIn"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
     <Grid Focusable="True" Background="Transparent">
@@ -200,37 +124,80 @@
             <!-- A. Filter Bar (Default State) -->
             <Grid Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}">
                 <StackPanel Orientation="Horizontal">
-                    <!-- Filter Bar Container -->
-                    <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="{DynamicResource Corner.MD}" Padding="4" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
-                        <StackPanel Orientation="Horizontal">
-                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.All}" 
-                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.All}}" 
+
+                    <!-- Filter Card (mirrors HistoryView style) -->
+                    <Border Background="{DynamicResource CardBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="4"
+                            Height="44"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.All}"
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.All}}"
                                          GroupName="StatusFilterGroup"
-                                         Style="{StaticResource TogglePillStyle}"/>
-                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Active}" 
-                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Active}}" 
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Active}"
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Active}}"
                                          GroupName="StatusFilterGroup"
-                                         Style="{StaticResource TogglePillStyle}"/>
-                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Expiring}" 
-                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Expiring}}" 
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Expiring}"
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Expiring}}"
                                          GroupName="StatusFilterGroup"
-                                         Style="{StaticResource TogglePillStyle}"/>
-                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Expired}" 
-                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Expired}}" 
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Expired}"
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Expired}}"
                                          GroupName="StatusFilterGroup"
-                                         Style="{StaticResource TogglePillStyle}"/>
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Global.Filter.Deleted}"
+                                         IsChecked="{Binding SelectedFilter, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Deleted}}"
+                                         GroupName="StatusFilterGroup"
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Local Search Box (Visually identical to Top Bar) -->
-                    <TextBox x:Name="LocalMemberSearchBox"
-                             Style="{StaticResource LocalSearchTextBox}"
-                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="16,0,0,0">
-                        <TextBox.InputBindings>
-                            <KeyBinding Key="Enter" Command="{Binding LoadMembersCommand}"/>
-                        </TextBox.InputBindings>
-                    </TextBox>
+                    <!-- Search Card (mirrors HistoryView PremiumSearchBox pattern) -->
+                    <ContentControl Margin="12,0,0,0" VerticalAlignment="Center">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Width" Value="300"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="450" Duration="0:0:0.3">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="300" Duration="0:0:0.25">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseIn"/>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+
+                        <premium:PremiumSearchBox
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            Placeholder="Quick Search..."
+                            IconData="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                            Height="44"/>
+                    </ContentControl>
+
                 </StackPanel>
                 
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -340,12 +307,51 @@
                         <Button Command="{Binding DeleteSelectedCommand}"
                                 ToolTip="{DynamicResource Terminology.Members.DeleteSelection}"
                                 Width="40" Height="40"
-                                Cursor="Hand">
+                                Cursor="Hand"
+                                Visibility="{Binding SelectedFilter, Converter={StaticResource InverseEqualToVisibilityConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Deleted}}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Grid x:Name="Root">
                                         <Ellipse Fill="{DynamicResource StatusErrorBrush}" Effect="{DynamicResource Shadow2}"/>
                                         <Path Data="{StaticResource IconDelete}" 
+                                              Stroke="White" 
+                                              StrokeThickness="2"
+                                              Width="18" Height="18"
+                                              Stretch="Uniform"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Root" Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <ScaleTransform ScaleX="1.1" ScaleY="1.1" CenterX="20" CenterY="20"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Root" Property="RenderTransform">
+                                                <Setter.Value>
+                                                    <ScaleTransform ScaleX="0.95" ScaleY="0.95" CenterX="20" CenterY="20"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Restore: Premium FAB Style (Visible only in Deleted filter) -->
+                        <Button Command="{Binding RestoreSelectedCommand}"
+                                ToolTip="{DynamicResource Terminology.Members.RestoreMember}"
+                                Width="40" Height="40"
+                                Cursor="Hand"
+                                Visibility="{Binding SelectedFilter, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:MemberFilterStatus.Deleted}}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Grid x:Name="Root">
+                                        <Ellipse Fill="{DynamicResource FacilityAccentBrush}" Effect="{DynamicResource Shadow2}"/>
+                                        <Path Data="{StaticResource IconRefresh}" 
                                               Stroke="White" 
                                               StrokeThickness="2"
                                               Width="18" Height="18"
@@ -436,7 +442,7 @@
                 <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border x:Name="RowBorder" 
-                            Background="{DynamicResource SurfaceBg}" 
+                            Background="{DynamicResource CardBackgroundBrush}" 
                             CornerRadius="16" 
                             Padding="16"
                             Margin="4,4,4,12"
@@ -525,15 +531,36 @@
                                         Command="{Binding DataContext.DeleteSingleMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
                                         CommandParameter="{Binding}"
                                         Margin="0,0,8,0"
-                                        ToolTip="{DynamicResource Terminology.Members.DeleteMember}">
+                                        ToolTip="{DynamicResource Terminology.Members.DeleteMember}"
+                                        x:Name="DeleteButton">
                                     <Path x:Name="TrashIcon" Data="{StaticResource IconDelete}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource StatusErrorBrush}"/>
+                                </Button>
+                                <Button Style="{StaticResource IconButtonStyle}" 
+                                        Command="{Binding DataContext.RestoreSingleMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
+                                        CommandParameter="{Binding}"
+                                        Margin="0,0,8,0"
+                                        ToolTip="{DynamicResource Terminology.Members.RestoreMember}"
+                                        x:Name="RestoreButton"
+                                        Visibility="Collapsed">
+                                    <Path x:Name="RestoreIcon" Data="{StaticResource IconRefresh}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource FacilityAccentBrush}"/>
                                 </Button>
                                 <Button Style="{StaticResource IconButtonStyle}" 
                                         Command="{Binding DataContext.GrantAccessCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
                                         CommandParameter="{Binding}"
                                         Margin="0,0,8,0"
                                         ToolTip="{DynamicResource Terminology.Members.GrantAccess}">
-                                    <Path Data="{StaticResource Icon.UserCheck}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource FacilityAccentBrush}"/>
+                                    <Path Data="{StaticResource Icon.UserCheck}">
+                                        <Path.Style>
+                                            <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Micro}">
+                                                <Setter Property="Stroke" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                        <Setter Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
                                 </Button>
                                 <Button Style="{StaticResource IconButtonStyle}" 
                                         Command="{Binding DataContext.EditMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
@@ -546,7 +573,7 @@
                         
                         <DataTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                <Setter TargetName="RowBorder" Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                                 <Setter TargetName="RowBorder" Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
@@ -576,20 +603,29 @@
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
-                                <Setter TargetName="RowBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
-                                <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="IdText" Property="Foreground" Value="{DynamicResource OnAccentSecondary}"/>
-                                <Setter TargetName="PlanText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="BalanceText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="StatusBorder" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
-                                <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="AvatarPlaceholder" Property="Fill" Value="{DynamicResource OnAccentSecondary}"/>
-                                <Setter TargetName="AvatarInitial" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="TrashIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="TrashIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
+                                <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="IdText" Property="Foreground" Value="{DynamicResource RowOnAccentSecondary}"/>
+                                <Setter TargetName="PlanText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="BalanceText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <!-- Status pill: brush-level opacity only (won't cascade to StatusText child) -->
+                                <Setter TargetName="StatusBorder" Property="Background">
+                                    <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.15"/></Setter.Value>
+                                </Setter>
+                                <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <!-- Avatar: brush-level opacity on the ellipse fill -->
+                                <Setter TargetName="AvatarPlaceholder" Property="Fill">
+                                    <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
+                                </Setter>
+                                <Setter TargetName="AvatarInitial" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="TrashIcon" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="EditIcon" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="RestoreIcon" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding IsDeleted}" Value="True">
+                                <Setter TargetName="DeleteButton" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="RestoreButton" Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
@@ -649,7 +685,7 @@
                 <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border x:Name="GridCard" 
-                            Background="{DynamicResource SurfaceBg}" 
+                            Background="{DynamicResource CardBackgroundBrush}" 
                             CornerRadius="20" 
                             Padding="20"
                             Margin="0,0,20,20"
@@ -706,7 +742,18 @@
                                             CommandParameter="{Binding}"
                                             Margin="0,0,8,0"
                                             ToolTip="{DynamicResource Terminology.Members.GrantAccess}">
-                                        <Path Data="{StaticResource Icon.UserCheck}" Style="{StaticResource Style.Icon.Micro}" Stroke="{DynamicResource FacilityAccentBrush}"/>
+                                        <Path Data="{StaticResource Icon.UserCheck}">
+                                            <Path.Style>
+                                                <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Micro}">
+                                                    <Setter Property="Stroke" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Path.Style>
+                                        </Path>
                                     </Button>
                                     <Button Style="{StaticResource IconButtonStyle}" 
                                             Command="{Binding DataContext.EditMemberCommand, RelativeSource={RelativeSource AncestorType=local:MembersView}}" 
@@ -748,13 +795,16 @@
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
-                                <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="PlanTextGrid" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="BalanceTextGrid" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="StatusBadge" Property="Background" Value="{DynamicResource OnAccentSecondary}"/>
-                                <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource CardBackgroundBrush}"/>
-                                <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource CardBackgroundBrush}"/>
-                                 <Setter TargetName="GridCard" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                <Setter TargetName="GridCard" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="PlanTextGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="BalanceTextGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <!-- Status badge: brush-level opacity only -->
+                                <Setter TargetName="StatusBadge" Property="Background">
+                                    <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.15"/></Setter.Value>
+                                </Setter>
+                                <Setter TargetName="StatusText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
+                                <Setter TargetName="EditIconGrid" Property="Stroke" Value="{DynamicResource RowOnAccentPrimary}"/>
                             </DataTrigger>
                         </DataTemplate.Triggers>
                     </DataTemplate>
@@ -778,14 +828,15 @@
             <!-- B. Member Detail Drawer -->
             <Border Grid.Column="1" 
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
-                    Background="{DynamicResource SurfaceBg}" 
-                    CornerRadius="32,0,0,32"
+                    Background="{DynamicResource CardBackgroundBrush}" 
+                    CornerRadius="32"
+                    Margin="16,0,16,16"
                     Effect="{StaticResource Shadow3}"
                     Visibility="{Binding IsDetailPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}"
-                    BorderThickness="1,0,0,0"
+                    BorderThickness="1"
                     BorderBrush="{DynamicResource BorderBrush}">
                 <Border.RenderTransform>
-                    <TranslateTransform X="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=local:MembersView}, Path=ActualWidth}"/>
+                    <TranslateTransform X="800"/>
                 </Border.RenderTransform>
                 <Border.Style>
                     <Style TargetType="Border">
@@ -794,7 +845,7 @@
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.4">
+                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="800" To="0" Duration="0:0:0.4">
                                                 <DoubleAnimation.EasingFunction>
                                                     <CubicEase EasingMode="EaseOut"/>
                                                 </DoubleAnimation.EasingFunction>
@@ -836,7 +887,7 @@
 
             
             <!-- Modal Card -->
-            <Border Background="{DynamicResource SurfaceBg}" 
+            <Border Background="{DynamicResource CardBackgroundBrush}" 
                     Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource MultiplyValueConverter}, ConverterParameter=0.45}" 
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     CornerRadius="24"

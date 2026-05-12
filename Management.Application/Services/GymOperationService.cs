@@ -80,7 +80,7 @@ namespace Management.Application.Services
             return result;
         }
 
-        public async Task<WalkInResult> ProcessWalkInAsync(decimal amount, Guid facilityId, string planName = "Walk-In", bool publishNotification = true)
+        public async Task<WalkInResult> ProcessWalkInAsync(decimal amount, Guid facilityId, string planName = "Walk-In", bool publishNotification = true, Guid? manualDiscountId = null, decimal? manualDiscountAmount = null)
         {
             System.Diagnostics.Debug.WriteLine("[WALKIN] ProcessWalkInAsync started");
             
@@ -95,6 +95,11 @@ namespace Management.Application.Services
             
             var itemResult = SaleItem.Create(sale.Id, Guid.Empty, "Walk-In Pass", new Money(amount, "DA"), 1);
             if (itemResult.IsSuccess) sale.AddItem(itemResult.Value);
+
+            if (manualDiscountId.HasValue)
+            {
+                sale.SetManualDiscount(manualDiscountId, manualDiscountAmount.HasValue ? new Money(manualDiscountAmount.Value, "DA") : null);
+            }
 
             await _saleRepo.AddAsync(sale);
 
@@ -174,7 +179,7 @@ namespace Management.Application.Services
         }
 
 
-        public async Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true)
+        public async Task<bool> SellItemAsync(string? memberId, decimal amount, string productName, Guid facilityId, string? transactionType = null, SaleCategory category = SaleCategory.General, string capturedLabel = "", bool publishNotification = true, Guid? manualDiscountId = null, decimal? manualDiscountAmount = null)
         {
              var saleResult = Sale.Create(
                  memberId != null ? Guid.Parse(memberId) : null, 
@@ -193,6 +198,11 @@ namespace Management.Application.Services
             if (itemResult.IsSuccess)
             {
                 sale.AddItem(itemResult.Value);
+            }
+
+            if (manualDiscountId.HasValue)
+            {
+                sale.SetManualDiscount(manualDiscountId, manualDiscountAmount.HasValue ? new Money(manualDiscountAmount.Value, "DA") : null);
             }
 
             await _saleRepo.AddAsync(sale);

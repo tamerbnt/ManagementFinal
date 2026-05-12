@@ -34,6 +34,7 @@ namespace Management.Application.Features.Members.Queries.SearchLeads
                 facilityId,
                 1,
                 20,
+                MemberFilterType.All,
                 MemberStatus.Lead);
 
             var dtos = pagedItems.Select(entity => new MemberDto
@@ -46,7 +47,8 @@ namespace Management.Application.Features.Members.Queries.SearchLeads
                 Status = entity.Status,
                 StartDate = entity.StartDate,
                 ExpirationDate = entity.ExpirationDate,
-                Source = entity.Source ?? "Walk-In"
+                Source = entity.Source ?? "Walk-In",
+                IsDeleted = entity.IsDeleted
             }).ToList();
 
             return Result.Success(dtos);

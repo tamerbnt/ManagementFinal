@@ -35,5 +35,12 @@ namespace Management.Domain.Models
         {
             return new AccessEvent(Guid.NewGuid(), turnstileId, cardId, transactionId, granted, status, direction, reason);
         }
+
+        public static AccessEvent CreateForTest(string cardId, ScanDirection direction, DateTime timestamp)
+        {
+            var evt = new AccessEvent(Guid.NewGuid(), Guid.Empty, cardId, "TEST", true, AccessStatus.Granted, direction, "");
+            evt.Timestamp = timestamp;
+            return evt;
+        }
     }
 }

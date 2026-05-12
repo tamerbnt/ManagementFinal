@@ -354,8 +354,8 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         [Column("is_active")]
         public bool IsActive { get; set; }
 
-        [Column("is_session_pack")]
-        public bool IsSessionPack { get; set; }
+        [Column("sessions_per_week")]
+        public int SessionsPerWeek { get; set; }
 
         [Column("is_walk_in")]
         public bool IsWalkIn { get; set; }
@@ -689,5 +689,55 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("dashboard_snapshots")]
+    public class SupabaseDashboardSnapshot : SupabaseBaseModel
+    {
+        [PrimaryKey("facility_id")]
+        public Guid FacilityId { get; set; }
+
+        [Column("id")]
+        public Guid Id { get; set; }
+
+        [Column("tenant_id")]
+        public Guid TenantId { get; set; }
+
+        [Column("snapshot_data")]
+        public JToken? SnapshotData { get; set; }
+
+        [Column("last_updated_at")]
+        public DateTime LastUpdatedAt { get; set; }
+    }
+
+    [Table("daily_history_summaries")]
+    public class SupabaseDailyHistorySummary : SupabaseBaseModel
+    {
+        [PrimaryKey("facility_id")]
+        public Guid FacilityId { get; set; }
+
+        [PrimaryKey("summary_date")]
+        public DateTime SummaryDate { get; set; }
+
+        [Column("id")]
+        public Guid Id { get; set; }
+
+        [Column("tenant_id")]
+        public Guid TenantId { get; set; }
+
+        [Column("total_revenue")]
+        public decimal TotalRevenue { get; set; }
+
+        [Column("check_in_count")]
+        public int CheckInCount { get; set; }
+
+        [Column("sales_count")]
+        public int SalesCount { get; set; }
+
+        [Column("events_json")]
+        public string? EventsJson { get; set; }
+
+        [Column("last_updated_at")]
+        public DateTime LastUpdatedAt { get; set; }
     }
 }

@@ -38,6 +38,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
                 // Gym/Salon: Monthly Breakdown
                 var monthlySales = await _dbContext.Sales
                     .AsNoTracking()
+                    .IgnoreQueryFilters()
                     .Where(s => s.FacilityId == facilityId && s.Timestamp >= context.UtcMonthStart && s.Timestamp < context.UtcNow && !s.IsDeleted)
                     .Select(s => new { s.Category, Amount = s.TotalAmount.Amount })
                     .ToListAsync();
@@ -59,6 +60,7 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             {
                 var monthlyRevenueSum = await _dbContext.RestaurantOrders
                     .AsNoTracking()
+                    .IgnoreQueryFilters()
                     .Where(o => o.FacilityId == facilityId && 
                                 o.CompletedAt >= context.UtcMonthStart && o.CompletedAt < context.UtcNow &&
                                 !o.IsDeleted &&
@@ -104,11 +106,13 @@ namespace Management.Infrastructure.Services.Dashboard.Aggregators
             dto.NetProfitPercentChange = CalculatePercentageChange(yesterdayProfit, dto.NetProfit);
 
             // 4. Target
-            var settings = await _dbContext.GymSettings
+            var target = await _dbContext.GymSettings
                 .AsNoTracking()
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty));
-            dto.DailyRevenueTarget = settings?.DailyRevenueTarget ?? 10_000m;
+                .Where(s => s.FacilityId == facilityId && (s.TenantId == context.TenantId || s.TenantId == Guid.Empty))
+                .Select(s => (decimal?)s.DailyRevenueTarget)
+                .FirstOrDefaultAsync();
+            dto.DailyRevenueTarget = target ?? 10_000m;
         }
 
         private async Task<decimal> GetTotalExpensesInRangeAsync(Guid facilityId, DateTime start, DateTime end, DashboardContext context)

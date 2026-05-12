@@ -8,18 +8,27 @@ namespace Management.Domain.Services
     public interface IPricingService
     {
         /// <summary>
-        /// Calculates the effective price for a product, plan, or service given a client's context.
+        /// Calculates the effective price for a product, plan, or service given a client's context and an optional manual discount.
         /// </summary>
-        Task<PricingResult> CalculateEffectivePriceAsync(Guid facilityId, Guid targetId, Money basePrice, Management.Domain.Enums.Gender? gender = null, Guid? currentPlanId = null);
+        Task<PricingResult> CalculateEffectivePriceAsync(
+            Guid facilityId, 
+            Guid targetId, 
+            Money basePrice, 
+            Management.Domain.Enums.Gender? gender = null, 
+            Guid? currentPlanId = null,
+            decimal? manualDiscountValue = null,
+            bool isManualDiscountPercentage = false);
 
         /// <summary>
-        /// Calculates effective prices for a batch of items in a single pass.
+        /// Calculates effective prices for a batch of items in a single pass with an optional global manual discount.
         /// </summary>
         Task<System.Collections.Generic.IDictionary<Guid, PricingResult>> CalculateBatchPricesAsync(
             Guid facilityId, 
             System.Collections.Generic.IEnumerable<(Guid Id, Money Price)> items, 
             Management.Domain.Enums.Gender? gender = null, 
-            Guid? currentPlanId = null);
+            Guid? currentPlanId = null,
+            decimal? manualDiscountValue = null,
+            bool isManualDiscountPercentage = false);
         
         /// <summary>
         /// Invalidates the promotion cache for a facility.
@@ -34,6 +43,9 @@ namespace Management.Domain.Services
         public required Money DiscountAmount { get; init; }
         public string? AppliedPromotionName { get; init; }
         public bool IsDiscountApplied => DiscountAmount.Amount > 0;
+        
+        public Money? ManualDiscountAmount { get; init; }
+        public string? AppliedManualDiscountName { get; init; }
 
         public static PricingResult Default(Money basePrice) => new()
         {
