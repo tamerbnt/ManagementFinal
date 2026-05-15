@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -16,7 +16,7 @@ namespace Management.Presentation.Services.Infrastructure
         public SecureStorageService()
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var luxuryaFolder = Path.Combine(appData, "Luxurya");
+            var luxuryaFolder = Path.Combine(appData, "Atrium");
             if (!Directory.Exists(luxuryaFolder)) Directory.CreateDirectory(luxuryaFolder);
             _filePath = Path.Combine(luxuryaFolder, "secrets.dat");
 

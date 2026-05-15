@@ -144,9 +144,9 @@ namespace Management.Presentation.Services
             _localizationService = localizationService;
             _onboardingState = onboardingState;
             
-            // FIX: Absolute path in %PROGRAMDATA%\Luxurya
+            // FIX: Absolute path in %PROGRAMDATA%\Atrium
             var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            var titanFolder = Path.Combine(programData, "Luxurya");
+            var titanFolder = Path.Combine(programData, "Atrium");
             if (!Directory.Exists(titanFolder)) Directory.CreateDirectory(titanFolder);
             
             _configPath = Path.Combine(titanFolder, "facility-config.json");

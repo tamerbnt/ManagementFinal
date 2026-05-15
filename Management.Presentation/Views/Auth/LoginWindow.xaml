@@ -173,7 +173,7 @@
         </Border>
 
         <!-- Tagline below illustration -->
-        <TextBlock Text="Luxurya management system powering the heart beat of your facility"
+        <TextBlock Text="Atrium management system powering the heart beat of your facility"
                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
                    Margin="0,0,50,80"
                    Width="400"

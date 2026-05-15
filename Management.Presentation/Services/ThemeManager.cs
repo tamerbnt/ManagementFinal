@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -98,7 +98,7 @@ namespace Management.Presentation.Services
 
         private static readonly string _prefsPath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-            "Luxurya",
+            "Atrium",
             "theme-prefs.json");
 
         /// <summary>

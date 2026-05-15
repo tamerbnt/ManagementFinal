@@ -8,9 +8,9 @@
     <UseWPF>true</UseWPF>
     <StartupObject>Management.Presentation.Program</StartupObject>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
-    <AssemblyName>Luxurya.Client</AssemblyName>
+    <AssemblyName>Atrium.Client</AssemblyName>
     <ApplicationManifest>App.manifest</ApplicationManifest>
-    <ApplicationIcon>Assets\luxurya.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\atrium_rounded.ico</ApplicationIcon>
     <PublishSingleFile>false</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <Version>2.0.0</Version>
@@ -19,10 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\luxurya.ico" />
-    <Resource Include="Assets\luxurya.ico" />
+    <None Remove="Assets\atrium_rounded.ico" />
+    <Resource Include="Assets\atrium_rounded.ico" />
+    <Resource Include="Assets\atrium_icon_rounded.png" />
+    <Resource Include="Assets\atrium_icon_transparent.png" />
+    <Resource Include="Assets\atrium_header_logo_transparent.png" />
     <Resource Include="Assets\from_scratch_logo.png" />
-    <Resource Include="Assets\luxurya_header_logo.png" />
+    <Resource Include="Assets\atrium_header_logo.png" />
     <Resource Include="Resources\Images\login_illustration.png" />
     <Resource Include="Resources\Images\onboarding_chaos.png" />
     <Resource Include="Resources\Images\onboarding_access_control.png" />

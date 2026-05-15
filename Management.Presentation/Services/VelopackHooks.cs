@@ -49,8 +49,8 @@ namespace Management.Presentation.Services
                         var commonData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                         var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-                        // 1. ProgramData\Luxurya — Elevated deletion (required for admin-owned folder)
-                        var luxCommon = Path.Combine(commonData, "Luxurya");
+                        // 1. ProgramData\Atrium — Elevated deletion (required for admin-owned folder)
+                        var luxCommon = Path.Combine(commonData, "Atrium");
                         if (Directory.Exists(luxCommon))
                         {
                             try
@@ -65,7 +65,7 @@ namespace Management.Presentation.Services
                                     WindowStyle = ProcessWindowStyle.Hidden
                                 });
                                 proc?.WaitForExit(10000); // Wait up to 10 seconds
-                                Serilog.Log.Information("[Uninstall] ProgramData\\Luxurya cleanup completed.");
+                                Serilog.Log.Information("[Uninstall] ProgramData\\Atrium cleanup completed.");
                             }
                             catch (Exception ex) when (ex is System.ComponentModel.Win32Exception win32 && win32.NativeErrorCode == 1223)
                             {
@@ -78,14 +78,14 @@ namespace Management.Presentation.Services
                             }
                         }
 
-                        // 2. LocalAppData\Luxurya — Direct deletion (user owns this path, no elevation needed)
-                        var luxLocal = Path.Combine(localAppData, "Luxurya");
+                        // 2. LocalAppData\Atrium — Direct deletion (user owns this path, no elevation needed)
+                        var luxLocal = Path.Combine(localAppData, "Atrium");
                         if (Directory.Exists(luxLocal))
                         {
                             try
                             {
                                 Directory.Delete(luxLocal, true);
-                                Serilog.Log.Information("[Uninstall] LocalAppData\\Luxurya cleanup completed.");
+                                Serilog.Log.Information("[Uninstall] LocalAppData\\Atrium cleanup completed.");
                             }
                             catch (Exception ex)
                             {
@@ -159,7 +159,7 @@ namespace Management.Presentation.Services
             try
             {
                 var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var dataDir = Path.Combine(programData, "Luxurya");
+                var dataDir = Path.Combine(programData, "Atrium");
                 var dbPath = Path.Combine(dataDir, "GymManagement.db");
                 
                 if (!File.Exists(dbPath)) return;
@@ -196,8 +196,8 @@ namespace Management.Presentation.Services
                     // Fallback to basic copy if Vacuum fails
                     var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
                     File.Copy(
-                        Path.Combine(programData, "Luxurya", "GymManagement.db"), 
-                        Path.Combine(programData, "Luxurya", "backups", "pre-update", $"emergency_v{newVersion}.db"), 
+                        Path.Combine(programData, "Atrium", "GymManagement.db"), 
+                        Path.Combine(programData, "Atrium", "backups", "pre-update", $"emergency_v{newVersion}.db"), 
                         true);
                 }
                 catch { }
@@ -209,7 +209,7 @@ namespace Management.Presentation.Services
             try
             {
                 var programData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-                var dbPath = Path.Combine(programData, "Luxurya", "GymManagement.db");
+                var dbPath = Path.Combine(programData, "Atrium", "GymManagement.db");
                 
                 if (!File.Exists(dbPath)) return;
 
@@ -230,7 +230,7 @@ namespace Management.Presentation.Services
             try
             {
                 var currentPid = Process.GetCurrentProcess().Id;
-                var names = new[] { "Luxurya.Client", "Luxurya", "Management.Presentation", "GymOS" };
+                var names = new[] { "Atrium.Client", "Atrium", "Management.Presentation", "GymOS" };
                 foreach (var name in names)
                 {
                     foreach (var p in Process.GetProcessesByName(name))

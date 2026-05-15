@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -86,7 +86,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Financial.New">Nouveau</sys:String>
     <sys:String x:Key="Terminology.Financial.Total">Total</sys:String>
     <sys:String x:Key="Terminology.Members.Details">Détails</sys:String>
-    <sys:String x:Key="Terminology.Dashboard.Welcome">Bienvenue chez Luxurya Management</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Welcome">Bienvenue chez Atrium Management</sys:String>
     <sys:String x:Key="Terminology.Dashboard.EmptyState">Il semble que vous n'ayez pas encore de membres. Commençons !</sys:String>
     <sys:String x:Key="Terminology.Dashboard.AddMember">Ajouter un nouveau membre</sys:String>
 
@@ -170,7 +170,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">Confirmer la déconnexion</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">Êtes-vous sûr de vouloir vous déconnecter ?</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">Déconnexion</sys:String>
-    <sys:String x:Key="Terminology.Shell.Exit.Title">Quitter Luxurya ?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">Quitter Atrium ?</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Message">Souhaitez-vous générer un dernier rapport de 'Clôture de journée' avant de quitter ?</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Cancel">Rester dans l'application</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Close">Quitter l'espace de travail</sys:String>
@@ -816,8 +816,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Global.KeepServer">Garder le serveur</sys:String>
     <sys:String x:Key="Strings.Global.Discardlocalchangesandacc">Ignorer les modifications locales et accepter la version du serveur</sys:String>
     <sys:String x:Key="Strings.Global.Cancel">Annuler</sys:String>
-    <sys:String x:Key="Strings.Auth.LuxuryaActivation">Activation Luxurya</sys:String>
-    <sys:String x:Key="Strings.Auth.TITAN">LUXURYA</sys:String>
+    <sys:String x:Key="Strings.Auth.LuxuryaActivation">Activation Atrium</sys:String>
+    <sys:String x:Key="Strings.Auth.TITAN">ATRIUM</sys:String>
     <sys:String x:Key="Strings.Auth.Poweringtheheartbeatofyou">Alimenter le rythme cardiaque de votre établissement.</sys:String>
     <sys:String x:Key="Strings.Auth.Unlockworldclassmanagemen">Bénéficiez d’une gestion de classe mondiale avec une précision de minuit.</sys:String>
     <sys:String x:Key="Strings.Auth.VerifyYourEmail">Vérifiez votre e-mail</sys:String>
@@ -1110,7 +1110,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Shell.Totalactivememberstrend">Tendance du nombre total de membres actifs</sys:String>
     <sys:String x:Key="Strings.Shell.AuthorizeAccess">Autoriser l'accès</sys:String>
     <sys:String x:Key="Strings.Shell.Elevatedpermissionsrequir">Autorisations élevées requises pour cette action</sys:String>
-    <sys:String x:Key="Strings.Shell.stafftitancom">staff@luxurya.com</sys:String>
+    <sys:String x:Key="Strings.Shell.stafftitancom">staff@atrium.com</sys:String>
     <sys:String x:Key="Strings.Shell.Back">Retour</sys:String>
     <sys:String x:Key="Strings.Shell.ConfirmSwitch">Confirmer le changement</sys:String>
     <sys:String x:Key="Strings.Shell.Choosethemanagementcontex">Choisissez le contexte de gestion pour cette session</sys:String>

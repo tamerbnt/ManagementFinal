@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -53,7 +53,7 @@ namespace Management.Presentation.ViewModels.Finance
 
         private string DraftPath => System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Luxurya",
+            "Atrium",
             "reconciliation_draft.bin");
 
         public IAsyncRelayCommand LoadFinanceDataCommand { get; }

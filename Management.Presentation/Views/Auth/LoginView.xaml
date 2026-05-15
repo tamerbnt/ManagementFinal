@@ -47,7 +47,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Image Grid.Column="0" Source="/Assets/luxurya_header_logo.png" Height="64" HorizontalAlignment="Left" Stretch="Uniform"/>
+                <Image Grid.Column="0" Source="/Assets/atrium_header_logo.png" Height="110" HorizontalAlignment="Left" Margin="-25,0,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
             </Grid>
 
             <TextBlock Text="Sign in" FontSize="40" FontWeight="ExtraBold" Foreground="#0F172A" Margin="0,0,0,12"/>

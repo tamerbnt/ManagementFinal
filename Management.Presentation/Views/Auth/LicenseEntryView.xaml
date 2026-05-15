@@ -36,13 +36,14 @@
 
             <!-- ROW 1 — TITAN BRAND -->
             <Grid Margin="0,8,0,8">
-                <Image Source="/Assets/luxurya_header_logo.png"
-                       Height="64"
+                <Image Source="/Assets/atrium_header_logo.png"
+                       Height="110"
                        HorizontalAlignment="Left"
+                       Margin="-25,0,0,0"
                        VerticalAlignment="Center"
                        RenderOptions.BitmapScalingMode="HighQuality"
                        Stretch="Uniform"
-                       ToolTip="Luxurya Management System"/>
+                       ToolTip="Atrium Management System"/>
             </Grid>
 
             <!-- ROW 2 — "Initial Activation" H1 TITLE -->

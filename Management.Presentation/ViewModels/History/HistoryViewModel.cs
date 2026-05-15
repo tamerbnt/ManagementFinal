@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -428,7 +428,7 @@ namespace Management.Presentation.ViewModels.History
 
                 var reportsFolder = System.IO.Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Luxurya", "Reports");
+                    "Atrium", "Reports");
                 System.IO.Directory.CreateDirectory(reportsFolder);
 
                 var fileName = $"ActivityHistory_{SelectedDay:yyyy_MM_dd}_{DateTime.Now:HHmmss}.pdf";

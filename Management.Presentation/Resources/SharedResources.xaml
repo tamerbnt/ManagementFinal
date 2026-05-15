@@ -401,7 +401,7 @@
         </Setter>
     </Style>
 
-    <!-- ToolTip.Standard: Luxurya glass-effect tooltip for revenue/metric hover labels.
+    <!-- ToolTip.Standard: Atrium glass-effect tooltip for revenue/metric hover labels.
          Used in: DashboardView, GymHomeView, SalonHomeView, RestaurantHomeView.
          Added here because this is the earliest loaded resource that all those views can resolve. -->
     <Style x:Key="ToolTip.Standard" TargetType="ToolTip">

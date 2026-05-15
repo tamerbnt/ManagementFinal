@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +42,7 @@ namespace Management.Presentation.ViewModels.Shell
             _modalNavigationService = modalNavigationService;
             _reportingService = reportingService;
 
-            Title = GetTerm("Terminology.Shell.Exit.Title") ?? "Quit Luxurya?";
+            Title = GetTerm("Terminology.Shell.Exit.Title") ?? "Quit Atrium?";
         }
 
         public Task<bool> CanCloseAsync() => Task.FromResult(true);
@@ -75,7 +75,7 @@ namespace Management.Presentation.ViewModels.Shell
 
                 var reportsFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Luxurya", "Reports");
+                    "Atrium", "Reports");
                 Directory.CreateDirectory(reportsFolder);
 
                 var fileName = $"CloseDay_{DateTime.Today:yyyy_MM_dd}_{DateTime.Now:HHmmss}.pdf";
@@ -89,7 +89,7 @@ namespace Management.Presentation.ViewModels.Shell
                     UseShellExecute = true
                 });
 
-                _toastService?.ShowSuccess($"Close Day report saved to Documents\\Luxurya\\Reports.", "Report Generated");
+                _toastService?.ShowSuccess($"Close Day report saved to Documents\\Atrium\\Reports.", "Report Generated");
                 
                 Result = ExitModalResult.CloseAndReport;
                 await _modalNavigationService.CloseCurrentModalAsync();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -107,7 +107,7 @@ namespace Management.Presentation.ViewModels.Shell
         private int _totalMembers;
 
         [ObservableProperty]
-        private string _welcomeMessage = "Welcome to Luxurya Management";
+        private string _welcomeMessage = "Welcome to Atrium Management";
 
         [ObservableProperty]
         private string _emptyStateMessage = "It looks like you don't have any members yet. Let's get started!";
@@ -870,7 +870,7 @@ namespace Management.Presentation.ViewModels.Shell
                 // Save to Documents\Titan\Reports\
                 var reportsFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    "Luxurya", "Reports");
+                    "Atrium", "Reports");
                 Directory.CreateDirectory(reportsFolder);
 
                 var fileName = $"DailyReport_{DateTime.Today:yyyy_MM_dd}_{DateTime.Now:HHmmss}.pdf";

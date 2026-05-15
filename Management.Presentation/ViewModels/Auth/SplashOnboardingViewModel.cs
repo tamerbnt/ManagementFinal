@@ -27,32 +27,6 @@ namespace Management.Presentation.ViewModels.Auth
         private readonly Management.Application.Services.IAuthenticationService _authService;
         private readonly Management.Presentation.Services.State.SessionManager _sessionManager;
 
-        public ObservableCollection<OnboardingSlide> Slides { get; } = new();
-        
-        public string CurrentActionColor => Slides.Count > CurrentSlideIndex && CurrentSlideIndex >= 0 ? Slides[CurrentSlideIndex].TitleColor : "#000000";
-
-        private int _currentSlideIndex;
-        public int CurrentSlideIndex
-        {
-            get => _currentSlideIndex;
-            set 
-            {
-                if (SetProperty(ref _currentSlideIndex, value))
-                {
-                    UpdateSlideSelection();
-                    OnPropertyChanged(nameof(CurrentActionColor));
-                }
-            }
-        }
-
-        private void UpdateSlideSelection()
-        {
-            for (int i = 0; i < Slides.Count; i++)
-            {
-                Slides[i].IsSelected = (i == CurrentSlideIndex);
-            }
-        }
-
         private ObservableCollection<FacilityTypeOption> _availableFacilities = new();
         public ObservableCollection<FacilityTypeOption> AvailableFacilities
         {
@@ -79,8 +53,6 @@ namespace Management.Presentation.ViewModels.Auth
 
         public IAppInitializationTracker InitTracker => _initTracker;
 
-        public ICommand NextSlideCommand { get; }
-        public ICommand PrevSlideCommand { get; }
         public AsyncRelayCommand EnterWorkspaceCommand { get; }
         public AsyncRelayCommand EnterRemoteWorkspaceCommand { get; }
         public ICommand SelectFacilityCommand { get; }
@@ -108,70 +80,13 @@ namespace Management.Presentation.ViewModels.Auth
             _authService = authService;
             _sessionManager = sessionManager;
 
-            NextSlideCommand = new RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex + 1) % Slides.Count);
-            PrevSlideCommand = new RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex - 1 + Slides.Count) % Slides.Count);
-            
             EnterWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterWorkspace, CanExecuteEnterWorkspace);
             EnterRemoteWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterRemoteWorkspace, CanExecuteEnterWorkspace);
             SelectFacilityCommand = new RelayCommand<FacilityTypeOption>(f => SelectedFacility = f);
 
-            InitializeSlides();
-
             // FIX: Force data execution instantly on instantiation.
             // Bypasses the Navigation pipeline which is intentionally skipped natively by App.xaml.cs startup routing.
             _ = LoadFacilitiesFromLocalAsync();
-        }
-
-        private void InitializeSlides()
-        {
-            Slides.Clear();
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Master your schedule.", 
-                TechnicalSubtitle = "Drag-and-drop bookings with real-time availability and automatic reminders.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_sched_v2.png",
-                TitleColor = "#FFFFFF",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#06B6D4"
-            });
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Frictionless entry.", 
-                TechnicalSubtitle = "Secure RFID access control fully integrated with your member database.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_access_v2.png",
-                TitleColor = "#FACC15",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#FFFFFF"
-            });
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Ditch the chaos.", 
-                TechnicalSubtitle = "Automate your daily operations and focus on what matters most.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_chaos_v2.png",
-                TitleColor = "#FACC15",
-                SubtitleColor = "#FFFFFF",
-                BackgroundColor = "#000000"
-            });
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Growth, visualized.", 
-                TechnicalSubtitle = "Deep insights into your revenue and facility performance metrics.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_growth_v2.png",
-                TitleColor = "#FFFFFF",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#F48FB1"
-            });
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Reliable. No matter what.", 
-                TechnicalSubtitle = "Stay productive in offline mode with instant cloud-sync when reconnected.",
-                ImagePath = "pack://application:,,,/Luxurya.Client;component/Resources/Images/onboarding_sync_v2.png",
-                TitleColor = "#FFFFFF",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#F87171"
-            });
-
-            UpdateSlideSelection();
         }
 
         private bool CanExecuteEnterWorkspace()

@@ -6,7 +6,7 @@ param (
 
 
 Write-Host "========================================="
-Write-Host " Building Luxurya Installer v$Version "
+Write-Host "Building Atrium Installer v$Version "
 Write-Host "========================================="
 
 $PublishDir = "Management.Presentation\bin\Release\net8.0-windows\win-x64\publish"
@@ -32,11 +32,11 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "`n[2/2] Running Velopack (vpk) Pack..."
 # Note: we use our assets folder. Ensure assets/app.ico exists.
 vpk pack `
-    -u LuxuryaManagement `
+    -u AtriumManagement `
     -v $Version `
     -p $PublishDir `
     -o "releases" `
-    -e "Luxurya.Client.exe" `
+    -e "Atrium.Client.exe" `
     -i "assets\app.ico"
 
 if ($LASTEXITCODE -ne 0) {

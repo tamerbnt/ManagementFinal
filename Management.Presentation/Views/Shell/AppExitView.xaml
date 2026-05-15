@@ -7,7 +7,7 @@
         xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d" 
-        Title="Quit Luxurya"
+        Title="Quit Atrium"
         MinWidth="640" MaxWidth="850"
         SizeToContent="WidthAndHeight"
         WindowStyle="None" 

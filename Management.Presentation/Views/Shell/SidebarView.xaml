@@ -110,29 +110,17 @@
                             </Style>
                         </StackPanel.Style>
 
-                        <!-- Glowing Logo Container -->
-                        <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center"
-                                Background="{DynamicResource Brush.Sidebar.Hover}">
+                        <!-- Atrium Logo Container -->
+                        <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center">
                             <Border.Effect>
                                 <DynamicResource ResourceKey="ShadowGlow"/>
                             </Border.Effect>
-                            <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource Brush.Neutral.White}">
-                                <Path.Data>
-                                    <GeometryGroup FillRule="EvenOdd">
-                                        <!-- Head/Star Background -->
-                                        <PathGeometry Figures="M 296.5,82.5 C 315.333,80.5111 324.833,88.8444 325,107.5C 319.855,122.323 309.688,127.49 294.5,123C 283.713,116.316 280.213,106.816 284,94.5C 286.744,88.9206 290.911,84.9206 296.5,82.5 Z"/>
-                                        <!-- Star cut-out -->
-                                        <PathGeometry Figures="M 303.5,90.5 C 306.785,95.7847 311.118,100.118 316.5,103.5C 310.493,106.174 306.159,110.507 303.5,116.5C 300.022,111.188 295.688,106.688 290.5,103C 297.314,101.351 301.648,97.1846 303.5,90.5 Z"/>
-                                        <!-- Main Body Leaf -->
-                                        <PathGeometry Figures="M 317.5,301.5 C 316.549,300.081 316.216,298.415 316.5,296.5C 316.334,289.825 316.5,283.158 317,276.5C 322.5,264.497 327.167,252.164 331,239.5C 334.576,227.385 334.243,215.385 330,203.5C 323.91,189.94 316.076,177.607 306.5,166.5C 292.925,178.648 283.091,193.315 277,210.5C 273.748,221.816 273.748,233.149 277,244.5C 284.443,274.162 294.276,302.995 306.5,331C 313.987,329.562 320.654,326.228 326.5,321C 386.832,268.318 395.166,208.318 351.5,141C 376.176,158.468 390.009,182.635 393,213.5C 395.351,250.781 384.351,283.448 360,311.5C 345.329,327.053 328.829,340.053 310.5,350.5C 313.219,363.356 314.552,376.356 314.5,389.5C 309.463,389.413 304.463,389.746 299.5,390.5C 297.477,348.539 286.31,309.205 266,272.5C 252.184,242.418 253.518,213.084 270,184.5C 281.638,167.362 293.472,150.362 305.5,133.5C 323.367,153.213 337.2,175.546 347,200.5C 354.111,228.387 349.778,254.387 334,278.5C 328.981,286.549 323.481,294.215 317.5,301.5 Z"/>
-                                        <!-- Left Wing Leaf -->
-                                        <PathGeometry Figures="M 249.5,140.5 C 250.239,140.369 250.906,140.536 251.5,141C 229.606,171.74 220.773,205.907 225,243.5C 234.521,279.212 253.188,309.212 281,333.5C 283.143,339.727 284.476,346.06 285,352.5C 246.353,327.842 221.686,293.175 211,248.5C 203.357,204.912 216.191,168.912 249.5,140.5 Z"/>
-                                    </GeometryGroup>
-                                </Path.Data>
-                            </Path>
+                            <Image Source="/Assets/atrium_icon_transparent.png"
+                                   Stretch="Uniform"
+                                   RenderOptions.BitmapScalingMode="HighQuality"/>
                         </Border>
  
-                         <TextBlock Text="luxurya" 
+                         <TextBlock Text="atrium" 
                                     FontWeight="ExtraBold" 
                                     Foreground="{DynamicResource Brush.Neutral.White}" 
                                     FontSize="20"
@@ -159,21 +147,11 @@
                          <Border.Effect>
                              <DynamicResource ResourceKey="ShadowGlow"/>
                          </Border.Effect>
-                         <Path Stretch="Uniform" Margin="11" Fill="White"
-                               HorizontalAlignment="Center" VerticalAlignment="Center">
-                             <Path.Data>
-                                 <GeometryGroup FillRule="EvenOdd">
-                                     <!-- Head/Star Background -->
-                                     <PathGeometry Figures="M 296.5,82.5 C 315.333,80.5111 324.833,88.8444 325,107.5C 319.855,122.323 309.688,127.49 294.5,123C 283.713,116.316 280.213,106.816 284,94.5C 286.744,88.9206 290.911,84.9206 296.5,82.5 Z"/>
-                                     <!-- Star cut-out -->
-                                     <PathGeometry Figures="M 303.5,90.5 C 306.785,95.7847 311.118,100.118 316.5,103.5C 310.493,106.174 306.159,110.507 303.5,116.5C 300.022,111.188 295.688,106.688 290.5,103C 297.314,101.351 301.648,97.1846 303.5,90.5 Z"/>
-                                     <!-- Main Body Leaf -->
-                                     <PathGeometry Figures="M 317.5,301.5 C 316.549,300.081 316.216,298.415 316.5,296.5C 316.334,289.825 316.5,283.158 317,276.5C 322.5,264.497 327.167,252.164 331,239.5C 334.576,227.385 334.243,215.385 330,203.5C 323.91,189.94 316.076,177.607 306.5,166.5C 292.925,178.648 283.091,193.315 277,210.5C 273.748,221.816 273.748,233.149 277,244.5C 284.443,274.162 294.276,302.995 306.5,331C 313.987,329.562 320.654,326.228 326.5,321C 386.832,268.318 395.166,208.318 351.5,141C 376.176,158.468 390.009,182.635 393,213.5C 395.351,250.781 384.351,283.448 360,311.5C 345.329,327.053 328.829,340.053 310.5,350.5C 313.219,363.356 314.552,376.356 314.5,389.5C 309.463,389.413 304.463,389.746 299.5,390.5C 297.477,348.539 286.31,309.205 266,272.5C 252.184,242.418 253.518,213.084 270,184.5C 281.638,167.362 293.472,150.362 305.5,133.5C 323.367,153.213 337.2,175.546 347,200.5C 354.111,228.387 349.778,254.387 334,278.5C 328.981,286.549 323.481,294.215 317.5,301.5 Z"/>
-                                     <!-- Left Wing Leaf -->
-                                     <PathGeometry Figures="M 249.5,140.5 C 250.239,140.369 250.906,140.536 251.5,141C 229.606,171.74 220.773,205.907 225,243.5C 234.521,279.212 253.188,309.212 281,333.5C 283.143,339.727 284.476,346.06 285,352.5C 246.353,327.842 221.686,293.175 211,248.5C 203.357,204.912 216.191,168.912 249.5,140.5 Z"/>
-                                 </GeometryGroup>
-                             </Path.Data>
-                         </Path>
+                         <Image Source="/Assets/atrium_icon_transparent.png"
+                                Stretch="Uniform"
+                                Margin="6"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderOptions.BitmapScalingMode="HighQuality"/>
                      </Border>
                 </Grid>
             </Button>
@@ -428,11 +406,22 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
-                                        <Grid HorizontalAlignment="Stretch">
-                                             <Grid.ColumnDefinitions>
+                                        <Grid>
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSidebarCollapsed, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="True">
+                                                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                            <Setter Property="Width" Value="52"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="48"/>
                                                 <ColumnDefinition Width="*"/>
-                                             </Grid.ColumnDefinitions>
+                                            </Grid.ColumnDefinitions>
                                             
                                             <Path x:Name="IconPath" Grid.Column="0"
                                                   Data="{Binding IconKey, Converter={StaticResource ResourceKeyToIconConverter}}"

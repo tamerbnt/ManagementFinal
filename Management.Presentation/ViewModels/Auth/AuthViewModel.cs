@@ -5,6 +5,10 @@ using Management.Presentation.Stores;
 using Management.Presentation.Extensions;
 using Management.Presentation.ViewModels.Shared;
 using System;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
+using Management.Presentation.ViewModels.Auth;
 
 namespace Management.Presentation.ViewModels
 {
@@ -35,6 +39,29 @@ namespace Management.Presentation.ViewModels
             set => SetProperty(ref _isModalOpen, value);
         }
 
+        // --- Slide Presentation Logic ---
+        public ObservableCollection<OnboardingSlide> Slides { get; } = new();
+        
+        public string CurrentActionColor => Slides.Count > CurrentSlideIndex && CurrentSlideIndex >= 0 ? Slides[CurrentSlideIndex].TitleColor : "#000000";
+
+        private int _currentSlideIndex;
+        public int CurrentSlideIndex
+        {
+            get => _currentSlideIndex;
+            set 
+            {
+                if (SetProperty(ref _currentSlideIndex, value))
+                {
+                    UpdateSlideSelection();
+                    OnPropertyChanged(nameof(CurrentActionColor));
+                }
+            }
+        }
+
+        public ICommand NextSlideCommand { get; }
+        public ICommand PrevSlideCommand { get; }
+        // --------------------------------
+
         public System.Collections.ObjectModel.ObservableCollection<ToastViewModel> ActiveToasts => _notificationService.ActiveToasts;
 
         public AuthViewModel(ModalNavigationStore modalNavigationStore, NavigationStore navigationStore, INotificationService notificationService)
@@ -54,6 +81,71 @@ namespace Management.Presentation.ViewModels
 
             CurrentModal = _modalNavigationStore.CurrentModalViewModel;
             IsModalOpen = _modalNavigationStore.IsOpen;
+
+            NextSlideCommand = new Management.Presentation.Extensions.RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex + 1) % Slides.Count);
+            PrevSlideCommand = new Management.Presentation.Extensions.RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex - 1 + Slides.Count) % Slides.Count);
+
+            InitializeSlides();
+        }
+
+        private void UpdateSlideSelection()
+        {
+            for (int i = 0; i < Slides.Count; i++)
+            {
+                Slides[i].IsSelected = (i == CurrentSlideIndex);
+            }
+        }
+
+        private void InitializeSlides()
+        {
+            Slides.Clear();
+            Slides.Add(new OnboardingSlide 
+            { 
+                EmotionalHeadline = "Master your schedule.", 
+                TechnicalSubtitle = "Drag-and-drop bookings with real-time availability and automatic reminders.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_sched_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#06B6D4"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
+                EmotionalHeadline = "Frictionless entry.", 
+                TechnicalSubtitle = "Secure RFID access control fully integrated with your member database.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_access_v2.png",
+                TitleColor = "#FACC15",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#FFFFFF"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
+                EmotionalHeadline = "Ditch the chaos.", 
+                TechnicalSubtitle = "Automate your daily operations and focus on what matters most.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_chaos_v2.png",
+                TitleColor = "#FACC15",
+                SubtitleColor = "#FFFFFF",
+                BackgroundColor = "#000000"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
+                EmotionalHeadline = "Growth, visualized.", 
+                TechnicalSubtitle = "Deep insights into your revenue and facility performance metrics.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_growth_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#F48FB1"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
+                EmotionalHeadline = "Reliable. No matter what.", 
+                TechnicalSubtitle = "Stay productive in offline mode with instant cloud-sync when reconnected.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_sync_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#F87171"
+            });
+
+            UpdateSlideSelection();
         }
 
         private bool _isHandoffInProgress;

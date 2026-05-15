@@ -80,147 +80,63 @@
         <Grid MouseDown="OnMouseLeftButtonDown">
 
             <!-- ══════════════════════════════════════════════════════
-                 LAYER 1 — ILLUSTRATION BACKGROUND
-                 OpacityMask creates a "feathered" edge effect so the 
-                 image blends seamlessly into the blue background.
+                 LAYER 1 — BACKGROUND CROSSFADER (Onboarding Slides)
                  ══════════════════════════════════════════════════════ -->
-            <Image Source="pack://application:,,,/Luxurya.Client;component/Resources/Images/login_illustration.png"
-                   Stretch="Uniform"
-                   Height="520"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"
-                   Margin="0,30,30,0"
-                   IsHitTestVisible="False">
-                <Image.OpacityMask>
-                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.45" RadiusY="0.45">
-                        <GradientStop Color="#FF000000" Offset="0.5"/>
-                        <GradientStop Color="#00000000" Offset="1.0"/>
-                    </RadialGradientBrush>
-                </Image.OpacityMask>
-            </Image>
+            <ItemsControl ItemsSource="{Binding Slides}" IsHitTestVisible="False">
+                <ItemsControl.ItemsPanel><ItemsPanelTemplate><Grid/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Panel.ZIndex" Value="0"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Panel.ZIndex" Value="1"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border x:Name="BgSlide" Background="{Binding BackgroundColor}" Opacity="0" CornerRadius="24"/>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard><Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BgSlide" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.6" FillBehavior="HoldEnd">
+                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard></BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard><Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="BgSlide" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:1.0" FillBehavior="HoldEnd">
+                                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard></BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!-- ══════════════════════════════════════════════════════
-                 LAYER 2 — FLOATING INFO CARDS (right side)
+                 LAYER 2 — MAIN LAYOUT (Left Card & Right Presentation)
                  ══════════════════════════════════════════════════════ -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Ahmed S. / Active (Moved further left to clear head, and made smaller) -->
-            <Border x:Name="CardAhmed"
-                    Background="White" CornerRadius="12" Padding="10,8"
-                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Margin="0,175,330,0"
-                    Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
-                </Border.Effect>
-                <Border.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard>
-                            <Storyboard BeginTime="0:0:0.3">
-                                <DoubleAnimation Storyboard.TargetName="CardAhmed" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                                <DoubleAnimation Storyboard.TargetName="CardAhmed" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Border.Triggers>
-                <StackPanel Orientation="Horizontal">
-                    <Border Width="30" Height="30" CornerRadius="6" Background="#0EA5E9" Margin="0,0,8,0">
-                        <TextBlock Text="AS" FontSize="11" FontWeight="Bold" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Ahmed S." FontSize="12" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,1"/>
-                        <TextBlock Text="Active" FontSize="10" FontWeight="Medium" Foreground="#10B981"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Revenue Today (Smaller) -->
-            <Border x:Name="CardRevenue"
-                    Background="White" CornerRadius="12" Padding="12,10"
-                    HorizontalAlignment="Right" VerticalAlignment="Center"
-                    Margin="0,40,75,0"
-                    Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
-                </Border.Effect>
-                <Border.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard>
-                            <Storyboard BeginTime="0:0:0.5">
-                                <DoubleAnimation Storyboard.TargetName="CardRevenue" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                                <DoubleAnimation Storyboard.TargetName="CardRevenue" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Border.Triggers>
-                <StackPanel>
-                    <TextBlock Text="Revenue Today" FontSize="10" Foreground="#9CA3AF" Margin="0,0,0,3"/>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="4,820 DA" FontSize="18" FontWeight="Bold" Foreground="#111827"/>
-                        <Path Data="M7,14L12,9L17,14H7Z" Fill="#10B981"
-                              Width="10" Height="10" Stretch="Uniform"
-                              Margin="6,0,0,1" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Karim M. / Checked In (Smaller) -->
-            <Border x:Name="CardKarim"
-                    Background="White" CornerRadius="12" Padding="10,8"
-                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                    Margin="0,0,320,120"
-                    Opacity="0" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform><TranslateTransform Y="12"/></Border.RenderTransform>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="3" Opacity="0.10" Direction="270" Color="#000000"/>
-                </Border.Effect>
-                <Border.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard>
-                            <Storyboard BeginTime="0:0:0.7">
-                                <DoubleAnimation Storyboard.TargetName="CardKarim" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                                <DoubleAnimation Storyboard.TargetName="CardKarim" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="12" To="0" Duration="0:0:0.4">
-                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Border.Triggers>
-                <StackPanel Orientation="Horizontal">
-                    <Border Width="30" Height="30" CornerRadius="6" Background="#6366F1" Margin="0,0,8,0">
-                        <TextBlock Text="KM" FontSize="11" FontWeight="Bold" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Karim M." FontSize="12" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,1"/>
-                        <TextBlock Text="Checked In" FontSize="10" FontWeight="Medium" Foreground="#0EA5E9"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- ══════════════════════════════════════════════════════
-                 LAYER 3 — MAIN CONTENT CARD
-                 Starts full-screen for Splash, animates to 450px for Login.
-                 ══════════════════════════════════════════════════════ -->
-            <Border x:Name="CardBorder"
-                    Width="980"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Background="White"
-                    CornerRadius="24"
-                    Margin="0">
+                <!-- LEFT: Main Content Card Container -->
+                <Border x:Name="CardBorder"
+                        Grid.Column="0"
+                        Width="450"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Background="White"
+                        CornerRadius="24"
+                        Margin="40,40,0,40">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="60" ShadowDepth="10" Opacity="0.13"
                                       Direction="270" Color="#000000"/>
@@ -238,6 +154,177 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
+
+                <!-- RIGHT: Typography, Illustration, and Navigation -->
+                <Grid Grid.Column="1" Margin="0,48,48,48">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- ROW 0: High-End Cinematic Typography Reveal -->
+                    <!-- Reduced to 48px, Switched to Staggered BlurEffect Entry -->
+                    <ItemsControl Grid.Row="0" ItemsSource="{Binding Slides}" Background="Transparent" BorderThickness="0" IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><Grid/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="MasterTextGrid" Opacity="0" Visibility="Hidden" HorizontalAlignment="Right" VerticalAlignment="Top" CacheMode="BitmapCache">
+                                    <StackPanel>
+                                        <!-- Elevated Font to Georgia Italic Light -->
+                                        <TextBlock x:Name="HeadlineText" Text="{Binding EmotionalHeadline}" Foreground="{Binding TitleColor}" FontFamily="Georgia, Playfair Display, Serif" FontStyle="Italic" FontWeight="Light" FontSize="48" LineHeight="52" TextWrapping="Wrap" Margin="0,0,0,12" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
+                                            <TextBlock.RenderTransform><TranslateTransform Y="40"/></TextBlock.RenderTransform>
+                                        </TextBlock>
+                                        <TextBlock x:Name="SubtitleText" Text="{Binding TechnicalSubtitle}" Foreground="{Binding SubtitleColor}" FontSize="16" FontWeight="Medium" LineHeight="24" MaxWidth="420" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
+                                            <TextBlock.RenderTransform><TranslateTransform Y="20"/></TextBlock.RenderTransform>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter TargetName="MasterTextGrid" Property="Visibility" Value="Visible"/>
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard><Storyboard>
+                                                <!-- Sub-Second Tension: Fade Grid in -->
+                                                <DoubleAnimation Storyboard.TargetName="MasterTextGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4"/>
+                                                
+                                                <!-- Staggered Headline (Starts at 80ms) + Fluid QuarticEase -->
+                                                <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.08"/>
+                                                <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="40" To="0" Duration="0:0:0.4" BeginTime="0:0:0.08">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+
+                                                <!-- Staggered Subtitle (Starts at 150ms) -->
+                                                <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.15"/>
+                                                <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="20" To="0" Duration="0:0:0.4" BeginTime="0:0:0.15">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard></BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ROW 1: Centered Illustration with Masking & Fluid Gravity -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Slides}" Background="Transparent" BorderThickness="0" IsHitTestVisible="False">
+                        <ItemsControl.ItemsPanel><ItemsPanelTemplate><Grid/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid x:Name="ImgRoot" Opacity="0" Visibility="Hidden" CacheMode="BitmapCache">
+                                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                                    
+                                    <Image Source="{Binding ImagePath}" Stretch="Uniform" MaxWidth="380" MaxHeight="380" HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="FloatingImage">
+                                        <Image.RenderTransform><TranslateTransform/></Image.RenderTransform>
+                                        
+                                        <!-- Radial Mask absolutely neutralizes the hard colored box edge -->
+                                        <Image.OpacityMask>
+                                            <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                                <GradientStop Color="#FFFFFFFF" Offset="0.6"/>
+                                                <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+                                            </RadialGradientBrush>
+                                        </Image.OpacityMask>
+                                    </Image>
+                                </Grid>
+                                
+                                <DataTemplate.Triggers>
+                                    <!-- Tensile Swipe Entry Snap -->
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter TargetName="ImgRoot" Property="Visibility" Value="Visible"/>
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard><Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
+                                                <!-- Extreme fluid entry sliding tension -->
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="60" To="0" Duration="0:0:0.4">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard></BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ROW 2: The Adaptive Bi-Directional Swipe Interactive Cue -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                        
+                        <!-- PREVIOUS Slide Button -->
+                        <Button Command="{Binding PrevSlideCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="0,0,16,0" ToolTip="Previous Slide">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="BtnBorder" Background="Transparent" Padding="8">
+                                        <Path x:Name="ChevLeft" Data="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" Fill="{Binding CurrentActionColor}" Width="16" Height="16" Stretch="Uniform" Opacity="0.5">
+                                            <Path.RenderTransform><TranslateTransform/></Path.RenderTransform>
+                                        </Path>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ChevLeft" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetName="ChevLeft" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="0" To="-4" Duration="0:0:0.8" AutoReverse="True">
+                                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- DYNAMIC Navigation Dots -->
+                        <ItemsControl ItemsSource="{Binding Slides}" VerticalAlignment="Center" Margin="0,0,16,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="Dot" Width="6" Height="6" CornerRadius="3" Background="#94A3B8" Margin="0,0,12,0" CacheMode="BitmapCache"/>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                            <Setter TargetName="Dot" Property="Background" Value="{Binding TitleColor}"/> <!-- Active color logic retains absolute high contrast -->
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="24" Duration="0:0:0.3"/></Storyboard></BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- NEXT Slide Button -->
+                        <Button Command="{Binding NextSlideCommand}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Next Slide">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="BtnBorder" Background="Transparent" Padding="8">
+                                        <Path x:Name="ChevRight" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" Fill="{Binding CurrentActionColor}" Width="16" Height="16" Stretch="Uniform" Opacity="0.5">
+                                            <Path.RenderTransform><TranslateTransform/></Path.RenderTransform>
+                                        </Path>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="ChevRight" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetName="ChevRight" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="0" To="4" Duration="0:0:0.8" AutoReverse="True">
+                                                        <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                    </StackPanel>
+                </Grid>
+            </Grid>
 
             <!-- ══════════════════════════════════════════════════════
                  LAYER 4 — MODAL OVERLAY
