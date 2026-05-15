@@ -481,6 +481,12 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
+
+            <!-- ══════════════════════════════════════════════════════
+                 LAYER 6 — CINEMATIC STARTUP OVERLAY
+                 ══════════════════════════════════════════════════════ -->
+            <auth:CinematicStartupOverlay Panel.ZIndex="9999"/>
+
         </Grid>
     </Border>
 

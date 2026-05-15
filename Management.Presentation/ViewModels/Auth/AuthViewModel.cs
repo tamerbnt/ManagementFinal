@@ -101,6 +101,15 @@ namespace Management.Presentation.ViewModels
             Slides.Clear();
             Slides.Add(new OnboardingSlide 
             { 
+                EmotionalHeadline = "Your empire, unified.", 
+                TechnicalSubtitle = "Manage multiple branches and diverse business contexts seamlessly from a single, powerful command center.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_nexus_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#FFFFFF",
+                BackgroundColor = "#1A1510"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
                 EmotionalHeadline = "Master your schedule.", 
                 TechnicalSubtitle = "Drag-and-drop bookings with real-time availability and automatic reminders.",
                 ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_sched_v2.png",

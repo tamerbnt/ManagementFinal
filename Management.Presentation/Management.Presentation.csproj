@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <None Remove="Assets\atrium_rounded.ico" />
+    <None Remove="Resources\Images\onboarding_nexus_v2.png" />
     <Resource Include="Assets\atrium_rounded.ico" />
     <Resource Include="Assets\atrium_icon_rounded.png" />
     <Resource Include="Assets\atrium_icon_transparent.png" />
@@ -29,6 +30,7 @@
     <Resource Include="Resources\Images\login_illustration.png" />
     <Resource Include="Resources\Images\onboarding_chaos.png" />
     <Resource Include="Resources\Images\onboarding_access_control.png" />
+    <Resource Include="Resources\Images\onboarding_nexus_v2.png" />
     <Resource Include="Resources\Images\onboarding_scheduling.png" />
     <Resource Include="Resources\Images\onboarding_growth.png" />
     <Resource Include="Resources\Images\onboarding_offline_sync.png" />

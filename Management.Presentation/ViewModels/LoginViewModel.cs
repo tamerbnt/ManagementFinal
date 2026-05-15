@@ -165,10 +165,14 @@ namespace Management.Presentation.ViewModels
 
             try
             {
+                var minDelayTask = Task.Delay(1500);
+
                 await _sessionStorage.ClearSessionAsync();
 
                 Guid? facilityContextId = SelectedFacility.Id == Guid.Empty ? null : SelectedFacility.Id;
                 var result = await _authService.LoginAsync(Email, password, facilityContextId);
+
+                await minDelayTask;
 
                 if (result.IsSuccess)
                 {

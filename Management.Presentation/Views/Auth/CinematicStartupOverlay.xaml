@@ -1,0 +1,162 @@
+<UserControl x:Class="Management.Presentation.Views.Auth.CinematicStartupOverlay"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280"
+             x:Name="Root"
+             PreviewMouseDown="OnSkipAnimation"
+             PreviewKeyDown="OnSkipAnimation"
+             Focusable="True"
+             Loaded="OnLoaded"
+             Background="#1A1510">
+
+    <UserControl.Resources>
+        <!-- The temperature-shifting color logic -->
+        <SolidColorBrush x:Key="DynamicBrush" x:Name="DynamicBrush" Color="#C4785A"/>
+
+        <!-- Pseudo-3D Pillar Brush -->
+        <LinearGradientBrush x:Key="PillarBrush" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#A05A3E" Offset="0.0"/>
+            <GradientStop Color="{Binding Color, Source={StaticResource DynamicBrush}}" Offset="0.3"/>
+            <GradientStop Color="{Binding Color, Source={StaticResource DynamicBrush}}" Offset="0.7"/>
+            <GradientStop Color="#A05A3E" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <Storyboard x:Key="CinematicStartupStoryboard" Completed="OnAnimationCompleted">
+            <!-- 0ms: Ground Line Draws -->
+            <DoubleAnimation Storyboard.TargetName="GroundScale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.15"/>
+
+            <!-- 150ms: Pillars Rise (Grow to Tall Height) -->
+            <!-- Top-Left -->
+            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.2" BeginTime="0:0:0.15"/>
+            <!-- Bottom-Left -->
+            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.2" BeginTime="0:0:0.15"/>
+            
+            <!-- Diagonals (Top-Right, Wait.. Diagonals means TL+BR, TR+BL?) Let's do TR+BL at 190ms -->
+            <!-- Actually, user said: left pillar at 0, right pillar at 80, diagonals at 40. -->
+            <!-- Let's map to our 4 pillars: Left (TL+BL) at 150ms, Diagonals (TR? No, TR is right. Diagonals implies there are 3 pillars? No, 4 pillars.) -->
+            <!-- Let's do: TL at 150, BL at 190, TR at 190, BR at 230 -->
+            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.2" BeginTime="0:0:0.19"/>
+            <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleY" From="0" To="1" Duration="0:0:0.2" BeginTime="0:0:0.23"/>
+
+            <!-- 400ms: Entablature Sweep & Snap -->
+            <!-- 200ms duration, overshoot and snap -->
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="EntablatureScale" Storyboard.TargetProperty="ScaleX" BeginTime="0:0:0.4">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1.03">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <ElasticEase Oscillations="1" Springiness="5" EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <!-- Wait, ElasticEase naturally overshoots and snaps back if Value=1.0. Let's set Value=1.0 with ElasticEase -->
+            </DoubleAnimationUsingKeyFrames>
+            
+            <!-- Let's replace the above with a cleaner ElasticEase on a standard DoubleAnimation -->
+            <DoubleAnimation Storyboard.TargetName="EntablatureScale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.3" BeginTime="0:0:0.4">
+                <DoubleAnimation.EasingFunction>
+                    <ElasticEase Oscillations="1" Springiness="4" EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <!-- 600ms: Center Square Asymmetric Trace -->
+            <!-- Perimeter = 200. Offset from 200 to 0. -->
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="StrokeDashOffset" BeginTime="0:0:0.6">
+                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="150" KeySpline="0.2,0 0.8,1"/> <!-- 1st side -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.25" Value="100" KeySpline="0.2,0 0.8,1"/> <!-- 2nd side (slower corner turn) -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.35" Value="50" KeySpline="0.2,0 0.8,1"/> <!-- 3rd side -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="0" KeySpline="0.2,0 0.8,1"/> <!-- 4th side -->
+            </DoubleAnimationUsingKeyFrames>
+
+            <!-- 1000ms: Structural Compression -->
+            <!-- Tall pillars compress to 0.2 ScaleY (12px height) -->
+            <!-- Using QuarticEase for immense gravity feel -->
+            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <!-- Entablature drops to center square top edge (Y=-54 to Y=22, translate +76) -->
+            <DoubleAnimation Storyboard.TargetName="EntablatureTranslate" Storyboard.TargetProperty="Y" To="76" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <!-- 1200ms: The Breath & Color Shift -->
+            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="1.12" Duration="0:0:0.3" BeginTime="0:0:1.2" AutoReverse="True">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleY" To="1.12" Duration="0:0:0.3" BeginTime="0:0:1.2" AutoReverse="True">
+                <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <ColorAnimation Storyboard.TargetName="DynamicBrush" Storyboard.TargetProperty="Color" From="#C4785A" To="#D4856A" Duration="0:0:0.6" BeginTime="0:0:1.2"/>
+
+            <!-- 1100ms: Scaffolding Fades (Immediately after snap/compression) -->
+            <DoubleAnimation Storyboard.TargetName="GroundLine" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3" BeginTime="0:0:1.1"/>
+            <DoubleAnimation Storyboard.TargetName="Entablature" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3" BeginTime="0:0:1.1"/>
+
+            <!-- 2000ms: Overlay Fades Out (The Bloom) -->
+            <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5" BeginTime="0:0:2.0"/>
+
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Border CornerRadius="24" Background="#1A1510" x:Name="BackgroundGrid" ClipToBounds="True">
+        <Canvas Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="MarkCanvas">
+            <Canvas.RenderTransform>
+                <ScaleTransform x:Name="MarkScale" ScaleX="1.0" ScaleY="1.0" CenterX="50" CenterY="50"/>
+            </Canvas.RenderTransform>
+
+            <!-- Ground Line -->
+            <Rectangle x:Name="GroundLine" Width="120" Height="2" Canvas.Left="-10" Canvas.Top="105" Fill="{StaticResource DynamicBrush}">
+                <Rectangle.RenderTransform>
+                    <ScaleTransform x:Name="GroundScale" ScaleX="0" ScaleY="1" CenterX="0" CenterY="1"/>
+                </Rectangle.RenderTransform>
+            </Rectangle>
+
+            <!-- 4 Corner Pillars -->
+            <Rectangle x:Name="PillarTL" Width="12" Height="60" Canvas.Left="0" Canvas.Top="-48" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTL" ScaleY="0" CenterY="60"/></Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle x:Name="PillarTR" Width="12" Height="60" Canvas.Left="88" Canvas.Top="-48" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTR" ScaleY="0" CenterY="60"/></Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle x:Name="PillarBL" Width="12" Height="60" Canvas.Left="0" Canvas.Top="88" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleBL" ScaleY="0" CenterY="0"/></Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle x:Name="PillarBR" Width="12" Height="60" Canvas.Left="88" Canvas.Top="88" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleBR" ScaleY="0" CenterY="0"/></Rectangle.RenderTransform>
+            </Rectangle>
+
+            <!-- Center Square -->
+            <Path x:Name="CenterSquare" Stroke="{StaticResource DynamicBrush}" StrokeThickness="6" StrokeLineJoin="Miter" Canvas.Left="25" Canvas.Top="25">
+                <Path.Data>
+                    <RectangleGeometry Rect="0,0,50,50"/>
+                </Path.Data>
+                <Path.StrokeDashArray>
+                    <DoubleCollection>200, 200</DoubleCollection>
+                </Path.StrokeDashArray>
+                <Path.StrokeDashOffset>200</Path.StrokeDashOffset>
+            </Path>
+
+            <!-- Entablature (heavy horizontal beam) -->
+            <Rectangle x:Name="Entablature" Width="120" Height="6" Canvas.Left="-10" Canvas.Top="-54" Fill="{StaticResource DynamicBrush}">
+                <Rectangle.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="EntablatureScale" ScaleX="0" CenterX="0"/>
+                        <TranslateTransform x:Name="EntablatureTranslate" Y="0"/>
+                    </TransformGroup>
+                </Rectangle.RenderTransform>
+            </Rectangle>
+            
+        </Canvas>
+    </Border>
+</UserControl>

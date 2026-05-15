@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:conv="clr-namespace:Management.Presentation.Converters"
              xmlns:auth="clr-namespace:Management.Presentation.ViewModels.Auth"
+             xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="720" d:DesignWidth="980">
 
@@ -14,7 +16,9 @@
 
     <!-- Simplified layout: The container is now managed by AuthWindow.CardBorder -->
     <Grid>
-        <StackPanel VerticalAlignment="Top" Margin="40,16,40,24">
+        <!-- Actual Content: Visible when NOT loading -->
+        <StackPanel VerticalAlignment="Top" Margin="40,16,40,24"
+                    Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
             
             <!-- HEADER -->
             <Grid Margin="0,8,0,8">
@@ -97,11 +101,18 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="EnterBtn" Background="#0F172A" CornerRadius="16">
-                                    <TextBlock Text="Enter Workspace" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Grid>
+                                        <TextBlock x:Name="btnText" Text="Enter Workspace" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Construction" MarkForeground="White" Width="28" Height="28" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="EnterBtn" Property="Opacity" Value="0.4"/></Trigger>
                                     <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="EnterBtn" Property="Background" Value="#1E293B"/></Trigger>
+                                    <DataTrigger Binding="{Binding IsEnteringWorkspace}" Value="True">
+                                        <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="busyAnim" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
@@ -111,7 +122,10 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="RemoteBtn" Background="Transparent" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="12">
-                                    <TextBlock Text="Remote View (Owner)" Foreground="#64748B" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Grid>
+                                        <TextBlock x:Name="btnText" Text="Remote View (Owner)" Foreground="#64748B" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Construction" MarkForeground="#64748B" Width="20" Height="20" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsEnabled" Value="False"><Setter TargetName="RemoteBtn" Property="Opacity" Value="0.4"/></Trigger>
@@ -119,6 +133,10 @@
                                         <Setter TargetName="RemoteBtn" Property="Background" Value="#F1F5F9"/>
                                         <Setter TargetName="RemoteBtn" Property="BorderBrush" Value="#94A3B8"/>
                                     </Trigger>
+                                    <DataTrigger Binding="{Binding IsEnteringRemote}" Value="True">
+                                        <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="busyAnim" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
@@ -147,5 +165,8 @@
                 </StackPanel>
             </Grid>
         </StackPanel>
+
+        <!-- Skeleton Loader: Visible when loading -->
+        <local:DiscoverySkeletonView Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     </Grid>
 </UserControl>

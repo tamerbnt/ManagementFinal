@@ -27,6 +27,29 @@ namespace Management.Presentation.ViewModels.Auth
         private readonly Management.Application.Services.IAuthenticationService _authService;
         private readonly Management.Presentation.Services.State.SessionManager _sessionManager;
 
+        private bool _isLoading = true;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value);
+        }
+
+        // FIX: Separate flags per button so only the clicked button shows its animation.
+        // Both buttons previously shared IsBusy, making them animate simultaneously.
+        private bool _isEnteringWorkspace;
+        public bool IsEnteringWorkspace
+        {
+            get => _isEnteringWorkspace;
+            set => SetProperty(ref _isEnteringWorkspace, value);
+        }
+
+        private bool _isEnteringRemote;
+        public bool IsEnteringRemote
+        {
+            get => _isEnteringRemote;
+            set => SetProperty(ref _isEnteringRemote, value);
+        }
+
         private ObservableCollection<FacilityTypeOption> _availableFacilities = new();
         public ObservableCollection<FacilityTypeOption> AvailableFacilities
         {
@@ -98,77 +121,80 @@ namespace Management.Presentation.ViewModels.Auth
         {
             if (SelectedFacility == null) return;
             
-            // Persist the choice
-            _facilityContext.SetFacility(SelectedFacility.Type);
-            
-            // Check for valid existing session (Auto-Login)
-            // CRITICAL: We skip auto-login if the user has explicitly logged out during this session.
-            var currentUserResult = _authService.IsLogoutActive 
-                ? Result.Failure<StaffDto>(new Error("Auth.ForcedLogin", "Forcing login after logout."))
-                : await _authService.GetCurrentUserAsync();
-
-            if (currentUserResult.IsSuccess && currentUserResult.Value != null)
+            IsEnteringWorkspace = true;
+            try
             {
-                var user = currentUserResult.Value;
-                // If the session matches the selected facility (or user is Owner), skip login
-                if (user.Role == Management.Domain.Enums.StaffRole.Owner || user.FacilityId == SelectedFacility.Id)
+                var delayTask = Task.Delay(1500);
+
+                // Persist the choice
+                _facilityContext.SetFacility(SelectedFacility.Type);
+                
+                // Check for valid existing session (Auto-Login)
+                // CRITICAL: We skip auto-login if the user has explicitly logged out during this session.
+                var currentUserResult = _authService.IsLogoutActive 
+                    ? Result.Failure<StaffDto>(new Error("Auth.ForcedLogin", "Forcing login after logout."))
+                    : await _authService.GetCurrentUserAsync();
+
+                await delayTask; // Ensure at least 1500ms have passed
+
+                if (currentUserResult.IsSuccess && currentUserResult.Value != null)
                 {
-                    Serilog.Log.Information("[Splash] Valid session found for {Email}. Bypassing login.", user.Email);
-                    _sessionManager.SetUser(user);
-                    
-                    if (System.Windows.Application.Current is Management.Presentation.App app)
+                    var user = currentUserResult.Value;
+                    // If the session matches the selected facility (or user is Owner), skip login
+                    if (user.Role == Management.Domain.Enums.StaffRole.Owner || user.FacilityId == SelectedFacility.Id)
                     {
-                        await app.LaunchMainWindowAsync();
+                        Serilog.Log.Information("[Splash] Valid session found for {Email}. Bypassing login.", user.Email);
+                        _sessionManager.SetUser(user);
+                        
+                        if (System.Windows.Application.Current is Management.Presentation.App app)
+                        {
+                            await app.LaunchMainWindowAsync();
+                        }
+                        return;
                     }
-                    return;
+                    else 
+                    {
+                        // Optionally alert the user here or just let them fall through to login 
+                        Serilog.Log.Information("[Splash] Valid session found but facility mismatched. Falling through to login.");
+                    }
                 }
-                else 
-                {
-                    // Optionally alert the user here or just let them fall through to login 
-                    Serilog.Log.Information("[Splash] Valid session found but facility mismatched. Falling through to login.");
-                }
+                
+                // No valid session or facility mismatch: Navigate to Login, passing the selected facility as context
+                await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
             }
-            
-            // No valid session or facility mismatch: Navigate to Login, passing the selected facility as context
-            await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
+            finally
+            {
+                IsEnteringWorkspace = false;
+            }
         }
 
         private async Task ExecuteEnterRemoteWorkspace()
         {
             if (SelectedFacility == null) return;
             
-            // Set global remote mode flag
-            _sessionManager.IsRemoteMode = true;
-            
-            // Persist the choice
-            _facilityContext.SetFacility(SelectedFacility.Type);
-            
-            // FORCED LOGIN: We disable auto-login for Remote Mode to ensure explicit authentication 
-            // and role verification for the specific remote workspace.
-            /*
-            var currentUserResult = _authService.IsLogoutActive 
-                ? Result.Failure<StaffDto>(new Error("Auth.ForcedLogin", "Forcing login after logout."))
-                : await _authService.GetCurrentUserAsync();
-
-            if (currentUserResult.IsSuccess && currentUserResult.Value != null)
+            IsEnteringRemote = true;
+            try
             {
-                var user = currentUserResult.Value;
-                if (user.Role == Management.Domain.Enums.StaffRole.Owner)
-                {
-                    Serilog.Log.Information("[Splash] Valid Owner session found for {Email}. Launching Remote View.", user.Email);
-                    _sessionManager.SetUser(user);
-                    
-                    if (System.Windows.Application.Current is Management.Presentation.App app)
-                    {
-                        await app.LaunchMainWindowAsync();
-                    }
-                    return;
-                }
+                var delayTask = Task.Delay(1500);
+
+                // Set global remote mode flag
+                _sessionManager.IsRemoteMode = true;
+                
+                // Persist the choice
+                _facilityContext.SetFacility(SelectedFacility.Type);
+                
+                await delayTask; // Ensure at least 1500ms have passed
+
+                // FORCED LOGIN: We disable auto-login for Remote Mode to ensure explicit authentication 
+                // and role verification for the specific remote workspace.
+                
+                // Not logged in or not Owner: Navigate to Login
+                await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
             }
-            */
-            
-            // Not logged in or not Owner: Navigate to Login
-            await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
+            finally
+            {
+                IsEnteringRemote = false;
+            }
         }
 
         public async Task InitializeAsync()
@@ -178,6 +204,7 @@ namespace Management.Presentation.ViewModels.Auth
 
         private async Task LoadFacilitiesFromLocalAsync()
         {
+            IsLoading = true;
             try
             {
                 var localFacilities = await _dbContext.Facilities
@@ -245,10 +272,13 @@ namespace Management.Presentation.ViewModels.Auth
                         // Fallback mode — no real facility ID, don't pre-select
                         SelectedFacility = null;
                     }
+                    
+                    IsLoading = false;
                 });
             }
             catch (Exception ex)
             {
+                IsLoading = false;
                 _logger.LogError(ex, "[Splash] Failed to load facilities for splash discovery.");
             }
         }

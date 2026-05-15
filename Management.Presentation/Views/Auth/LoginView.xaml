@@ -6,6 +6,7 @@
              xmlns:viewmodels="clr-namespace:Management.Presentation.ViewModels"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:auth="clr-namespace:Management.Presentation.Views.Auth"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewmodels:LoginViewModel}"
              d:DesignHeight="768" d:DesignWidth="460"
@@ -183,7 +184,7 @@
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock x:Name="btnText" Text="Sign in" Foreground="White" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                                     <Path x:Name="btnChevron" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" Fill="White" Width="10" Height="10" Stretch="Uniform" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                                    <ProgressBar x:Name="busyBar" IsIndeterminate="True" Width="50" Height="3" Background="Transparent" Foreground="White" BorderThickness="0" Visibility="Collapsed" Margin="8,0,0,0"/>
+                                    <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Construction" MarkForeground="White" Width="24" Height="24" Visibility="Collapsed" Margin="8,0,0,0"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -202,7 +203,7 @@
                                 <DataTrigger Binding="{Binding IsBusy}" Value="True">
                                     <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
                                     <Setter TargetName="btnChevron" Property="Visibility" Value="Collapsed"/>
-                                    <Setter TargetName="busyBar" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="busyAnim" Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
