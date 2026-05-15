@@ -31,12 +31,7 @@
 
         <!-- 1. Header & Global Actions (Aligned with Members) -->
         <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Path Data="{StaticResource IconRegistrations}" 
                       Style="{StaticResource Style.Icon.Large}" 
                       Stroke="{DynamicResource TextPrimaryBrush}"
@@ -59,32 +54,24 @@
                                FontWeight="Bold"/>
                 </Border>
             </StackPanel>
-
-            <!-- Soft Action: Print Button -->
-            <Button Grid.Column="1" Command="{Binding PrintReportCommand}" Style="{StaticResource SecondaryButton}">
-                <StackPanel Orientation="Horizontal">
-                    <Path Data="{StaticResource IconPrinter}" 
-                          Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                          Style="{StaticResource Style.Icon.Small}"
-                          Margin="{StaticResource MarginIconRight}"/>
-                    <TextBlock Text="{DynamicResource Terminology.Registrations.Action.Print}" FontWeight="Medium"/>
-                </StackPanel>
-            </Button>
-        </Grid>
+</Grid>
 
         <!-- 2. Controls Area (Row 1) - Aligned with Members -->
         <Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
-            
             <!-- A. Filter Bar (Simplistic for Website Requests Only) -->
             <Grid>
-                <StackPanel Orientation="Horizontal">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <!-- Status Filter Container -->
                     <Border Background="{DynamicResource CardBackgroundBrush}" CornerRadius="12" Padding="4" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                         <StackPanel Orientation="Horizontal">
                             <!-- WEBSITE REQUESTS TAB -->
                             <RadioButton GroupName="StatusFilterGroup"
                                          IsChecked="True" 
-                                         Style="{StaticResource TogglePillStyle}"
+                                         Style="{StaticResource AppleFilterRadioButtonStyle}"
                                          IsHitTestVisible="False">
                                 <StackPanel Orientation="Horizontal" Margin="-10,0">
                                     <TextBlock Text="Website Requests" Margin="0,0,6,0" VerticalAlignment="Center"/>
@@ -105,18 +92,27 @@
                         </StackPanel>
                     </Border>
                 </StackPanel>
+
+                <!-- Right Actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Style="{StaticResource Button.Pill.Outline}"
+                            Command="{Binding PrintReportCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconPrinter}" 
+                                  Fill="{DynamicResource Brush.Text.Primary}"
+                                  Style="{StaticResource Style.Icon.Small}"
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Registrations.Action.Print}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
         </Grid>
 
 
         <!-- 3. Content Area (Row 2) -->
         <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Website Requests List View (Always Shown) -->
+<!-- Website Requests List View (Always Shown) -->
             <ListBox Grid.Column="0"
                      ItemsSource="{Binding WebsiteRequests}"
                      Background="Transparent"
@@ -149,16 +145,7 @@
                                 BorderBrush="{DynamicResource BorderBrush}" 
                                 BorderThickness="1">
                             <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="1.5*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- 1. User Info -->
+<!-- 1. User Info -->
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
                                     <TextBlock Text="{Binding FullName}" Style="{StaticResource Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,2"/>
                                     <StackPanel Orientation="Horizontal">
@@ -212,6 +199,49 @@
                 </ListBox.ItemTemplate>
             </ListBox>
 
+            <!-- Empty State Overlay (Z-Order: Top of content) -->
+            <Grid Grid.Column="0"
+                  VerticalAlignment="Center" 
+                  HorizontalAlignment="Center"
+                  Visibility="{Binding WebsiteRequests.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
+                
+                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0">
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="100"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="80" Height="80" 
+                            Background="{DynamicResource FacilityAccentDimBrush}" 
+                            CornerRadius="40" 
+                            Margin="0,0,0,24">
+                        <Path Data="{StaticResource IconRegistrations}" 
+                              Fill="{DynamicResource FacilityAccentBrush}"
+                              Width="36" Height="36"
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock Text="{DynamicResource Terminology.Registrations.EmptyState}" 
+                               FontSize="22" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,8"/>
+
+                    <TextBlock Text="{DynamicResource Terminology.Registrations.EmptyState.Description}" 
+                               FontSize="16"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32"
+                               TextAlignment="Center"
+                               MaxWidth="320"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
+
+

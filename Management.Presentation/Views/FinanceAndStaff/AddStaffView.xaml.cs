@@ -102,14 +102,14 @@ namespace Management.Presentation.Views.FinanceAndStaff
         private void RoleStaffButton_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is ViewModels.Finance.AddStaffViewModel vm)
-                vm.NewStaff.Role = "Staff";
+                vm.NewStaff.Role = Management.Domain.Enums.StaffRole.Staff;
             AnimateRolePill(isOwner: false);
         }
 
         private void RoleOwnerButton_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is ViewModels.Finance.AddStaffViewModel vm)
-                vm.NewStaff.Role = "Owner";
+                vm.NewStaff.Role = Management.Domain.Enums.StaffRole.Owner;
             AnimateRolePill(isOwner: true);
         }
     }

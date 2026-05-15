@@ -148,7 +148,7 @@
                         BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Quantity}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        <TextBlock Text="Select group size" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,20"/>
+                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.GroupSize}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,20"/>
                         
                         <Grid HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
@@ -179,7 +179,7 @@
                         BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                        <TextBlock Text="Select a manual discount" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Discounts.Select}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
                         
                         <ComboBox ItemsSource="{Binding AvailableDiscounts}"
                                   SelectedItem="{Binding SelectedDiscount}"
@@ -226,11 +226,11 @@
                         BorderBrush="#F3F4F6"
                         BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="Summary" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Summary}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
                         
                         <!-- Stacked Price Layout to prevent overlap -->
                         <StackPanel Margin="0,0,0,16">
-                            <TextBlock Text="Total Price" FontSize="13" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Global.TotalPrice}" FontSize="13" Foreground="{DynamicResource Brush.Text.Secondary}"/>
                             <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:N2} DA'}" 
                                        FontSize="28" 
                                        FontWeight="ExtraBold" 
@@ -248,7 +248,7 @@
                         </Grid>
 
                         <Border Height="1" Background="#F3F4F6" Margin="0,0,0,20"/>
-                        <TextBlock Text="Ready to process guest entry." FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Ready}" FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" TextAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

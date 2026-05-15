@@ -58,7 +58,7 @@
 
             <!-- LEFT COLUMN: CLIENT & SERVICE -->
             <StackPanel Grid.Column="0">
-                <TextBlock Text="CLIENT &amp; SERVICE" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.ClientService}" Style="{StaticResource InputLabel}"/>
 
                 <!-- Premium Segmented Toggle -->
                 <Border Background="#F3F4F6" CornerRadius="22" Padding="4" Height="44" Margin="0,0,0,20" HorizontalAlignment="Left" Width="300">
@@ -79,8 +79,8 @@
                             </Border.Effect>
                         </Border>
 
-                        <Button Content="Existing Member" Click="ExistingMember_Click" Style="{StaticResource ToggleButtonStyle}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-                        <Button Grid.Column="1" Content="Quick Register" Click="QuickRegister_Click" Style="{StaticResource ToggleButtonStyle}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        <Button Content="{DynamicResource Terminology.Salon.Booking.ExistingMember}" Click="ExistingMember_Click" Style="{StaticResource ToggleButtonStyle}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        <Button Grid.Column="1" Content="{DynamicResource Terminology.Salon.Booking.QuickRegister}" Click="QuickRegister_Click" Style="{StaticResource ToggleButtonStyle}" BorderThickness="0" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                     </Grid>
                 </Border>
 
@@ -94,7 +94,7 @@
                             <StackPanel Visibility="{Binding ShowSearchPanel, Converter={StaticResource BoolToVis}}">
                                 <premium:PremiumSearchBox 
                                     Text="{Binding ClientSearchText, UpdateSourceTrigger=PropertyChanged}"
-                                    Placeholder="Search member name..."
+                                    Placeholder="{DynamicResource Terminology.Salon.Booking.SearchMember}"
                                     IconData="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                                     Margin="0,0,0,10"/>
 
@@ -167,7 +167,7 @@
                                         <TextBlock Text="{Binding SelectedClient.FullName}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                         <TextBlock Text="{Binding SelectedClient.Phone}" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2" Content="Change" Command="{Binding ClearSelectedClientCommand}" 
+                                    <Button Grid.Column="2" Content="{DynamicResource Terminology.Salon.Booking.Change}" Command="{Binding ClearSelectedClientCommand}" 
                                             Style="{StaticResource ToggleButtonStyle}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
@@ -177,7 +177,7 @@
                         <StackPanel Visibility="{Binding IsExistingClientMode, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                             <premium:PremiumSearchBox 
                                 Text="{Binding SelectedClientName, UpdateSourceTrigger=PropertyChanged}"
-                                Placeholder="Enter full name"
+                                Placeholder="{DynamicResource Terminology.Salon.Booking.EnterName}"
                                 IconData="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
                                 Margin="0,0,0,16"/>
                             
@@ -189,7 +189,7 @@
                                 </Grid.ColumnDefinitions>
                                 <premium:PremiumSearchBox Grid.Column="0"
                                     Text="{Binding Age, UpdateSourceTrigger=PropertyChanged}"
-                                    Placeholder="Age"
+                                    Placeholder="{DynamicResource Terminology.Salon.Booking.Age}"
                                     IconData="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                                 
                                 <ComboBox Grid.Column="2" ItemsSource="{Binding AcquisitionSources}"
@@ -201,7 +201,7 @@
                 </Border>
 
                 <!-- SERVICE SECTION -->
-                <TextBlock Text="SERVICE" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Service}" Style="{StaticResource InputLabel}"/>
                 <ComboBox ItemsSource="{Binding AvailableServices}"
                           SelectedItem="{Binding SelectedService}"
                           Style="{StaticResource Input.ComboBox}"
@@ -213,7 +213,7 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <TextBlock Text="PRICE (DA)" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Price}" Style="{StaticResource InputLabel}"/>
                 <premium:PremiumSearchBox
                     Text="{Binding Price, StringFormat=N2}"
                     IconData="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
@@ -222,7 +222,7 @@
 
             <!-- RIGHT COLUMN: STAFF & SCHEDULE -->
             <StackPanel Grid.Column="2">
-                <TextBlock Text="STAFF &amp; SCHEDULE" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.StaffSchedule}" Style="{StaticResource InputLabel}"/>
                 
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
@@ -248,17 +248,17 @@
                     </Button>
                 </Grid>
 
-                <TextBlock Text="DATE" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Date}" Style="{StaticResource InputLabel}"/>
                 <DatePicker SelectedDate="{Binding BookingDate}" Style="{StaticResource DatePickerField}" Margin="0,0,0,20"/>
 
-                <TextBlock Text="TIME" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Time}" Style="{StaticResource InputLabel}"/>
                 <premium:PremiumSearchBox
                     Text="{Binding BookingTime, StringFormat=\{0:hh\\:mm\}}"
                     Placeholder="09:00"
                     IconData="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     Margin="0,0,0,20"/>
 
-                <TextBlock Text="NOTES" Style="{StaticResource InputLabel}"/>
+                <TextBlock Text="{DynamicResource Terminology.Salon.Booking.Notes}" Style="{StaticResource InputLabel}"/>
                 <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource Input.Field}"
                          Height="80" AcceptsReturn="True" TextWrapping="Wrap"

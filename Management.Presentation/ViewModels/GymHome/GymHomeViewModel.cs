@@ -44,7 +44,7 @@ namespace Management.Presentation.ViewModels.GymHome
         Alerts
     }
 
-    public partial class GymHomeViewModel : ViewModelBase, IFacilityHomeViewModel, IStateResettable, 
+    public partial class GymHomeViewModel : FacilityAwareViewModelBase, IFacilityHomeViewModel, IStateResettable, 
         IRecipient<FacilityActionCompletedMessage>,
         IRecipient<RefreshRequiredMessage<Sale>>,
         IRecipient<RefreshRequiredMessage<Member>>,
@@ -53,10 +53,7 @@ namespace Management.Presentation.ViewModels.GymHome
         IRecipient<RefreshRequiredMessage<InventoryPurchaseDto>>
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly SessionManager _sessionManager;
-        private readonly IFacilityContextService _facilityContext;
-        private readonly ILocalizationService _localizationService;
         private readonly IAccessEventService _accessEventService;
         private readonly ISyncService _syncService;
         private readonly INotificationService _notificationService;
@@ -237,17 +234,15 @@ namespace Management.Presentation.ViewModels.GymHome
             IToastService toastService,
             SessionManager sessionManager,
             IFacilityContextService facilityContext,
+            ITerminologyService terminologyService,
             ILocalizationService localizationService,
             IAccessEventService accessEventService,
             ISyncService syncService,
             INotificationService notificationService,
-            IMessenger messenger) : base(logger, diagnosticService, toastService)
+            IMessenger messenger) : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService, dialogService)
         {
             _scopeFactory = scopeFactory;
-            _dialogService = dialogService;
             _sessionManager = sessionManager;
-            _facilityContext = facilityContext;
-            _localizationService = localizationService;
             _accessEventService = accessEventService;
             _syncService = syncService;
             _notificationService = notificationService;
@@ -269,6 +264,15 @@ namespace Management.Presentation.ViewModels.GymHome
                         if (resolved != null) item.Status = resolved;
                     }
                 }
+
+                // Refresh dynamic content
+                InitializeGuideTips();
+                _ = PopulateSystemAlertsAsync();
+                
+                // Refresh KPI texts
+                UpdateExpiringSoon();
+                UpdateMembersDelta(ActiveMembersTotal); // This might need a better way to get 'yesterday' but for now it's okay for re-localizing
+                UpdateOccupancy(OccupancyCount);
             };
             
             // Lightweight initialization ONLY
@@ -355,9 +359,9 @@ namespace Management.Presentation.ViewModels.GymHome
             var hour = DateTime.Now.Hour;
             string salutation = hour switch
             {
-                >= 5 and < 12  => GetResource("Terminology.Greeting.Morning",  "Good Morning"),
-                >= 12 and < 18 => GetResource("Terminology.Greeting.Afternoon", "Good Afternoon"),
-                _              => GetResource("Terminology.Greeting.Evening",   "Good Evening")
+                >= 5 and < 12  => GetResource("Terminology.Home.Greeting.Morning",  "Good Morning"),
+                >= 12 and < 18 => GetResource("Terminology.Home.Greeting.Afternoon", "Good Afternoon"),
+                _              => GetResource("Terminology.Home.Greeting.Evening",   "Good Evening")
             };
 
             var name = _sessionManager?.CurrentUser?.FullName?.Split(' ').FirstOrDefault() ?? string.Empty;
@@ -445,7 +449,8 @@ namespace Management.Presentation.ViewModels.GymHome
                         if (_sessionManager.IsRemoteMode && !_remoteWelcomeShown && summary.LastUpdatedAt != default)
                         {
                             _remoteWelcomeShown = true;
-                            _notificationService.ShowInfo($"You are viewing remote data. Last cloud update: {summary.LastUpdatedAt:MMM dd, HH:mm}");
+                            var infoFormat = GetResource("Terminology.Dashboard.Stat.RemoteDataInfo", "You are viewing remote data. Last cloud update: {0}");
+                            _notificationService.ShowInfo(string.Format(infoFormat, summary.LastUpdatedAt.ToString("MMM dd, HH:mm")));
                         }
                     }
 
@@ -721,8 +726,15 @@ namespace Management.Presentation.ViewModels.GymHome
                         _ => "??"
                     };
 
-                    var resolvedTitle = !string.IsNullOrEmpty(e.TitleLocalizationKey)
-                        ? string.Format(System.Windows.Application.Current.TryFindResource(e.TitleLocalizationKey) as string ?? GetResource(e.TitleLocalizationKey, e.TitleLocalizationKey), e.TitleLocalizationArgs ?? Array.Empty<object>())
+                    var titleKey = e.TitleLocalizationKey;
+                    if (string.IsNullOrEmpty(titleKey) && e.Type == HistoryEventType.Sale && !string.IsNullOrEmpty(e.Title))
+                    {
+                        if (e.Title.Contains("Retail")) titleKey = "Terminology.Home.Activity.SaleRetail";
+                        else if (e.Title.Contains("Membership")) titleKey = "Terminology.Home.Activity.SaleMembership";
+                    }
+
+                    var resolvedTitle = !string.IsNullOrEmpty(titleKey)
+                        ? string.Format(System.Windows.Application.Current.TryFindResource(titleKey) as string ?? GetResource(titleKey, e.Title), e.TitleLocalizationArgs ?? Array.Empty<object>())
                         : e.Title;
 
                     var resolvedDetails = !string.IsNullOrEmpty(e.DetailsLocalizationKey)
@@ -730,7 +742,7 @@ namespace Management.Presentation.ViewModels.GymHome
                         : e.Details;
 
                     var subtitle = e.Amount.HasValue && e.Amount > 0 
-                        ? $"{e.Amount:N0} DA - {resolvedDetails}"
+                        ? $"{e.Amount:N0} {GetResource("Terminology.Dashboard.Activity.CurrencySuffix", "DA")} - {resolvedDetails}"
                         : resolvedDetails;
 
                     return new ActivityLogItem(resolvedTitle, subtitle, icon, initials)
@@ -813,7 +825,8 @@ namespace Management.Presentation.ViewModels.GymHome
         {
             if (ActiveMembersTotal > 0)
             {
-                ExpiringSoonRatioText = $"from {ActiveMembersTotal} active";
+                var format = GetResource("Terminology.Dashboard.Stat.FromActive", "from {0} active");
+                ExpiringSoonRatioText = string.Format(format, ActiveMembersTotal);
                 ExpiringSoonPct = Math.Round((double)ExpiringSoonCount / ActiveMembersTotal * 100, 1);
                 IsHighExpiry = ExpiringSoonPct > 20;
             }
@@ -841,7 +854,7 @@ namespace Management.Presentation.ViewModels.GymHome
             var vsYesterday = GetResource("Terminology.Dashboard.Stat.VsYesterday", "vs yesterday");
             ActiveMembersDeltaText = delta == 0
                 ? vsYesterday
-                : $"{arrow} {(delta >= 0 ? "+" : "")}{delta} {vsYesterday}";
+                : $"{arrow} {(delta >= 0 ? "+" : "")}{Math.Abs(delta)} {vsYesterday}";
             HasMembersTrend = true;
         }
 
@@ -1090,8 +1103,15 @@ namespace Management.Presentation.ViewModels.GymHome
 
                 string status = System.Windows.Application.Current.TryFindResource(statusKey) as string ?? (message.ActionType == "Access" ? message.Message : message.ActionType);
 
+                string displayName = message.DisplayName;
+                if (message.ActionType == "Sale" || message.ActionType == "QuickSale")
+                {
+                    if (displayName.Contains("Retail")) displayName = System.Windows.Application.Current.TryFindResource("Terminology.Home.Activity.SaleRetail") as string ?? displayName;
+                    else if (displayName.Contains("Membership")) displayName = System.Windows.Application.Current.TryFindResource("Terminology.Home.Activity.SaleMembership") as string ?? displayName;
+                }
+
                 var logItem = new ActivityLogItem(
-                    message.DisplayName,
+                    displayName,
                     status,
                     icon,
                     initials,
@@ -1150,7 +1170,7 @@ namespace Management.Presentation.ViewModels.GymHome
                             
                             DemographicSeries = summary.MemberDemographics.Select((d, index) => new PieSeries<int>
                             {
-                                Name = d.Source,
+                                Name = !string.IsNullOrEmpty(d.Source) ? GetTerm(d.Source) : "Unknown",
                                 Values = new[] { d.Count },
                                 InnerRadius = 40,
                                 Stroke = null,
@@ -1275,16 +1295,17 @@ namespace Management.Presentation.ViewModels.GymHome
         private void InitializeGuideTips()
         {
             GuideTips.Clear();
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = "Welcome to the Dashboard", Description = "This is your central command center. Stay on top of memberships, sales, and access control seamlessly." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = "Record a walk-in visit", Description = "Track daily visitors who aren't members using the Walk-in quick action module." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = "Quick Point of Sale", Description = "Process water, towels, and supplements instantly using the Quick Sale flow." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = "Expiring Soon Alerts", Description = "Monitor the KPI cards to proactively engage members before their subscription lapses." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = "Hardware Telemetry", Description = "Check the bottom footer to ensure your barcode scanners and receipt printers are online." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = "Multi-Item Sales", Description = "Handling a large checkout? Use the Multi-Sale Cart to bundle items securely." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = "Occupancy Overflow", Description = "When the gym hits Max Capacity, the occupancy ring will glow to alert front-desk staff." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = "Activity Stream", Description = "Watch the real-time event log update automatically as people scan in or make purchases." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = "Creating New Members", Description = "Use the Create Member action to rapidly enroll walk-ins directly from the Home screen." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = "End of Shift Protocol", Description = "Verify the expected Daily Cash Total matches your physical till before logging out." });
+            
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = GetResource("Terminology.Dashboard.Guide.Welcome.Title", "Welcome to the Dashboard"), Description = GetResource("Terminology.Dashboard.Guide.Welcome.Description", "This is your central command center. Stay on top of memberships, sales, and access control seamlessly.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = GetResource("Terminology.Dashboard.Guide.WalkIn.Title", "Record a walk-in visit"), Description = GetResource("Terminology.Dashboard.Guide.WalkIn.Description", "Track daily visitors who aren't members using the Walk-in quick action module.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = GetResource("Terminology.Dashboard.Guide.QuickSale.Title", "Quick Point of Sale"), Description = GetResource("Terminology.Dashboard.Guide.QuickSale.Description", "Process water, towels, and supplements instantly using the Quick Sale flow.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = GetResource("Terminology.Dashboard.Guide.ExpiringSoon.Title", "Expiring Soon Alerts"), Description = GetResource("Terminology.Dashboard.Guide.ExpiringSoon.Description", "Monitor the KPI cards to proactively engage members before their subscription lapses.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = GetResource("Terminology.Dashboard.Guide.Hardware.Title", "Hardware Telemetry"), Description = GetResource("Terminology.Dashboard.Guide.Hardware.Description", "Check the bottom footer to ensure your barcode scanners and receipt printers are online.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = GetResource("Terminology.Dashboard.Guide.MultiSale.Title", "Multi-Item Sales"), Description = GetResource("Terminology.Dashboard.Guide.MultiSale.Description", "Handling a large checkout? Use the Multi-Sale Cart to bundle items securely.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = GetResource("Terminology.Dashboard.Guide.Overflow.Title", "Occupancy Overflow"), Description = GetResource("Terminology.Dashboard.Guide.Overflow.Description", "When the gym hits Max Capacity, the occupancy ring will glow to alert front-desk staff.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = GetResource("Terminology.Dashboard.Guide.Activity.Title", "Activity Stream"), Description = GetResource("Terminology.Dashboard.Guide.Activity.Description", "Watch the real-time event log update automatically as people scan in or make purchases.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = GetResource("Terminology.Dashboard.Guide.NewMember.Title", "Creating New Members"), Description = GetResource("Terminology.Dashboard.Guide.NewMember.Description", "Use the Create Member action to rapidly enroll walk-ins directly from the Home screen.") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = GetResource("Terminology.Dashboard.Guide.EndOfShift.Title", "End of Shift Protocol"), Description = GetResource("Terminology.Dashboard.Guide.EndOfShift.Description", "Verify the expected Daily Cash Total matches your physical till before logging out.") });
 
             if (GuideTips.Any())
                 CurrentGuide = GuideTips[0];
@@ -1309,7 +1330,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     var diag = await _diagnosticService.TestSupabaseConnectivityAsync();
                     if (!diag.IsSuccess)
                     {
-                        alerts.Add("⚠️ Network latency detected or local database is in offline mode.");
+                        alerts.Add(GetResource("Terminology.Dashboard.Alert.Connectivity", "⚠️ Network latency detected or local database is in offline mode."));
                     }
                 }
                 catch (Exception ex)
@@ -1325,7 +1346,8 @@ namespace Management.Presentation.ViewModels.GymHome
                     {
                         foreach (var p in productsResult.Value.Take(3))
                         {
-                            alerts.Add($"⚠️ Inventory warning: '{p.Name}' is below minimum threshold.");
+                            var alertFormat = GetResource("Terminology.Dashboard.Alert.LowStock", "⚠️ Inventory warning: '{0}' is below minimum threshold.");
+                            alerts.Add(string.Format(alertFormat, p.Name));
                         }
                     }
                 }
@@ -1344,7 +1366,8 @@ namespace Management.Presentation.ViewModels.GymHome
                         {
                             var days = (DateTime.UtcNow - m.ExpirationDate).Days;
                             var dayStr = days <= 0 ? "today" : $"{days} days ago";
-                            alerts.Add($"🔴 Member {m.FullName} subscription expired {dayStr}.");
+                            var alertFormat = GetResource("Terminology.Dashboard.Alert.Expired", "🔴 Member {0} subscription expired {1}.");
+                            alerts.Add(string.Format(alertFormat, m.FullName, dayStr));
                         }
                     }
                 }
@@ -1365,7 +1388,7 @@ namespace Management.Presentation.ViewModels.GymHome
 
                 if (!SystemAlerts.Any())
                 {
-                    SystemAlerts.Add("✅ No critical system alerts at this time.");
+                    SystemAlerts.Add(GetResource("Terminology.Dashboard.Alert.NoAlerts", "✅ No critical system alerts at this time."));
                 }
             });
         }

@@ -58,13 +58,8 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             
-            <!-- 1. Header & Primary Actions -->
+            <!-- 1. Header -->
             <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Path Data="{StaticResource IconMembers}" 
                           Style="{StaticResource Style.Icon.Large}" 
@@ -75,45 +70,6 @@
                                Style="{StaticResource Title1}" 
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- Primary Action: Add Member -->
-                    <Button Style="{StaticResource PrimaryButton}"
-                            Command="{Binding OpenAddMemberCommand}"
-                            Margin="{StaticResource MarginMediumRight}">
-                        <StackPanel Orientation="Horizontal" Margin="4,0">
-                            <Path Data="{StaticResource IconPlus}" 
-                                   Stroke="{DynamicResource TextSecondaryBrush}"
-                                   Style="{StaticResource Style.Icon.Small}"
-                                   Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource Terminology.Members.AddMember}" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Secondary Action: Print -->
-                    <Button Command="{Binding PrintReportCommand}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-                                <Setter Property="Background" Value="{DynamicResource Brush.Surface.Secondary}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
-                                <Setter Property="Padding" Value="16,8"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal" Margin="4,0">
-                            <Path Data="{StaticResource IconPrinter}" 
-                                   Fill="{DynamicResource Brush.Text.Primary}"
-                                   Style="{StaticResource Style.Icon.Small}"
-                                   Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource Terminology.Global.Action.PrintList}" FontWeight="Medium"/>
-                        </StackPanel>
-                    </Button>
                 </StackPanel>
             </Grid>
         
@@ -200,7 +156,36 @@
 
                 </StackPanel>
                 
-                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Secondary Action: Print -->
+                    <Button Style="{StaticResource Button.Pill.Outline}"
+                            Command="{Binding PrintReportCommand}"
+                            Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconPrinter}" 
+                                  Fill="{DynamicResource Brush.Text.Primary}"
+                                  Style="{StaticResource Style.Icon.Small}"
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Global.Action.PrintList}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Primary Action: Add Member -->
+                    <Button Style="{StaticResource Button.Pill.Primary}"
+                            Command="{Binding OpenAddMemberCommand}"
+                            Margin="0,0,24,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconPlus}" 
+                                  Stroke="White"
+                                  Style="{StaticResource Style.Icon.Small}"
+                                  Margin="{StaticResource MarginIconRight}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Members.AddMember}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Separator -->
+                    <Border Width="1" Height="24" Background="{DynamicResource SeparatorStroke}" Margin="0,0,24,0" Opacity="0.5"/>
+
                     <Button Command="{Binding SwitchViewModeCommand}" 
                             CommandParameter="{x:Static vm:MemberViewMode.Grid}"
                             Style="{StaticResource IconButtonStyle}" 
@@ -407,6 +392,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+
                 
                 <ListBox x:Name="MembersListBox" Grid.Row="0"
                          Style="{StaticResource ListBox.Modern}"
@@ -874,6 +860,61 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+            </Grid>
+
+            <!-- Empty State Overlay (Z-Order: Top of content) -->
+            <Grid VerticalAlignment="Center" 
+                  HorizontalAlignment="Center"
+                  Visibility="{Binding FilteredMembers.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
+                
+                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0">
+                    <Ellipse.Effect>
+                        <BlurEffect Radius="100"/>
+                    </Ellipse.Effect>
+                </Ellipse>
+
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="80" Height="80" 
+                            Background="{DynamicResource FacilityAccentDimBrush}" 
+                            CornerRadius="40" 
+                            Margin="0,0,0,24">
+                        <Path Data="{StaticResource IconMembers}" 
+                              Fill="{DynamicResource FacilityAccentBrush}"
+                              Width="36" Height="36"
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock Text="{DynamicResource Terminology.Members.EmptyState}" 
+                               FontSize="22" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,8"/>
+
+                    <TextBlock Text="{DynamicResource Terminology.Members.EmptyState.Description}" 
+                               FontSize="16"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32"
+                               TextAlignment="Center"
+                               MaxWidth="320"
+                               TextWrapping="Wrap"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="{DynamicResource Terminology.Members.Action.QuickRegister}"
+                                Command="{Binding OpenAddMemberCommand}"
+                                Style="{StaticResource PrimaryButton}"
+                                MinWidth="180"
+                                Margin="0,0,12,0"/>
+                        
+                        <Button Content="{DynamicResource Terminology.Global.Action.ResetFilters}"
+                                Command="{Binding ResetFiltersCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                Padding="16,0"
+                                Visibility="{Binding SearchText, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
         </Grid>
 

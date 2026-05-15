@@ -11,14 +11,22 @@
              Background="Transparent">
 
     <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:CountToBooleanConverter x:Key="CountToBooleanConverter"/>
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="InverseNullToVisibilityConverter" Inverted="True"/>
+        <converters:IntToVisibilityConverter x:Key="GreaterThanZeroConverter"/>
+        <converters:EnumToBooleanConverter x:Key="EnumToBoolConverter"/>
+        <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter"/>
+        <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter"/>
 
-        <!-- Missing icon aliases -->
+        <!-- Icon Aliases -->
         <StreamGeometry x:Key="IconMember">M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75</StreamGeometry>
+        <StreamGeometry x:Key="IconSearch">M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35</StreamGeometry>
+        <StreamGeometry x:Key="IconClose">M18 6L6 18M6 6l12 12</StreamGeometry>
+        <StreamGeometry x:Key="IconPinFilled">M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A.5.5 0 0 0 6 13.9V15a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1.1a.5.5 0 0 0-.11-.31l-1.78-.9A2 2 0 0 1 15 10.76V6a1 1 0 0 1 1-1h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1a1 1 0 0 1 1 1z</StreamGeometry>
         
         <!-- Selection Highlight Style -->
         <Style x:Key="SelectionItemStyle" TargetType="ListBoxItem">
@@ -163,7 +171,12 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="{StaticResource IconPinFilled}" Fill="{DynamicResource FacilityAccentBrush}" 
+                                                      Width="12" Height="12" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="Uniform"
+                                                      Visibility="{Binding IsPinned, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                            </StackPanel>
                                             <TextBlock Text="{Binding Category}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="14" FontWeight="Bold" Margin="0,0,16,0" VerticalAlignment="Center"/>
@@ -184,7 +197,7 @@
                     <!-- Walk-In View -->
                     <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=WalkIn}">
                         <premium:PremiumSearchBox Text="{Binding WalkInSearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                                 Placeholder="Search walk-in plans..."
+                                                 Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchWalkIn}"
                                                  IconData="{StaticResource IconSearch}"
                                                  Margin="0,0,0,12"/>
 
@@ -234,7 +247,7 @@
                                 
                                 <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
                                     <premium:PremiumSearchBox Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                                            Placeholder="Search members..."
+                                                            Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchMembers}"
                                                             IconData="{StaticResource IconSearch}"/>
                                     
                                     <!-- Search Results Popup -->

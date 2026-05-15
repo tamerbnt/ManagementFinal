@@ -155,7 +155,7 @@
                                 <TextBlock FontSize="12" Opacity="0.4" Margin="2,-4,0,0" Foreground="{DynamicResource Brush.Card.Foreground}">
                                     <Run Text="/"/>
                                     <Run Text="{Binding MaxCapacity, Mode=OneWay}"/>
-                                    <Run Text="max"/>
+                                    <Run Text="{DynamicResource Terminology.Home.Capacity.MaxLabel}"/>
                                 </TextBlock>
                             </StackPanel>
 
@@ -310,7 +310,7 @@
                                         </Style>
                                     </TextBlock.Style>
                                     <Run Text="{Binding ExpiringSoonPct, StringFormat='{}{0:F0}%'}"/>
-                                    <Run Text=" expiring"/>
+                                    <Run Text="{DynamicResource Terminology.Home.Expiry.Label}"/>
                                 </TextBlock>
                             </Border>
                         </Grid>
@@ -378,9 +378,9 @@
                                 <!-- Label: X DA of Y DA target -->
                                 <Grid Grid.Row="0" Margin="0,0,0,4">
                                     <TextBlock FontSize="10" Opacity="0.5" Foreground="{DynamicResource Brush.Card.Foreground}">
-                                        <Run Text="of"/>
+                                        <Run Text="{DynamicResource Terminology.Home.Target.Of}"/>
                                         <Run Text="{Binding DailyRevenueTarget, Converter={StaticResource AbbreviatedCurrencyConverter}}"/>
-                                        <Run Text="target"/>
+                                        <Run Text="{DynamicResource Terminology.Home.Target.Label}"/>
                                     </TextBlock>
                                     <TextBlock HorizontalAlignment="Right" FontSize="10" FontWeight="SemiBold" Foreground="#A78BFA">
                                         <Run Text="{Binding RevenueTodayProgress, StringFormat='{}{0:P0}'}"/>
@@ -482,10 +482,10 @@
                                         </Viewbox>
                                     </Grid>
                                 </Border>
-                                <TextBlock Text="Quiet as a morning session." 
+                                <TextBlock Text="{DynamicResource Terminology.Home.Activity.EmptyState.Title}" 
                                            FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" 
                                            Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.6"/>
-                                <TextBlock Text="No recent activity to display right now." 
+                                <TextBlock Text="{DynamicResource Terminology.Home.Activity.EmptyState.Subtitle}" 
                                            FontSize="12" HorizontalAlignment="Center" 
                                            Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.4" Margin="0,2,0,0"/>
 
@@ -521,7 +521,7 @@
                                 <!-- Bottom Accent Separator (Inset) -->
                                 <Border Height="2" Background="{DynamicResource FacilityAccentBrush}" Margin="10,0,10,15" Opacity="0.4"/>
 
-                                <TextBlock Text="Member avatars — when active:" FontSize="12" Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.6" Margin="0,0,0,12"/>
+                                <TextBlock Text="{DynamicResource Terminology.Home.Avatars.Label}" FontSize="12" Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.6" Margin="0,0,0,12"/>
 
 
                                 <StackPanel Orientation="Horizontal">
@@ -623,7 +623,7 @@
                             </Style>
                         </StackPanel.Resources>
                         
-                        <TextBlock Text="QUICK ACTIONS" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" Margin="4,0,0,12"/>
+                        <TextBlock Text="{DynamicResource Terminology.Home.QuickActions}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" Margin="4,0,0,12"/>
 
                         <!-- List of separated buttons -->
                         <Border Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="4,2" Margin="0,0,0,8">
@@ -671,7 +671,7 @@
                                     <Border Grid.Column="0" Width="36" Height="36" CornerRadius="10" Background="#15FFFFFF" Margin="0,0,12,0" VerticalAlignment="Center">
                                         <Path Data="{DynamicResource IconMembers}" Fill="{DynamicResource Brush.Neutral.White}" Opacity="0.8" Width="14" Height="14" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="1" Text="Walk-in" FontSize="13" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Terminology.Home.Action.WalkIn}" FontSize="13" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" VerticalAlignment="Center"/>
                                     <Path Grid.Column="2" Data="M0,0 L4,4 L0,8" Stroke="{DynamicResource Brush.Neutral.White}" StrokeThickness="1.5" MaxWidth="6" Stretch="Uniform" Opacity="0.3" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                 </Grid>
                             </Button>
@@ -713,7 +713,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <!-- Guide Tab -->
                                 <Grid Margin="0,0,24,0">
-                                    <TextBlock Text="GUIDE" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Sidebar.Guide}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Opacity" Value="0.4"/>
@@ -744,7 +744,7 @@
 
                                 <!-- Alerts Tab -->
                                 <Grid>
-                                    <TextBlock Text="ALERTS" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Sidebar.Alerts}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Opacity" Value="0.4"/>
@@ -890,7 +890,7 @@
                                 <TextBlock Text="{Binding CurrentDate, FallbackValue='Sunday, Apr 19, 2026'}" FontSize="10" Foreground="{DynamicResource Brush.Text.Primary}" Opacity="0.6" HorizontalAlignment="Right" Margin="0,0,0,4"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Ellipse Width="6" Height="6" Fill="{DynamicResource FacilityAccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="All systems online" FontSize="10" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Status.Online}" FontSize="10" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
                         </Grid>

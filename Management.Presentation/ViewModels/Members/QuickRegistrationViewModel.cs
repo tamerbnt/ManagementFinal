@@ -63,7 +63,7 @@ namespace Management.Presentation.ViewModels.Members
         private int? _age;
 
         [ObservableProperty]
-        private string _source = "Walk-in"; // Default source
+        private string _source = "Terminology.Member.Source.WalkIn"; // Default source localization key
 
         [ObservableProperty]
         private MembershipPlanDto? _selectedPlan;
@@ -149,7 +149,7 @@ namespace Management.Presentation.ViewModels.Members
                 FullName = value.FullName;
                 PhoneNumber = value.PhoneNumber ?? string.Empty;
                 Email = value.Email ?? string.Empty;
-                Source = value.Source ?? "Walk-in";
+                Source = value.Source ?? "Terminology.Member.Source.WalkIn";
                 
                 // Set ID for conversion (acts as an update)
                 MemberIdToUpdate = value.Id;
@@ -379,8 +379,16 @@ namespace Management.Presentation.ViewModels.Members
 
             await Task.WhenAll(loadTasks);
 
-            // Initialize Sources
-            Sources.ReplaceRange(new[] { "Walk-in", "Word of Mouth", "Instagram", "TikTok", "Facebook" });
+            // Initialize Sources using localization keys
+            Sources.ReplaceRange(new[] 
+            { 
+                "Terminology.Member.Source.WalkIn", 
+                "Terminology.Member.Source.WordOfMouth", 
+                "Terminology.Member.Source.Instagram", 
+                "Terminology.Member.Source.TikTok", 
+                "Terminology.Member.Source.Facebook",
+                "Terminology.Member.Source.Other"
+            });
         }
 
         private async Task LoadDiscountsAsync()
@@ -410,7 +418,7 @@ namespace Management.Presentation.ViewModels.Members
                     {
                         Age = (int)((DateTime.UtcNow - result.Value.DateOfBirth.Value).TotalDays / 365.25);
                     }
-                    Source = result.Value.Source ?? "Walk-in";
+                    Source = result.Value.Source ?? "Terminology.Member.Source.WalkIn";
                     
                     if (result.Value.MembershipPlanId.HasValue)
                     {

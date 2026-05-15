@@ -80,7 +80,7 @@
             <Border Grid.Row="0" Padding="40,40,40,24">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="Checkout"
+                        <TextBlock Text="{DynamicResource Terminology.Salon.Completion.Title}"
                                    FontSize="12" FontWeight="Bold"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextAlignment="Left"
@@ -120,7 +120,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <TextBlock Text="Add Products to Sale"
+                    <TextBlock Text="{DynamicResource Terminology.Salon.Completion.AddProducts}"
                                FontSize="14" FontWeight="SemiBold"
                                Foreground="{DynamicResource TextSecondaryBrush}"/>
 
@@ -187,13 +187,13 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Text="Order Summary" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Salon.Completion.OrderSummary}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,0,20">
                             <StackPanel>
                                 <!-- Service Fee -->
                                 <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="Service Fee" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Salon.Completion.ServiceFee}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     <TextBlock Text="{Binding BasePrice, StringFormat=C}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                 </Grid>
                                 
@@ -224,7 +224,7 @@
                         <StackPanel Grid.Row="3">
                             <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,0,0,20"/>
                             <Grid>
-                                <TextBlock Text="Total Amount" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Completion.TotalAmount}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="{Binding TotalAmount, StringFormat=C}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
@@ -240,7 +240,7 @@
                             Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand">
-                        <TextBlock Text="Cancel" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Cancel}" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold"/>
                     </Button>
 
                     <Button Command="{Binding CompleteCommand}"
@@ -251,7 +251,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z" 
                                   Stroke="White" StrokeThickness="2" Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Complete &amp; Print" Foreground="White" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Terminology.Salon.Completion.Action.Print}" Foreground="White" FontWeight="Bold" FontSize="15" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </Grid>

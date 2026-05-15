@@ -135,10 +135,13 @@
                         <ComboBox SelectedValue="{Binding Source}" 
                                   SelectedValuePath="Tag"
                                   Style="{StaticResource Input.ComboBox}">
-                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.WalkIn}" Tag="Walk-in"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.SocialMedia}" Tag="Social Media"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Referral}" Tag="Referral"/>
-                            <ComboBoxItem Content="{DynamicResource Terminology.Registration.Source.Advertisement}" Tag="Advertisement"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.Walkin}" Tag="Walk-in"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.Facebook}" Tag="Facebook"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.Instagram}" Tag="Instagram"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.TikTok}" Tag="TikTok"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.Referral}" Tag="Referral"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.WordofMouth}" Tag="Word of Mouth"/>
+                            <ComboBoxItem Content="{DynamicResource Terminology.Member.Source.Website}" Tag="Website"/>
                         </ComboBox>
                     </StackPanel>
 

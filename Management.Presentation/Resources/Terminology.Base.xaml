@@ -245,4 +245,76 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Shop.AddProduct.InitialStock">Initial Stock</sys:String>
     <sys:String x:Key="Terminology.Shop.AddProduct.LowStockAlert">Low Stock Alert</sys:String>
     <sys:String x:Key="Terminology.Shop.AddProduct.Action.Save">Save Product</sys:String>
+
+    <!-- Salon Schedule & Booking Modal -->
+    <sys:String x:Key="Terminology.Salon.Appointments.DateDisplayFormat">dddd, MMMM dd</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.BookingsToday">Bookings Today</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.Today">Today</sys:String>
+    <sys:String x:Key="Terminology.Salon.Appointments.Subtitle">Overview of today's appointments and staff availability</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.ClientService">CLIENT &amp; SERVICE</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.ExistingMember">Existing Member</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.QuickRegister">Quick Register</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.StaffSchedule">STAFF &amp; SCHEDULE</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Date">DATE</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Time">TIME</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Notes">NOTES</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Price">PRICE (DA)</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Service">SERVICE</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Change">Change</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.SearchMember">Search member name...</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.EnterName">Enter full name</sys:String>
+    <sys:String x:Key="Terminology.Salon.Booking.Age">Age</sys:String>
+
+    <!-- Salon Dashboard -->
+    <sys:String x:Key="Terminology.Salon.Dashboard.Label">Dashboard</sys:String>
+    <sys:String x:Key="Terminology.Salon.Dashboard.GrossRevenue">Gross Revenue</sys:String>
+    <sys:String x:Key="Terminology.Salon.Dashboard.Today">today</sys:String>
+
+    <!-- Salon Appointment Detail -->
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Title">Appointment Details</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Service">Service</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Stylist">Stylist</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Date">Date</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Time">Time</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Notes">Notes</sys:String>
+    <sys:String x:Key="Terminology.Salon.AppointmentDetail.Action.Cancel">Cancel Appointment</sys:String>
+
+    <!-- Salon Completion / Checkout -->
+    <sys:String x:Key="Terminology.Salon.Completion.Title">Checkout</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.AddProducts">Add Products to Sale</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.OrderSummary">Order Summary</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.ServiceFee">Service Fee</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.TotalAmount">Total Amount</sys:String>
+    <sys:String x:Key="Terminology.Salon.Completion.Action.Print">Complete &amp; Print</sys:String>
+
+    <!-- Salon Onboarding Guide -->
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Title">Welcome to the Dashboard</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Description">This is your central command center. Stay on top of appointments, sales, and client history seamlessly.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Title">Record a walk-in visit</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Description">Track daily visitors who aren't members using the Walk-in quick action module.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Title">Quick Point of Sale</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Description">Process products and services instantly using the Quick Sale flow.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Title">Hardware Telemetry</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Description">Check the bottom footer to ensure your barcode scanners and receipt printers are online.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Title">Multi-Item Sales</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Description">Handling a large checkout? Use the Multi-Sale Cart to bundle items securely.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Title">Activity Stream</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Description">Watch the real-time event log update automatically as services are completed or products sold.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Title">Creating New Clients</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Description">Use the Create Member action to rapidly enroll new clients directly from the Home screen.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Title">End of Shift Protocol</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Description">Verify the expected Daily Cash Total matches your physical till before logging out.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Title">Appointments Today</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Description">Monitor the Agenda card to see upcoming client appointments and manage chair utilization.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Title">Next Appointment</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Description">The carousel in the top-left highlights your immediate next client. Click the arrows to browse the full daily schedule.</sys:String>
 </ResourceDictionary>

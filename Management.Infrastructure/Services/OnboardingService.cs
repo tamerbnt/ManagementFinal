@@ -852,7 +852,7 @@ namespace Management.Infrastructure.Services
                 FullName = model.FullName,
                 Email = model.Email,
                 Role = Enum.IsDefined(typeof(StaffRole), model.Role) ? (StaffRole)model.Role : StaffRole.Staff,
-                Status = model.IsActive ? "Active" : "Inactive",
+                Status = model.IsActive ? StaffStatus.Active : StaffStatus.Inactive,
                 Permissions = GeneratePermissionsForRole(Enum.IsDefined(typeof(StaffRole), model.Role) ? (StaffRole)model.Role : StaffRole.Staff)
             };
         }

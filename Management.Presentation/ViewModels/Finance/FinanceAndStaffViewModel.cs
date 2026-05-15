@@ -16,6 +16,7 @@ using Management.Application.DTOs;
 using System.Linq;
 using Management.Domain.Services;
 using Management.Presentation.Models.History;
+using Management.Domain.Enums;
 
 namespace Management.Presentation.ViewModels.Finance
 {
@@ -68,9 +69,9 @@ namespace Management.Presentation.ViewModels.Finance
 
 
             // 1. Filter by Status
-            if (!string.IsNullOrEmpty(SelectedFilter) && !SelectedFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+            if (SelectedFilter != "All")
             {
-                filtered = filtered.Where(s => !string.IsNullOrEmpty(s.EmploymentStatus) && s.EmploymentStatus.Equals(SelectedFilter, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(s => s.EmploymentStatus.ToString().Equals(SelectedFilter, StringComparison.OrdinalIgnoreCase));
             }
 
             // 2. Filter by Search Query
@@ -80,7 +81,7 @@ namespace Management.Presentation.ViewModels.Finance
                 filtered = filtered.Where(s => 
                     (s.FullName?.ToLower().Contains(query) ?? false) || 
                     (s.Email?.ToLower().Contains(query) ?? false) ||
-                    (s.Role?.ToLower().Contains(query) ?? false));
+                    (s.Role.ToString().ToLower().Contains(query)));
             }
 
             FilteredStaffMembers.Clear();
@@ -129,6 +130,7 @@ namespace Management.Presentation.ViewModels.Finance
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand SaveStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<StaffMemberViewModel> DeleteStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand CancelEditCommand { get; }
+        public CommunityToolkit.Mvvm.Input.IRelayCommand ResetFiltersCommand { get; }
 
         private readonly Management.Domain.Services.IDialogService _dialogService;
         private readonly IStaffService _staffService;
@@ -181,11 +183,11 @@ namespace Management.Presentation.ViewModels.Finance
                         StaffMembers.Add(newStaff);
                         ApplyFilters();
                     });
-                    _toastService?.ShowSuccess(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.AddSuccess") ?? "Added {0}", newStaff.FullName));
+                    _toastService?.ShowSuccess(string.Format(GetTerm("Terminology.Staff.Toast.AddSuccess") ?? "Added {0}", newStaff.FullName));
                }
             });
 
-            PrintStaffListCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService?.ShowSuccess(_localizationService?.GetString("Strings.Finance.Toast.PreparingPrint") ?? "Preparing staff list for printing..."));
+            PrintStaffListCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService?.ShowSuccess(GetTerm("Strings.Finance.Toast.PreparingPrint") ?? "Preparing staff list for printing..."));
             
             OpenStaffDetailCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<StaffMemberViewModel>(staff => 
             {
@@ -230,7 +232,7 @@ namespace Management.Presentation.ViewModels.Finance
                             staff.Permissions.Add(new StaffPermission { Name = p.Name, IsGranted = p.IsGranted });
                         }
 
-                        toastService.ShowSuccess(string.Format(_terminologyService.GetTerm("Terminology.Staff.Toast.UpdateSuccess"), updatedStaff.FullName));
+                        toastService.ShowSuccess(string.Format(GetTerm("Terminology.Staff.Toast.UpdateSuccess"), updatedStaff.FullName));
                         ApplyFilters();
                     }
                 }
@@ -249,18 +251,18 @@ namespace Management.Presentation.ViewModels.Finance
                         Status = SelectedStaff.EmploymentStatus,
                         Salary = SelectedStaff.Salary,
                         PaymentDay = SelectedStaff.PaymentDay,
-                        Role = Enum.TryParse<Management.Domain.Enums.StaffRole>(SelectedStaff.Role, out var role) ? role : Management.Domain.Enums.StaffRole.Staff
+                        Role = SelectedStaff.Role
                     };
 
                     var result = await _staffService.UpdateStaffAsync(dto);
                     if (result.IsSuccess)
                     {
-                        _toastService?.ShowSuccess(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.UpdateSuccess") ?? "Updated details for {0}", SelectedStaff.FullName));
+                        _toastService?.ShowSuccess(string.Format(GetTerm("Terminology.Staff.Toast.UpdateSuccess") ?? "Updated details for {0}", SelectedStaff.FullName));
                         IsEditing = false;
                     }
                     else
                     {
-                        _toastService?.ShowError(string.Format(_localizationService?.GetString("Strings.Finance.Toast.UpdateStaffError") ?? "Failed to update staff: {0}", result.Error.Message));
+                        _toastService?.ShowError(string.Format(GetTerm("Strings.Finance.Toast.UpdateStaffError") ?? "Failed to update staff: {0}", result.Error.Message));
                     }
                 }
             });
@@ -298,13 +300,19 @@ namespace Management.Presentation.ViewModels.Finance
                 }
                 else
                 {
-                    _toastService?.ShowError(string.Format(_localizationService?.GetString("Terminology.Staff.Toast.DeleteError") ?? "Failed to delete staff: {0}", result.Error.Message));
+                    _toastService?.ShowError(string.Format(GetTerm("Terminology.Staff.Toast.DeleteError") ?? "Failed to delete staff: {0}", result.Error.Message));
                 }
             });
 
             CancelEditCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 IsEditing = false;
+            });
+
+            ResetFiltersCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
+            {
+                SearchQuery = string.Empty;
+                SelectedFilter = "All";
             });
 
             _ = LoadStaffAsync();
@@ -349,14 +357,14 @@ namespace Management.Presentation.ViewModels.Finance
                             {
                                 Id = dto.Id.ToString(),
                                 FullName = dto.FullName,
-                                Role = dto.Role.ToString(),
+                                Role = dto.Role,
                                 Email = dto.Email,
                                 Phone = dto.PhoneNumber,
-                                EmploymentStatus = dto.Status,
                                 HireDate = dto.HireDate,
+                                EmploymentStatus = dto.Status,
                                 Salary = dto.Salary,
                                 PaymentDay = dto.PaymentDay,
-                                                                Initials = string.Join("", (dto.FullName ?? "Staff Member").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(n => n?.FirstOrDefault() ?? 'S')).ToUpper()
+                                Initials = string.Join("", (dto.FullName ?? "Staff Member").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(n => n?.FirstOrDefault() ?? 'S')).ToUpper()
                             };
 
                             vm.Permissions.Clear();
@@ -423,12 +431,12 @@ namespace Management.Presentation.ViewModels.Finance
     {
         [ObservableProperty] private string _id = string.Empty;
         [ObservableProperty] private string _fullName = string.Empty;
-        [ObservableProperty] private string _role = string.Empty; // e.g., Manager, Trainer
+        [ObservableProperty] private Management.Domain.Enums.StaffRole _role = Management.Domain.Enums.StaffRole.Staff;
         [ObservableProperty] private string _email = string.Empty;
         [ObservableProperty] private string _phone = string.Empty;
         public string PhoneNumber => Phone; // Alias for View compatibility
         [ObservableProperty] private string _password = string.Empty;
-        [ObservableProperty] private string _employmentStatus = "Active"; // Active, Inactive
+        [ObservableProperty] private StaffStatus _employmentStatus = StaffStatus.Active; // Active, Inactive
         [ObservableProperty] private string _initials = string.Empty;
         [ObservableProperty] private bool _isActive;
         [ObservableProperty] private decimal _salary;
@@ -459,6 +467,7 @@ namespace Management.Presentation.ViewModels.Finance
     public class StaffPermission : ObservableObject 
     {
         public string Name { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
         private bool _isGranted;
         public bool IsGranted 
         { 

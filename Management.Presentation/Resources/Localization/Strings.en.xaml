@@ -22,6 +22,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Global.Date">Date</sys:String>
 
     <sys:String x:Key="Terminology.Global.Time">Time</sys:String>
+    <sys:String x:Key="Terminology.Global.Time.Now">now</sys:String>
+    <sys:String x:Key="Terminology.Global.Time.MinAgo">{0}min ago</sys:String>
+    <sys:String x:Key="Terminology.Global.Time.HoursAgo">{0}h ago</sys:String>
+    <sys:String x:Key="Terminology.Global.Time.DaysAgo">{0}d ago</sys:String>
     <sys:String x:Key="Terminology.Global.Currency">DA</sys:String>
     <FlowDirection x:Key="GlobalFlowDirection">LeftToRight</FlowDirection>
 
@@ -55,6 +59,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.ActiveMembers">Active Members</sys:String>
     <sys:String x:Key="Terminology.Home.ExpiringSoon">Expiring Soon</sys:String>
     <sys:String x:Key="Terminology.Home.RevenueToday">Revenue Today</sys:String>
+    <sys:String x:Key="Terminology.Home.Activity.SaleRetail">Sale: Retail</sys:String>
+    <sys:String x:Key="Terminology.Home.Activity.SaleMembership">Sale: Membership Plan</sys:String>
     <sys:String x:Key="Terminology.Home.QuickActions">Quick Actions</sys:String>
     <sys:String x:Key="Terminology.Home.RecentActivity">Recent Activity</sys:String>
     <sys:String x:Key="Terminology.Home.SeeAll">See All</sys:String>
@@ -67,6 +73,17 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.Action.CreateMember">Create Member</sys:String>
     <sys:String x:Key="Terminology.Home.Action.WalkIn">Walk-In</sys:String>
     <sys:String x:Key="Terminology.Home.Action.MultiSale">Multi-Sale</sys:String>
+    <sys:String x:Key="Terminology.Home.Sidebar.Guide">GUIDE</sys:String>
+    <sys:String x:Key="Terminology.Home.Sidebar.Alerts">ALERTS</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.FreshStart">A fresh start today.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Home.ActivitiesInstruction">All your client activities will appear here.</sys:String>
+    <sys:String x:Key="Terminology.Home.Activity.EmptyState.Title">Quiet as a morning session.</sys:String>
+    <sys:String x:Key="Terminology.Home.Activity.EmptyState.Subtitle">No recent activity to display right now.</sys:String>
+    <sys:String x:Key="Terminology.Home.Avatars.Label">Member avatars — when active:</sys:String>
+    <sys:String x:Key="Terminology.Home.Capacity.MaxLabel">max</sys:String>
+    <sys:String x:Key="Terminology.Home.Expiry.Label"> expiring</sys:String>
+    <sys:String x:Key="Terminology.Home.Target.Of">of</sys:String>
+    <sys:String x:Key="Terminology.Home.Target.Label">target</sys:String>
     
     <!-- Quick Sale Modal -->
     <sys:String x:Key="Terminology.Modal.QuickSale.Title">Quick Sale</sys:String>
@@ -131,6 +148,14 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Settings.GymSettings.MaxOccupancyDesc">Maximum number of members allowed in the gym.</sys:String>
     <sys:String x:Key="Terminology.Settings.GymSettings.DailyTarget">Daily Revenue Target</sys:String>
     <sys:String x:Key="Terminology.Settings.GymSettings.DailyTargetDesc">Your daily financial goal for this facility.</sys:String>
+
+    <!-- Discounts Section -->
+    <sys:String x:Key="Terminology.Settings.Discounts.Title">Manual Discounts</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Subtitle">Configure discounts that can be applied manually during a sale</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Action.Add">Add Discount</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Field.Name">Discount Name</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Field.Type">Type</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Field.Value">Value</sys:String>
 
     <!-- Promotions Section -->
     <sys:String x:Key="Terminology.Settings.Promotions.Title">Promotions &amp; Discounts</sys:String>
@@ -270,6 +295,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Members.DeleteModal.Title">Delete Members?</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteModal.Message">Are you sure you want to delete the selected members? This action cannot be undone.</sys:String>
     <sys:String x:Key="Terminology.Members.GrantAccess">Grant Manual Access (Open Turnstile)</sys:String>
+    <sys:String x:Key="Terminology.Members.Header">Members</sys:String>
+    <sys:String x:Key="Terminology.Members.EmptyState">No members match your search</sys:String>
+    <sys:String x:Key="Terminology.Members.EmptyState.Description">Adjust your filters to find who you're looking for, or register a new member now.</sys:String>
+    <sys:String x:Key="Terminology.Members.Action.QuickRegister">Quick Registration</sys:String>
 
 
     <!-- Member Details -->
@@ -289,6 +318,9 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <!-- Shop -->
     <sys:String x:Key="Terminology.Shop.Header">Shop</sys:String>
+    <sys:String x:Key="Terminology.Shop.EmptyState">No products found in this category</sys:String>
+    <sys:String x:Key="Terminology.Shop.EmptyState.Description">No products found. Try a different filter or add a new product to your inventory.</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.AddProduct">Create Product</sys:String>
     <sys:String x:Key="Terminology.Shop.AddProduct">Add Product</sys:String>
     <sys:String x:Key="Terminology.Shop.Filter.All">All</sys:String>
     <sys:String x:Key="Terminology.Shop.Filter.Supplements">Supplements</sys:String>
@@ -314,6 +346,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Shop.Detail.Description">DESCRIPTION</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.EditProduct">Edit Product</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.SaveChanges">Save Changes</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Pin">Pin</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Unpin">Unpin</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatus">Pin Product</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatusDesc">Prioritize this product in sales lists</sys:String>
 
     <sys:String x:Key="Terminology.Shop.Action.Modify">Modify</sys:String>
     <sys:String x:Key="Strings.Shop.EditProduct">Edit Product</sys:String>
@@ -475,6 +511,8 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Registrations.Detail.Approve">Approve Registration</sys:String>
     <sys:String x:Key="Terminology.Registrations.Detail.Decline">Decline Registration</sys:String>
     <sys:String x:Key="Terminology.Registrations.List.Received">Received</sys:String>
+    <sys:String x:Key="Terminology.Registrations.EmptyState">No pending registration requests</sys:String>
+    <sys:String x:Key="Terminology.Registrations.EmptyState.Description">All caught up! New requests from your website will appear here automatically.</sys:String>
 
     <!-- Multi-Sale Cart &amp; Walk-In Confirmation -->
     <sys:String x:Key="Terminology.GymHome.MultiSale.Title">Multi-Sale Cart</sys:String>
@@ -506,6 +544,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Home.Status.Denied">Access Denied</sys:String>
     <sys:String x:Key="Terminology.Home.Status.WalkIn">Walk-In Entry</sys:String>
     <sys:String x:Key="Terminology.Home.Status.Sale">Quick Sale</sys:String>
+    <sys:String x:Key="Terminology.Home.Status.Access">Member Access</sys:String>
     <sys:String x:Key="Terminology.Home.Status.Registration">New Registration</sys:String>
 
     <!-- Global Headers &amp; Filters -->
@@ -576,6 +615,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Dashboard.RevenueBreakdown.Plan">Revenue by Plan &amp; Service</sys:String>
     <sys:String x:Key="Terminology.Dashboard.RevenueBreakdown.Product">Revenue by Product</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Report.Generating">Generating professional daily report...</sys:String>
+
     <sys:String x:Key="Terminology.Dashboard.Report.Title">Reporting</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Report.ExportSuccess">Report exported and opened successfully.</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Report.ExportComplete">Export Complete</sys:String>
@@ -585,8 +625,85 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Dashboard.Stat.VsLastHour">vs last hour</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Stat.VsYesterday">vs yesterday</sys:String>
     <sys:String x:Key="Terminology.Dashboard.Stat.Sales">sales</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.FromActive">from {0} active</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Stat.RemoteDataInfo">You are viewing remote data. Last cloud update: {0}</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Activity.CurrencySuffix">DA</sys:String>
+
+    <sys:String x:Key="Terminology.Dashboard.Alert.Connectivity">⚠️ Network latency detected or local database is in offline mode.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Alert.LowStock">⚠️ Inventory warning: '{0}' is below minimum threshold.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Alert.Expired">🔴 Member {0} subscription expired {1}.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Alert.NoAlerts">✅ No critical system alerts at this time.</sys:String>
+
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Title">Welcome to the Dashboard</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Description">This is your central command center. Stay on top of memberships, sales, and access control seamlessly.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Title">Record a walk-in visit</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Description">Track daily visitors who aren't members using the Walk-in quick action module.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Title">Quick Point of Sale</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Description">Process water, towels, and supplements instantly using the Quick Sale flow.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Title">Expiring Soon Alerts</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Description">Monitor the KPI cards to proactively engage members before their subscription lapses.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Title">Hardware Telemetry</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Description">Check the bottom footer to ensure your barcode scanners and receipt printers are online.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Title">Multi-Item Sales</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Description">Handling a large checkout? Use the Multi-Sale Cart to bundle items securely.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Title">Occupancy Overflow</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Description">When the gym hits Max Capacity, the occupancy ring will glow to alert front-desk staff.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Title">Activity Stream</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Description">Watch the real-time event log update automatically as people scan in or make purchases.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Title">Creating New Members</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Description">Use the Create Member action to rapidly enroll walk-ins directly from the Home screen.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Title">End of Shift Protocol</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Description">Verify the expected Daily Cash Total matches your physical till before logging out.</sys:String>
+
     <sys:String x:Key="Terminology.Dashboard.Stat.Appointments">Appointments</sys:String>
     <sys:String x:Key="Terminology.Dashboard.QuickActions.PayrollHistory">Payroll History</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.MemberSources">Member Sources</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.AcquisitionBI">Acquisition BI</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.SourceDistribution">Source Distribution</sys:String>
+
+    <sys:String x:Key="Terminology.Member.Source.Facebook">Facebook</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.SocialMedia">Social Media</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Instagram">Instagram</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.TikTok">TikTok</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Walkin">Walk-In</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.WordofMouth">Word of Mouth</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Website">Website</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Referral">Referral</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Unknown">Unknown</sys:String>
+
+    <sys:String x:Key="Terminology.Shop.Category.Supplements">Supplements</sys:String>
+    <sys:String x:Key="Terminology.Shop.Category.Apparel">Apparel</sys:String>
+    <sys:String x:Key="Terminology.Shop.Category.Equipment">Equipment</sys:String>
+    <sys:String x:Key="Terminology.Shop.Category.Protein">Protein</sys:String>
+    <sys:String x:Key="Terminology.Shop.Category.Accessories">Accessories</sys:String>
+
+    <sys:String x:Key="Terminology.Shop.StockStatus.InStock">In Stock</sys:String>
+    <sys:String x:Key="Terminology.Shop.StockStatus.LowStock">Low Stock</sys:String>
+    <sys:String x:Key="Terminology.Shop.StockStatus.OutOfStock">Out of Stock</sys:String>
+
+    <sys:String x:Key="Terminology.Enum.DiscountType.Percentage">Percentage</sys:String>
+    <sys:String x:Key="Terminology.Enum.DiscountType.FixedAmount">Fixed Amount</sys:String>
+    <sys:String x:Key="Terminology.Global.Duration.Minutes">Min</sys:String>
+    <sys:String x:Key="Terminology.History.UndoneBadge">UNDONE</sys:String>
+    <sys:String x:Key="Terminology.History.Detail.UndoneTitle">UNDONE TRANSACTION</sys:String>
+    <sys:String x:Key="Terminology.History.Detail.UndoneDesc">This operation has been reverted.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.RevenueTrend">REVENUE TREND</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.RetentionGuardian.Subtitle">Check your community health</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Retention.HighRiskFormat">{0} members are at high risk of churning.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Retention.ReEngageFormat">{0} members need re-engagement.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Retention.Healthy">Your community health looks great!</sys:String>
+
+    <sys:String x:Key="Terminology.Chart.Series.Revenue">Revenue</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Growth">Member Growth</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Frequency">Visit Frequency</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Target">Target</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.PeopleInside">People Inside</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.HighRisk">High Risk</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.ReEngage">Needs Re-engagement</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Healthy">Healthy</sys:String>
+
+
+
 
     <sys:String x:Key="Terminology.Payroll.Cash">Cash</sys:String>
     <sys:String x:Key="Terminology.Payroll.BankTransfer">Bank Transfer</sys:String>
@@ -618,12 +735,16 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Staff.Filter.Inactive">Inactive</sys:String>
     <sys:String x:Key="Terminology.Staff.View.Grid">Grid View</sys:String>
     <sys:String x:Key="Terminology.Staff.View.List">List View</sys:String>
+    <sys:String x:Key="Terminology.Staff.EmptyState">No staff members found</sys:String>
+    <sys:String x:Key="Terminology.Staff.EmptyState.Description">Try adjusting your filters or add a new staff member to get started.</sys:String>
 
     <!-- History -->
     <sys:String x:Key="Terminology.History.Header">Facility Activity History</sys:String>
     <sys:String x:Key="Terminology.History.Action.Print">Print History</sys:String>
     <sys:String x:Key="Terminology.History.Action.Export">Export Data</sys:String>
     <sys:String x:Key="Terminology.History.Filter.All">All</sys:String>
+    <sys:String x:Key="Terminology.History.Filter.Active">Active</sys:String>
+    <sys:String x:Key="Terminology.History.Filter.Undone">Undone</sys:String>
     <sys:String x:Key="Terminology.History.Filter.Access">Access</sys:String>
     <sys:String x:Key="Terminology.History.Filter.Payments">Payments</sys:String>
     <sys:String x:Key="Terminology.History.Filter.Reservations">Reservations</sys:String>
@@ -648,6 +769,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.History.Export.Error">Failed to generate report.</sys:String>
     <sys:String x:Key="Terminology.History.SaveNote.Error">Failed to save audit note.</sys:String>
     <sys:String x:Key="Terminology.History.Load.Error">Failed to load history feed.</sys:String>
+    <sys:String x:Key="Terminology.History.SearchPlaceholder">Search all activity...</sys:String>
+    <sys:String x:Key="Terminology.History.EmptyStateText">No activity matches your search</sys:String>
+    <sys:String x:Key="Terminology.History.EmptyState.Description">Try adjusting your filters or date range to find the activity you're looking for.</sys:String>
+    <sys:String x:Key="Terminology.List.Expires">Expires {0}</sys:String>
+    <sys:String x:Key="Terminology.List.NoPhone">No Phone</sys:String>
 
 
     <!-- Enums -->
@@ -955,7 +1081,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Finance.Toast.UpdateStaffError">Failed to update staff: {0}</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.AddingStaff">Adding staff member...</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.UpdatingStaff">Updating staff member...</sys:String>
-    <sys:String x:Key="Strings.Finance.CanCreateMembers">Can Create Members</sys:String>
+    <sys:String x:Key="Permission.ViewDashboard">View Dashboard</sys:String>
+    <sys:String x:Key="Permission.CreateMember">Manage Members</sys:String>
+    <sys:String x:Key="Permission.ModifyProduct">Manage Products &amp; Inventory</sys:String>
+    <sys:String x:Key="Permission.CreateStaff">Manage Staff &amp; Permissions</sys:String>
     <sys:String x:Key="Strings.GymHome.Simulate">Simulate</sys:String>
     <sys:String x:Key="Strings.Members.JPGPNGorWebPMax5MB">JPG, PNG or WebP (Max 5MB)</sys:String>
     <sys:String x:Key="Strings.Members.Gender">Gender</sys:String>
@@ -1299,6 +1428,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.FinanceAndStaff.View.Grid">Grid View</sys:String>
     <sys:String x:Key="Terminology.FinanceAndStaff.View.List">List View</sys:String>
     <sys:String x:Key="Terminology.Global.Action.LoadMore">Load More</sys:String>
+    <sys:String x:Key="Terminology.Global.Action.ResetFilters">Reset Filters</sys:String>
     <sys:String x:Key="Terminology.Members.DeleteMember">Delete Member</sys:String>
     <sys:String x:Key="Terminology.Members.Detail.ExpirationDate">Expiration Date</sys:String>
     <sys:String x:Key="Terminology.Members.Detail.MembershipInfo">Membership Info</sys:String>
@@ -1414,4 +1544,160 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Gym.Registration.Name">Full Name</sys:String>
     <sys:String x:Key="Terminology.Gym.Registration.Phone">Phone Number</sys:String>
     <sys:String x:Key="Terminology.Gym.LeadNoExpiry">Awaiting Membership</sys:String>
+
+    <!-- Modals -->
+    <sys:String x:Key="Terminology.GymHome.WalkIn.GroupSize">Select group size</sys:String>
+    <sys:String x:Key="Terminology.Settings.Discounts.Select">Select a manual discount</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.SearchWalkIn">Search walk-in plans...</sys:String>
+    <sys:String x:Key="Terminology.Modal.MultiSale.SearchMembers">Search members...</sys:String>
+    <sys:String x:Key="Terminology.Global.Summary">Summary</sys:String>
+    <sys:String x:Key="Terminology.Global.TotalPrice">Total Price</sys:String>
+    <sys:String x:Key="Terminology.GymHome.WalkIn.Ready">Ready to process guest entry.</sys:String>
+
+    <!-- Missing Remediation Keys -->
+    <sys:String x:Key="TerminologyManualDiscountLabel">Manual Discount</sys:String>
+    <sys:String x:Key="Terminology.TopBar.Account">Account</sys:String>
+    <sys:String x:Key="Terminology.TopBar.Settings">Settings</sys:String>
+    <sys:String x:Key="Terminology.TopBar.Logout">Log out</sys:String>
+    
+    <sys:String x:Key="Terminology.Settings.Appearance.LightModeStyle">Light Mode Style</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.ChoosePalette">Choose a color palette for your workspace</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.MidnightBlush">Midnight Blush</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.Arctic">Arctic</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.ModernHighContrast">Modern · High-Contrast</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.SharpElectric">Sharp · Electric · Performance</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.Active">Active</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.WarmLinen">Warm Linen</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.Steel">Steel</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.OrganicWarm">Organic · Warm · Boutique</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.SolidGrounded">Solid · Grounded · Industrial</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.Classic">Classic</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.Gold">Gold</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.ComingSoon">Coming Soon...</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.ClassicWarmPremium">Classic · Warm · Premium</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.AppMode">App Mode</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.SwitchMode">Switch between Light and Dark mode</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.DarkMode">Dark Mode</sys:String>
+    <sys:String x:Key="Terminology.Settings.Appearance.DarkModeDesc">Easier on the eyes in low-light environments</sys:String>
+    
+
+    <sys:String x:Key="Terminology.Settings.Account.EmailGuardian">Professional Email Guardian</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.EmailGuardianDesc">Configure your business domain email to enable automatic member re-engagement. High-reputation sending requires a professional domain (e.g. @yourcompany.com).</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.SenderEmail">Sender Email</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.BrevoApiKey">Brevo API Key</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.Verification">Verification</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.ValidateAndSave">Validate &amp; Save</sys:String>
+    <sys:String x:Key="Terminology.Settings.Account.CredentialsStoredLocally">Credentials are encrypted and stored locally on this machine using Windows DPAPI.</sys:String>
+    
+    <sys:String x:Key="Terminology.DiscountEditor.Configure">Configure a manual discount rule</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Name">Discount Name</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Settings">DISCOUNT SETTINGS</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Type">Discount Type</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Percentage">Percentage (%)</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.FixedAmount">Fixed Amount</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Value">Discount Value</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.AutoApply">Auto Apply</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.ApplyAutomatically">Apply automatically to matching criteria</sys:String>
+    <sys:String x:Key="Terminology.DiscountEditor.Save">Save Discount</sys:String>
+    
+    <sys:String x:Key="Terminology.Home.Status.Online">All systems online</sys:String>
+    <sys:String x:Key="Terminology.Home.Greeting.Morning">Good morning</sys:String>
+    <sys:String x:Key="Terminology.Home.Greeting.Afternoon">Good afternoon</sys:String>
+    <sys:String x:Key="Terminology.Home.Greeting.Evening">Good evening</sys:String>
+    <sys:String x:Key="Terminology.Home.Greeting.Default">Hello</sys:String>
+
+    <!-- Phase 3 Missing Localization Keys (KPIs, Charts) -->
+
+    <sys:String x:Key="Terminology.Dashboard.Alert.DaysSuffix">{0} days ago</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Alert.Today">today</sys:String>
+
+
+
+
+    <sys:String x:Key="Terminology.Dashboard.Chart.Week1">week 1</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Week2">week 2</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Week3">week 3</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Week4">week 4</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits0">0 visits</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits1">1 visit</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits2">2 visits</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits3">3 visits</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits4">4 visits</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Chart.Visits5Plus">5+ visits</sys:String>
+
+    <sys:String x:Key="Terminology.Chart.Series.Male">Male</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Female">Female</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.MediumRisk">Medium Risk</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.NewMembers">New Members</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.LostMembers">Lost Members</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.LiveCapacity">Live Capacity</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.Members">Members</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.RebookingRate">Rebooking Rate</sys:String>
+    <sys:String x:Key="Terminology.Chart.Series.ProfitabilityIndex">Profitability Index</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Period.LIVE">LIVE</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Period.CURRENT">CURRENT</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Period.LIFETIME">LIFETIME</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Period.7D">7D</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Period.MO">MO</sys:String>
+    
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.vslasthour">vs last hour</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.ofactivemembers">of active members</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.ofleadsconverted">of leads converted</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.avgweek">avg/week</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.ofwalkinsconverted">of walkins converted</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.KPI.Comparison.vslastmonth">vs last month</sys:String>
+    <!-- Staff Roles -->
+    <sys:String x:Key="Terminology.Enum.StaffRole.None">None</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffRole.Staff">Staff</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffRole.Owner">Owner</sys:String>
+    
+    <sys:String x:Key="Terminology.Enum.StaffStatus.Active">Active</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffStatus.Inactive">Inactive</sys:String>
+    
+    <!-- Member Sources -->
+    <sys:String x:Key="Terminology.Member.Source.WalkIn">Walk-in</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.WordOfMouth">Word of Mouth</sys:String>
+    <sys:String x:Key="Terminology.Member.Source.Other">Other</sys:String>
+
+    <!-- History Events -->
+    <sys:String x:Key="Terminology.History.Event.CheckIn">Check-in</sys:String>
+    <sys:String x:Key="Terminology.History.Event.AccessDenied">Access Denied</sys:String>
+    <sys:String x:Key="Terminology.History.Event.Payment">Payment</sys:String>
+    <sys:String x:Key="Terminology.History.Event.Sale">Sale</sys:String>
+    <sys:String x:Key="Terminology.History.Event.MultiplePurchase">Multiple Items Purchase</sys:String>
+    <sys:String x:Key="Terminology.History.Event.Payroll">Payroll</sys:String>
+    <sys:String x:Key="Terminology.History.Event.Appointment">Appointment</sys:String>
+
+    <!-- Salon Onboarding Guide -->
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Title">Welcome to the Dashboard</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Description">This is your central command center. Stay on top of appointments, sales, and client history seamlessly.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Title">Record a walk-in visit</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Description">Track daily visitors who aren't members using the Walk-in quick action module.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Title">Quick Point of Sale</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Description">Process products and services instantly using the Quick Sale flow.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Title">Hardware Telemetry</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Description">Check the bottom footer to ensure your barcode scanners and receipt printers are online.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Title">Multi-Item Sales</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Description">Handling a large checkout? Use the Multi-Sale Cart to bundle items securely.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Title">Activity Stream</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Description">Watch the real-time event log update automatically as services are completed or products sold.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Title">Creating New Clients</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Description">Use the Create Member action to rapidly enroll new clients directly from the Home screen.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Title">End of Shift Protocol</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Description">Verify the expected Daily Cash Total matches your physical till before logging out.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Title">Appointments Today</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Description">Monitor the Agenda card to see upcoming client appointments and manage chair utilization.</sys:String>
+    
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Title">Next Appointment</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Description">The carousel in the top-left highlights your immediate next client. Click the arrows to browse the full daily schedule.</sys:String>
 </ResourceDictionary>
+
+

@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Management.Domain.Primitives;
+using Management.Domain.Constants;
 
 namespace Management.Presentation.ViewModels.Finance
 {
@@ -36,7 +37,7 @@ namespace Management.Presentation.ViewModels.Finance
 
         public Action<StaffMemberViewModel>? OnStaffAdded;
 
-        public ObservableCollection<string> Roles { get; } = new() { "Staff", "Owner" };
+        public ObservableCollection<Management.Domain.Enums.StaffRole> Roles { get; } = new() { Management.Domain.Enums.StaffRole.Staff, Management.Domain.Enums.StaffRole.Owner };
 
         public AddStaffViewModel(
             ITerminologyService terminologyService,
@@ -57,7 +58,7 @@ namespace Management.Presentation.ViewModels.Finance
             CancelCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => CloseAsync(null));
             SaveCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(SaveAsync);
 
-            NewStaff.Role = "Staff";
+            NewStaff.Role = Management.Domain.Enums.StaffRole.Staff;
             NewStaff.Permissions = new System.Collections.ObjectModel.ObservableCollection<StaffPermission>
             {
             };
@@ -74,9 +75,12 @@ namespace Management.Presentation.ViewModels.Finance
             ActionButtonText = GetTerm("Terminology.Staff.Add.Action.Create") ?? "Create Staff";
             
             // Refresh permissions labels if needed
-            if (NewStaff.Permissions.Count > 0)
+            foreach (var p in NewStaff.Permissions)
             {
-                NewStaff.Permissions[0].Name = GetTerm("Strings.Finance.CanCreateMembers") ?? "Can Create Members";
+                if (p.Key == SystemPermissions.ViewDashboard) p.Name = GetTerm("Permission.ViewDashboard") ?? "View Dashboard";
+                else if (p.Key == SystemPermissions.CreateMember) p.Name = GetTerm("Permission.CreateMember") ?? "Manage Members";
+                else if (p.Key == SystemPermissions.ModifyProduct) p.Name = GetTerm("Permission.ModifyProduct") ?? "Manage Products";
+                else if (p.Key == SystemPermissions.CreateStaff) p.Name = GetTerm("Permission.CreateStaff") ?? "Manage Staff";
             }
         }
 
@@ -116,7 +120,7 @@ namespace Management.Presentation.ViewModels.Finance
 
             await ExecuteLoadingAsync(async () =>
             {
-                var role = Enum.TryParse<Management.Domain.Enums.StaffRole>(NewStaff.Role, out var r) ? r : Management.Domain.Enums.StaffRole.Staff;
+                var role = NewStaff.Role;
 
                 var targetFacilityId = _facilityContext.CurrentFacilityId;
 
@@ -136,9 +140,14 @@ namespace Management.Presentation.ViewModels.Finance
                     AllowedModules = new System.Collections.Generic.List<string> { _facilityContext.CurrentFacility.ToString() }
                 };
 
-                // Handle basic permission
-                var canCreateMembers = NewStaff.Permissions.FirstOrDefault(p => p.Name == "Can Create Members")?.IsGranted ?? false;
-                dto.Permissions.Add(new Management.Application.DTOs.PermissionDto("CanCreateMembers", canCreateMembers));
+                // Map UI permissions to DTO
+                foreach (var p in NewStaff.Permissions)
+                {
+                    if (!string.IsNullOrEmpty(p.Key))
+                    {
+                        dto.Permissions.Add(new Management.Application.DTOs.PermissionDto(p.Key, p.IsGranted));
+                    }
+                }
 
                 var result = IsEditing 
                     ? await _staffService.UpdateStaffAsync(dto)
@@ -169,10 +178,13 @@ namespace Management.Presentation.ViewModels.Finance
             IsEditing = false;
             NewStaff = new StaffMemberViewModel
             {
-                Role = "Staff",
+                Role = Management.Domain.Enums.StaffRole.Staff,
                 Permissions = new System.Collections.ObjectModel.ObservableCollection<StaffPermission>
                 {
-                    new StaffPermission { Name = GetTerm("Strings.Finance.CanCreateMembers") ?? "Can Create Members", IsGranted = false }
+                    new StaffPermission { Name = GetTerm("Permission.ViewDashboard") ?? "View Dashboard", Key = SystemPermissions.ViewDashboard, IsGranted = false },
+                    new StaffPermission { Name = GetTerm("Permission.CreateMember") ?? "Manage Members", Key = SystemPermissions.CreateMember, IsGranted = false },
+                    new StaffPermission { Name = GetTerm("Permission.ModifyProduct") ?? "Manage Products", Key = SystemPermissions.ModifyProduct, IsGranted = false },
+                    new StaffPermission { Name = GetTerm("Permission.CreateStaff") ?? "Manage Staff", Key = SystemPermissions.CreateStaff, IsGranted = false }
                 }
             };
             ActionButtonText = GetTerm("Terminology.Staff.Add.Action.Create") ?? "Create Staff Member";

@@ -19,6 +19,7 @@ namespace Management.Domain.Models
         public string ImageUrl { get; private set; }
         public int ReorderLevel { get; private set; }
         public bool IsActive { get; private set; }
+        public bool IsPinned { get; private set; }
 
         private Product(
             Guid id, 
@@ -143,6 +144,12 @@ namespace Management.Domain.Models
         public void Activate()
         {
             IsActive = true;
+        }
+
+        public void TogglePin()
+        {
+            IsPinned = !IsPinned;
+            UpdateTimestamp();
         }
 
         public Result ReceiveStock(int quantityAdded, Money unitCost, Money? newSalePrice = null)

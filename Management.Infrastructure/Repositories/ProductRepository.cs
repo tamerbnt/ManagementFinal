@@ -18,7 +18,8 @@ namespace Management.Infrastructure.Repositories
         {
             var query = BuildSearchQuery(searchTerm, facilityId, category);
             return await query
-                .OrderBy(p => p.Name)
+                .OrderByDescending(p => p.IsPinned)
+                .ThenBy(p => p.Name)
                 .ToListAsync();
         }
 
@@ -32,7 +33,8 @@ namespace Management.Infrastructure.Repositories
             var query = BuildSearchQuery(searchTerm, facilityId, category);
             var totalCount = await query.CountAsync();
             var items = await query
-                .OrderBy(p => p.Name)
+                .OrderByDescending(p => p.IsPinned)
+                .ThenBy(p => p.Name)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -69,7 +71,7 @@ namespace Management.Infrastructure.Repositories
                 ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && !p.IsDeleted && p.StockQuantity <= p.ReorderLevel)
                 : _dbSet.AsNoTracking().Where(p => !p.IsDeleted && p.StockQuantity <= p.ReorderLevel);
 
-            return await query.OrderBy(p => p.Name).ToListAsync();
+            return await query.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetActiveProductsAsync(Guid? facilityId = null)
@@ -78,7 +80,7 @@ namespace Management.Infrastructure.Repositories
                 ? _dbSet.AsNoTracking().IgnoreQueryFilters().Where(p => p.FacilityId == facilityId.Value && !p.IsDeleted && p.IsActive)
                 : _dbSet.AsNoTracking().Where(p => !p.IsDeleted && p.IsActive);
 
-            return await query.OrderBy(p => p.Name).ToListAsync();
+            return await query.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<Product>> GetInventoryStatusAsync(Guid? facilityId = null)

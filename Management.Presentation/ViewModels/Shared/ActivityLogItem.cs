@@ -28,10 +28,23 @@ namespace Management.Presentation.ViewModels.Shared
             get
             {
                 var diff = System.DateTime.Now - SortDate;
-                if (diff.TotalMinutes < 1) return "now";
-                if (diff.TotalHours < 1) return $"{(int)diff.TotalMinutes}min ago";
-                if (diff.TotalDays < 1) return $"{(int)diff.TotalHours}h ago";
-                return $"{(int)diff.TotalDays}d ago";
+                if (diff.TotalMinutes < 1) 
+                    return System.Windows.Application.Current.TryFindResource("Terminology.Global.Time.Now") as string ?? "now";
+                
+                if (diff.TotalHours < 1)
+                {
+                    var format = System.Windows.Application.Current.TryFindResource("Terminology.Global.Time.MinAgo") as string ?? "{0}min ago";
+                    return string.Format(format, (int)diff.TotalMinutes);
+                }
+                
+                if (diff.TotalDays < 1)
+                {
+                    var format = System.Windows.Application.Current.TryFindResource("Terminology.Global.Time.HoursAgo") as string ?? "{0}h ago";
+                    return string.Format(format, (int)diff.TotalHours);
+                }
+                
+                var daysFormat = System.Windows.Application.Current.TryFindResource("Terminology.Global.Time.DaysAgo") as string ?? "{0}d ago";
+                return string.Format(daysFormat, (int)diff.TotalDays);
             }
         }
 

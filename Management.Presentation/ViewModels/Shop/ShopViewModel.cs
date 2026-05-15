@@ -141,7 +141,9 @@ namespace Management.Presentation.ViewModels.Shop
         public IAsyncRelayCommand<ProductDto> OpenRestockProductCommand { get; }
         public IAsyncRelayCommand DeleteSelectedCommand { get; }
         public IAsyncRelayCommand DeleteProductCommand { get; }
+        public IAsyncRelayCommand<ProductItemViewModel> ToggleProductPinCommand { get; }
         public IRelayCommand ClearSelectionCommand { get; }
+        public IRelayCommand ResetFiltersCommand { get; }
 
 
         public ShopViewModel(
@@ -172,6 +174,7 @@ namespace Management.Presentation.ViewModels.Shop
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.Register<Management.Presentation.Messages.RefreshRequiredMessage<Management.Domain.Models.Product>>(this);
 
             _productStore.StockUpdated += OnProductStockUpdated;
+            _productStore.ProductUpdated += OnProductUpdated;
             
             LoadProductsCommand = new AsyncRelayCommand(async () => {
                 CurrentPage = 1;
@@ -309,6 +312,13 @@ namespace Management.Presentation.ViewModels.Shop
                 SelectAll = false;
             });
 
+            ResetFiltersCommand = new RelayCommand(() => 
+            {
+                SearchText = string.Empty;
+                FilterAll = true;
+                // Add any other resets if needed
+            });
+
             _productsCollectionChangedHandler = (s, e) =>
             {
                 if (e.NewItems != null)
@@ -326,6 +336,33 @@ namespace Management.Presentation.ViewModels.Shop
 
             _cartCollectionChangedHandler = (s, e) => NotifyCartChanges();
             CurrentCart.Items.CollectionChanged += _cartCollectionChangedHandler;
+
+            ToggleProductPinCommand = new AsyncRelayCommand<ProductItemViewModel>(async (item) =>
+            {
+                if (item == null) return;
+
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var mediator = scope.ServiceProvider.GetRequiredService<MediatR.IMediator>();
+                    
+                    var result = await mediator.Send(new Management.Application.Features.Products.Commands.ToggleProductPin.ToggleProductPinCommand(item.Id));
+                    
+                    if (result.IsSuccess)
+                    {
+                        // The event from ProductStore will update the item across all views
+                    }
+                    else
+                    {
+                        _toastService.ShowError($"Failed to pin product: {result.Error}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error toggling product pin.");
+                    _toastService.ShowError("An error occurred while toggling pin.");
+                }
+            });
 
             SaveProductCommand = new AsyncRelayCommand(async () => {
                 if (SelectedProduct == null) return;
@@ -469,6 +506,23 @@ namespace Management.Presentation.ViewModels.Shop
                 }
             }
             base.Dispose(disposing);
+        }
+
+        private void OnProductUpdated(ProductDto updatedProduct)
+        {
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                var item = Products.FirstOrDefault(p => p.Id == updatedProduct.Id);
+                if (item != null)
+                {
+                    item.UpdateFromDto(updatedProduct);
+                }
+
+                if (SelectedProduct != null && SelectedProduct.Id == updatedProduct.Id)
+                {
+                    SelectedProduct.UpdateFromDto(updatedProduct);
+                }
+            });
         }
 
         private void OnProductStockUpdated(ProductDto updatedProduct)

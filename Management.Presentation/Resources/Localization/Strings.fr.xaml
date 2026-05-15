@@ -245,6 +245,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Shop.Detail.Description">DESCRIPTIF</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.EditProduct">Modifier le produit</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.SaveChanges">Enregistrer les modifications</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Pin">Épingler</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Unpin">Désépingler</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatus">Épingler le produit</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatusDesc">Prioriser ce produit dans les listes de vente</sys:String>
 
     <!-- Add Product Form -->
     <sys:String x:Key="Terminology.Shop.AddProduct.Title">Nouveau produit</sys:String>
@@ -968,7 +972,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Finance.Toast.UpdateStaffError">Échec de la mise à jour du personnel : {0}</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.AddingStaff">Ajout d'un membre du personnel...</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.UpdatingStaff">Mise à jour du membre du personnel...</sys:String>
-    <sys:String x:Key="Strings.Finance.CanCreateMembers">Peut créer des membres</sys:String>
+    <sys:String x:Key="Permission.ViewDashboard">Voir le tableau de bord</sys:String>
+    <sys:String x:Key="Permission.CreateMember">Gérer les membres</sys:String>
+    <sys:String x:Key="Permission.ModifyProduct">Gérer les produits et l'inventaire</sys:String>
+    <sys:String x:Key="Permission.CreateStaff">Gérer le personnel et les autorisations</sys:String>
     <sys:String x:Key="Strings.GymHome.Simulate">Simuler</sys:String>
     <sys:String x:Key="Strings.Members.JPGPNGorWebPMax5MB">JPG, PNG ou WebP (maximum 5 Mo)</sys:String>
     <sys:String x:Key="Strings.Members.Gender">Genre</sys:String>
@@ -1399,4 +1406,48 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Gym.Registration.Name">Nom Complet</sys:String>
     <sys:String x:Key="Terminology.Gym.Registration.Phone">Numéro de Téléphone</sys:String>
     <sys:String x:Key="Terminology.Gym.LeadNoExpiry">En attente d'adhésion</sys:String>
+
+    <!-- Dashboard Guide (Gym) -->
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Title">Bienvenue sur le tableau de bord</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Description">Ceci est votre centre de commande central. Restez au courant des adhésions, des ventes et du contrôle d'accès en toute transparence.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Title">Enregistrer une visite sans rendez-vous</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Description">Suivez les visiteurs quotidiens qui ne sont pas membres à l'aide du module d'action rapide Sans rendez-vous.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Title">Point de vente rapide</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Description">Traitez instantanément l'eau, les serviettes et les suppléments à l'aide du flux de vente rapide.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Title">Alertes d'expiration prochaine</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Description">Surveillez les cartes KPI pour engager proactivement les membres avant la fin de leur abonnement.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Title">Télémétrie du matériel</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Description">Vérifiez le pied de page pour vous assurer que vos scanners de codes-barres et vos imprimantes de reçus sont en ligne.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Title">Ventes multi-articles</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Description">Vous gérez une grosse commande ? Utilisez le panier multi-ventes pour regrouper les articles en toute sécurité.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Title">Dépassement d'occupation</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Description">Lorsque la salle atteint sa capacité maximale, l'anneau d'occupation s'allume pour alerter le personnel de réception.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Title">Flux d'activité</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Description">Regardez le journal des événements en temps réel se mettre à jour automatiquement au fur et à mesure que les gens scannent ou effectuent des achats.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Title">Création de nouveaux membres</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Description">Utilisez l'action Créer un membre pour inscrire rapidement les visiteurs sans rendez-vous directement depuis l'écran d'accueil.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Title">Protocole de fin de service</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Description">Vérifiez que le total de caisse quotidien attendu correspond à votre caisse physique avant de vous déconnecter.</sys:String>
+
+    <!-- Salon Onboarding Guide -->
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Title">Bienvenue sur le tableau de bord</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Description">Ceci est votre centre de commande central. Restez au courant des rendez-vous, des ventes et de l'historique des clients en toute transparence.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Title">Enregistrer une visite sans rendez-vous</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Description">Suivez les visiteurs quotidiens qui ne sont pas membres à l'aide du module d'action rapide Sans rendez-vous.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Title">Point de vente rapide</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Description">Traitez instantanément les produits et services à l'aide du flux de vente rapide.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Title">Télémétrie du matériel</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Description">Vérifiez le pied de page pour vous assurer que vos scanners de codes-barres et vos imprimantes de reçus sont en ligne.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Title">Ventes multi-articles</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Description">Vous gérez une grosse commande ? Utilisez le panier multi-ventes pour regrouper les articles en toute sécurité.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Title">Flux d'activité</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Description">Regardez le journal des événements en temps réel se mettre à jour automatiquement au fur et à mesure que les services sont terminés ou que les produits sont vendus.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Title">Création de nouveaux clients</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Description">Utilisez l'action Créer un membre pour inscrire rapidement de nouveaux clients directement depuis l'écran d'accueil.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Title">Protocole de fin de service</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Description">Vérifiez que le total de caisse quotidien attendu correspond à votre caisse physique avant de vous déconnecter.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Title">Rendez-vous aujourd'hui</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Description">Surveillez la carte Agenda pour voir les rendez-vous clients à venir et gérer l'utilisation des fauteuils.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Title">Prochain rendez-vous</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Description">Le carrousel en haut à gauche met en évidence votre prochain client immédiat. Cliquez sur les flèches pour parcourir le programme quotidien complet.</sys:String>
 </ResourceDictionary>

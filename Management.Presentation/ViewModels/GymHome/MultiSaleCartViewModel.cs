@@ -178,7 +178,8 @@ namespace Management.Presentation.ViewModels.GymHome
             _discountService = discountService;
 
             Title = GetTerm("Strings.GymHome.MultiSaleCart") ?? "Multi-Sale / Cart";
-            _productStore.StockUpdated += OnProductStockUpdated;
+            _productStore.StockUpdated += OnProductUpdated;
+            _productStore.ProductUpdated += OnProductUpdated;
             _ = LoadProductsAsync();
             _ = LoadWalkInPlansAsync();
             _ = LoadDiscountsAsync();
@@ -641,17 +642,24 @@ namespace Management.Presentation.ViewModels.GymHome
             }, GetTerm("Strings.Shop.Checkoutfailed")?.TrimEnd(':') ?? "Checkout failed.");
         }
 
-        private void OnProductStockUpdated(ProductDto updatedProduct)
+        private void OnProductUpdated(ProductDto updatedProduct)
         {
             System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 if (IsDisposed) return;
                 
-                // Sync local product list
-                var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
-                if (product != null)
+                var index = _allProducts.FindIndex(p => p.Id == updatedProduct.Id);
+                if (index != -1)
                 {
-                    product.StockQuantity = updatedProduct.StockQuantity;
+                    _allProducts[index] = updatedProduct;
+                    // Re-sort since pin state might have changed
+                    _allProducts = _allProducts.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToList();
+                    FilterProducts(SearchQuery);
+                }
+                else if (updatedProduct != null)
+                {
+                    _allProducts.Add(updatedProduct);
+                    _allProducts = _allProducts.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToList();
                     FilterProducts(SearchQuery);
                 }
             });
@@ -663,7 +671,8 @@ namespace Management.Presentation.ViewModels.GymHome
             {
                 if (_productStore != null)
                 {
-                    _productStore.StockUpdated -= OnProductStockUpdated;
+                    _productStore.StockUpdated -= OnProductUpdated;
+                    _productStore.ProductUpdated -= OnProductUpdated;
                 }
             }
             base.Dispose(disposing);

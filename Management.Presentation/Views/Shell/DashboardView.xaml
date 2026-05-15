@@ -21,6 +21,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter"/>
         <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
         <!-- Mini Mode Toggle for Detail/Summary switching in Cards -->
         <Style x:Key="Style.MiniModeToggle" TargetType="ToggleButton">
@@ -278,10 +279,17 @@
                 <StackPanel Orientation="Horizontal">
                     
                     <!-- Switch View Button -->
-                    <!-- Premium View Switcher Toggle -->
-                    <ToggleButton IsChecked="{Binding IsBusinessMode}"
-                                  Style="{StaticResource Style.DashboardModeToggle}"
-                                  Margin="0,0,12,0"/>
+                                        <!-- Segmented Control View Switcher -->
+                    <Border Background="{DynamicResource Brush.Surface.Header}" CornerRadius="8" Padding="4" Margin="0,0,12,0" BorderBrush="{DynamicResource Brush.Surface.Border}" BorderThickness="1">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Content="{DynamicResource Terminology.Dashboard.View.SwitchToOperations}" 
+                                         IsChecked="{Binding IsBusinessMode, Converter={StaticResource InverseBoolConverter}}" 
+                                         Style="{StaticResource SegmentedRadioButtonStyle}"/>
+                            <RadioButton Content="{DynamicResource Terminology.Dashboard.View.SwitchToBusiness}" 
+                                         IsChecked="{Binding IsBusinessMode}" 
+                                         Style="{StaticResource SegmentedRadioButtonStyle}"/>
+                        </StackPanel>
+                    </Border>
 
 
                 </StackPanel>
@@ -946,8 +954,8 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Member Sources" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
-                                <TextBlock Text="Acquisition BI" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberSources}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.AcquisitionBI}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
                             </StackPanel>
                             <lvc:PieChart Grid.Column="1" Series="{Binding GymAcquisitionSeries}" InitialRotation="-90" MaxAngle="360" LegendPosition="Right" LegendTextPaint="{DynamicResource TextTertiaryPaint}" LegendTextSize="10" />
                         </Grid>
@@ -960,7 +968,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
                                 <TextBlock Text="{DynamicResource Terminology.Salon.BI.ClientAquisition}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
-                                <TextBlock Text="Source Distribution" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.SourceDistribution}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
                             </StackPanel>
                             <lvc:PieChart Grid.Column="1" Series="{Binding SalonAcquisitionSeries}" InitialRotation="-90" MaxAngle="360" LegendPosition="Right" LegendTextPaint="{DynamicResource TextTertiaryPaint}" LegendTextSize="10" />
                         </Grid>
@@ -989,7 +997,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="REVENUE TREND" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" FontSize="16" Opacity="0.8"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RevenueTrend}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" FontSize="16" Opacity="0.8"/>
                                 <TextBlock Text="{Binding FormattedRevenueTrendMonth}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="ExtraBold" FontSize="22" Margin="0,4,0,0"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -1062,7 +1070,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Member Demographics" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberDemographics}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}" TooltipPosition="Top"/>
                         </Grid>
                     </Border>
@@ -1387,3 +1395,4 @@
 
     </Grid>
 </UserControl>
+

@@ -1,8 +1,8 @@
-using System.Windows.Controls;
- 
+using System.Windows;
+
 namespace Management.Presentation.Views.GymHome
 {
-    public partial class RegisterWalkInModal : UserControl
+    public partial class RegisterWalkInModal : Window
     {
         public RegisterWalkInModal()
         {

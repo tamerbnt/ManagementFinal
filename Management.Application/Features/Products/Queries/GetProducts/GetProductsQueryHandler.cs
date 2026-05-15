@@ -76,7 +76,8 @@ namespace Management.Application.Features.Products.Queries.GetProducts
                 SKU = entity.SKU,
                 Category = entity.Category.ToString(),
                 ImageUrl = entity.ImageUrl,
-                ReorderLevel = entity.ReorderLevel
+                ReorderLevel = entity.ReorderLevel,
+                IsPinned = entity.IsPinned
                 // IsActive? Dto might not have it or defaults. 
                 // Step 275 ProductDto had minimal fields? 
                 // Let's assume standard mapping is fine.

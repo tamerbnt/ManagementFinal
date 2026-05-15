@@ -168,7 +168,7 @@
                             Padding="6,1" 
                             Margin="8,0,0,0" 
                             VerticalAlignment="Center">
-                        <TextBlock Text="UNDONE" 
+                        <TextBlock Text="{DynamicResource Terminology.History.UndoneBadge}" 
                                    Foreground="#E11D48" 
                                    FontSize="9" 
                                    FontWeight="Bold"/>

@@ -38,11 +38,11 @@
                           Margin="0,0,12,0" 
                           VerticalAlignment="Center"/>
                     <StackPanel>
-                        <TextBlock Text="UNDONE TRANSACTION" 
+                        <TextBlock Text="{DynamicResource Terminology.History.Detail.UndoneTitle}" 
                                    Foreground="#E11D48" 
                                    FontSize="13" 
                                    FontWeight="Bold"/>
-                        <TextBlock Text="This operation has been reverted." 
+                        <TextBlock Text="{DynamicResource Terminology.History.Detail.UndoneDesc}" 
                                    Foreground="#BE123C" 
                                    FontSize="11" 
                                    Opacity="0.8"/>

@@ -222,6 +222,8 @@ namespace Management.Presentation.ViewModels.Shell
         [ObservableProperty]
         private DashboardSummaryDto _summary = new();
 
+        private DashboardSummaryDto? _lastSummary;
+
         [ObservableProperty]
         private ISeries[] _planBreakdownSeries = Array.Empty<ISeries>();
         // ────────────────────────────────────────────────────────────────────
@@ -387,7 +389,7 @@ namespace Management.Presentation.ViewModels.Shell
             _syncService.SyncCompleted += OnSyncCompleted;
             _facilityContext.FacilityChanged += OnFacilityChanged;
             
-            IsBusinessMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Gym;
+            IsBusinessMode = false; // Always default to Operations view
             IsSalonMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Salon;
             IsRestaurantMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Restaurant;
 
@@ -448,6 +450,14 @@ namespace Management.Presentation.ViewModels.Shell
         protected override void OnLanguageChanged()
         {
             InitializeStrings();
+            UpdateFormattedOccupancyDate();
+            UpdateFormattedMonth();
+            if (_lastSummary != null)
+            {
+                if (IsGymMode) _ = RefreshBiChartsAsync(_lastSummary);
+                if (IsSalonMode) _ = RefreshSalonBiChartsAsync(_lastSummary);
+                _ = RefreshRetentionDataAsync(_lastSummary);
+            }
         }
 
         [RelayCommand]
@@ -527,11 +537,22 @@ namespace Management.Presentation.ViewModels.Shell
                 // Update Summary Text
                 var highRiskCount = summary.ChurnRisks.Count(r => r.RiskLevel == "High");
                 if (highRiskCount > 0)
-                    RetentionSummaryText = $"{highRiskCount} members are at high risk of churning.";
+                {
+                    var format = _terminologyService.GetTerm("Terminology.Dashboard.Retention.HighRiskFormat") ?? "{0} members are at high risk of churning.";
+                    RetentionSummaryText = string.Format(format, highRiskCount);
+                }
                 else
-                    RetentionSummaryText = summary.ChurnRisks.Any() 
-                        ? $"{summary.ChurnRisks.Count} members need re-engagement."
-                        : "Your community health looks great!";
+                {
+                    if (summary.ChurnRisks.Any())
+                    {
+                        var format = _terminologyService.GetTerm("Terminology.Dashboard.Retention.ReEngageFormat") ?? "{0} members need re-engagement.";
+                        RetentionSummaryText = string.Format(format, summary.ChurnRisks.Count);
+                    }
+                    else
+                    {
+                        RetentionSummaryText = _terminologyService.GetTerm("Terminology.Dashboard.Retention.Healthy") ?? "Your community health looks great!";
+                    }
+                }
 
                 // Build simple distribution chart for the "Graph" tab
                 var highCount = summary.ChurnRisks.Count(r => r.RiskLevel == "High");
@@ -544,7 +565,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new PieSeries<int>
                         {
-                            Name = "Healthy",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Healthy") ?? "Healthy"),
                             Values = new[] { 100 },
                             Fill = new SolidColorPaint(SKColor.Parse("#10B981")), // Emerald/Teal
                             InnerRadius = 60,
@@ -558,17 +579,19 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new PieSeries<int>
                         {
-                            Name = "High Risk",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.HighRisk") ?? "High Risk"),
                             Values = new[] { highCount },
                             Fill = new SolidColorPaint(SKColor.Parse("#EF4444")), // Red
-                            InnerRadius = 60
+                            InnerRadius = 60,
+                            DataLabelsPaint = null
                         },
                         new PieSeries<int>
                         {
-                            Name = "Medium Risk",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.MediumRisk") ?? "Medium Risk"),
                             Values = new[] { medCount },
                             Fill = new SolidColorPaint(SKColor.Parse("#F59E0B")), // Amber
-                            InnerRadius = 60
+                            InnerRadius = 60,
+                            DataLabelsPaint = null
                         }
                     };
                 }
@@ -579,9 +602,10 @@ namespace Management.Presentation.ViewModels.Shell
                     GymAcquisitionSeries = summary.MemberDemographics.Select(d => 
                         new PieSeries<int>
                         {
-                            Name = d.Source,
+                            Name = ApplyRtl(GetLocalizedSource(d.Source)),
                             Values = new[] { d.Count },
-                            InnerRadius = 60
+                            InnerRadius = 60,
+                            DataLabelsPaint = null
                         }).ToArray();
                 }
             });
@@ -642,7 +666,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new LineSeries<double>
                         {
-                            Name = "Revenue",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Revenue") ?? "Revenue"),
                             Values = new System.Collections.ObjectModel.ObservableCollection<double>(values),
                             Stroke = new SolidColorPaint(SKColor.Parse("#8B5CF6")) { StrokeThickness = 4 },
                             Fill = new LinearGradientPaint(
@@ -652,7 +676,7 @@ namespace Management.Presentation.ViewModels.Shell
                             GeometryStroke = new SolidColorPaint(SKColor.Parse("#8B5CF6")) { StrokeThickness = 2 },
                             GeometryFill = new SolidColorPaint(SKColors.White),
                             LineSmoothness = 0.5,
-                            YToolTipLabelFormatter = point => $"{point.Model:N2} DA"
+                            YToolTipLabelFormatter = point => $"{point.Model:N2} {_terminologyService.GetTerm("Terminology.Global.Currency") ?? "DA"}"
                         }
                     };
 
@@ -673,7 +697,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new Axis
                         {
-                            Labeler = value => $"{value:N0} DA",
+                            Labeler = value => ApplyRtl($"{value:N0} {_terminologyService.GetTerm("Terminology.Global.Currency") ?? "DA"}"),
                             LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = new SolidColorPaint(ChartSeparatorColor) { StrokeThickness = 1 },
                             TextSize = 11,
@@ -935,7 +959,23 @@ namespace Management.Presentation.ViewModels.Shell
                     
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
                     {
+                        if (summary != null)
+                        {
+                            LocalizeKpiMetric(summary.ChurnRate);
+                            LocalizeKpiMetric(summary.AvgVisitsPerWeek);
+                            LocalizeKpiMetric(summary.PeakCapacityPercent);
+                            LocalizeKpiMetric(summary.PtUpsellRate);
+                            LocalizeKpiMetric(summary.MembershipFreezeRate);
+                            LocalizeKpiMetric(summary.TrialConversionRate);
+                            LocalizeKpiMetric(summary.ClassFillRate);
+                            LocalizeKpiMetric(summary.SalonRebookingRate);
+                            LocalizeKpiMetric(summary.SalonRetailAttachRate);
+                            LocalizeKpiMetric(summary.SalonChairUtilization);
+                            LocalizeKpiMetric(summary.SalonAvgTicketValue);
+                        }
+
                         Summary = summary;
+                        _lastSummary = summary;
                         ActivePeopleCount = summary.CheckInsToday;
                         TotalActiveMembers = summary.ActiveMembers; 
                         TotalMembers = summary.TotalMembers;
@@ -1316,7 +1356,7 @@ namespace Management.Presentation.ViewModels.Shell
             IsActive = false;
             
             // Ensure facility mode flags are updated upon facility switch
-            IsBusinessMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Gym;
+            IsBusinessMode = false; // Always default to Operations view
             IsSalonMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Salon;
             IsRestaurantMode = _facilityContext.CurrentFacility == Management.Domain.Enums.FacilityType.Restaurant;
 
@@ -1388,9 +1428,9 @@ namespace Management.Presentation.ViewModels.Shell
         {
             var now = DateTime.Now;
             if (SelectedMonth.Month == now.Month && SelectedMonth.Year == now.Year)
-                FormattedSelectedMonth = "THIS MONTH";
+                FormattedSelectedMonth = GetTerm("Terminology.Dashboard.Range.ThisMonth") ?? "THIS MONTH";
             else
-                FormattedSelectedMonth = SelectedMonth.ToString("MMMM yyyy").ToUpper();
+                FormattedSelectedMonth = SelectedMonth.ToString("MMMM yyyy", _localizationService?.CurrentCulture).ToUpper();
         }
 
         private async Task RefreshMemberDevelopmentAsync()
@@ -1429,9 +1469,12 @@ namespace Management.Presentation.ViewModels.Shell
                      double[] values = new double[4];
                      values[i] = counts[i];
 
+                     var weekKey = $"Terminology.Dashboard.Chart.Week{i + 1}";
+                     var weekLabel = GetTerm(weekKey) ?? $"Week {i + 1}";
+
                      seriesList.Add(new ColumnSeries<double>
                      {
-                         Name = $"Week {i + 1}",
+                         Name = ApplyRtl(weekLabel),
                          Values = values,
                          Fill = new SolidColorPaint(SKColor.Parse(colors[i])),
                          Rx = 80, Ry = 80,
@@ -1446,7 +1489,12 @@ namespace Management.Presentation.ViewModels.Shell
 
                  MemberXAxes = new[] {
                      new Axis { 
-                         Labels = new[] { "week 1", "week 2", "week 3", "week 4" },
+                         Labels = new[] { 
+                             ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Week1") ?? "week 1"), 
+                             ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Week2") ?? "week 2"), 
+                             ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Week3") ?? "week 3"), 
+                             ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Week4") ?? "week 4") 
+                         },
                          LabelsPaint = new SolidColorPaint(ChartLabelColor),
                          TextSize = 12,
                          SeparatorsPaint = null,
@@ -1475,11 +1523,11 @@ namespace Management.Presentation.ViewModels.Shell
         private void UpdateFormattedOccupancyDate()
         {
             if (SelectedOccupancyDate.Date == DateTime.Today)
-                FormattedOccupancyDate = "TODAY";
+                FormattedOccupancyDate = GetTerm("Terminology.Dashboard.Range.Today") ?? "TODAY";
             else if (SelectedOccupancyDate.Date == DateTime.Today.AddDays(-1))
-                FormattedOccupancyDate = "YESTERDAY";
+                FormattedOccupancyDate = GetTerm("Terminology.Dashboard.Range.Yesterday") ?? "YESTERDAY";
             else
-                FormattedOccupancyDate = SelectedOccupancyDate.ToString("ddd, MMM dd").ToUpper();
+                FormattedOccupancyDate = SelectedOccupancyDate.ToString("ddd, MMM dd", _localizationService?.CurrentCulture).ToUpper();
         }
 
         // Called automatically by CommunityToolkit.Mvvm whenever SelectedOccupancyDate changes.
@@ -1521,7 +1569,7 @@ namespace Management.Presentation.ViewModels.Shell
                         new LineSeries<double>
                         {
                             Values = new ObservableCollection<double>(trend.Select(p => p.Value ?? 0)),
-                            Name = "Live Capacity",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.LiveCapacity") ?? "Live Capacity"),
                             Fill = new LinearGradientPaint(
                                 new SKColor[] { SKColor.Parse("#10B981").WithAlpha(40), SKColors.Transparent }, 
                                 new SKPoint(0.5f, 0), 
@@ -1619,7 +1667,7 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     new ColumnSeries<decimal>
                     {
-                        Name = "Profitability Index",
+                        Name = ApplyRtl(GetTerm("Terminology.Chart.Series.ProfitabilityIndex") ?? "Profitability Index"),
                         Values = new ObservableCollection<decimal>(summary.ServiceProfitability.Select(s => s.ProfitabilityIndex)),
                         Fill = new SolidColorPaint(SKColor.Parse("#8B5CF6")), // Violet
                         Padding = 4,
@@ -1631,7 +1679,7 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     new Axis
                     {
-                        Labels = summary.ServiceProfitability.Select(s => s.ServiceName).ToArray(),
+                        Labels = summary.ServiceProfitability.Select(s => ApplyRtl(s.ServiceName)).ToArray(),
                         LabelsPaint = new SolidColorPaint(ChartLabelColor),
                         SeparatorsPaint = null,
                         TextSize = 10
@@ -1650,7 +1698,7 @@ namespace Management.Presentation.ViewModels.Shell
                 };
 
                 // 2. Combined Demographics (Gym Style: Grouped Column)
-                var ageGroups = new[] { "Under 18", "18-25", "26-35", "36-50", "50+" };
+                var ageGroups = new[] { ApplyRtl("Under 18"), ApplyRtl("18-25"), ApplyRtl("26-35"), ApplyRtl("36-50"), ApplyRtl("50+") };
                 var maleData = new double[5];
                 var femaleData = new double[5];
 
@@ -1674,7 +1722,7 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     new ColumnSeries<double>
                     {
-                        Name = "Male",
+                        Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Male") ?? "Male"),
                         Values = maleData,
                         Stroke = new SolidColorPaint(SKColor.Parse("#3B82F6")) { StrokeThickness = 2 },
                         Fill = new SolidColorPaint(SKColor.Parse("#3B82F6").WithAlpha(180)),
@@ -1683,7 +1731,7 @@ namespace Management.Presentation.ViewModels.Shell
                     },
                     new ColumnSeries<double>
                     {
-                        Name = "Female",
+                        Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Female") ?? "Female"),
                         Values = femaleData,
                         Stroke = new SolidColorPaint(SKColor.Parse("#EC4899")) { StrokeThickness = 2 },
                         Fill = new SolidColorPaint(SKColor.Parse("#EC4899").WithAlpha(180)),
@@ -1714,13 +1762,14 @@ namespace Management.Presentation.ViewModels.Shell
                     }
                 };
 
-                // 3. Acquisition Sources (Pie Chart) - NEW PROPERTY
+                // 3. Acquisition Sources (Pie Chart)
                 SalonAcquisitionSeries = summary.MemberDemographics.Select(d => 
                     new PieSeries<int>
                     {
-                        Name = d.Source,
+                        Name = ApplyRtl(GetLocalizedSource(d.Source)),
                         Values = new[] { d.Count },
-                        InnerRadius = 60
+                        InnerRadius = 60,
+                        DataLabelsPaint = null
                     }).ToArray();
 
                 // 4. Staff Performance
@@ -1728,7 +1777,7 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     new ColumnSeries<decimal>
                     {
-                        Name = "Rebooking Rate",
+                        Name = ApplyRtl(GetTerm("Terminology.Chart.Series.RebookingRate") ?? "Rebooking Rate"),
                         Values = new ObservableCollection<decimal>(summary.SalonStaffPerformance.Select(s => s.RebookingRate)),
                         Fill = new SolidColorPaint(SKColor.Parse("#10B981")), // Emerald
                         Padding = 4,
@@ -1740,7 +1789,7 @@ namespace Management.Presentation.ViewModels.Shell
                 {
                     new Axis
                     {
-                        Labels = summary.SalonStaffPerformance.Select(s => s.StaffName).ToArray(),
+                        Labels = summary.SalonStaffPerformance.Select(s => ApplyRtl(s.StaffName)).ToArray(),
                         LabelsPaint = new SolidColorPaint(ChartLabelColor),
                         SeparatorsPaint = null,
                         TextSize = 10
@@ -1761,6 +1810,29 @@ namespace Management.Presentation.ViewModels.Shell
             });
         }
 
+        private void LocalizeKpiMetric(KpiMetricDto metric)
+        {
+            if (metric == null) return;
+            
+            // Map PeriodLabel
+            if (!string.IsNullOrEmpty(metric.PeriodLabel))
+            {
+                var key = "Terminology.Dashboard.KPI.Period." + metric.PeriodLabel.Replace(" ", "");
+                var localized = _terminologyService.GetTerm(key);
+                if (!string.IsNullOrEmpty(localized) && localized != key)
+                    metric.PeriodLabel = localized;
+            }
+
+            // Map ComparisonLabel
+            if (!string.IsNullOrEmpty(metric.ComparisonLabel))
+            {
+                var key = "Terminology.Dashboard.KPI.Comparison." + metric.ComparisonLabel.Replace(" ", "").Replace("/", "").Replace("-", "");
+                var localized = _terminologyService.GetTerm(key);
+                if (!string.IsNullOrEmpty(localized) && localized != key)
+                    metric.ComparisonLabel = localized;
+            }
+        }
+
         private async Task RefreshBiChartsAsync(DashboardSummaryDto summary)
         {
             if (summary == null || !IsGymMode) return;
@@ -1774,7 +1846,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new ColumnSeries<int>
                         {
-                            Name = "Members",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Members") ?? "Members"),
                             Values = summary.VisitFrequencyDistribution.ToArray(),
                             Stroke = new SolidColorPaint(SKColor.Parse("#3B82F6")) { StrokeThickness = 2 },
                             Fill = new SolidColorPaint(SKColor.Parse("#3B82F6").WithAlpha(180)),
@@ -1787,7 +1859,14 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new Axis
                         {
-                            Labels = new[] { "0 visits", "1 visit", "2 visits", "3 visits", "4 visits", "5+ visits" },
+                            Labels = new[] { 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits0") ?? "0 visits"), 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits1") ?? "1 visit"), 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits2") ?? "2 visits"), 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits3") ?? "3 visits"), 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits4") ?? "4 visits"), 
+                                ApplyRtl(GetTerm("Terminology.Dashboard.Chart.Visits5Plus") ?? "5+ visits") 
+                            },
                             LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = null,
                             TextSize = 10
@@ -1813,14 +1892,14 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new StackedColumnSeries<int>
                         {
-                            Name = "New Members",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.NewMembers") ?? "New Members"),
                             Values = summary.GrowthTrend.Select(t => t.NewMembers).ToArray(),
                             Stroke = new SolidColorPaint(SKColor.Parse("#10B981")) { StrokeThickness = 2 },
                             Fill = new SolidColorPaint(SKColor.Parse("#10B981").WithAlpha(180))
                         },
                         new StackedColumnSeries<int>
                         {
-                            Name = "Lost Members",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.LostMembers") ?? "Lost Members"),
                             Values = summary.GrowthTrend.Select(t => t.LostMembers).ToArray(),
                             Stroke = new SolidColorPaint(SKColor.Parse("#EF4444")) { StrokeThickness = 2 },
                             Fill = new SolidColorPaint(SKColor.Parse("#EF4444").WithAlpha(180))
@@ -1831,7 +1910,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new Axis
                         {
-                            Labels = summary.GrowthTrend.Select(t => t.Month).ToArray(),
+                            Labels = summary.GrowthTrend.Select(t => ApplyRtl(t.Month)).ToArray(),
                             LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             SeparatorsPaint = null,
                             TextSize = 10
@@ -1859,7 +1938,7 @@ namespace Management.Presentation.ViewModels.Shell
                         var color = colors[index % colors.Length];
                         return (ISeries)new PieSeries<int>
                         {
-                            Name = p.PlanName,
+                            Name = ApplyRtl(GetLocalizedSource(p.PlanName)),
                             Values = new[] { p.Count },
                             Fill = new SolidColorPaint(SKColor.Parse(color)),
                             InnerRadius = 60,
@@ -1868,16 +1947,24 @@ namespace Management.Presentation.ViewModels.Shell
                     }).ToArray();
                 }
 
-                // 3. Gender Demographics
+                // 4. Gender Demographics
                 if (summary.GenderDemographics?.Any() == true)
                 {
                     SalonGenderSeries = summary.GenderDemographics.Select((d, index) =>
                     {
                         var colors = new[] { "#3B82F6", "#EC4899", "#8B5CF6", "#94A3B8" };
                         var color = colors[index % colors.Length];
+                        
+                        var genderLabel = d.Source.ToLower() switch
+                        {
+                            "male" => GetTerm("Terminology.Enum.Gender.Male") ?? "Male",
+                            "female" => GetTerm("Terminology.Enum.Gender.Female") ?? "Female",
+                            _ => d.Source
+                        };
+
                         return (ISeries)new PieSeries<int>
                         {
-                            Name = d.Source,
+                            Name = ApplyRtl(genderLabel),
                             Values = new[] { d.Count },
                             Fill = d.Source.ToLower() switch
                             {
@@ -1891,7 +1978,7 @@ namespace Management.Presentation.ViewModels.Shell
                     }).ToArray();
                 }
 
-                // 4. Age Demographics
+                // 5. Age Demographics
                 if (summary.AgeDemographics?.Any() == true)
                 {
                     SalonAgeSeries = summary.AgeDemographics.Select((d, index) =>
@@ -1900,7 +1987,7 @@ namespace Management.Presentation.ViewModels.Shell
                         var color = colors[index % colors.Length];
                         return (ISeries)new PieSeries<int>
                         {
-                            Name = d.Source,
+                            Name = ApplyRtl(d.Source),
                             Values = new[] { d.Count },
                             Fill = new SolidColorPaint(SKColor.Parse(color)),
                             InnerRadius = 45,
@@ -1909,7 +1996,7 @@ namespace Management.Presentation.ViewModels.Shell
                     }).ToArray();
                 }
 
-                // 5. Combined Demographics (Age Group + Gender)
+                // 6. Combined Demographics (Age Group + Gender)
                 if (summary.CombinedDemographics?.Any() == true)
                 {
                     var maleValues = summary.CombinedDemographics.Select(d => d.MaleCount).ToArray();
@@ -1920,7 +2007,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new ColumnSeries<int>
                         {
-                            Name = "Male",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Male") ?? "Male"),
                             Values = maleValues,
                             Fill = new SolidColorPaint(SKColor.Parse("#3B82F6")), // Blue
                             Padding = 2,
@@ -1928,7 +2015,7 @@ namespace Management.Presentation.ViewModels.Shell
                         },
                         new ColumnSeries<int>
                         {
-                            Name = "Female",
+                            Name = ApplyRtl(GetTerm("Terminology.Chart.Series.Female") ?? "Female"),
                             Values = femaleValues,
                             Fill = new SolidColorPaint(SKColor.Parse("#EC4899")), // Pink
                             Padding = 2,
@@ -1940,7 +2027,7 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         new Axis
                         {
-                            Labels = ageLabels,
+                            Labels = ageLabels.Select(l => ApplyRtl(l)).ToArray(),
                             LabelsPaint = new SolidColorPaint(ChartLabelColor),
                             TextSize = 10,
                             SeparatorsPaint = null
@@ -1959,7 +2046,7 @@ namespace Management.Presentation.ViewModels.Shell
                     };
                 }
 
-                // 6. Member Demographics (Acquisition)
+                // 7. Member Demographics (Acquisition)
                 if (summary.MemberDemographics?.Any() == true)
                 {
                     GymAcquisitionSeries = summary.MemberDemographics.Select((d, index) =>
@@ -1968,7 +2055,7 @@ namespace Management.Presentation.ViewModels.Shell
                         var color = colors[index % colors.Length];
                         return (ISeries)new PieSeries<int>
                         {
-                            Name = d.Source,
+                            Name = ApplyRtl(GetLocalizedSource(d.Source)),
                             Values = new[] { d.Count },
                             Fill = new SolidColorPaint(SKColor.Parse(color)),
                              DataLabelsPaint = null,
@@ -1979,6 +2066,31 @@ namespace Management.Presentation.ViewModels.Shell
                 }
 
             });
+        }
+
+        private string ApplyRtl(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            if (_localizationService?.CurrentCulture?.TwoLetterISOLanguageName != "ar") return text;
+            return ArabicReshaper.Reshape(text);
+        }
+
+        private string GetLocalizedSource(string source)
+        {
+            if (string.IsNullOrEmpty(source)) return source;
+            
+            // Try to map database string to a terminology key
+            var sanitized = source.Replace(" ", "").Replace("-", "");
+            var key = "Terminology.Member.Source." + sanitized;
+            var localized = GetTerm(key);
+            
+            if (!string.IsNullOrEmpty(localized) && localized != key) return localized;
+
+            // Fallback for plan names if they are being passed here (some charts use plan names as sources)
+            var planKey = "Terminology.MembershipPlan." + sanitized;
+            localized = GetTerm(planKey);
+
+            return (!string.IsNullOrEmpty(localized) && localized != planKey) ? localized : source;
         }
     }
 
@@ -1994,3 +2106,4 @@ namespace Management.Presentation.ViewModels.Shell
         private bool _isSelected;
     }
 }
+

@@ -14,11 +14,11 @@
 
         <Grid Grid.Row="0" Margin="0,0,0,24">
             <StackPanel>
-                <TextBlock Text="Manual Discounts" Style="{DynamicResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Text="Configure discounts that can be applied manually during a sale" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                <TextBlock Text="{DynamicResource Terminology.Settings.Discounts.Title}" Style="{DynamicResource Title2}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                <TextBlock Text="{DynamicResource Terminology.Settings.Discounts.Subtitle}" Style="{DynamicResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             
-            <Button Content="Add Discount" 
+            <Button Content="{DynamicResource Terminology.Settings.Discounts.Action.Add}" 
                     HorizontalAlignment="Right" 
                     Style="{DynamicResource Button.Primary}"
                     Command="{Binding CreateDiscountCommand}"
@@ -41,9 +41,9 @@
                     <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
                 <!-- 0: Dot -->
-                <TextBlock Grid.Column="1" Text="Discount Name" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="2" Text="Type" Style="{StaticResource Caption}" FontWeight="Bold"/>
-                <TextBlock Grid.Column="3" Text="Value" Style="{StaticResource Caption}" FontWeight="Bold" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource Terminology.Settings.Discounts.Field.Name}" Style="{StaticResource Caption}" FontWeight="Bold"/>
+                <TextBlock Grid.Column="2" Text="{DynamicResource Terminology.Settings.Discounts.Field.Type}" Style="{StaticResource Caption}" FontWeight="Bold"/>
+                <TextBlock Grid.Column="3" Text="{DynamicResource Terminology.Settings.Discounts.Field.Value}" Style="{StaticResource Caption}" FontWeight="Bold" HorizontalAlignment="Right"/>
                 <TextBlock Grid.Column="4" Text="" Style="{StaticResource Caption}"/>
             </Grid>
 

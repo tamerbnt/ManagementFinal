@@ -67,7 +67,7 @@
                            Foreground="{DynamicResource Brush.Text.Primary}"
                            HorizontalAlignment="Center"
                            Style="{StaticResource Title2}"/>
-                <TextBlock Text="Configure a manual discount rule" 
+                <TextBlock Text="{DynamicResource Terminology.DiscountEditor.Configure}" 
                            Style="{StaticResource Caption}" 
                            Foreground="{DynamicResource Brush.Text.Secondary}"
                            HorizontalAlignment="Center"
@@ -79,7 +79,7 @@
                 <StackPanel>
                     <!-- Basic Info -->
                     <StackPanel Margin="0,0,0,24">
-                        <TextBlock Text="Discount Name" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.DiscountEditor.Name}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                         <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
                                  Style="{DynamicResource Input.Field}"
                                  Tag="e.g. Loyalty Discount"/>
@@ -95,7 +95,7 @@
                     <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,24"/>
 
                     <!-- Discount Values -->
-                    <TextBlock Text="DISCOUNT SETTINGS" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" FontSize="11"/>
+                    <TextBlock Text="{DynamicResource Terminology.DiscountEditor.Settings}" FontWeight="Bold" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,16" FontSize="11"/>
 
                     <Grid Margin="0,0,0,24">
                         <Grid.ColumnDefinitions>
@@ -105,12 +105,12 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Value" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.DiscountEditor.Value}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <TextBox Text="{Binding Value}" Style="{DynamicResource Input.Field}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Width="180">
-                            <TextBlock Text="Type" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Terminology.DiscountEditor.Type}" Style="{DynamicResource FormLabel}" Margin="0,0,0,8"/>
                             <Border Background="{DynamicResource Brush.Surface.Secondary}" 
                                     CornerRadius="22" 
                                     Padding="4" 
@@ -122,12 +122,12 @@
                                     </Grid.ColumnDefinitions>
                                     
                                     <RadioButton Grid.Column="0" 
-                                                 Content="Fixed" 
+                                                 Content="{DynamicResource Terminology.DiscountEditor.FixedAmount}" 
                                                  IsChecked="{Binding IsFixedAmount}" 
                                                  Style="{StaticResource SegmentedButtonStyle}"/>
                                     
                                     <RadioButton Grid.Column="1" 
-                                                 Content="Percent" 
+                                                 Content="{DynamicResource Terminology.DiscountEditor.Percentage}" 
                                                  IsChecked="{Binding IsPercentage}" 
                                                  Style="{StaticResource SegmentedButtonStyle}"/>
                                 </Grid>
@@ -144,7 +144,7 @@
 
             <!-- 3. Footer -->
             <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,16,0,0">
-                <Button Command="{Binding SaveCommand}" Content="Save Discount" Style="{DynamicResource PrimaryButton}" Height="40" Margin="0,0,0,12"/>
+                <Button Command="{Binding SaveCommand}" Content="{DynamicResource Terminology.DiscountEditor.Save}" Style="{DynamicResource PrimaryButton}" Height="40" Margin="0,0,0,12"/>
                 <Button Command="{Binding CancelCommand}" Content="Cancel" Style="{DynamicResource GhostButton}" Height="40"/>
             </StackPanel>
         </Grid>

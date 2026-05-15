@@ -56,7 +56,7 @@
                         <TextBox Text="{Binding FullName, Mode=TwoWay}" Style="{StaticResource Input.Field}" Width="200"
                                  Visibility="{Binding DataContext.IsEditing, RelativeSource={RelativeSource AncestorType=local:FinanceAndStaffView}, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         
-                        <ContentControl Content="{Binding Role}" 
+                        <ContentControl Content="{Binding Role, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" 
                                         Style="{StaticResource GlobalRoleBadgeStyle}" 
                                         VerticalAlignment="Center"
                                         Margin="0,2,0,0"/>
@@ -92,7 +92,7 @@
 
                 <StackPanel Grid.Column="4" HorizontalAlignment="Center">
                     <TextBlock Text="{DynamicResource Terminology.Staff.Detail.Status}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding EmploymentStatus}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="{Binding EmploymentStatus, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Grid>
         </Border>

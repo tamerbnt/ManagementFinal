@@ -18,7 +18,7 @@ namespace Management.Application.DTOs
         public decimal Salary { get; set; }
         public int PaymentDay { get; set; }
         public bool IsOwner { get; set; }
-        public string Status { get; set; } = "Active";
+        public StaffStatus Status { get; set; } = StaffStatus.Active;
         public string? Password { get; set; } 
         public Guid? SupabaseUserId { get; set; }
         public List<string> AllowedModules { get; set; } = new();

@@ -98,7 +98,7 @@
                                     </TextBlock>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Revenue, StringFormat=C0, ConverterCulture=fr-DZ}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
+                                    <TextBlock Text="{Binding Revenue, StringFormat=C0}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
                                 </StackPanel>
                             </Grid>
                         </DataTemplate>

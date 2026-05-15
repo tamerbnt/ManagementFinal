@@ -116,7 +116,7 @@
                             <Border.Effect>
                                 <DynamicResource ResourceKey="ShadowGlow"/>
                             </Border.Effect>
-                            <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource FacilityAccentBrush}">
+                            <Path Stretch="Uniform" Margin="10" Fill="{DynamicResource Brush.Neutral.White}">
                                 <Path.Data>
                                     <GeometryGroup FillRule="EvenOdd">
                                         <!-- Head/Star Background -->
@@ -145,7 +145,7 @@
                      <Border x:Name="CollapsedLogo" 
                              Width="44" Height="44" CornerRadius="22"
                              HorizontalAlignment="Center" VerticalAlignment="Center"
-                             Background="{DynamicResource FacilityAccentBrush}">
+                             Background="{DynamicResource Brush.Sidebar.Hover}">
                          <Border.Style>
                              <Style TargetType="Border">
                                  <Setter Property="Visibility" Value="Collapsed"/>

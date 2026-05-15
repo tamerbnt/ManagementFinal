@@ -29,6 +29,7 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty] private string _category;
         [ObservableProperty] private string _imageUrl;
         [ObservableProperty] private int _reorderLevel;
+        [ObservableProperty] private bool _isPinned;
 
         public Guid Id => _product.Id;
 
@@ -36,6 +37,7 @@ namespace Management.Presentation.ViewModels.Shop
         public IRelayCommand ViewDetailsCommand { get; }
         public IAsyncRelayCommand ModifyProductCommand { get; }
         public IAsyncRelayCommand OpenRestockCommand { get; }
+        public IAsyncRelayCommand TogglePinCommand { get; }
 
         public bool IsRestockVisible => _parent.CurrentFacilityType is Management.Domain.Enums.FacilityType.Gym or Management.Domain.Enums.FacilityType.Salon;
 
@@ -53,6 +55,7 @@ namespace Management.Presentation.ViewModels.Shop
             _category = product.Category;
             _imageUrl = product.ImageUrl;
             _reorderLevel = product.ReorderLevel;
+            _isPinned = product.IsPinned;
 
             AddToCartCommand = new AsyncRelayCommand(async () => await parent.AddToCartCommand.ExecuteAsync(CreateCurrentDto()));
             
@@ -69,6 +72,12 @@ namespace Management.Presentation.ViewModels.Shop
                 // We'll implement this bridge in ShopViewModel
                 await parent.OpenRestockProductCommand.ExecuteAsync(CreateCurrentDto());
             });
+
+            TogglePinCommand = new AsyncRelayCommand(async () => {
+                // Optimistic UI update
+                IsPinned = !IsPinned;
+                await parent.ToggleProductPinCommand.ExecuteAsync(this);
+            });
         }
 
         private ProductDto CreateCurrentDto()
@@ -84,7 +93,8 @@ namespace Management.Presentation.ViewModels.Shop
                 SKU = this.Sku,
                 Category = this.Category,
                 ImageUrl = this.ImageUrl,
-                ReorderLevel = this.ReorderLevel
+                ReorderLevel = this.ReorderLevel,
+                IsPinned = this.IsPinned
             };
         }
 
@@ -100,6 +110,7 @@ namespace Management.Presentation.ViewModels.Shop
             Category = updatedDto.Category;
             ImageUrl = updatedDto.ImageUrl;
             ReorderLevel = updatedDto.ReorderLevel;
+            IsPinned = updatedDto.IsPinned;
         }
 
         public string StockStatusText => StockQuantity > ReorderLevel ? "In Stock" : (StockQuantity > 0 ? "Low Stock" : "Out of Stock");

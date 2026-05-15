@@ -12,6 +12,9 @@
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:StockToBrushConverter x:Key="StockToBrushConverter"/>
+        
+        <StreamGeometry x:Key="IconPin">M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A.5.5 0 0 0 6 13.9V15a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1.1a.5.5 0 0 0-.11-.31l-1.78-.9A2 2 0 0 1 15 10.76V6a1 1 0 0 1 1-1h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1a1 1 0 0 1 1 1z</StreamGeometry>
+        <StreamGeometry x:Key="IconPinFilled">M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A.5.5 0 0 0 6 13.9V15a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1.1a.5.5 0 0 0-.11-.31l-1.78-.9A2 2 0 0 1 15 10.76V6a1 1 0 0 1 1-1h1a1 1 0 0 0 0-2H7a1 1 0 0 0 0 2h1a1 1 0 0 1 1 1z</StreamGeometry>
     </UserControl.Resources>
 
     <Grid>
@@ -79,6 +82,37 @@
                             <TextBlock Text="{DynamicResource Terminology.Shop.Detail.Price}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                             <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BrandPrimaryBrush}" HorizontalAlignment="Center"/>
                         </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Pin Status -->
+                <Border Margin="24,0,24,24" Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Terminology.Shop.Action.Pin}" Style="{StaticResource BodyLarge}" FontWeight="SemiBold"/>
+                            <TextBlock Text="Prioritize this product in sales lists" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Command="{Binding TogglePinCommand}" Style="{StaticResource Button.Ghost}" Width="40" Height="40" Padding="8">
+                            <Path Width="20" Height="20" Stretch="Uniform">
+                                <Path.Style>
+                                    <Style TargetType="Path" BasedOn="{StaticResource IconBase}">
+                                        <Setter Property="Data" Value="{StaticResource IconPin}"/>
+                                        <Setter Property="Stroke" Value="{DynamicResource TextTertiaryBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                <Setter Property="Data" Value="{StaticResource IconPinFilled}"/>
+                                                <Setter Property="Fill" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                <Setter Property="Stroke" Value="{DynamicResource FacilityAccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Button>
                     </Grid>
                 </Border>
 

@@ -61,11 +61,11 @@
                     <!-- ══════════════════════════════════════════════════ -->
                     <StackPanel>
                         <!-- Section Header -->
-                        <TextBlock Text="Light Mode Style"
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.LightModeStyle}"
                                    Style="{DynamicResource Title3}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,4"/>
-                        <TextBlock Text="Choose a color palette for your workspace"
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.ChoosePalette}"
                                    Style="{DynamicResource Caption}"
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,20"/>
@@ -458,11 +458,11 @@
                     <!-- SECTION: App Mode (Dark Mode toggle)               -->
                     <!-- ══════════════════════════════════════════════════ -->
                     <StackPanel Margin="0,24,0,0">
-                        <TextBlock Text="App Mode"
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.AppMode}"
                                    Style="{DynamicResource Title3}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,4"/>
-                        <TextBlock Text="Switch between Light and Dark mode"
+                        <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.SwitchMode}"
                                    Style="{DynamicResource Caption}"
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,16"/>
@@ -472,11 +472,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Dark Mode"
+                                <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.DarkMode}"
                                            Style="{DynamicResource BodyMedium}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            FontWeight="SemiBold"/>
-                                <TextBlock Text="Easier on the eyes in low-light environments"
+                                <TextBlock Text="{DynamicResource Terminology.Settings.Appearance.DarkModeDesc}"
                                            Style="{DynamicResource Caption}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"/>
                             </StackPanel>

@@ -299,6 +299,7 @@ namespace Management.Presentation.ViewModels.Salon
             _localizationService.LanguageChanged += (s, e) => 
             {
                 CurrentDate = DateTime.Now.ToString(_terminologyService.GetTerm("Terminology.Salon.Home.DateFullFormat"), _localizationService.CurrentCulture);
+                InitializeGuideTips();
             };
 
             // Register for Messenger updates
@@ -378,16 +379,16 @@ namespace Management.Presentation.ViewModels.Salon
         private void InitializeGuideTips()
         {
             GuideTips.Clear();
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = "Welcome to the Dashboard", Description = "This is your central command center. Stay on top of appointments, sales, and client history seamlessly." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = "Record a walk-in visit", Description = "Track daily visitors who aren't members using the Walk-in quick action module." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = "Quick Point of Sale", Description = "Process products and services instantly using the Quick Sale flow." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = "Hardware Telemetry", Description = "Check the bottom footer to ensure your barcode scanners and receipt printers are online." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = "Multi-Item Sales", Description = "Handling a large checkout? Use the Multi-Sale Cart to bundle items securely." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = "Activity Stream", Description = "Watch the real-time event log update automatically as services are completed or products sold." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = "Creating New Clients", Description = "Use the Create Member action to rapidly enroll new clients directly from the Home screen." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = "End of Shift Protocol", Description = "Verify the expected Daily Cash Total matches your physical till before logging out." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = "Appointments Today", Description = "Monitor the Agenda card to see upcoming client appointments and manage chair utilization." });
-            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = "Next Appointment", Description = "The carousel in the top-left highlights your immediate next client. Click the arrows to browse the full daily schedule." });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 1, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step1.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step1.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 2, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step2.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step2.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 3, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step3.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step3.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 4, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step4.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step4.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 5, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step5.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step5.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 6, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step6.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step6.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 7, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step7.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step7.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 8, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step8.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step8.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 9, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step9.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step9.Description") });
+            GuideTips.Add(new GuideTipViewModel { StepNumber = 10, Title = _terminologyService.GetTerm("Terminology.Salon.Guide.Step10.Title"), Description = _terminologyService.GetTerm("Terminology.Salon.Guide.Step10.Description") });
 
             if (GuideTips.Any())
                 CurrentGuide = GuideTips[0];

@@ -110,6 +110,7 @@ namespace Management.Infrastructure.Data
                 // throws DbUpdateException. The try/catch is intentional — it's a no-op if 
                 // the column already exists (SQLite does not support ADD COLUMN IF NOT EXISTS).
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE products ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE products ADD COLUMN is_pinned INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE membership_plans ADD COLUMN is_personal_training INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_services ADD COLUMN price NUMERIC NOT NULL DEFAULT 0;", ct); } catch { }

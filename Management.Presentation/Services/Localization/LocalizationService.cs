@@ -38,7 +38,7 @@ namespace Management.Presentation.Services.Localization
 
             _dispatcher.InvokeAsync(() =>
             {
-                var culture = new CultureInfo(languageCode);
+                var culture = new CultureInfo(languageCode == "ar" ? "ar-DZ" : languageCode);
                 CurrentCulture = culture;
 
                 // 1. Update Thread Culture (Ensures UI thread has correct culture for resource loading)

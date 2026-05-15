@@ -80,7 +80,7 @@
             <Border Grid.Row="0" Padding="32,32,32,24">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="Appointment Details"
+                        <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Title}"
                                    FontSize="12" FontWeight="Bold"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextAlignment="Left"
@@ -111,7 +111,7 @@
                                 CornerRadius="16" Padding="16" Margin="0,0,8,0"
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Service" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Service}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
                                 <TextBlock Text="{Binding Appointment.ServiceName}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </StackPanel>
                         </Border>
@@ -121,7 +121,7 @@
                                 CornerRadius="16" Padding="16" Margin="8,0,0,0"
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
                             <StackPanel>
-                                <TextBlock Text="Stylist" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Stylist}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
                                 <TextBlock Text="{Binding Appointment.StaffName}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                             </StackPanel>
                         </Border>
@@ -139,7 +139,7 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Date" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Date}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2 M16 2v4 M8 2v4 M3 10h18" 
                                           Stroke="{DynamicResource TextTertiaryBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -150,7 +150,7 @@
                             <Separator Grid.Column="1" HorizontalAlignment="Center" Width="1" Height="24" Background="{DynamicResource BorderBrush}"/>
 
                             <StackPanel Grid.Column="2">
-                                <TextBlock Text="Time" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4" HorizontalAlignment="Right"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Time}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4" HorizontalAlignment="Right"/>
                                 <StackPanel Orientation="Horizontal">
                                     <Path Data="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" 
                                           Stroke="{DynamicResource TextTertiaryBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -162,7 +162,7 @@
 
                     <!-- Notes Section -->
                     <StackPanel Margin="0,24,0,0" Visibility="{Binding Appointment.Notes, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=Inverse}">
-                        <TextBlock Text="Notes" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
+                        <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Notes}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                         <TextBlock Text="{Binding Appointment.Notes}" FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontStyle="Italic"/>
                     </StackPanel>
                 </StackPanel>
@@ -179,7 +179,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Path Data="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                                   Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.5" Width="16" Height="16" Margin="0,0,8,0"/>
-                            <TextBlock Text="Cancel Appointment" Foreground="{DynamicResource StatusErrorBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{DynamicResource Terminology.Salon.AppointmentDetail.Action.Cancel}" Foreground="{DynamicResource StatusErrorBrush}" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Button>
 

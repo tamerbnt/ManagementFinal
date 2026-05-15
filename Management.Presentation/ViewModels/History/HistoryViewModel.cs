@@ -132,6 +132,7 @@ namespace Management.Presentation.ViewModels.History
         public IRelayCommand SelectDateRangeCommand { get; }
         public IAsyncRelayCommand ExportCommand { get; }
         public IRelayCommand PrintReportCommand { get; }
+        public IRelayCommand ResetFiltersCommand { get; }
 
         public Task PreInitializeAsync()
         {
@@ -190,6 +191,11 @@ namespace Management.Presentation.ViewModels.History
             SelectDateRangeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Use the navigation buttons to change dates."));
             ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExportHistoryAsync);
             PrintReportCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Preparing print..."));
+            ResetFiltersCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
+            {
+                SearchText = string.Empty;
+                SelectedFilter = HistoryFilterOption.All;
+            });
 
             // Subscribe to sale/payment events so history refreshes immediately on local actions
             WeakReferenceMessenger.Default.Register<RefreshRequiredMessage<Sale>>(this);

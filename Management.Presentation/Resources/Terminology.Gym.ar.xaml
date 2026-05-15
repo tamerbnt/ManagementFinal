@@ -1,0 +1,137 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    
+    <!-- GYM TERMINOLOGY ARABIC OVERLAY -->
+    
+    <!-- Core Entities -->
+    <sys:String x:Key="TerminologyMemberLabel">عضو</sys:String>
+    <sys:String x:Key="TerminologyMembersLabel">الأعضاء</sys:String>
+    <sys:String x:Key="TerminologyAddMemberLabel">إضافة عضو</sys:String>
+    <sys:String x:Key="TerminologyMemberManagementLabel">إدارة الأعضاء</sys:String>
+    <sys:String x:Key="TerminologyNoMembersFoundLabel">لم يتم إضافة أعضاء</sys:String>
+    <sys:String x:Key="TerminologyAddMemberHintLabel">أضف عضواً لبدء تتبع الحضور والخطط.</sys:String>
+    <sys:String x:Key="TerminologyPrintListLabel">طباعة قائمة الأعضاء</sys:String>
+
+    <sys:String x:Key="TerminologyActiveLabel">نشط</sys:String>
+    <sys:String x:Key="TerminologyExpiringLabel">تنتهي صلاحيته</sys:String>
+    <sys:String x:Key="TerminologyExpiredLabel">منتهي الصلاحية</sys:String>
+    <sys:String x:Key="TerminologyDeletedLabel">محذوف</sys:String>
+    <sys:String x:Key="TerminologyRestoreMemberLabel">استعادة العضو</sys:String>
+    <sys:String x:Key="Terminology.Global.Filter.Deleted">المحذوفة</sys:String>
+    <sys:String x:Key="Terminology.Members.RestoreMember">استعادة العضو</sys:String>
+    <sys:String x:Key="TerminologyRenewAllLabel">تجديد المختار</sys:String>
+    <sys:String x:Key="TerminologyRegistrationsLabel">تسجيلات معلقة</sys:String>
+    <sys:String x:Key="TerminologyPendingLeadsLabel">عملاء محتملون</sys:String>
+    <sys:String x:Key="TerminologyPrintReportLabel">طباعة التقرير</sys:String>
+    <sys:String x:Key="TerminologyApproveAllLabel">الموافقة على الكل</sys:String>
+    <sys:String x:Key="TerminologyDeclineAllLabel">رفض الكل</sys:String>
+    <sys:String x:Key="TerminologySelectionCountFormat">{}{0} مختار</sys:String>
+    
+    <!-- Actions &amp; Events -->
+    <sys:String x:Key="TerminologyCheckInLabel">تسجيل دخول</sys:String>
+    <sys:String x:Key="TerminologyAttendanceLabel">الحضور</sys:String>
+    <sys:String x:Key="TerminologyAllCaughtUpLabel">تم الانتهاء من الكل!</sys:String>
+    <sys:String x:Key="TerminologyNoPendingRegistrationsLabel">لا توجد تسجيلات معلقة في الوقت الحالي.</sys:String>
+    <sys:String x:Key="TerminologyApproveRegistrationAction">الموافقة على التسجيل</sys:String>
+    <sys:String x:Key="TerminologyDeclineLabel">رفض</sys:String>
+    <sys:String x:Key="TerminologyHistoryLabel">سجل نشاط المنشأة</sys:String>
+    <sys:String x:Key="TerminologyPrintHistoryLabel">طباعة السجل</sys:String>
+    <sys:String x:Key="TerminologySelectDatesLabel">اختر النطاق الزمني</sys:String>
+    <sys:String x:Key="TerminologyExportLabel">تصدير البيانات</sys:String>
+    <sys:String x:Key="TerminologyNoHistoryYetLabel">لا يوجد سجل بعد</sys:String>
+    <sys:String x:Key="TerminologyActivityEventsRecordedLabel">ستظهر أحداث النشاط هنا بمجرد تسجيلها.</sys:String>
+    <sys:String x:Key="TerminologyFinanceStaffLabel">المالية والموظفين</sys:String>
+    <sys:String x:Key="TerminologyFinanceLabel">التقارير المالية</sys:String>
+    <sys:String x:Key="TerminologyStaffLabel">إدارة الموظفين</sys:String>
+    <sys:String x:Key="TerminologyWeeklyRevenueLabel">الإيرادات الأسبوعية</sys:String>
+    <sys:String x:Key="TerminologyMRRLabel">الإيرادات الشهرية المتكررة</sys:String>
+    <sys:String x:Key="TerminologyARPULabel">متوسط الإيراد لكل مستخدم</sys:String>
+    <sys:String x:Key="TerminologyChurnRateLabel">معدل الإلغاء</sys:String>
+    <sys:String x:Key="TerminologyPluralLabel">أعضاء</sys:String>
+    <sys:String x:Key="TerminologyPaymentSuccessLabel">نجاح الدفع</sys:String>
+    <sys:String x:Key="TerminologyRevenueTrendLabel">اتجاه الإيرادات</sys:String>
+    <sys:String x:Key="TerminologyPaymentMethodsLabel">طرق الدفع</sys:String>
+    <sys:String x:Key="TerminologyFailedPaymentsLabel">عمليات الدفع الفاشلة</sys:String>
+    <sys:String x:Key="TerminologyStaffManagementLabel">قيادة الموظفين</sys:String>
+    <sys:String x:Key="TerminologyNoStaffFoundLabel">لم يتم العثور على موظفين.</sys:String>
+    <sys:String x:Key="TerminologyAddStaffHintLabel">أضف موظفين في إعدادات المسؤول.</sys:String>
+    
+    <!-- Shop / Inventory -->
+    <sys:String x:Key="TerminologyShopTitle">متجر الجيم</sys:String>
+    <sys:String x:Key="TerminologyProductsTab">المكملات والملابس</sys:String>
+    <sys:String x:Key="TerminologySearchProductsPlaceholder">بحث في المعدات...</sys:String>
+    <sys:String x:Key="TerminologyFilterSupplementsLabel">مكملات</sys:String>
+    <sys:String x:Key="TerminologyFilterApparelLabel">ملابس</sys:String>
+    <sys:String x:Key="TerminologyFilterEquipmentLabel">معدات</sys:String>
+    <sys:String x:Key="TerminologyProductImageLabel">صورة المنتج</sys:String>
+    <sys:String x:Key="TerminologyDragDropImagePlaceholder">سحب وإفلات الصورة</sys:String>
+    <sys:String x:Key="TerminologyProductDetailsHeader">تفاصيل المنتج</sys:String>
+    <sys:String x:Key="TerminologyProductNameLabel">اسم المنتج</sys:String>
+    <sys:String x:Key="TerminologySKULabel">وحدة حفظ المخزون (SKU)</sys:String>
+    <sys:String x:Key="TerminologyCategoryLabel">الفئة</sys:String>
+    <sys:String x:Key="TerminologyPricingInventoryHeader">التسعير والمخزون</sys:String>
+    <sys:String x:Key="TerminologyPriceLabel">السعر</sys:String>
+    <sys:String x:Key="TerminologyCostLabel">التكلفة</sys:String>
+    <sys:String x:Key="TerminologyCurrentStockLabel">في المخزن</sys:String>
+    <sys:String x:Key="TerminologyReorderLevelLabel">تنبيه انخفاض المخزون عند</sys:String>
+    <sys:String x:Key="TerminologyDescriptionLabel">الوصف</sys:String>
+    <sys:String x:Key="TerminologySaveProductLabel">حفظ المنتج</sys:String>
+    <sys:String x:Key="TerminologyLowStockCountFormat">{}{0} أصناف منخفضة في المخزن</sys:String>
+    <sys:String x:Key="TerminologyEditProductLabel">تعديل المنتج</sys:String>
+    <sys:String x:Key="TerminologyDeleteProductLabel">حذف المنتج</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptyTitle">لا يوجد مخزون متبع</sys:String>
+    <sys:String x:Key="TerminologyInventoryEmptySubtitle">أضف منتجات لبدء تتبع مخزون الجيم.</sys:String>
+    
+    <!-- Home / Dashboard -->
+    <sys:String x:Key="Terminology.Home.Title">لوحة تحكم الجيم</sys:String>
+    <sys:String x:Key="Terminology.Home.Subtitle">إليك ما يحدث في منشأتك اليوم.</sys:String>
+    <sys:String x:Key="Terminology.Home.RecentActivity">النشاط الأخير</sys:String>
+    <sys:String x:Key="Terminology.Home.QuickActions">الإجراءات السريعة</sys:String>
+    <sys:String x:Key="Terminology.Home.InventoryStatus">حالة المتجر</sys:String>
+
+    <!-- Sidebar Labels -->
+    <sys:String x:Key="Terminology.Sidebar.Home">الرئيسية</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Dashboard">لوحة التحكم</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Members">الأعضاء</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Registrations">التسجيلات</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.History">السجل</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Staff">إدارة الموظفين</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.Shop">متجر الجيم</sys:String>
+    <sys:String x:Key="Terminology.Sidebar.ChangeFacility">تبديل المنشأة</sys:String>
+    
+    <!-- POS / Checkout -->
+    <sys:String x:Key="TerminologyCheckoutTitle">دفع العضو</sys:String>
+    <sys:String x:Key="TerminologyTotalDueLabel">الإجمالي المستحق</sys:String>
+    <sys:String x:Key="TerminologyPaymentCash">دفع نقدي</sys:String>
+    <sys:String x:Key="TerminologyPaymentCard">بطاقة / جهاز دفع</sys:String>
+    <sys:String x:Key="TerminologyPaymentAccount">خصم من الحساب</sys:String>
+    <sys:String x:Key="TerminologyAmountTenderedLabel">المبلغ المستلم</sys:String>
+    <sys:String x:Key="TerminologyChangeDueLabel">الباقي للعضو</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountPrefix">سيتم خصم </sys:String>
+    <sys:String x:Key="TerminologyAccountLabel">حساب العضو</sys:String>
+    <sys:String x:Key="TerminologyChargeToAccountSuffix"> مباشرة.</sys:String>
+    <sys:String x:Key="TerminologyAccountBalanceNote">يتم التحقق من الرصيد المتاح عند الإتمام.</sys:String>
+    <sys:String x:Key="TerminologyCompleteSaleLabel">إتمام بيع العضو</sys:String>
+    <sys:String x:Key="TerminologyCurrentSaleLabel">بيع العضو النشط</sys:String>
+    
+    <sys:String x:Key="TerminologyFinancialIntelligenceLabel">الذكاء المالي</sys:String>
+    <sys:String x:Key="TerminologyNewMembersLabel">الأعضاء الجدد</sys:String>
+    <sys:String x:Key="TerminologyTotalMembersLabel">إجمالي الأعضاء</sys:String>
+    <sys:String x:Key="TerminologyGymLabel">جيم</sys:String>
+    <sys:String x:Key="TerminologySalonLabel">صالون</sys:String>
+    <sys:String x:Key="TerminologyHospitalityLabel">مطعم</sys:String>
+    
+    <!-- Staff &amp; Payroll -->
+    <sys:String x:Key="TerminologySystemPermissionsLabel">أذونات النظام</sys:String>
+    <sys:String x:Key="TerminologySalaryRestrictedLabel">سجل الرواتب مقيد.</sys:String>
+    <sys:String x:Key="TerminologyNoUpcomingShiftsLabel">لا توجد نوبات قادمة.</sys:String>
+    <sys:String x:Key="TerminologyCompensationLabel">التعويضات</sys:String>
+    <sys:String x:Key="TerminologyBaseSalaryLabel">الراتب الأساسي</sys:String>
+    <sys:String x:Key="TerminologyNextPaydayLabel">يوم الدفع القادم:</sys:String>
+    <sys:String x:Key="TerminologyEditConfigLabel">تعديل الإعدادات</sys:String>
+    <sys:String x:Key="TerminologyAddBonusLabel">إضافة مكافأة</sys:String>
+    <sys:String x:Key="TerminologyPaymentHistoryLabel">سجل المدفوعات</sys:String>
+    <sys:String x:Key="TerminologyNoPaymentHistoryLabel">لم يتم العثور على سجل مدفوعات.</sys:String>
+
+</ResourceDictionary>

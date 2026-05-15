@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using Management.Domain.Enums;
 
 namespace Management.Application.Features.Staff.Queries.GetStaff
 {
@@ -59,7 +60,7 @@ namespace Management.Application.Features.Staff.Queries.GetStaff
                 HireDate = entity.HireDate, 
                 Salary = entity.Salary,
                 PaymentDay = entity.PaymentDay,
-                Status = entity.IsActive ? "Active" : "Inactive",
+                Status = entity.IsActive ? StaffStatus.Active : StaffStatus.Inactive,
                 Permissions = entity.Permissions?.Select(p => new PermissionDto(p.Key, p.Value)).ToList() ?? new List<PermissionDto>()
             };
         }

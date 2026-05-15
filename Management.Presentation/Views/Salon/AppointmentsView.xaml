@@ -81,7 +81,7 @@
                                FontSize="32" FontWeight="Bold" 
                                Foreground="{DynamicResource TextPrimaryBrush}" 
                                FontFamily="Segoe UI Variable Display"/>
-                    <TextBlock Text="Overview of today's appointments and staff availability." 
+                    <TextBlock Text="{DynamicResource Terminology.Salon.Appointments.Subtitle}" 
                                FontSize="16" Foreground="{DynamicResource TextSecondaryBrush}" 
                                Margin="0,4,0,0"/>
                 </StackPanel>

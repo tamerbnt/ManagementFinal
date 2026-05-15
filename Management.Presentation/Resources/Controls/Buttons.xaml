@@ -76,7 +76,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="14">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -504,5 +504,72 @@
         </Setter>
     </Style>
 
+
+<!-- Lightweight Apple Style: No background pill, just text highlight -->
+                <Style x:Key="AppleFilterRadioButtonStyle" TargetType="RadioButton">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="12,0"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="FontWeight" Value="Medium"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="RadioButton">
+                                <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+    <!-- Modern Segmented Control Style -->
+    <Style x:Key="SegmentedRadioButtonStyle" TargetType="RadioButton">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="24,6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+                            <Setter TargetName="Border" Property="Effect" Value="{DynamicResource Shadow.Level1}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsChecked" Value="False"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
+
+
 

@@ -115,7 +115,8 @@ namespace Management.Presentation.ViewModels.Shop
 
             
             Title = GetTerm("Strings.Shop.QuickSale") ?? "Quick Sale";
-            _productStore.StockUpdated += OnProductStockUpdated;
+            _productStore.StockUpdated += OnProductUpdated;
+            _productStore.ProductUpdated += OnProductUpdated;
             _ = LoadProductsAsync();
             _ = LoadDiscountsAsync();
         }
@@ -345,20 +346,25 @@ namespace Management.Presentation.ViewModels.Shop
             }, "Sale processing failed.");
         }
 
-        private void OnProductStockUpdated(ProductDto updatedProduct)
+        private void OnProductUpdated(ProductDto updatedProduct)
         {
             System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
                 if (IsDisposed) return;
 
-                var product = _allProducts.FirstOrDefault(p => p.Id == updatedProduct.Id);
-                if (product != null)
+                var index = _allProducts.FindIndex(p => p.Id == updatedProduct.Id);
+                if (index != -1)
                 {
-                    product.StockQuantity = updatedProduct.StockQuantity;
-                    // Since this uses Record/ObservableRangeCollection with NotifyCollectionChanged, 
-                    // but the individual record properties might not notify unless they are mutable and have NotifyPropertyChanged.
-                    // ProductDto properties ARE mutable but do NOT have NotifyPropertyChanged.
-                    // So we must Refresh the filtered list on the UI thread to reflect changes.
+                    _allProducts[index] = updatedProduct;
+                    // Re-sort since pin state might have changed
+                    _allProducts = _allProducts.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToList();
+                    FilterProducts(SearchQuery);
+                }
+                else if (updatedProduct != null)
+                {
+                    // New product added (could use ProductStore.ProductAdded too)
+                    _allProducts.Add(updatedProduct);
+                    _allProducts = _allProducts.OrderByDescending(p => p.IsPinned).ThenBy(p => p.Name).ToList();
                     FilterProducts(SearchQuery);
                 }
             });
@@ -370,7 +376,8 @@ namespace Management.Presentation.ViewModels.Shop
             {
                 if (_productStore != null)
                 {
-                    _productStore.StockUpdated -= OnProductStockUpdated;
+                    _productStore.StockUpdated -= OnProductUpdated;
+                    _productStore.ProductUpdated -= OnProductUpdated;
                 }
             }
             base.Dispose(disposing);

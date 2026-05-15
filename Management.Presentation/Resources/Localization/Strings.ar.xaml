@@ -331,6 +331,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Shop.Detail.Description">الوصف</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.EditProduct">تحرير المنتج</sys:String>
     <sys:String x:Key="Terminology.Shop.Action.SaveChanges">حفظ التغييرات</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Pin">تثبيت</sys:String>
+    <sys:String x:Key="Terminology.Shop.Action.Unpin">إلغاء التثبيت</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatus">تثبيت المنتج</sys:String>
+    <sys:String x:Key="Terminology.Shop.Detail.PinStatusDesc">إعطاء الأولوية لهذا المنتج في قوائم البيع</sys:String>
 
     <!-- Add Product Form -->
     <sys:String x:Key="Terminology.Shop.AddProduct.Title">منتج جديد</sys:String>
@@ -673,6 +677,15 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Enum.Gender.Female">أنثى</sys:String>
     <sys:String x:Key="Terminology.Enum.Gender.Other">أخرى</sys:String>
     <sys:String x:Key="Terminology.Enum.Gender.NotSpecified">غير محدد</sys:String>
+
+    <sys:String x:Key="Terminology.Enum.StaffRole.None">لا شيء</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffRole.Staff">موظف</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffRole.Owner">مالك</sys:String>
+    
+    <sys:String x:Key="Terminology.Enum.StaffStatus.Active">نشط</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffStatus.Inactive">غير نشط</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffStatus.OnLeave">في إجازة</sys:String>
+    <sys:String x:Key="Terminology.Enum.StaffStatus.Terminated">منتهي</sys:String>
     <!-- Staff Creation -->
     <sys:String x:Key="Terminology.Staff.Add.Title">إضافة عضو جديد</sys:String>
     <sys:String x:Key="Terminology.Staff.Add.Subtitle">أدخل بيانات الموظف الجديد.</sys:String>
@@ -960,7 +973,10 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Finance.Toast.UpdateStaffError">فشل في تحديث الموظفين: {0}</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.AddingStaff">إضافة عضو في طاقم العمل...</sys:String>
     <sys:String x:Key="Strings.Finance.Loading.UpdatingStaff">تحديث عضو في طاقم العمل...</sys:String>
-    <sys:String x:Key="Strings.Finance.CanCreateMembers">يمكن إنشاء الأعضاء</sys:String>
+    <sys:String x:Key="Permission.ViewDashboard">عرض لوحة التحكم</sys:String>
+    <sys:String x:Key="Permission.CreateMember">إدارة الأعضاء</sys:String>
+    <sys:String x:Key="Permission.ModifyProduct">إدارة المنتجات والمخزون</sys:String>
+    <sys:String x:Key="Permission.CreateStaff">إدارة الموظفين والصلاحيات</sys:String>
     <sys:String x:Key="Strings.GymHome.Simulate">محاكاة</sys:String>
     <sys:String x:Key="Strings.Members.JPGPNGorWebPMax5MB">JPG أو PNG أو WebP (بحد أقصى 5 ميجابايت)</sys:String>
     <sys:String x:Key="Strings.Members.Gender">الجنس</sys:String>
@@ -1388,4 +1404,48 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.Gym.Registration.Name">الاسم الكامل</sys:String>
     <sys:String x:Key="Terminology.Gym.Registration.Phone">رقم الهاتف</sys:String>
     <sys:String x:Key="Terminology.Gym.LeadNoExpiry">في انتظار العضوية</sys:String>
+
+    <!-- Dashboard Guide (Gym) -->
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Title">مرحباً بك في لوحة التحكم</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Welcome.Description">هذه هي غرفة العمليات المركزية الخاصة بك. ابق على اطلاع دائم بالعضويات والمبيعات ومراقبة الدخول بسلاسة.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Title">تسجيل زيارة عابرة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.WalkIn.Description">تتبع الزوار اليوميين الذين ليسوا أعضاء باستخدام وحدة الإجراء السريع للزيارات العابرة.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Title">نقطة بيع سريعة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.QuickSale.Description">قم ببيع المياه والمناشف والمكملات الغذائية فوراً باستخدام تدفق البيع السريع.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Title">تنبيهات بقرب انتهاء الصلاحية</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.ExpiringSoon.Description">راقب بطاقات مؤشرات الأداء للتواصل مع الأعضاء قبل انتهاء اشتراكهم.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Title">تتبع الأجهزة</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Hardware.Description">تحقق من الشريط السفلي للتأكد من أن ماسحات الباركود وطابعات الإيصالات متصلة.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Title">مبيعات متعددة العناصر</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.MultiSale.Description">هل لديك عملية بيع كبيرة؟ استخدم سلة المبيعات المتعددة لربط العناصر بأمان.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Title">تجاوز سعة الإشغال</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Overflow.Description">عندما تصل الصالة إلى السعة القصوى، ستضيء حلقة الإشغال لتنبيه موظفي الاستقبال.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Title">تدفق النشاط</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.Activity.Description">شاهد سجل الأحداث في الوقت الفعلي وهو يتحدث تلقائياً عند دخول الأشخاص أو قيامهم بعمليات شراء.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Title">إنشاء أعضاء جدد</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.NewMember.Description">استخدم إجراء إنشاء عضو لتسجيل الزوار العابرين بسرعة مباشرة من الشاشة الرئيسية.</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Title">بروتوكول نهاية الوردية</sys:String>
+    <sys:String x:Key="Terminology.Dashboard.Guide.EndOfShift.Description">تحقق من مطابقة إجمالي النقد اليومي المتوقع مع النقد الفعلي قبل تسجيل الخروج.</sys:String>
+
+    <!-- Salon Onboarding Guide -->
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Title">مرحباً بك في لوحة التحكم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step1.Description">هذه هي غرفة العمليات المركزية الخاصة بك. ابق على اطلاع دائم بالمواعيد والمبيعات وسجل العملاء بسلاسة.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Title">تسجيل زيارة عابرة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step2.Description">تتبع الزوار اليوميين الذين ليسوا عملاء دائمين باستخدام وحدة الإجراء السريع للزيارات العابرة.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Title">نقطة بيع سريعة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step3.Description">قم ببيع المنتجات والخدمات فوراً باستخدام تدفق البيع السريع.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Title">تتبع الأجهزة</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step4.Description">تحقق من الشريط السفلي للتأكد من أن ماسحات الباركود وطابعات الإيصالات متصلة.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Title">مبيعات متعددة العناصر</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step5.Description">هل لديك عملية بيع كبيرة؟ استخدم سلة المبيعات المتعددة لربط العناصر بأمان.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Title">تدفق النشاط</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step6.Description">شاهد سجل الأحداث في الوقت الفعلي وهو يتحدث تلقائياً عند إكمال الخدمات أو بيع المنتجات.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Title">إنشاء عملاء جدد</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step7.Description">استخدم إجراء إنشاء عضو لتسجيل عملاء جدد بسرعة مباشرة من الشاشة الرئيسية.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Title">بروتوكول نهاية الوردية</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step8.Description">تحقق من مطابقة إجمالي النقد اليومي المتوقع مع النقد الفعلي قبل تسجيل الخروج.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Title">مواعيد اليوم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step9.Description">راقب بطاقة الأجندة لمشاهدة مواعيد العملاء القادمة وإدارة استغلال الكراسي.</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Title">الموعد القادم</sys:String>
+    <sys:String x:Key="Terminology.Salon.Guide.Step10.Description">يعرض الشريط المتحرك في أعلى اليسار عميلك القادم مباشرة. اضغط على الأسهم لتصفح جدول اليوم الكامل.</sys:String>
 </ResourceDictionary>

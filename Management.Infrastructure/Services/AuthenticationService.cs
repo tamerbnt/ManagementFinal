@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Management.Infrastructure.Integrations.Supabase.Models;
 using Management.Domain.Models;
 using Management.Domain.ValueObjects;
+using Management.Domain.Constants;
 using Microsoft.EntityFrameworkCore;
 
 namespace Management.Infrastructure.Services
@@ -965,7 +966,7 @@ namespace Management.Infrastructure.Services
         // --- Helper: Entity to DTO Mapper ---
         private StaffDto MapToDto(Domain.Models.StaffMember entity)
         {
-            return new StaffDto
+            var dto = new StaffDto
             {
                 Id = entity.Id,
                 TenantId = entity.TenantId,
@@ -975,10 +976,29 @@ namespace Management.Infrastructure.Services
                 PhoneNumber = entity.PhoneNumber.Value,
                 Role = entity.Role,
                 HireDate = entity.HireDate,
-                Status = entity.IsActive ? "Active" : "Inactive",
-                Permissions = GeneratePermissionsForRole(entity.Role),
+                Status = entity.IsActive ? StaffStatus.Active : StaffStatus.Inactive,
                 IsOwner = entity.Role == Management.Domain.Enums.StaffRole.Owner
             };
+
+            // 1. Get role-based defaults
+            var perms = GeneratePermissionsForRole(entity.Role);
+
+            // 2. Merge with database-stored permissions (Explicitly set in UI)
+            if (entity.Permissions != null && entity.Permissions.Count > 0)
+            {
+                foreach (var dbPerm in entity.Permissions)
+                {
+                    var existing = perms.FirstOrDefault(p => p.Name.Equals(dbPerm.Key, StringComparison.OrdinalIgnoreCase));
+                    if (existing != null)
+                    {
+                        perms.Remove(existing);
+                    }
+                    perms.Add(new PermissionDto(dbPerm.Key, dbPerm.Value));
+                }
+            }
+
+            dto.Permissions = perms;
+            return dto;
         }
 
         // --- Helper: Role Based Access Control (RBAC) ---
@@ -988,20 +1008,14 @@ namespace Management.Infrastructure.Services
             var perms = new List<PermissionDto>();
 
             // Everyone can view basic dashboards
-            perms.Add(new PermissionDto("View Dashboard", true));
+            perms.Add(new PermissionDto(SystemPermissions.ViewDashboard, true));
 
-            // All active staff can view members and check-in
-            perms.Add(new PermissionDto("View Members", true));
-            perms.Add(new PermissionDto("Check-In", true));
-
+            // Owners get all management permissions by default
             if (role == StaffRole.Owner)
             {
-                perms.Add(new PermissionDto("Manage Members", true));
-                perms.Add(new PermissionDto("View Finance", true));
-                perms.Add(new PermissionDto("Manage Inventory", true));
-                perms.Add(new PermissionDto("System Settings", true));
-                perms.Add(new PermissionDto("Manage Staff", true));
-                perms.Add(new PermissionDto("Hardware Config", true));
+                perms.Add(new PermissionDto(SystemPermissions.CreateMember, true));
+                perms.Add(new PermissionDto(SystemPermissions.ModifyProduct, true));
+                perms.Add(new PermissionDto(SystemPermissions.CreateStaff, true));
             }
 
             return perms;

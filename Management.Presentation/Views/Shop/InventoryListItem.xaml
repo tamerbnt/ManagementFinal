@@ -135,10 +135,32 @@
 
             <!-- 3. Category -->
             <TextBlock Grid.Column="3" 
-                       Text="{Binding Category}" 
                        VerticalAlignment="Center" 
                        FontSize="13" 
-                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Border}}"/>
+                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Border}}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="{Binding Category}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Category}" Value="Supplements">
+                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.Category.Supplements}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Category}" Value="Apparel">
+                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.Category.Apparel}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Category}" Value="Equipment">
+                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.Category.Equipment}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Category}" Value="Protein">
+                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.Category.Protein}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Category}" Value="Accessories">
+                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.Category.Accessories}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <!-- 4. Price -->
             <TextBlock Grid.Column="4" 

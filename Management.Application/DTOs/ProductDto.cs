@@ -17,5 +17,6 @@ namespace Management.Application.DTOs
         public string Category { get; set; } = "Other";
         public string ImageUrl { get; set; } = string.Empty;
         public int ReorderLevel { get; set; }
+        public bool IsPinned { get; set; }
     }
 }

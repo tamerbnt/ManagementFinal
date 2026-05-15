@@ -91,7 +91,7 @@ namespace Management.Presentation.Services.Repositories
                             FullName = profile.FullName,
                             Email = profile.Email,
                             Role = staffRole,
-                            Status = "Active"
+                            Status = StaffStatus.Active
                         };
 
                         _sessionManager.SetUser(staffDto);
@@ -149,7 +149,7 @@ namespace Management.Presentation.Services.Repositories
                             FullName = profile.FullName,
                             Email = profile.Email,
                             Role = staffRole,
-                            Status = "Active"
+                            Status = StaffStatus.Active
                         };
 
                         _sessionManager.SetUser(staffDto);

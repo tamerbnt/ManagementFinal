@@ -189,7 +189,7 @@
                             <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,4,0,0"
                                         Visibility="{Binding HasNoUpcoming, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <TextBlock Text="{DynamicResource Terminology.Salon.Home.NoUpcoming}" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}"/>
-                                <TextBlock Text="Dashboard" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}"/>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Dashboard.Label}" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}"/>
                             </StackPanel>
 
                             <!-- CONTROLS (AT RIGHT - GYM STYLE) -->
@@ -226,7 +226,7 @@
                             </StackPanel>
                             <!-- CONTENT -->
                             <TextBlock Grid.Row="1" Text="{Binding AppointmentsTodayCount}" FontSize="38" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Row="2" Text="today" FontSize="11" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,4,0,0"/>
+                            <TextBlock Grid.Row="2" Text="{DynamicResource Terminology.Salon.Dashboard.Today}" FontSize="11" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,4,0,0"/>
                         </Grid>
                     </Border>
 
@@ -248,7 +248,7 @@
                                 <TextBlock Text="{Binding TotalRevenueToday, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
                                            FontSize="38" FontWeight="Bold" Foreground="{DynamicResource Brush.Card.Foreground}"/>
                             </Viewbox>
-                            <TextBlock Grid.Row="2" Text="gross revenue" FontSize="11" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,4,0,0"/>
+                            <TextBlock Grid.Row="2" Text="{DynamicResource Terminology.Salon.Dashboard.GrossRevenue}" FontSize="11" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,4,0,0"/>
                         </Grid>
                     </Border>
 
@@ -342,10 +342,10 @@
                                 <Viewbox Width="60" Height="60" Opacity="0.1" Margin="0,0,0,10">
                                     <Path Data="{DynamicResource IconHistory}" Fill="{DynamicResource Brush.Card.Foreground}"/>
                                 </Viewbox>
-                                <TextBlock Text="A fresh start today." 
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Home.FreshStart}" 
                                            FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" 
                                            Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.6"/>
-                                <TextBlock Text="All your client activities will appear here." 
+                                <TextBlock Text="{DynamicResource Terminology.Salon.Home.ActivitiesInstruction}" 
                                            FontSize="12" HorizontalAlignment="Center" 
                                            Foreground="{DynamicResource Brush.Card.Foreground}" Opacity="0.4" Margin="0,2,0,0"/>
 
@@ -379,7 +379,7 @@
 
                     <!-- 1. QUICK ACTIONS (Sleek Vertical List) -->
                     <StackPanel Grid.Row="0" Margin="0,0,0,16">
-                        <TextBlock Text="QUICK ACTIONS" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" Margin="4,0,0,12"/>
+                        <TextBlock Text="{DynamicResource Terminology.Home.QuickActions}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" Margin="4,0,0,12"/>
 
                         <!-- Quick Sale -->
                         <Border Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" Padding="4,2" Margin="0,0,0,8">
@@ -423,7 +423,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <Path Grid.Column="0" Data="{DynamicResource IconHistory}" Stroke="{DynamicResource Brush.Neutral.White}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" Opacity="0.8"/>
-                                    <TextBlock Grid.Column="1" Text="Walk-in" FontSize="13" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{DynamicResource Terminology.Salon.Home.Action.WalkIn}" FontSize="13" Foreground="{DynamicResource Brush.Neutral.White}" Opacity="0.9" VerticalAlignment="Center"/>
                                     <Path Grid.Column="2" Data="M0,0 L4,4 L0,8" Stroke="{DynamicResource Brush.Neutral.White}" StrokeThickness="1.5" MaxWidth="6" Stretch="Uniform" Opacity="0.3" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                 </Grid>
                             </Button>
@@ -461,7 +461,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <!-- Guide Tab -->
                                 <Grid Margin="0,0,24,0">
-                                    <TextBlock Text="GUIDE" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Sidebar.Guide}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Opacity" Value="0.4"/>
@@ -492,7 +492,7 @@
 
                                 <!-- Alerts Tab -->
                                 <Grid>
-                                    <TextBlock Text="ALERTS" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Sidebar.Alerts}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Cursor="Hand">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Opacity" Value="0.4"/>
@@ -635,7 +635,7 @@
                                 <TextBlock Text="{Binding CurrentDate}" FontSize="10" Foreground="{DynamicResource Brush.Text.Primary}" Opacity="0.6" HorizontalAlignment="Right" Margin="0,0,0,4"/>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Ellipse Width="6" Height="6" Fill="{DynamicResource FacilityAccentBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="All systems online" FontSize="10" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Home.Status.Online}" FontSize="10" Foreground="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
                         </Grid>

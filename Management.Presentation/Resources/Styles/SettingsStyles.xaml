@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Management.Presentation.Views.Settings">
+                    xmlns:local="clr-namespace:Management.Presentation.Views.Settings"
+    xmlns:converters="clr-namespace:Management.Presentation.Converters">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../Tokens/Colors.xaml" />
@@ -292,7 +293,8 @@
             <!-- Duration -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="{Binding DurationMinutes}" Style="{StaticResource Body}"/>
-                <TextBlock Text=" Min" Style="{StaticResource Body}"/>
+                <TextBlock Text=" " Style="{StaticResource Body}"/>
+                <TextBlock Text="{DynamicResource Terminology.Global.Duration.Minutes}" Style="{StaticResource Body}"/>
             </StackPanel>
 
             <!-- Price -->
@@ -348,7 +350,7 @@
             <TextBlock Grid.Column="1" Text="{Binding Name}" Style="{StaticResource BodyMedium}" VerticalAlignment="Center"/>
 
             <!-- Type -->
-            <TextBlock Grid.Column="2" Text="{Binding DiscountType}" Style="{StaticResource Body}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="2" Text="{Binding DiscountType, Converter={StaticResource EnumToLocalizedDescriptionConverter}}" Style="{StaticResource Body}" VerticalAlignment="Center"/>
 
             <!-- Value -->
             <TextBlock Grid.Column="3" 

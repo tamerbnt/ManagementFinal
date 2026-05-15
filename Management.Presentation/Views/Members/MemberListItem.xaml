@@ -80,7 +80,7 @@
                                 <Binding Path="IsFrozen" Converter="{StaticResource BoolToVisibilityConverter}"/>
                             </Path.Visibility>
                         </Path>
-                        <TextBlock Text="{Binding Status}"
+                        <TextBlock Text="{Binding Status, Converter={StaticResource EnumToLocalizedDescriptionConverter}}"
                                    Style="{StaticResource Micro}"
                                    Foreground="{DynamicResource TextOnAccentBrush}"
                                    FontWeight="Bold"/>
@@ -91,12 +91,14 @@
                 <TextBlock HorizontalAlignment="Center">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource Caption}">
-                            <Setter Property="Text" Value="{Binding ExpirationDate, StringFormat='Expires {0:MMM dd, yyyy}'}"/>
                             <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsLead}" Value="True">
                                     <Setter Property="Text" Value="{DynamicResource Terminology.Gym.LeadNoExpiry}"/>
                                     <Setter Property="Foreground" Value="{DynamicResource Brush.Status.Warning}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsLead}" Value="False">
+                                    <Setter Property="Text" Value="{Binding ExpirationDate, Converter={StaticResource StringFormatConverter}, ConverterParameter='Terminology.List.Expires'}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
