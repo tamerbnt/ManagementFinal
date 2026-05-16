@@ -139,7 +139,7 @@
                             
                             <!-- Cancel Button (Stretched) -->
                             <Button Grid.Column="0"
-                                    Content="{DynamicResource Terminology.Global.Cancel}" 
+                                    Content="{TemplateBinding SecondaryActionText}" 
                                     Command="{TemplateBinding CancelCommand}"
                                     IsCancel="True"
                                     Style="{DynamicResource Button.Pill.Outline}"

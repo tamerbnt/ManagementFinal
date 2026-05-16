@@ -11,6 +11,7 @@
         xmlns:settings="clr-namespace:Management.Presentation.Views.Settings"
         xmlns:shared="clr-namespace:Management.Presentation.Views.Shared"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Shell.GymOS}"
         Width="1440" Height="900"
@@ -41,7 +42,7 @@
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Width" 
-                                                  To="72" Duration="0:0:0.20">
+                                                  To="72" Duration="0:0:0.30">
                                     <DoubleAnimation.EasingFunction>
                                         <QuarticEase EasingMode="EaseOut"/>
                                     </DoubleAnimation.EasingFunction>
@@ -54,7 +55,7 @@
                         <BeginStoryboard>
                             <Storyboard>
                                 <DoubleAnimation Storyboard.TargetProperty="Width" 
-                                                  To="260" Duration="0:0:0.20">
+                                                  To="260" Duration="0:0:0.30">
                                     <DoubleAnimation.EasingFunction>
                                         <QuarticEase EasingMode="EaseOut"/>
                                     </DoubleAnimation.EasingFunction>
@@ -138,6 +139,11 @@
             <KeyBinding Key="P" Modifiers="Ctrl"
                         Command="{Binding Data.OpenCommandPaletteCommand, Source={StaticResource MainProxy}}"/>
         </Grid.InputBindings>
+
+        <!-- PERFORMANCE WARMING: Invisible instance to prime the animation storyboards -->
+        <premium:AtriumMarkAnimation x:Name="WarmingAnim" Opacity="0" IsHitTestVisible="False" Width="1" Height="1" 
+                                     HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
         <Grid x:Name="MainLayoutGrid">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -176,7 +182,7 @@
                 
                 <!-- CONTENT PANEL (Transparent Canvas) -->
                 <Border Grid.Row="2" Background="Transparent">
-                    <ContentControl Content="{Binding CurrentView}" Focusable="False"/>
+                    <ContentControl Content="{Binding CurrentView}" Focusable="False" RenderOptions.CachingHint="Cache"/>
                 </Border>
             </Grid>
         </Grid>
@@ -209,18 +215,43 @@
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Opacity" Value="0"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsModalOpen}" Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
+                            <DataTrigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                                         To="1" Duration="0:0:0.400">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.EnterActions>
+                            <DataTrigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                                         To="0" Duration="0:0:0.300">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseIn"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </DataTrigger.ExitActions>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
 
-            <!-- Backdrop with Blur -->
-            <Border Background="#4D0F172A">
+            <!-- Backdrop with Blur & Darken -->
+            <Border Background="{DynamicResource Brush.Modal.Backdrop}">
                 <Border.Effect>
-                    <BlurEffect Radius="10"/>
+                    <BlurEffect Radius="20"/>
                 </Border.Effect>
             </Border>
 

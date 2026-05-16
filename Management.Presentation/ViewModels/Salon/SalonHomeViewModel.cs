@@ -294,7 +294,7 @@ namespace Management.Presentation.ViewModels.Salon
             _syncService = syncService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
-            _facilityContext.FacilityChanged += OnFacilityChanged;
+            _syncService.SyncCompleted += OnSyncCompleted;
 
             _localizationService.LanguageChanged += (s, e) => 
             {
@@ -337,7 +337,7 @@ namespace Management.Presentation.ViewModels.Salon
                 UpdateGreeting();
                 StartClock();
                 await PopulateSystemAlertsAsync();
-            });
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
             await RefreshDataAsync();
         }
@@ -582,7 +582,7 @@ namespace Management.Presentation.ViewModels.Salon
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
                     IsActivityEmpty = !ActivityStream.Any();
-                });
+                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             });
         }
 
@@ -689,10 +689,7 @@ namespace Management.Presentation.ViewModels.Salon
                 // Unregister Messenger
                 CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.UnregisterAll(this);
 
-                if (_facilityContext != null)
-                {
-                    _facilityContext.FacilityChanged -= OnFacilityChanged;
-                }
+
                 if (_syncService != null)
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;
@@ -730,21 +727,6 @@ namespace Management.Presentation.ViewModels.Salon
              });
          }
 
-         private void OnFacilityChanged(FacilityType type)
-         {
-             if (IsDisposed) return;
-             _logger?.LogInformation("[SalonHome] FacilityChanged event received ({Type}).", type);
-             var newFacilityId = _facilityContext.CurrentFacilityId;
-             
-             if (newFacilityId != Guid.Empty)
-             {
-                 _logger?.LogInformation("[SalonHome] FacilityId resolved ({Id}). Reloading data.", newFacilityId);
-                 System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
-                 {
-                     if (IsDisposed) return;
-                     await RefreshDataAsync();
-                 });
-             }
-         }
+
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -81,10 +81,10 @@ namespace Management.Presentation.ViewModels.History
             }
         }
 
-        [ObservableProperty]
-        private bool _isDetailOpen;
-
+        [ObservableProperty] private bool _isDetailOpen;
         [ObservableProperty] private string _auditNote = string.Empty;
+        [ObservableProperty] private bool _isExporting;
+        [ObservableProperty] private bool _isPrinting;
 
         public ObservableRangeCollection<HistoryEventItemViewModel> HistoryEvents { get; } = new();
         public System.ComponentModel.ICollectionView HistoryEventsView { get; }
@@ -131,7 +131,7 @@ namespace Management.Presentation.ViewModels.History
         public IRelayCommand ClearSearchCommand { get; }
         public IRelayCommand SelectDateRangeCommand { get; }
         public IAsyncRelayCommand ExportCommand { get; }
-        public IRelayCommand PrintReportCommand { get; }
+        public IAsyncRelayCommand PrintReportCommand { get; }
         public IRelayCommand ResetFiltersCommand { get; }
 
         public Task PreInitializeAsync()
@@ -190,7 +190,17 @@ namespace Management.Presentation.ViewModels.History
             NextDayCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => { SelectedDay = SelectedDay.AddDays(1); return Task.CompletedTask; });
             SelectDateRangeCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Use the navigation buttons to change dates."));
             ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExportHistoryAsync);
-            PrintReportCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService.ShowInfo("Preparing print..."));
+            PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsPrinting) return;
+                IsPrinting = true;
+                try
+                {
+                    _toastService.ShowInfo("Preparing print...");
+                    await Task.Delay(1500); // Animation buffer
+                }
+                finally { IsPrinting = false; }
+            });
             ResetFiltersCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => 
             {
                 SearchText = string.Empty;
@@ -368,14 +378,18 @@ namespace Management.Presentation.ViewModels.History
 
         private async Task PrintSelectedEventAsync()
         {
-            if (SelectedEvent == null) return;
+            if (SelectedEvent == null || IsPrinting) return;
+            IsPrinting = true;
 
             try
             {
+                var delayTask = Task.Delay(1500); // Animation buffer
                 if (SelectedEvent is PaymentEventItemViewModel or SaleEventItemViewModel)
                 {
                     _toastService.ShowInfo("Sending ticket to printer...");
                     var result = await _orderService.PrintOrderAsync(SelectedEvent.Id);
+                    await delayTask;
+
                     if (result.IsSuccess)
                     {
                         _toastService.ShowSuccess("Ticket printed successfully.");
@@ -387,6 +401,7 @@ namespace Management.Presentation.ViewModels.History
                 }
                 else
                 {
+                    await delayTask;
                     _toastService.ShowInfo("Printing is not available for this event type.");
                 }
             }
@@ -395,18 +410,24 @@ namespace Management.Presentation.ViewModels.History
                 _logger.LogError(ex, "Error printing ticket for event {Id}", SelectedEvent.Id);
                 _toastService.ShowError("Failed to print ticket.");
             }
+            finally
+            {
+                IsPrinting = false;
+            }
         }
 
         private async Task ExportHistoryAsync()
         {
-            if (HistoryEvents.Count == 0)
+            if (HistoryEvents.Count == 0 || IsExporting)
             {
-                _toastService.ShowInfo("No history data to export for this day.");
+                if (HistoryEvents.Count == 0) _toastService.ShowInfo("No history data to export for this day.");
                 return;
             }
 
+            IsExporting = true;
             try
             {
+                var delayTask = Task.Delay(1500); // Animation buffer
                 _toastService.ShowInfo("Generating PDF report...", "Export");
 
                 var facilityName = _facilityContext.CurrentFacility.ToString();
@@ -436,6 +457,8 @@ namespace Management.Presentation.ViewModels.History
 
                 await System.IO.File.WriteAllBytesAsync(filePath, pdfBytes);
 
+                await delayTask; // Ensure animation finishes
+
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = filePath,
@@ -448,6 +471,10 @@ namespace Management.Presentation.ViewModels.History
             {
                 _logger.LogError(ex, "Error exporting history report to PDF");
                 _toastService.ShowError("Failed to export PDF report: " + ex.Message, "Export Failed");
+            }
+            finally
+            {
+                IsExporting = false;
             }
         }
 

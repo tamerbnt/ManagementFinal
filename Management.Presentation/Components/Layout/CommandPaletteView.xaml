@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Shell"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              xmlns:dtos="clr-namespace:Management.Application.DTOs;assembly=Management.Application"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:CommandPaletteViewModel}">
 
@@ -96,12 +97,47 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <StackPanel Orientation="Horizontal" Margin="16,12">
-                        <Path Data="{DynamicResource Icon.Search}" 
-                              Fill="#64748B" 
-                              Width="20" Height="20" 
-                              Margin="0,0,12,0"/>
-                    </StackPanel>
+                    <Grid Margin="16,12" VerticalAlignment="Center" Width="24" Height="24">
+                        <Path x:Name="StaticLoopIcon"
+                              Data="{DynamicResource Icon.Search}" 
+                              Stroke="#64748B" 
+                              StrokeThickness="2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Stretch="Uniform">
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+
+                        <premium:AtriumMarkAnimation x:Name="ScanAnimation"
+                                                     AnimationMode="Scan"
+                                                     MarkForeground="{DynamicResource FacilityAccentBrush}">
+                            <premium:AtriumMarkAnimation.Style>
+                                <Style TargetType="premium:AtriumMarkAnimation">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding SearchQuery}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </premium:AtriumMarkAnimation.Style>
+                        </premium:AtriumMarkAnimation>
+                    </Grid>
                           
                     <TextBox Grid.Column="1"
                              Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"

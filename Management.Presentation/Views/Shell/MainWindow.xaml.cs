@@ -68,6 +68,10 @@ namespace Management.Presentation.Views.Shell
         public MainWindow()
         {
             InitializeComponent();
+
+            // PERFORMANCE WARMING: Prime the brand animation engine for the main shell.
+            WarmingAnim.WarmUp();
+
             this.SourceInitialized += (s, e) =>
             {
                 WindowHelper.EnableMica(this);

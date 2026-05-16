@@ -1421,4 +1421,81 @@
         </Setter>
     </Style>
 
+    <!-- PREMIUM MEMBER SEARCH RESULT TEMPLATE -->
+    <DataTemplate x:Key="MemberSearchResultTemplate">
+        <Grid Margin="4,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Avatar Section -->
+            <Grid Grid.Column="0" Width="40" Height="40" Margin="0,0,12,0">
+                <!-- Initials Fallback -->
+                <Border CornerRadius="20" 
+                        Background="{Binding FullName, Converter={StaticResource NameToBrushConverter}}">
+                    <TextBlock Text="{Binding FullName, Converter={StaticResource NameToInitialConverter}}"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                               Foreground="White" FontWeight="Bold" FontSize="16"/>
+                </Border>
+                
+                <!-- Profile Image -->
+                <Border CornerRadius="20" ClipToBounds="True"
+                        Visibility="{Binding ProfileImageUrl, Converter={StaticResource InverseNullToVisibilityConverter}}">
+                    <Image Source="{Binding ProfileImageUrl}" Stretch="UniformToFill"/>
+                </Border>
+            </Grid>
+
+            <!-- Text Section -->
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding FullName}" 
+                           FontWeight="SemiBold" FontSize="14" 
+                           Foreground="{DynamicResource Brush.Text.Primary}"/>
+                <TextBlock Text="{Binding PhoneNumber}" 
+                           FontSize="11" 
+                           Foreground="{DynamicResource Brush.Text.Tertiary}"
+                           Visibility="{Binding PhoneNumber, Converter={StaticResource InverseNullToVisibilityConverter}}"/>
+                <TextBlock Text="{Binding CardId, FallbackValue=''}" 
+                           FontSize="11" 
+                           Foreground="{DynamicResource Brush.Text.Tertiary}"
+                           Visibility="{Binding PhoneNumber, Converter={StaticResource NullToVisibilityConverter}}"/>
+            </StackPanel>
+        </Grid>
+    </DataTemplate>
+
+    <Style x:Key="ListBox.SearchPopup" TargetType="ListBox" BasedOn="{StaticResource PremiumListBox}">
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Padding" Value="4"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListBoxItem">
+                                <Border x:Name="border" 
+                                        Background="{TemplateBinding Background}" 
+                                        CornerRadius="10"
+                                        Margin="0,1">
+                                    <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="border" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

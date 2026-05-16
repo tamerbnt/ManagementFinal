@@ -12,6 +12,7 @@
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:dashcomps="clr-namespace:Management.Presentation.Components.Dashboard"
              xmlns:dash="clr-namespace:Management.Presentation.Views.Dashboard.Components"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
              Background="Transparent">
@@ -1375,9 +1376,33 @@
                                         Command="{Binding OpenPayrollHistoryCommand}"
                                         Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
                                 
-                                <Button Grid.Row="10" Content="{DynamicResource Terminology.Dashboard.Action.ExportReport}" 
-                                        Command="{Binding ExportReportCommand}"
-                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                <!-- Animated Button Start -->
+                                <Button Grid.Row="10" Command="{Binding ExportReportCommand}"
+                                        Height="36" BorderThickness="0" Cursor="Hand" Background="Transparent">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="ExportBtn" Background="#20FFFFFF" CornerRadius="8">
+                                                <Grid>
+                                                    <TextBlock x:Name="btnText" Text="{DynamicResource Terminology.Dashboard.Action.ExportReport}" 
+                                                               Foreground="White" FontSize="11" FontWeight="SemiBold" 
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Scan" MarkForeground="White" 
+                                                                                 Width="18" Height="18" Visibility="Collapsed" 
+                                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ExportBtn" Property="Background" Value="#40FFFFFF"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsExportingReport}" Value="True">
+                                                    <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
+                                                    <Setter TargetName="busyAnim" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
                             </Grid>
                         </Grid>
                     </Border>

@@ -19,4 +19,8 @@
     <SolidColorBrush x:Key="Brush.Surface.Subtle"     Color="#F3F4F6"/>
     <SolidColorBrush x:Key="Brush.Border.Subtle"      Color="#E5E7EB"/>
 
+    <!-- Row Contrast Tokens -->
+    <SolidColorBrush x:Key="RowOnAccentPrimary"    Color="#1A1208"/>
+    <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#4A1524"/>
+
 </ResourceDictionary>

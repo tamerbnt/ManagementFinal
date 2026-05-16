@@ -249,8 +249,7 @@ namespace Management.Presentation.ViewModels.GymHome
             _messenger = messenger;
 
             _syncService.SyncCompleted += OnSyncCompleted;
-            _facilityContext.FacilityChanged += OnFacilityChanged;
-
+            
             _localizationService.LanguageChanged += (s, e) => 
             {
                 CurrentDate = DateTime.Now.ToString("dddd, MMMM dd, yyyy", _localizationService.CurrentCulture);
@@ -322,10 +321,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     _clockTimer = null;
                 }
 
-                if (_facilityContext != null)
-                {
-                    _facilityContext.FacilityChanged -= OnFacilityChanged;
-                }
+
                 if (_syncService != null)
                 {
                     _syncService.SyncCompleted -= OnSyncCompleted;
@@ -459,7 +455,7 @@ namespace Management.Presentation.ViewModels.GymHome
                     {
                         _ = UpdateActiveAvatarsAsync(facilityId);
                     }
-                });
+                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             }
             catch (Exception ex)
             {
@@ -645,7 +641,7 @@ namespace Management.Presentation.ViewModels.GymHome
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
             {
                 UpdateOccupancy(OccupancyCount);
-            });
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
             await LoadRecentActivityAsync();
 
@@ -674,7 +670,7 @@ namespace Management.Presentation.ViewModels.GymHome
 
                 OccupancySparklineData.Clear();
                 RevenueSparklineData.Clear();
-            });
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
             // 3. Dynamic Alerts & Telemetry
             await PopulateSystemAlertsAsync();
@@ -762,7 +758,7 @@ namespace Management.Presentation.ViewModels.GymHome
                         ActivityStream.Add(item);
                     }
                     IsActivityEmpty = !ActivityStream.Any();
-                });
+                }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             }
             catch (Exception ex)
             {
@@ -1234,27 +1230,7 @@ namespace Management.Presentation.ViewModels.GymHome
             // For now, clearing data prevents "Stale Data" from showing up.
         }
 
-        private void OnFacilityChanged(Management.Domain.Enums.FacilityType type)
-        {
-            if (IsDisposed) return;
-            _logger?.LogInformation("[GymHome] FacilityChanged event received ({Type}). Reloading data.", type);
-            var newFacilityId = _facilityContext.CurrentFacilityId;
-            
-            if (newFacilityId != Guid.Empty)
-            {
-                // Fix 2: Mark active here so ShouldRefreshOnSync() is unblocked for sync-triggered
-                // refreshes that arrive while the home screen is live.
-                IsActive = true;
-                _logger?.LogInformation("[GymHome] FacilityId resolved ({Id}). Reloading stats.", newFacilityId);
-                System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
-                {
-                    if (IsDisposed) return;
-                    // Reset initialized flag to force a full fresh load
-                    _initialized = false;
-                    await InitializeAsync(silent: false);
-                });
-            }
-        }
+
 
         [RelayCommand]
         public void SetSidebarMode(string modeStr)

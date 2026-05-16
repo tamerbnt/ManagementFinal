@@ -49,6 +49,15 @@ namespace Management.Presentation.Controls.Premium
             set => SetValue(PrimaryActionTextProperty, value);
         }
 
+        public static readonly System.Windows.DependencyProperty SecondaryActionTextProperty =
+            System.Windows.DependencyProperty.Register("SecondaryActionText", typeof(string), typeof(ModalShellControl), new System.Windows.PropertyMetadata("Cancel"));
+
+        public string SecondaryActionText
+        {
+            get => (string)GetValue(SecondaryActionTextProperty);
+            set => SetValue(SecondaryActionTextProperty, value);
+        }
+
         public static readonly System.Windows.DependencyProperty IsBusyProperty =
             System.Windows.DependencyProperty.Register("IsBusy", typeof(bool), typeof(ModalShellControl), new System.Windows.PropertyMetadata(false));
 

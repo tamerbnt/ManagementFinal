@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Management.Presentation.Views.History"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
              Background="Transparent">
@@ -160,11 +161,32 @@
                 </Button.Style>
             </Button>
 
-            <Button Grid.Column="1" 
-                    Content="{DynamicResource Terminology.History.Action.Print}" 
-                    Style="{DynamicResource PrimaryButton}" 
-                    Height="40"
-                    Command="{Binding DataContext.PrintSelectedEventCommand, RelativeSource={RelativeSource AncestorType=local:HistoryView}}"/>
+            <Button Grid.Column="1" Height="40" Command="{Binding DataContext.PrintSelectedEventCommand, RelativeSource={RelativeSource AncestorType=local:HistoryView}}"
+                    Background="Transparent" BorderThickness="0" Cursor="Hand">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="BtnBorder" Background="{DynamicResource Brush.Accent}" CornerRadius="8">
+                            <Grid>
+                                <TextBlock x:Name="BtnText" Text="{DynamicResource Terminology.History.Action.Print}" 
+                                           Foreground="White" FontWeight="Bold" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="White" 
+                                                             Width="18" Height="18" Visibility="Collapsed" 
+                                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BtnBorder" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding DataContext.IsPrinting, RelativeSource={RelativeSource AncestorType=local:HistoryView}}" Value="True">
+                                <Setter TargetName="BtnText" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
         </Grid>
     </Grid>
 </UserControl>

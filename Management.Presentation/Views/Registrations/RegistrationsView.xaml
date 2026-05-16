@@ -6,6 +6,7 @@
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:local="clr-namespace:Management.Presentation.Views.Registrations"
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Registrations"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="1080" d:DesignWidth="1440"
@@ -31,7 +32,7 @@
 
         <!-- 1. Header & Global Actions (Aligned with Members) -->
         <Grid Grid.Row="0" Margin="{StaticResource MarginSectionBottom}">
-<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Path Data="{StaticResource IconRegistrations}" 
                       Style="{StaticResource Style.Icon.Large}" 
                       Stroke="{DynamicResource TextPrimaryBrush}"
@@ -54,7 +55,7 @@
                                FontWeight="Bold"/>
                 </Border>
             </StackPanel>
-</Grid>
+        </Grid>
 
         <!-- 2. Controls Area (Row 1) - Aligned with Members -->
         <Grid Grid.Row="1" Margin="{StaticResource MarginSectionBottom}">
@@ -95,15 +96,66 @@
 
                 <!-- Right Actions -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Style="{StaticResource Button.Pill.Outline}"
-                            Command="{Binding PrintReportCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <Path Data="{StaticResource IconPrinter}" 
-                                  Fill="{DynamicResource Brush.Text.Primary}"
-                                  Style="{StaticResource Style.Icon.Small}"
-                                  Margin="{StaticResource MarginIconRight}"/>
-                            <TextBlock Text="{DynamicResource Terminology.Registrations.Action.Print}"/>
-                        </StackPanel>
+                    <!-- Secondary Action: Export -->
+                    <Button Style="{StaticResource Button.Secondary}" Command="{Binding ExportCommand}" Margin="0,0,12,0" Height="44" Padding="16,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource Corner.LG}" Padding="{TemplateBinding Padding}">
+                                    <Grid>
+                                        <StackPanel x:Name="BtnContent" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Path Data="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" 
+                                                  Stroke="{TemplateBinding Foreground}"
+                                                  Style="{StaticResource Style.Icon.Small}"
+                                                  Margin="{StaticResource MarginIconRight}"/>
+                                            <TextBlock Text="{DynamicResource Terminology.History.Action.Export}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+                                                                     Width="18" Height="18" Visibility="Collapsed" 
+                                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsExporting}" Value="True">
+                                        <Setter TargetName="BtnContent" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <!-- Secondary Action: Print -->
+                    <Button Style="{StaticResource Button.Secondary}" Command="{Binding PrintReportCommand}" Margin="0,0,12,0" Height="44" Padding="16,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource Corner.LG}" Padding="{TemplateBinding Padding}">
+                                    <Grid>
+                                        <StackPanel x:Name="BtnContent" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconPrinter}" 
+                                                  Fill="{TemplateBinding Foreground}"
+                                                  Style="{StaticResource Style.Icon.Small}"
+                                                  Margin="{StaticResource MarginIconRight}"/>
+                                            <TextBlock Text="{DynamicResource Terminology.Global.Action.PrintList}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                        <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+                                                                     Width="18" Height="18" Visibility="Collapsed" 
+                                                                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+                                    </Trigger>
+                                    <DataTrigger Binding="{Binding IsPrinting}" Value="True">
+                                        <Setter TargetName="BtnContent" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -112,7 +164,7 @@
 
         <!-- 3. Content Area (Row 2) -->
         <Grid Grid.Row="2">
-<!-- Website Requests List View (Always Shown) -->
+            <!-- Website Requests List View (Always Shown) -->
             <ListBox Grid.Column="0"
                      ItemsSource="{Binding WebsiteRequests}"
                      Background="Transparent"
@@ -121,6 +173,9 @@
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      VirtualizingPanel.IsVirtualizing="True"
                      VirtualizingPanel.VirtualizationMode="Recycling"
+                     VirtualizingPanel.CacheLength="2,2"
+                     VirtualizingPanel.CacheLengthUnit="Page"
+                     RenderOptions.CachingHint="Cache"
                      ScrollViewer.CanContentScroll="True">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
@@ -145,7 +200,14 @@
                                 BorderBrush="{DynamicResource BorderBrush}" 
                                 BorderThickness="1">
                             <Grid>
-<!-- 1. User Info -->
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <!-- 1. User Info -->
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
                                     <TextBlock Text="{Binding FullName}" Style="{StaticResource Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,2"/>
                                     <StackPanel Orientation="Horizontal">
@@ -179,7 +241,7 @@
                                 </StackPanel>
 
                                 <!-- 5. Actions -->
-                                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Button Content="Confirm" 
                                             Command="{Binding DataContext.ConfirmWebsiteRequestCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
@@ -205,11 +267,7 @@
                   HorizontalAlignment="Center"
                   Visibility="{Binding WebsiteRequests.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
                 
-                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0">
-                    <Ellipse.Effect>
-                        <BlurEffect Radius="100"/>
-                    </Ellipse.Effect>
-                </Ellipse>
+                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0" />
 
                 <StackPanel HorizontalAlignment="Center">
                     <Border Width="80" Height="80" 
@@ -243,5 +301,3 @@
         </Grid>
     </Grid>
 </UserControl>
-
-

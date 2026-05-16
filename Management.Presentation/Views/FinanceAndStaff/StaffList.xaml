@@ -25,6 +25,9 @@
                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                  VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="1"
+                 VirtualizingPanel.CacheLengthUnit="Page"
+                 RenderOptions.CachingHint="Cache"
                  ScrollViewer.CanContentScroll="True"
                  SelectedItem="{Binding SelectedStaff, Mode=TwoWay}"
                  Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter=Grid}">
@@ -50,13 +53,6 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,0,20,20" Width="260">
-                        <!-- Shadow Border -->
-                        <Border CornerRadius="20" Background="{DynamicResource CardBackgroundBrush}">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="3" Opacity="0.1" Color="Black"/>
-                            </Border.Effect>
-                        </Border>
-
                         <!-- Content Border -->
                         <Border x:Name="GridCard" 
                                 Background="{DynamicResource CardBackgroundBrush}" 
@@ -144,11 +140,7 @@
                             </Setter>
                             <Setter TargetName="GridCard" Property="BorderBrush" Value="Transparent"/>
                             <Setter TargetName="NameTextGrid" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
-                            <Setter TargetName="GridCard" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="30" ShadowDepth="0" Opacity="0.4"/>
-                                </Setter.Value>
-                            </Setter>
+
                             <Setter TargetName="AvatarPlaceholder" Property="Fill">
                                 <Setter.Value><SolidColorBrush Color="#000000" Opacity="0.2"/></Setter.Value>
                             </Setter>
@@ -169,7 +161,13 @@
                  Style="{StaticResource ListBox.Modern}"
                  Padding="0,0,12,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 ScrollViewer.CanContentScroll="True"
+                 VirtualizingPanel.IsVirtualizing="True"
                  VirtualizingPanel.VirtualizationMode="Recycling"
+                 VirtualizingPanel.CacheLength="1"
+                 VirtualizingPanel.CacheLengthUnit="Page"
+                 RenderOptions.CachingHint="Cache"
                  SelectedItem="{Binding SelectedStaff, Mode=TwoWay}"
                  Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter=List}">
             
@@ -194,13 +192,6 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0,0,0,12">
-                        <!-- Shadow Border -->
-                        <Border CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Black"/>
-                            </Border.Effect>
-                        </Border>
-
                         <!-- Content Border -->
                         <Border x:Name="RowBorder" 
                                 Background="{DynamicResource CardBackgroundBrush}" 
@@ -308,11 +299,7 @@
                                     </LinearGradientBrush>
                                 </Setter.Value>
                             </Setter>
-                            <Setter TargetName="RowBorder" Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect Color="{DynamicResource FacilityAccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.5"/>
-                                </Setter.Value>
-                            </Setter>
+
                             <Setter TargetName="RowBorder" Property="BorderBrush" Value="Transparent"/>
                             <Setter TargetName="NameText" Property="Foreground" Value="{DynamicResource RowOnAccentPrimary}"/>
                             <Setter TargetName="EmailText" Property="Foreground" Value="{DynamicResource RowOnAccentSecondary}"/>

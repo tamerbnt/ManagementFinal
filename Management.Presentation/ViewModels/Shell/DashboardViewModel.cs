@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using System.Linq;
@@ -35,7 +35,7 @@ using Management.Presentation.ViewModels.Finance;
 
 namespace Management.Presentation.ViewModels.Shell
 {
-    public partial class DashboardViewModel : FacilityAwareViewModelBase, IAsyncViewModel, 
+    public partial class DashboardViewModel : FacilityAwareViewModelBase, IAsyncViewModel, INavigationalLifecycle,
         IRecipient<RefreshRequiredMessage<Sale>>, 
         IRecipient<RefreshRequiredMessage<Member>>,
         IRecipient<RefreshRequiredMessage<Registration>>,
@@ -221,6 +221,9 @@ namespace Management.Presentation.ViewModels.Shell
 
         [ObservableProperty]
         private DashboardSummaryDto _summary = new();
+
+        [ObservableProperty]
+        private bool _isExportingReport;
 
         private DashboardSummaryDto? _lastSummary;
 
@@ -859,15 +862,19 @@ namespace Management.Presentation.ViewModels.Shell
         [RelayCommand]
         private async Task ExportReport()
         {
+            if (IsExportingReport) return;
+            IsExportingReport = true;
+
             try
             {
+                var delayTask = Task.Delay(1500); // Premium animation buffer
                 _toastService.ShowInfo("Generating PDF report…", "Export");
 
                 var facilityId = _facilityContext.CurrentFacilityId;
                 var snapshot   = await _reportingService.GetDailySnapshotAsync(facilityId, DateTime.Today);
                 var pdfBytes   = await _reportingService.GenerateDailyPdfReportAsync(snapshot);
 
-                // Save to Documents\Titan\Reports\
+                // Save to Documents\Atrium\Reports\
                 var reportsFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                     "Atrium", "Reports");
@@ -877,6 +884,8 @@ namespace Management.Presentation.ViewModels.Shell
                 var filePath = Path.Combine(reportsFolder, fileName);
 
                 await File.WriteAllBytesAsync(filePath, pdfBytes);
+
+                await delayTask; // Ensure animation finishes
 
                 // Open the PDF with the default viewer
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
@@ -890,6 +899,10 @@ namespace Management.Presentation.ViewModels.Shell
             catch (Exception ex)
             {
                 _toastService.ShowError("Failed to export PDF report: " + ex.Message, "Export Failed");
+            }
+            finally
+            {
+                IsExportingReport = false;
             }
         }
 

@@ -29,7 +29,7 @@
                 <Setter Property="Height" Value="48"/>
                 <Style.Triggers>
                     <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                        <Setter Property="BorderBrush" Value="#0EA5E9"/>
+                        <Setter Property="BorderBrush" Value="#C4785A"/>
                         <Setter Property="BorderThickness" Value="2"/>
                     </Trigger>
                 </Style.Triggers>
@@ -54,10 +54,10 @@
             <TextBlock Text="Sign in" FontSize="40" FontWeight="ExtraBold" Foreground="#0F172A" Margin="0,0,0,12"/>
 
             <!-- EXPANSION BANNER -->
-            <Border Background="#F0F9FF" BorderBrush="#0EA5E9" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
+            <Border Background="#F8EFEB" BorderBrush="#C4785A" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
                     Visibility="{Binding IsExpansionMode, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <Path Data="M12,2L1,21H23L12,2M12,6L19.53,19H4.47L12,6M11,10V14H13V10H11M11,16V18H13V16H11Z" Fill="#0EA5E9" Width="14" Height="14" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                    <Path Data="M12,2L1,21H23L12,2M12,6L19.53,19H4.47L12,6M11,10V14H13V10H11M11,16V18H13V16H11Z" Fill="#C4785A" Width="14" Height="14" Stretch="Uniform" Margin="0,0,10,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding ExpansionMessage}" Foreground="#1E293B" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
@@ -69,7 +69,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Path Grid.Column="0" Data="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" x:Name="EmailInput" Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#0EA5E9"/>
+                        <TextBox Grid.Column="1" x:Name="EmailInput" Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#C4785A"/>
                     </Grid>
                 </Border>
             </StackPanel>
@@ -84,7 +84,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border Background="Transparent">
-                                    <TextBlock Foreground="#0EA5E9" FontSize="12" FontWeight="SemiBold">
+                                    <TextBlock Foreground="#C4785A" FontSize="12" FontWeight="SemiBold">
                                         <Run Text="New user?"/>
                                         <Run Text=" "/><Run Text="{DynamicResource Strings.Auth.AccountSetup}"/>
                                     </TextBlock>
@@ -98,8 +98,8 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
                         <Path Grid.Column="0" Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.11,13 12,13A2,2 0 0,0 10,15C10,16.11 10.89,17 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M9,6A3,3 0 0,1 12,3A3,3 0 0,1 15,6V8H9V6Z" Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <Grid Grid.Column="1">
-                            <PasswordBox x:Name="PasswordInput" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#0EA5E9"/>
-                            <TextBox x:Name="PasswordTextBox" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#0EA5E9" Visibility="Collapsed"/>
+                            <PasswordBox x:Name="PasswordInput" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#C4785A"/>
+                            <TextBox x:Name="PasswordTextBox" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#C4785A" Visibility="Collapsed"/>
                         </Grid>
                         <Button Grid.Column="2" Click="TogglePasswordVisibility_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Focusable="False">
                             <Button.Template>
@@ -129,9 +129,9 @@
                             <ControlTemplate TargetType="Button">
                                 <Border Background="Transparent" x:Name="btnBorder">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Change" Foreground="#0EA5E9" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBlock Text="Change" Foreground="#C4785A" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,4,0"/>
                                         <Path Data="M19,13H7.83L12.71,17.89L11.29,19.31L4,12L11.29,4.69L12.71,6.11L7.83,11H19V13Z" 
-                                              Fill="#0EA5E9" Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
+                                              Fill="#C4785A" Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -177,7 +177,7 @@
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="border"
                                     CornerRadius="10"
-                                    Background="#0EA5E9">
+                                    Background="#C4785A">
                                 <Border.RenderTransform>
                                     <ScaleTransform x:Name="BtnScale" ScaleX="1.0" ScaleY="1.0" CenterX="80" CenterY="23"/>
                                 </Border.RenderTransform>

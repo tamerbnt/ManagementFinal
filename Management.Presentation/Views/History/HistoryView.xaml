@@ -77,11 +77,11 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"/>
             </StackPanel>
-</Grid>
+        </Grid>
 
         <!-- 2. Controls Area (Row 1) -->
         <Grid Grid.Row="1" Margin="{DynamicResource MarginSectionBottom}">
-<Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/> <!-- Date Controls -->
                 <ColumnDefinition Width="*"/>    <!-- Filters -->
                 <ColumnDefinition Width="Auto"/> <!-- Actions -->
@@ -99,8 +99,15 @@
                     <!-- Previous Day -->
                     <Button Style="{DynamicResource Button.Ghost}"
                             Command="{Binding PreviousDayCommand}"
-                            Width="44" Padding="0">
-                        <Path Data="M15 18l-6-6 6-6" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2" Width="10" Height="14" Stretch="Uniform"/>
+                            Width="44" Height="36" Padding="0"
+                            VerticalAlignment="Center">
+                        <Path Data="M15 18l-6-6 6-6" 
+                              Stroke="{DynamicResource TextPrimaryBrush}" 
+                              StrokeThickness="2" 
+                              Width="10" Height="14" 
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
                     </Button>
 
                     <!-- Selected Date Display & Quick Jump -->
@@ -134,8 +141,15 @@
                     <!-- Next Day -->
                     <Button Style="{DynamicResource Button.Ghost}"
                             Command="{Binding NextDayCommand}"
-                            Width="44" Padding="0">
-                        <Path Data="M9 18l6-6-6-6" Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="2" Width="10" Height="14" Stretch="Uniform"/>
+                            Width="44" Height="36" Padding="0"
+                            VerticalAlignment="Center">
+                        <Path Data="M9 18l6-6-6-6" 
+                              Stroke="{DynamicResource TextPrimaryBrush}" 
+                              StrokeThickness="2" 
+                              Width="10" Height="14" 
+                              Stretch="Uniform"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
                     </Button>
                 </StackPanel>
             </Border>
@@ -199,35 +213,85 @@
                     </ContentControl.Style>
                     <premium:PremiumSearchBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                              Placeholder="{DynamicResource Terminology.History.SearchPlaceholder}"
-                                             IconData="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
                                              Height="44"/>
                 </ContentControl>
             </StackPanel>
 
             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="24,0,0,0">
                 <!-- Print Action -->
-                <Button Style="{StaticResource Button.Pill.Outline}"
-                        Command="{Binding PrintReportCommand}"
-                        Margin="0,0,12,0">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="{StaticResource IconPrinter}" 
-                               Fill="{DynamicResource Brush.Text.Primary}"
-                               Style="{StaticResource Style.Icon.Small}"
-                               Margin="{StaticResource MarginIconRight}"/>
-                        <TextBlock Text="{DynamicResource Terminology.History.Action.Print}"/>
-                    </StackPanel>
+                <Button Style="{StaticResource Button.Secondary}" Command="{Binding PrintReportCommand}" Margin="0,0,12,0" Height="44" Padding="16,0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" 
+                                    Background="{TemplateBinding Background}" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="{DynamicResource Corner.LG}" 
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <StackPanel x:Name="ContentStack" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconPrinter}" 
+                                              Fill="{TemplateBinding Foreground}"
+                                              Style="{StaticResource Style.Icon.Small}"
+                                              Margin="{StaticResource MarginIconRight}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.History.Action.Print}" 
+                                                   Foreground="{TemplateBinding Foreground}" 
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+                                                                 Width="18" Height="18" Visibility="Collapsed" 
+                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsPrinting}" Value="True">
+                                    <Setter TargetName="ContentStack" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
 
                 <!-- Export Action -->
-                <Button Style="{StaticResource Button.Pill.Primary}"
-                        Command="{Binding ExportCommand}">
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" 
-                               Stroke="White"
-                               Style="{StaticResource Style.Icon.Small}"
-                               Margin="{StaticResource MarginIconRight}"/>
-                        <TextBlock Text="{DynamicResource Terminology.History.Action.Export}"/>
-                    </StackPanel>
+                <Button Style="{StaticResource Button.Primary}" Command="{Binding ExportCommand}" Height="44" Padding="16,0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" 
+                                    Background="{TemplateBinding Background}" 
+                                    CornerRadius="{DynamicResource Corner.LG}" 
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <StackPanel x:Name="ContentStack" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Path Data="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" 
+                                              Stroke="{TemplateBinding Foreground}"
+                                              Style="{StaticResource Style.Icon.Small}"
+                                              Margin="{StaticResource MarginIconRight}"/>
+                                        <TextBlock Text="{DynamicResource Terminology.History.Action.Export}" 
+                                                   Foreground="{TemplateBinding Foreground}" 
+                                                   VerticalAlignment="Center"
+                                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+                                                                 Width="18" Height="18" Visibility="Collapsed" 
+                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource FacilityAccentBrush.Deep}"/>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsExporting}" Value="True">
+                                    <Setter TargetName="ContentStack" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
             </StackPanel>
         </Grid>
@@ -339,5 +403,3 @@
 
     </Grid>
 </UserControl>
-
-

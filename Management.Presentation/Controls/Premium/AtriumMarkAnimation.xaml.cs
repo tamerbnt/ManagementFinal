@@ -9,7 +9,8 @@ namespace Management.Presentation.Controls.Premium
         Static,
         Construction,
         Pulse,
-        Scan
+        Scan,
+        Spin
     }
 
     public partial class AtriumMarkAnimation : UserControl
@@ -64,6 +65,26 @@ namespace Management.Presentation.Controls.Premium
             }
         }
 
+        /// <summary>
+        /// Forces the control to cycle through all animation states to prime the WPF storyboard engine.
+        /// This prevents the first-time "hitch" when the animation is triggered by user interaction.
+        /// </summary>
+        public void WarmUp()
+        {
+            Dispatcher.InvokeAsync(async () => 
+            {
+                VisualStateManager.GoToElementState(RootLayout, "Construction", false);
+                await System.Threading.Tasks.Task.Delay(50);
+                VisualStateManager.GoToElementState(RootLayout, "Scan", false);
+                await System.Threading.Tasks.Task.Delay(50);
+                VisualStateManager.GoToElementState(RootLayout, "Pulse", false);
+                await System.Threading.Tasks.Task.Delay(50);
+                VisualStateManager.GoToElementState(RootLayout, "Spin", false);
+                await System.Threading.Tasks.Task.Delay(50);
+                UpdateAnimationState();
+            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+
         private static void OnAnimationModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             // Guard against firing when the control is not yet in the visual tree.
@@ -75,28 +96,41 @@ namespace Management.Presentation.Controls.Premium
 
         private void UpdateAnimationState()
         {
+            if (!IsVisible) return;
+
             if (ReduceMotion)
             {
                 VisualStateManager.GoToElementState(RootLayout, "Static", true);
                 return;
             }
 
-            switch (AnimationMode)
+            // PERFORMANCE FIX: Defer the VisualStateManager call using InvokeAsync with Render priority.
+            // This separates the heavy storyboard initialization/compilation from the current layout pass,
+            // preventing the UI thread stall reported during first-time use.
+            Dispatcher.InvokeAsync(() => 
             {
-                case AtriumAnimationMode.Construction:
-                    VisualStateManager.GoToElementState(RootLayout, "Construction", true);
-                    break;
-                case AtriumAnimationMode.Pulse:
-                    VisualStateManager.GoToElementState(RootLayout, "Pulse", true);
-                    break;
-                case AtriumAnimationMode.Scan:
-                    VisualStateManager.GoToElementState(RootLayout, "Scan", true);
-                    break;
-                case AtriumAnimationMode.Static:
-                default:
-                    VisualStateManager.GoToElementState(RootLayout, "Static", true);
-                    break;
-            }
+                if (!IsVisible) return;
+
+                switch (AnimationMode)
+                {
+                    case AtriumAnimationMode.Construction:
+                        VisualStateManager.GoToElementState(RootLayout, "Construction", true);
+                        break;
+                    case AtriumAnimationMode.Pulse:
+                        VisualStateManager.GoToElementState(RootLayout, "Pulse", true);
+                        break;
+                    case AtriumAnimationMode.Scan:
+                        VisualStateManager.GoToElementState(RootLayout, "Scan", true);
+                        break;
+                    case AtriumAnimationMode.Spin:
+                        VisualStateManager.GoToElementState(RootLayout, "Spin", true);
+                        break;
+                    case AtriumAnimationMode.Static:
+                    default:
+                        VisualStateManager.GoToElementState(RootLayout, "Static", true);
+                        break;
+                }
+            }, System.Windows.Threading.DispatcherPriority.Normal);
         }
     }
 }

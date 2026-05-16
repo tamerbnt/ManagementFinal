@@ -149,6 +149,10 @@ namespace Management.Presentation.Services
                 // 4. Deferred Loading (Wait for UI Transition & Collection Population)
                 if (viewModel is INavigationalLifecycle deferredVm)
                 {
+                    // Yield to WPF's Layout Engine (Measure/Arrange) to allow the new View to fully 
+                    // render its skeleton and complete animations before synchronous data loading begins.
+                    await Task.Delay(50);
+                    
                     _logger?.LogInformation("Triggering Deferred Loading for {ViewModelType}", viewModelType.Name);
                     await deferredVm.LoadDeferredAsync();
                 }

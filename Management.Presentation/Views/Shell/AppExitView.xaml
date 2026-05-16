@@ -6,6 +6,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
         mc:Ignorable="d" 
         Title="Quit Atrium"
         MinWidth="640" MaxWidth="850"
@@ -26,70 +27,44 @@
                           ResizeBorderThickness="0"/>
     </shell:WindowChrome.WindowChrome>
 
-    <Border Style="{DynamicResource GlobalModalContainerStyle}"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            Margin="24"
-            Padding="{DynamicResource PaddingModal}">
+    <premium:ModalShellControl Title="{DynamicResource Terminology.Shell.Exit.Title}"
+                               SecondaryActionText="{DynamicResource Terminology.Shell.Exit.Cancel}"
+                               CancelCommand="{Binding StayCommand}"
+                               SaveCommand="{Binding CloseAndReportCommand}"
+                               PrimaryActionText="{DynamicResource Terminology.Shell.Exit.CloseAndReport}"
+                               IsBusy="{Binding IsGeneratingReport}">
 
         <i:Interaction.Behaviors>
             <behaviors:ModalEntranceBehavior IsOpen="True"/>
         </i:Interaction.Behaviors>
 
-        <StackPanel VerticalAlignment="Center">
-            <!-- 1. Hero Icon -->
-            <Grid Margin="{DynamicResource MarginHeaderBottom}">
-                <Path Data="{DynamicResource IconWarning}"
-                      Fill="{DynamicResource StatusWarningBrush}"
-                      Style="{DynamicResource Style.Icon.Hero}"
-                      HorizontalAlignment="Center"/>
-            </Grid>
+        <premium:ModalShellControl.ExtraFooterContent>
+            <!-- Skip & Exit (Ghost) -->
+            <Button Content="{DynamicResource Terminology.Shell.Exit.Close}"
+                    Command="{Binding ExitCommand}"
+                    Style="{DynamicResource GhostButton}"
+                    HorizontalAlignment="Stretch"
+                    Margin="12,0,0,0"/>
+        </premium:ModalShellControl.ExtraFooterContent>
 
-            <!-- 2. Title -->
-            <TextBlock Text="{DynamicResource Terminology.Shell.Exit.Title}"
-                       Style="{DynamicResource Title2}"
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       HorizontalAlignment="Center"
-                       TextAlignment="Center"
-                       Margin="{DynamicResource MarginHeaderBottom}"/>
+        <StackPanel Margin="0,32">
+            <!-- Hero Icon -->
+            <premium:AtriumMarkAnimation AnimationMode="Scan" 
+                                         Width="100" Height="100" 
+                                         HorizontalAlignment="Center" 
+                                         Margin="0,0,0,32"/>
 
-            <!-- 3. Message -->
+            <!-- Message Body -->
             <TextBlock Text="{DynamicResource Terminology.Shell.Exit.Message}"
                        Style="{DynamicResource Body}"
                        Foreground="{DynamicResource TextSecondaryBrush}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
-                       MaxWidth="580"
-                       Margin="{DynamicResource MarginSectionBottom}"/>
-
-            <!-- 4. Action Buttons -->
-            <WrapPanel HorizontalAlignment="Center"
-                       Orientation="Horizontal">
-
-                <!-- Skip & Exit (Ghost) -->
-                <Button Content="{DynamicResource Terminology.Shell.Exit.Close}"
-                        Command="{Binding ExitCommand}"
-                        Style="{DynamicResource GhostButton}"
-                        Margin="8"
-                        IsEnabled="{Binding IsGeneratingReport, Converter={StaticResource InverseBooleanConverter}}"/>
-
-                <!-- Cancel / Stay (Secondary) -->
-                <Button Content="{DynamicResource Terminology.Shell.Exit.Cancel}"
-                        Command="{Binding StayCommand}"
-                        Style="{DynamicResource Button.Secondary}"
-                        Margin="8"
-                        IsEnabled="{Binding IsGeneratingReport, Converter={StaticResource InverseBooleanConverter}}"/>
-
-                <!-- Close Day & Exit (Primary) -->
-                <Button Content="{DynamicResource Terminology.Shell.Exit.CloseAndReport}"
-                        Command="{Binding CloseAndReportCommand}"
-                        Style="{DynamicResource PrimaryButton}"
-                        Margin="8"
-                        MinWidth="200">
-                </Button>
-            </WrapPanel>
+                       MaxWidth="480"
+                       LineHeight="24"/>
         </StackPanel>
-    </Border>
+
+    </premium:ModalShellControl>
 </Window>
 

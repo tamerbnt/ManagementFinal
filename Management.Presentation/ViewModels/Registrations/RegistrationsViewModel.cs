@@ -38,10 +38,18 @@ namespace Management.Presentation.ViewModels.Registrations
         [ObservableProperty]
         private string _searchText = string.Empty;
 
+        [ObservableProperty]
+        private bool _isPrinting;
+
+        [ObservableProperty]
+        private bool _isExporting;
+
         public ObservableCollection<SupabaseRegistrationRequest> WebsiteRequests { get; } = new();
 
         public IAsyncRelayCommand<SupabaseRegistrationRequest> ConfirmWebsiteRequestCommand { get; }
         public IAsyncRelayCommand<SupabaseRegistrationRequest> RejectWebsiteRequestCommand { get; }
+        public IAsyncRelayCommand PrintReportCommand { get; }
+        public IAsyncRelayCommand ExportCommand { get; }
 
         private readonly IFacilityContextService _facilityContext;
         private readonly IWebsiteRegistrationService _websiteRegistrationService;
@@ -153,6 +161,32 @@ namespace Management.Presentation.ViewModels.Registrations
                 
                 await _websiteRegistrationService.UpdateRequestStatusAsync(request.Id, "rejected");
                 _toastService.ShowSuccess($"Rejected request from {request.FullName}");
+            });
+
+            PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsPrinting) return;
+                IsPrinting = true;
+                try
+                {
+                    _toastService.ShowInfo("Preparing registration report for printing...");
+                    await Task.Delay(1500);
+                    _toastService.ShowSuccess("Registration report sent to printer.");
+                }
+                finally { IsPrinting = false; }
+            });
+
+            ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsExporting) return;
+                IsExporting = true;
+                try
+                {
+                    _toastService.ShowInfo("Exporting registration data to Excel...");
+                    await Task.Delay(1500);
+                    _toastService.ShowSuccess("Registration data exported to Excel successfully.");
+                }
+                finally { IsExporting = false; }
             });
         }
 

@@ -50,6 +50,8 @@ namespace Management.Presentation.ViewModels.Shop
         [ObservableProperty]
         private bool _isMemberSearching;
 
+        public bool IsPopupOpen => IsMemberSearching || SearchedMembers.Any();
+
 
         [ObservableProperty]
         private string _searchQuery = string.Empty;
@@ -179,6 +181,15 @@ namespace Management.Presentation.ViewModels.Shop
         partial void OnMemberSearchQueryChanged(string? oldValue, string? newValue)
         {
             _memberSearchCts?.Cancel();
+            
+            // 1. Min character threshold (2 chars) to handle large datasets
+            if (string.IsNullOrWhiteSpace(newValue) || newValue.Length < 2) 
+            { 
+                SearchedMembers.Clear(); 
+                OnPropertyChanged(nameof(IsPopupOpen));
+                return; 
+            }
+            
             _memberSearchCts = new CancellationTokenSource();
             var token = _memberSearchCts.Token;
 
@@ -214,12 +225,17 @@ namespace Management.Presentation.ViewModels.Shop
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                     {
                         SearchedMembers.ReplaceRange(result.Value.Items);
+                        OnPropertyChanged(nameof(IsPopupOpen));
                     });
                 }
             }
             finally
             {
-                IsMemberSearching = false;
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                {
+                    IsMemberSearching = false;
+                    OnPropertyChanged(nameof(IsPopupOpen));
+                });
             }
         }
 

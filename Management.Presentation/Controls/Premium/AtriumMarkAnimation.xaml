@@ -18,7 +18,7 @@
     -->
 
     <Viewbox Stretch="Uniform">
-        <Grid x:Name="RootLayout" Width="100" Height="100" ClipToBounds="True">
+        <Grid x:Name="RootLayout" Width="100" Height="100" ClipToBounds="True" CacheMode="BitmapCache">
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="AnimationStates">
 
@@ -27,12 +27,6 @@
                     ═══════════════════════════════════════ -->
                     <VisualState x:Name="Static">
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
-                            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleY" To="1" Duration="0"/>
-                            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
-                            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleY" To="1" Duration="0"/>
-                            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
-                            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleY" To="1" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleY" To="1" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="StrokeDashOffset" To="0" Duration="0"/>
@@ -120,6 +114,7 @@
                     ═══════════════════════════════════════ -->
                     <VisualState x:Name="Pulse">
                         <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Storyboard.TargetName="PillarsRotate" Storyboard.TargetProperty="Angle" To="0" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="StrokeDashOffset" To="0" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="ScanLine" Storyboard.TargetProperty="Opacity" To="0" Duration="0"/>
                             <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
@@ -141,6 +136,27 @@
                             </DoubleAnimation>
                             <DoubleAnimation Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="Opacity" From="1.0" To="0.5" Duration="0:0:1.8" AutoReverse="True">
                                 <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </VisualState>
+
+                    <!-- ═══════════════════════════════════════
+                         SPIN: Corner pillars rotate 360 around the center — Transitions
+                    ═══════════════════════════════════════ -->
+                    <VisualState x:Name="Spin">
+                        <Storyboard>
+                            <!-- Reset other states -->
+                            <DoubleAnimation Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="StrokeDashOffset" To="0" Duration="0"/>
+                            <DoubleAnimation Storyboard.TargetName="ScanLine" Storyboard.TargetProperty="Opacity" To="0" Duration="0"/>
+                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0"/>
+                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0"/>
+                            
+                            <!-- Snap rotation to start, then spin -->
+                            <DoubleAnimation Storyboard.TargetName="PillarsRotate" Storyboard.TargetProperty="Angle" To="0" Duration="0"/>
+                            <DoubleAnimation Storyboard.TargetName="PillarsRotate" Storyboard.TargetProperty="Angle" From="0" To="360" Duration="0:0:0.30">
+                                <DoubleAnimation.EasingFunction>
+                                    <CubicEase EasingMode="EaseInOut"/>
+                                </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                         </Storyboard>
                     </VisualState>
@@ -197,41 +213,48 @@
                     Center at:  (32,32) — size 36×36
                 -->
 
-                <!-- TL Corner — scales from top-left origin (0,0) -->
-                <Border Width="28" Height="28" CornerRadius="4"
-                        Canvas.Left="0" Canvas.Top="0"
-                        Background="{Binding MarkForeground, ElementName=RootControl}">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTL" ScaleX="1" ScaleY="1" CenterX="0" CenterY="0"/>
-                    </Border.RenderTransform>
-                </Border>
+                <!-- PILLARS CONTAINER: Allows grouped rotation of the four corner elements -->
+                <Canvas x:Name="PillarsContainer" Width="100" Height="100" RenderTransformOrigin="0.5,0.5" CacheMode="BitmapCache">
+                    <Canvas.RenderTransform>
+                        <RotateTransform x:Name="PillarsRotate" Angle="0"/>
+                    </Canvas.RenderTransform>
 
-                <!-- TR Corner — scales from top-right origin (100,0) -->
-                <Border Width="28" Height="28" CornerRadius="4"
-                        Canvas.Left="72" Canvas.Top="0"
-                        Background="{Binding MarkForeground, ElementName=RootControl}">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="ScaleTR" ScaleX="1" ScaleY="1" CenterX="28" CenterY="0"/>
-                    </Border.RenderTransform>
-                </Border>
+                    <!-- TL Corner — scales from top-left origin (0,0) -->
+                    <Border Width="28" Height="28" CornerRadius="4"
+                            Canvas.Left="0" Canvas.Top="0"
+                            Background="{Binding MarkForeground, ElementName=RootControl}">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleTL" ScaleX="1" ScaleY="1" CenterX="0" CenterY="0"/>
+                        </Border.RenderTransform>
+                    </Border>
 
-                <!-- BL Corner — scales from bottom-left origin (0,100) -->
-                <Border Width="28" Height="28" CornerRadius="4"
-                        Canvas.Left="0" Canvas.Top="72"
-                        Background="{Binding MarkForeground, ElementName=RootControl}">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="ScaleBL" ScaleX="1" ScaleY="1" CenterX="0" CenterY="28"/>
-                    </Border.RenderTransform>
-                </Border>
+                    <!-- TR Corner — scales from top-right origin (100,0) -->
+                    <Border Width="28" Height="28" CornerRadius="4"
+                            Canvas.Left="72" Canvas.Top="0"
+                            Background="{Binding MarkForeground, ElementName=RootControl}">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleTR" ScaleX="1" ScaleY="1" CenterX="28" CenterY="0"/>
+                        </Border.RenderTransform>
+                    </Border>
 
-                <!-- BR Corner — scales from bottom-right origin (100,100) -->
-                <Border Width="28" Height="28" CornerRadius="4"
-                        Canvas.Left="72" Canvas.Top="72"
-                        Background="{Binding MarkForeground, ElementName=RootControl}">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="ScaleBR" ScaleX="1" ScaleY="1" CenterX="28" CenterY="28"/>
-                    </Border.RenderTransform>
-                </Border>
+                    <!-- BL Corner — scales from bottom-left origin (0,100) -->
+                    <Border Width="28" Height="28" CornerRadius="4"
+                            Canvas.Left="0" Canvas.Top="72"
+                            Background="{Binding MarkForeground, ElementName=RootControl}">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleBL" ScaleX="1" ScaleY="1" CenterX="0" CenterY="28"/>
+                        </Border.RenderTransform>
+                    </Border>
+
+                    <!-- BR Corner — scales from bottom-right origin (100,100) -->
+                    <Border Width="28" Height="28" CornerRadius="4"
+                            Canvas.Left="72" Canvas.Top="72"
+                            Background="{Binding MarkForeground, ElementName=RootControl}">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleBR" ScaleX="1" ScaleY="1" CenterX="28" CenterY="28"/>
+                        </Border.RenderTransform>
+                    </Border>
+                </Canvas>
 
                 <!-- Center Square Outline — perimeter = 4×36 = 144 -->
                 <Path x:Name="CenterSquare"

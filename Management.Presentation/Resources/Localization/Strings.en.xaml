@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -263,7 +263,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">Confirm Logout</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">Are you sure you want to log out?</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">Logout</sys:String>
-    <sys:String x:Key="Terminology.Shell.Exit.Title">Quit Atrium?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">You're leaving Atrium</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Message">Would you like to generate a final 'Close Day' report before exiting?</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Cancel">Stay in App</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Close">Exit Workspace</sys:String>

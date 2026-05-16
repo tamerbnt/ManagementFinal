@@ -99,7 +99,7 @@
                                                  Height="44"/>
                     </ContentControl>
 
-                    <!-- View Mode Toggle (Interactive Style) -->
+                    <!-- View Mode Toggle (Standardized Atrium Pattern) -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <!-- Primary Action: Add Product -->
                         <Button Style="{StaticResource Button.Pill.Primary}"
@@ -117,35 +117,41 @@
                         <!-- Separator -->
                         <Border Width="1" Height="24" Background="{DynamicResource SeparatorStroke}" Margin="0,0,24,0" Opacity="0.5"/>
 
-                        <Button Command="{Binding ToggleViewModeCommand}"
-                                Style="{StaticResource ButtonCompactSecondary}">
-                        <StackPanel Orientation="Horizontal">
-                            <!-- Icon Grid/List Switch -->
-                            <Grid>
-                                <Path Data="{DynamicResource IconDashboard}" 
-                                      Style="{StaticResource Style.Icon.Micro}"
-                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.List}}"/>
-                                <Path Data="{DynamicResource IconMenu}" 
-                                      Style="{StaticResource Style.Icon.Micro}"
-                                      Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                      Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.Grid}}"/>
-                            </Grid>
-                            <!-- Text Grid/List Switch -->
-                            <TextBlock Margin="8,0,0,0" VerticalAlignment="Center">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Text" Value="{DynamicResource Terminology.Shop.View.Grid}"/>
+                        <!-- View Mode Switcher -->
+                        <Button Command="{Binding SwitchViewModeCommand}" 
+                                CommandParameter="{x:Static vm:ShopViewMode.Grid}"
+                                Style="{StaticResource IconButtonStyle}" 
+                                ToolTip="{DynamicResource Terminology.Shop.View.Grid}" Margin="0,0,8,0">
+                            <Path Data="{StaticResource IconDashboard}">
+                                <Path.Style>
+                                    <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+                                        <Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:ShopViewMode.Grid}">
-                                                <Setter Property="Text" Value="{DynamicResource Terminology.Shop.View.List}"/>
+                                                <Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
-                                </TextBlock.Style>
-</TextBlock>
-                        </StackPanel>
-                    </Button>
+                                </Path.Style>
+                            </Path>
+                        </Button>
+                        <Button Command="{Binding SwitchViewModeCommand}" 
+                                CommandParameter="{x:Static vm:ShopViewMode.List}"
+                                Style="{StaticResource IconButtonStyle}" 
+                                ToolTip="{DynamicResource Terminology.Shop.View.List}">
+                            <Path Data="{StaticResource IconMenu}">
+                                <Path.Style>
+                                    <Style TargetType="Path" BasedOn="{StaticResource Style.Icon.Small}">
+                                        <Setter Property="Fill" Value="{DynamicResource TextTertiaryBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ViewMode}" Value="{x:Static vm:ShopViewMode.List}">
+                                                <Setter Property="Fill" Value="{DynamicResource BrandPrimaryBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Path.Style>
+                            </Path>
+                        </Button>
                     </StackPanel>
                 </Grid>
 
@@ -155,7 +161,12 @@
                         Padding="16,8"
                         Visibility="{Binding IsSelectionMode, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Grid>
-<StackPanel Orientation="Horizontal">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <CheckBox IsChecked="{Binding SelectAll}" 
                                       Style="{StaticResource CircularSelectionCheckBoxStyle}"
                                       Foreground="White"/>
@@ -225,8 +236,13 @@
 
             <!-- 3. Content Area -->
             <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
 <!-- A. GRID VIEW (Visual Shopping) -->
-                    <Grid Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.Grid}}">
+                    <Grid Grid.Column="0" Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter={x:Static vm:ShopViewMode.Grid}}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -374,9 +390,9 @@
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                                 From="800" To="0" Duration="{StaticResource DurationScreen}">
+                                                                 From="800" To="0" Duration="0:0:0.4">
                                                     <DoubleAnimation.EasingFunction>
-                                                        <ExponentialEase Exponent="6" EasingMode="EaseOut"/>
+                                                        <CubicEase EasingMode="EaseOut"/>
                                                     </DoubleAnimation.EasingFunction>
                                                 </DoubleAnimation>
                                             </Storyboard>
@@ -386,9 +402,9 @@
                                         <BeginStoryboard>
                                             <Storyboard>
                                                 <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                                 To="800" Duration="{StaticResource DurationScreen}">
+                                                                 To="800" Duration="0:0:0.4">
                                                     <DoubleAnimation.EasingFunction>
-                                                        <ExponentialEase Exponent="6" EasingMode="EaseIn"/>
+                                                        <CubicEase EasingMode="EaseIn"/>
                                                     </DoubleAnimation.EasingFunction>
                                                 </DoubleAnimation>
                                             </Storyboard>
@@ -408,11 +424,7 @@
                   HorizontalAlignment="Center"
                   Visibility="{Binding Products.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
                 
-                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0">
-                    <Ellipse.Effect>
-                        <BlurEffect Radius="100"/>
-                    </Ellipse.Effect>
-                </Ellipse>
+                <Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0" />
 
                 <StackPanel HorizontalAlignment="Center">
                     <Border Width="80" Height="80" 
@@ -460,7 +472,3 @@
         </Grid>
     </Grid>
 </UserControl>
-
-
-
-

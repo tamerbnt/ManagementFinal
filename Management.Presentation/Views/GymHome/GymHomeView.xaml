@@ -19,8 +19,8 @@
 
         
         <!-- Laser Accents (Dynamic based on Facility) -->
-        <DropShadowEffect x:Key="Glow.Blue" BlurRadius="25" ShadowDepth="0" Opacity="0.4" Color="{DynamicResource FacilityAccentColor}"/>
-        <DropShadowEffect x:Key="Glow.Green" BlurRadius="20" ShadowDepth="0" Opacity="0.6" Color="{DynamicResource Color.Success}"/>
+        <DropShadowEffect x:Key="Glow.Blue" BlurRadius="10" ShadowDepth="0" Opacity="0.4" Color="{DynamicResource FacilityAccentColor}"/>
+        <DropShadowEffect x:Key="Glow.Green" BlurRadius="10" ShadowDepth="0" Opacity="0.6" Color="{DynamicResource Color.Success}"/>
         
         <DropShadowEffect x:Key="Shadow.TextContrast" BlurRadius="4" ShadowDepth="1" Opacity="0.3" Color="Black"/>
 
@@ -31,7 +31,7 @@
     </UserControl.Resources>
 
     <!-- Dashboard Root Bounds: Locked strictly to Window size -->
-    <Grid VerticalAlignment="Stretch" Margin="0,0,0,0">
+    <Grid VerticalAlignment="Stretch" Margin="0,0,0,0" RenderOptions.CachingHint="Cache">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="Loaded">
                 <i:InvokeCommandAction Command="{Binding OnLoadedCommand}"/>
@@ -190,14 +190,14 @@
                             <!-- ULTRA-THIN PROGRESS RING (AT RIGHT - HERO SIZE) -->
                             <Border Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" 
                                     Width="100" Height="100" VerticalAlignment="Center" Margin="8,0,4,0"
-                                    Background="Transparent">
+                                    Background="Transparent" CacheMode="BitmapCache">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsOccupancyOverflow}" Value="True">
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
-                                                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.8"/>
+                                                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="{DynamicResource FacilityAccentColor}" Opacity="0.8"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -425,50 +425,68 @@
                             
                             <!-- Top Accent Separator (Inset) - Remove it in favor of card top border -->
                             <!-- <Border Grid.Row="0" Height="2" Background="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Bottom" Margin="10,0,10,0" Opacity="0.4"/> -->
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,20,0,0">
-                                <Grid>
-                                    <!-- ACTIVITY LIST -->
-                                    <ItemsControl ItemsSource="{Binding ActivityStream}" 
-                                                  Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="16" Padding="14,12" Margin="0,0,0,10">
+                            <ListBox Grid.Row="1" ItemsSource="{Binding ActivityStream}" 
+                                     Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.VirtualizationMode="Recycling"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Margin="0,20,0,0">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <ContentPresenter/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="16" Padding="14,12" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/> <!-- Avatar -->
+                                                    <ColumnDefinition Width="*"/>    <!-- Content -->
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- AVATAR / ICON -->
+                                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="12" Background="#0B2E2A" Margin="0,0,14,0" VerticalAlignment="Center">
                                                     <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/> <!-- Avatar -->
-                                                            <ColumnDefinition Width="*"/>    <!-- Content -->
-                                                        </Grid.ColumnDefinitions>
-                                                        
-                                                        <!-- AVATAR / ICON -->
-                                                        <Border Grid.Column="0" Width="42" Height="42" CornerRadius="12" Background="#0B2E2A" Margin="0,0,14,0" VerticalAlignment="Center">
-                                                            <Grid>
-                                                                <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Foreground="#2DD4BF" Opacity="0.8"/>
-                                                                <TextBlock Text="{Binding Icon}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="12" Margin="0,0,-4,-4"/>
-                                                            </Grid>
-                                                        </Border>
-                                                        
-                                                        <!-- 2-LINE GRID CONTENT -->
-                                                        <Grid Grid.Column="1">
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="Auto"/> <!-- Line 1: Name + Time -->
-                                                                <RowDefinition Height="Auto"/> <!-- Line 2: Status + Relative -->
-                                                            </Grid.RowDefinitions>
-                                                            
-                                                            <!-- LINE 1: Identity & Exact Time -->
-                                                            <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Row="0" Text="{Binding Timestamp}" FontWeight="SemiBold" FontSize="12" Opacity="0.5" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                                            
-                                                            <!-- LINE 2: Action & Relative Time -->
-                                                            <TextBlock Grid.Row="1" Text="{Binding Status}" FontSize="13" Opacity="0.7" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,2,0,0" VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Row="1" Text="{Binding RelativeTime}" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,0,0"/>
-                                                        </Grid>
+                                                        <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Foreground="#2DD4BF" Opacity="0.8"/>
+                                                        <TextBlock Text="{Binding Icon}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="12" Margin="0,0,-4,-4"/>
                                                     </Grid>
                                                 </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                            </ScrollViewer>
+                                                
+                                                <!-- 2-LINE GRID CONTENT -->
+                                                <Grid Grid.Column="1">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/> <!-- Line 1: Name + Time -->
+                                                        <RowDefinition Height="Auto"/> <!-- Line 2: Status + Relative -->
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <!-- LINE 1: Identity & Exact Time -->
+                                                    <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Row="0" Text="{Binding Timestamp}" FontWeight="SemiBold" FontSize="12" Opacity="0.5" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                    
+                                                    <!-- LINE 2: Action & Relative Time -->
+                                                    <TextBlock Grid.Row="1" Text="{Binding Status}" FontSize="13" Opacity="0.7" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,2,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Row="1" Text="{Binding RelativeTime}" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,0,0"/>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
 
                             <!-- EMPTY STATE ILLUSTRATION (Absolute centered) -->
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"

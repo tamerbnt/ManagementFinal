@@ -108,6 +108,8 @@ namespace Management.Presentation.ViewModels.GymHome
         [ObservableProperty]
         private bool _isMemberSearching;
 
+        public bool IsPopupOpen => IsMemberSearching || SearchedMembers.Any();
+
         [ObservableProperty]
         private ObservableCollection<MemberDto> _searchedMembers = new();
 
@@ -250,7 +252,13 @@ namespace Management.Presentation.ViewModels.GymHome
         partial void OnMemberSearchQueryChanged(string? oldValue, string? newValue)
         {
             _memberSearchCts?.Cancel();
-            if (string.IsNullOrWhiteSpace(newValue)) { SearchedMembers.Clear(); return; }
+            
+            if (string.IsNullOrWhiteSpace(newValue) || newValue.Length < 2) 
+            { 
+                SearchedMembers.Clear(); 
+                OnPropertyChanged(nameof(IsPopupOpen));
+                return; 
+            }
             
             _memberSearchCts = new CancellationTokenSource();
             var token = _memberSearchCts.Token;
@@ -262,12 +270,24 @@ namespace Management.Presentation.ViewModels.GymHome
                     await Task.Delay(400, token);
                     if (token.IsCancellationRequested) return;
 
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
+                    {
+                        IsMemberSearching = true;
+                        OnPropertyChanged(nameof(IsPopupOpen));
+                    });
+
                     var request = new MemberSearchRequest(newValue);
                     var result = await _memberService.SearchMembersAsync(_facilityContext.CurrentFacilityId, request, 1, 10);
-                    if (result.IsSuccess)
+                    
+                    await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
-                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => SearchedMembers.ReplaceAll(result.Value.Items));
-                    }
+                        if (result.IsSuccess)
+                        {
+                            SearchedMembers.ReplaceAll(result.Value.Items);
+                        }
+                        IsMemberSearching = false;
+                        OnPropertyChanged(nameof(IsPopupOpen));
+                    });
                 }
                 catch (TaskCanceledException) { }
             }, token);

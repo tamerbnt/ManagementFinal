@@ -83,11 +83,11 @@
                 <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
                 <ResourceDictionary Source="Resources/Localization/Strings.en.xaml"/>
 
-                <!-- 7. COMPONENTS & COMPOSITES (Depend on Controls) -->
-                <ResourceDictionary Source="Resources/Components.xaml"/>
-
-                <!-- 8. GLOBAL & SHARED (Aggregate everything) -->
+                <!-- 7. GLOBAL & SHARED (Aggregate everything) -->
                 <ResourceDictionary Source="Resources/SharedResources.xaml"/>
+
+                <!-- 8. COMPONENTS & COMPOSITES (Depend on Controls) -->
+                <ResourceDictionary Source="Resources/Components.xaml"/>
 
                 <!-- 9. FEATURE STYLES (Depend on everything) -->
                 <ResourceDictionary Source="Resources/Styles/TextStyles.xaml"/>

@@ -35,6 +35,8 @@
     <!-- Contrast Tokens (Safety) -->
     <SolidColorBrush x:Key="OnAccentPrimary" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#FCE7F3"/> 
+    <SolidColorBrush x:Key="RowOnAccentPrimary" Color="#1A1208"/> <!-- Deep espresso text on Dusty Rose -->
+    <SolidColorBrush x:Key="RowOnAccentSecondary" Color="#4A1524"/> <!-- Deep Wine -->
 
     <!-- Aliases for compatibility -->
     <SolidColorBrush x:Key="AccentBrush" Color="#C4788A"/>

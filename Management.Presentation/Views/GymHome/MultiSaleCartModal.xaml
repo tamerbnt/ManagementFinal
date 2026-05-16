@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.GymHome"
              xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
+             xmlns:dashboard="clr-namespace:Management.Presentation.Views.Shell"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=vm:MultiSaleCartViewModel}"
@@ -245,29 +247,73 @@
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.LinkMember}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                                 
-                                <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
-                                    <premium:PremiumSearchBox Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 <Grid Visibility="{Binding SelectedMember, Converter={StaticResource InverseNullToVisibilityConverter}}">
+                                    <premium:PremiumSearchBox 
+                                                            Text="{Binding MemberSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                             Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchMembers}"
                                                             IconData="{StaticResource IconSearch}"/>
                                     
                                     <!-- Search Results Popup -->
-                                    <Popup IsOpen="{Binding SearchedMembers.Count, Converter={StaticResource CountToBooleanConverter}, Mode=OneWay}" 
+                                    <Popup IsOpen="{Binding IsPopupOpen, Mode=OneWay}" 
                                            PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=Grid}}"
                                            StaysOpen="False" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade">
-                                        <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" BorderThickness="1" BorderBrush="{DynamicResource SeparatorStroke}" Width="260" Margin="4">
-                                            <ListBox ItemsSource="{Binding SearchedMembers}" BorderThickness="0" Background="Transparent" MaxHeight="250">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button Command="{Binding PlacementTarget.DataContext.SelectMemberCommand, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                                CommandParameter="{Binding}" Style="{DynamicResource Button.Ghost}" HorizontalContentAlignment="Left" Padding="12,8">
-                                                            <StackPanel>
-                                                                <TextBlock Text="{Binding FullName}" FontWeight="SemiBold" FontSize="13"/>
-                                                                <TextBlock Text="{Binding PhoneNumber}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                                                            </StackPanel>
-                                                        </Button>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
+                                        <Border Background="{DynamicResource SurfaceBg}" 
+                                                CornerRadius="12" 
+                                                BorderThickness="1" 
+                                                BorderBrush="{DynamicResource SeparatorStroke}" 
+                                                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}" 
+                                                MinWidth="260"
+                                                MaxHeight="350">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.1" Color="Black"/>
+                                            </Border.Effect>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Loading State -->
+                                                <Grid Grid.Row="0" Margin="12" Visibility="{Binding IsMemberSearching, Converter={StaticResource BoolToVis}}">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <premium:AtriumMarkAnimation Width="20" Height="20" AnimationMode="Scan" MarkForeground="{DynamicResource FacilityAccentBrush}"/>
+                                                        <TextBlock Text="Searching members..." Margin="8,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <ListBox Grid.Row="1" ItemsSource="{Binding SearchedMembers}" 
+                                                         Style="{StaticResource ListBox.SearchPopup}"
+                                                         ItemTemplate="{StaticResource MemberSearchResultTemplate}"
+                                                         Visibility="{Binding SearchedMembers.Count, Converter={StaticResource IntToVisibilityConverter}}">
+                                                    <i:Interaction.Triggers>
+                                                        <i:EventTrigger EventName="SelectionChanged">
+                                                            <i:InvokeCommandAction Command="{Binding SelectMemberCommand}" 
+                                                                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
+                                                        </i:EventTrigger>
+                                                    </i:Interaction.Triggers>
+                                                </ListBox>
+
+                                                <!-- No Results State -->
+                                                <TextBlock Grid.Row="1" Text="No members found" 
+                                                           HorizontalAlignment="Center" Margin="20" 
+                                                           Foreground="{DynamicResource Brush.Text.Tertiary}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding SearchedMembers.Count}" Value="0"/>
+                                                                        <Condition Binding="{Binding IsMemberSearching}" Value="False"/>
+                                                                        <Condition Binding="{Binding IsPopupOpen}" Value="True"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </MultiDataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
                                         </Border>
                                     </Popup>
                                 </Grid>

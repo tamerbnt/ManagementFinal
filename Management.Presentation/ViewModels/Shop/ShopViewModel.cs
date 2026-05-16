@@ -135,7 +135,7 @@ namespace Management.Presentation.ViewModels.Shop
         public IAsyncRelayCommand SaveProductCommand { get; }
         public IAsyncRelayCommand CancelEditCommand { get; }
         public IRelayCommand ClearCartCommand { get; }
-        public IRelayCommand ToggleViewModeCommand { get; }
+        public IRelayCommand<ShopViewMode> SwitchViewModeCommand { get; }
         public IAsyncRelayCommand OpenAddProductCommand { get; }
         public IAsyncRelayCommand OpenEditProductCommand { get; }
         public IAsyncRelayCommand<ProductDto> OpenRestockProductCommand { get; }
@@ -199,9 +199,9 @@ namespace Management.Presentation.ViewModels.Shop
 
             EditProductCommand = new RelayCommand(() => IsEditing = true);
             
-            ToggleViewModeCommand = new RelayCommand(() => 
+            SwitchViewModeCommand = new RelayCommand<ShopViewMode>(mode => 
             {
-                ViewMode = ViewMode == ShopViewMode.Grid ? ShopViewMode.List : ShopViewMode.Grid;
+                ViewMode = mode;
             });
 
             OpenAddProductCommand = new AsyncRelayCommand(async () => {

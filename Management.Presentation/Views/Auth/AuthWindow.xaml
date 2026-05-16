@@ -10,6 +10,7 @@
         xmlns:sharedVm="clr-namespace:Management.Presentation.ViewModels.Shared"
         xmlns:sharedView="clr-namespace:Management.Presentation.Views.Shared"
         xmlns:reg="clr-namespace:Management.Presentation.Views.Registrations"
+        xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
         mc:Ignorable="d"
         Title="{DynamicResource Strings.Auth.LuxuryaActivation}"
         MinHeight="600" Height="680" MaxHeight="720" Width="980"
@@ -78,6 +79,9 @@
     <Border CornerRadius="24" ClipToBounds="True" Background="#CCE3F0">
 
         <Grid MouseDown="OnMouseLeftButtonDown">
+            <!-- PERFORMANCE WARMING: Invisible instance to prime the animation storyboards -->
+            <premium:AtriumMarkAnimation x:Name="WarmingAnim" Opacity="0" IsHitTestVisible="False" Width="1" Height="1" 
+                                         HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
             <!-- ══════════════════════════════════════════════════════
                  LAYER 1 — BACKGROUND CROSSFADER (Onboarding Slides)
@@ -136,7 +140,40 @@
                         VerticalAlignment="Stretch"
                         Background="White"
                         CornerRadius="24"
-                        Margin="40,40,0,40">
+                        Margin="40,40,0,40"
+                        Opacity="0">
+                <Border.RenderTransform>
+                    <TranslateTransform X="-50"/>
+                </Border.RenderTransform>
+                <Border.Triggers>
+                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <!-- Card slides in from left as overlay clears (BeginTime=2300ms matches overlay at 40% faded) -->
+                                <DoubleAnimation
+                                    Storyboard.TargetName="CardBorder"
+                                    Storyboard.TargetProperty="Opacity"
+                                    From="0" To="1"
+                                    Duration="0:0:0.6" BeginTime="0:0:2.3"
+                                    FillBehavior="HoldEnd">
+                                    <DoubleAnimation.EasingFunction>
+                                        <QuarticEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation
+                                    Storyboard.TargetName="CardBorder"
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                    From="-50" To="0"
+                                    Duration="0:0:0.6" BeginTime="0:0:2.3"
+                                    FillBehavior="HoldEnd">
+                                    <DoubleAnimation.EasingFunction>
+                                        <QuarticEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Border.Triggers>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="60" ShadowDepth="10" Opacity="0.13"
                                       Direction="270" Color="#000000"/>

@@ -15,6 +15,9 @@ namespace Management.Presentation.Views.Auth
             InitializeComponent();
             
             DataContextChanged += AuthWindow_DataContextChanged;
+
+            // PERFORMANCE WARMING: Prime the brand animation engine.
+            WarmingAnim.WarmUp();
         }
 
         private void AuthWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

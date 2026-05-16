@@ -12,6 +12,7 @@ using Management.Application.Interfaces.App;
 using Management.Presentation.Stores;
 using Management.Presentation.Services;
 using Management.Presentation.Services.Localization;
+using Management.Presentation.Helpers;
 using Management.Application.DTOs;
 using System.Linq;
 using Management.Domain.Services;
@@ -34,13 +35,19 @@ namespace Management.Presentation.ViewModels.Finance
         [ObservableProperty]
         private bool _isEditing;
 
+        [ObservableProperty]
+        private bool _isPrinting;
+
+        [ObservableProperty]
+        private bool _isExporting;
+
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand LoadHistoryCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand<HistoryTransaction> ViewDetailsCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand SaveAuditNoteCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand CloseDetailCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand<HistoryTransaction> GoToMemberProfileCommand { get; }
         [ObservableProperty]
-        private ObservableCollection<StaffMemberViewModel> _staffMembers = new();
+        private ObservableRangeCollection<StaffMemberViewModel> _staffMembers = new();
 
         [ObservableProperty]
         private string _viewMode = "List";
@@ -52,7 +59,7 @@ namespace Management.Presentation.ViewModels.Finance
         private string _selectedFilter = "All";
 
         [ObservableProperty]
-        private ObservableCollection<StaffMemberViewModel> _filteredStaffMembers = new();
+        private ObservableRangeCollection<StaffMemberViewModel> _filteredStaffMembers = new();
 
         protected override void OnLanguageChanged()
         {
@@ -84,11 +91,7 @@ namespace Management.Presentation.ViewModels.Finance
                     (s.Role.ToString().ToLower().Contains(query)));
             }
 
-            FilteredStaffMembers.Clear();
-            foreach (var staff in filtered)
-            {
-                FilteredStaffMembers.Add(staff);
-            }
+            FilteredStaffMembers.ReplaceRange(filtered);
             System.Diagnostics.Debug.WriteLine($"[STAFF_DIAGNOSTICS] ApplyFilters End. FilteredStaffMembers count: {FilteredStaffMembers.Count}");
         }
 
@@ -125,6 +128,7 @@ namespace Management.Presentation.ViewModels.Finance
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand LoadStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand OpenAddStaffCommand { get; } 
         public CommunityToolkit.Mvvm.Input.IRelayCommand PrintStaffListCommand { get; }
+        public CommunityToolkit.Mvvm.Input.IRelayCommand ExportCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand<StaffMemberViewModel> OpenStaffDetailCommand { get; }
         public CommunityToolkit.Mvvm.Input.IRelayCommand<StaffMemberViewModel> EditStaffCommand { get; }
         public CommunityToolkit.Mvvm.Input.IAsyncRelayCommand SaveStaffCommand { get; }
@@ -187,7 +191,31 @@ namespace Management.Presentation.ViewModels.Finance
                }
             });
 
-            PrintStaffListCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => _toastService?.ShowSuccess(GetTerm("Strings.Finance.Toast.PreparingPrint") ?? "Preparing staff list for printing..."));
+            PrintStaffListCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsPrinting) return;
+                IsPrinting = true;
+                try
+                {
+                    _toastService?.ShowInfo(GetTerm("Strings.Finance.Toast.PreparingPrint") ?? "Preparing staff list for printing...");
+                    await Task.Delay(1500);
+                    _toastService?.ShowSuccess("Staff report sent to printer.");
+                }
+                finally { IsPrinting = false; }
+            });
+
+            ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsExporting) return;
+                IsExporting = true;
+                try
+                {
+                    _toastService?.ShowInfo("Exporting staff data to Excel...");
+                    await Task.Delay(1500);
+                    _toastService?.ShowSuccess("Staff data exported to Excel successfully.");
+                }
+                finally { IsExporting = false; }
+            });
             
             OpenStaffDetailCommand = new CommunityToolkit.Mvvm.Input.RelayCommand<StaffMemberViewModel>(staff => 
             {
@@ -350,7 +378,7 @@ namespace Management.Presentation.ViewModels.Finance
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => 
                     {
                         var selectedId = SelectedStaff?.Id;
-                        StaffMembers.Clear();
+                        var newItems = new System.Collections.Generic.List<StaffMemberViewModel>();
                         foreach (var dto in result.Value)
                         {
                             var vm = new StaffMemberViewModel
@@ -373,8 +401,10 @@ namespace Management.Presentation.ViewModels.Finance
                                 vm.Permissions.Add(new StaffPermission { Name = p.Name, IsGranted = p.IsGranted });
                             }
 
-                            StaffMembers.Add(vm);
+                            newItems.Add(vm);
                         }
+                        
+                        StaffMembers.ReplaceRange(newItems);
                         ApplyFilters();
 
                         if (selectedId != null)

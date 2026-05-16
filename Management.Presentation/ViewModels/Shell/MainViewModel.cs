@@ -91,7 +91,7 @@ namespace Management.Presentation.ViewModels.Shell
         private Settings.SettingsViewModel? _settings;
 
         [ObservableProperty]
-        private bool _isSidebarCollapsed = true;
+        private bool _isSidebarCollapsed = false;
 
         [ObservableProperty]
         private bool _isEcoMode;
@@ -177,7 +177,7 @@ namespace Management.Presentation.ViewModels.Shell
         public string MemberPluralLabel => MemberLabel + "s";
 
         public object? CurrentModalViewModel => _modalNavigationStore.CurrentModalViewModel;
-        public bool IsModalOpen => _modalNavigationStore.IsOpen;
+        public bool IsModalOpen => _modalNavigationStore.IsOpen || _modalNavigationService.IsModalOpen;
 
         [RelayCommand]
         private void OpenSettings()
@@ -367,6 +367,14 @@ namespace Management.Presentation.ViewModels.Shell
                     e.PropertyName == nameof(ModalNavigationStore.IsOpen))
                 {
                     OnPropertyChanged(nameof(CurrentModalViewModel));
+                    OnPropertyChanged(nameof(IsModalOpen));
+                }
+            };
+            
+            _modalNavigationService.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(IModalNavigationService.IsModalOpen))
+                {
                     OnPropertyChanged(nameof(IsModalOpen));
                 }
             };

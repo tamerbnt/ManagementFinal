@@ -25,8 +25,12 @@
         </LinearGradientBrush>
 
         <Storyboard x:Key="CinematicStartupStoryboard" Completed="OnAnimationCompleted">
-            <!-- 0ms: Ground Line Draws -->
-            <DoubleAnimation Storyboard.TargetName="GroundScale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.15"/>
+            <!-- 400ms: Ground Line Sweeps — mirrors Entablature timing and ElasticEase exactly -->
+            <DoubleAnimation Storyboard.TargetName="GroundScale" Storyboard.TargetProperty="ScaleX" From="0" To="1" Duration="0:0:0.3" BeginTime="0:0:0.4">
+                <DoubleAnimation.EasingFunction>
+                    <ElasticEase Oscillations="1" Springiness="4" EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
 
             <!-- 150ms: Pillars Rise (Grow to Tall Height) -->
             <!-- Top-Left -->
@@ -60,32 +64,37 @@
             </DoubleAnimation>
 
             <!-- 600ms: Center Square Asymmetric Trace -->
-            <!-- Perimeter = 200. Offset from 200 to 0. -->
+            <!-- Perimeter = 144 (4 × 36). Offset from 144 to 0. -->
             <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CenterSquare" Storyboard.TargetProperty="StrokeDashOffset" BeginTime="0:0:0.6">
-                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="150" KeySpline="0.2,0 0.8,1"/> <!-- 1st side -->
-                <SplineDoubleKeyFrame KeyTime="0:0:0.25" Value="100" KeySpline="0.2,0 0.8,1"/> <!-- 2nd side (slower corner turn) -->
-                <SplineDoubleKeyFrame KeyTime="0:0:0.35" Value="50" KeySpline="0.2,0 0.8,1"/> <!-- 3rd side -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.1" Value="108" KeySpline="0.2,0 0.8,1"/> <!-- 1st side -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.25" Value="72" KeySpline="0.2,0 0.8,1"/> <!-- 2nd side (slower corner turn) -->
+                <SplineDoubleKeyFrame KeyTime="0:0:0.35" Value="36" KeySpline="0.2,0 0.8,1"/> <!-- 3rd side -->
                 <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="0" KeySpline="0.2,0 0.8,1"/> <!-- 4th side -->
             </DoubleAnimationUsingKeyFrames>
 
             <!-- 1000ms: Structural Compression -->
-            <!-- Tall pillars compress to 0.2 ScaleY (12px height) -->
+            <!-- Pillars compress to ScaleY=0.35 → exact 28px height (= logo corner block size: 28/80=0.35) -->
             <!-- Using QuarticEase for immense gravity feel -->
-            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+            <DoubleAnimation Storyboard.TargetName="ScaleTL" Storyboard.TargetProperty="ScaleY" To="0.35" Duration="0:0:0.2" BeginTime="0:0:1.0">
                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
-            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+            <DoubleAnimation Storyboard.TargetName="ScaleTR" Storyboard.TargetProperty="ScaleY" To="0.35" Duration="0:0:0.2" BeginTime="0:0:1.0">
                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
-            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+            <DoubleAnimation Storyboard.TargetName="ScaleBL" Storyboard.TargetProperty="ScaleY" To="0.35" Duration="0:0:0.2" BeginTime="0:0:1.0">
                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
-            <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleY" To="0.2" Duration="0:0:0.2" BeginTime="0:0:1.0">
+            <DoubleAnimation Storyboard.TargetName="ScaleBR" Storyboard.TargetProperty="ScaleY" To="0.35" Duration="0:0:0.2" BeginTime="0:0:1.0">
                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
 
-            <!-- Entablature drops to center square top edge (Y=-54 to Y=22, translate +76) -->
-            <DoubleAnimation Storyboard.TargetName="EntablatureTranslate" Storyboard.TargetProperty="Y" To="76" Duration="0:0:0.2" BeginTime="0:0:1.0">
+            <!-- Entablature drops flush to top of mark (Canvas.Top=-54 + 54 = y=0, top edge of logo blocks) -->
+            <DoubleAnimation Storyboard.TargetName="EntablatureTranslate" Storyboard.TargetProperty="Y" To="54" Duration="0:0:0.2" BeginTime="0:0:1.0">
+                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
+            <!-- Ground line rises flush to bottom of mark (Canvas.Top=154 - 54 = y=100, bottom edge of logo blocks) -->
+            <DoubleAnimation Storyboard.TargetName="GroundLineTranslate" Storyboard.TargetProperty="Y" To="-54" Duration="0:0:0.2" BeginTime="0:0:1.0">
                 <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
 
@@ -99,9 +108,25 @@
 
             <ColorAnimation Storyboard.TargetName="DynamicBrush" Storyboard.TargetProperty="Color" From="#C4785A" To="#D4856A" Duration="0:0:0.6" BeginTime="0:0:1.2"/>
 
+            <!-- 1200ms: Wordmark Rise — synchronized with The Breath -->
+            <DoubleAnimation Storyboard.TargetName="WordmarkPanel" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:1.2">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="WordmarkTranslate" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.4" BeginTime="0:0:1.2">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+
             <!-- 1100ms: Scaffolding Fades (Immediately after snap/compression) -->
             <DoubleAnimation Storyboard.TargetName="GroundLine" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3" BeginTime="0:0:1.1"/>
             <DoubleAnimation Storyboard.TargetName="Entablature" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.3" BeginTime="0:0:1.1"/>
+
+            <!-- 1900ms: Exit Expansion — logo grows as it fades (zoom-through, 1.0→1.5, overlaps opacity fade) -->
+            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="1.5" Duration="0:0:0.6" BeginTime="0:0:1.9">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleY" To="1.5" Duration="0:0:0.6" BeginTime="0:0:1.9">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
 
             <!-- 2000ms: Overlay Fades Out (The Bloom) -->
             <DoubleAnimation Storyboard.TargetName="Root" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5" BeginTime="0:0:2.0"/>
@@ -110,41 +135,47 @@
     </UserControl.Resources>
 
     <Border CornerRadius="24" Background="#1A1510" x:Name="BackgroundGrid" ClipToBounds="True">
-        <Canvas Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="MarkCanvas">
-            <Canvas.RenderTransform>
-                <ScaleTransform x:Name="MarkScale" ScaleX="1.0" ScaleY="1.0" CenterX="50" CenterY="50"/>
-            </Canvas.RenderTransform>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+            <StackPanel.RenderTransform>
+                <ScaleTransform x:Name="MarkScale" ScaleX="1.0" ScaleY="1.0"/>
+            </StackPanel.RenderTransform>
+
+            <Canvas Width="100" Height="100" x:Name="MarkCanvas">
 
             <!-- Ground Line -->
-            <Rectangle x:Name="GroundLine" Width="120" Height="2" Canvas.Left="-10" Canvas.Top="105" Fill="{StaticResource DynamicBrush}">
+            <!-- Ground line — mirrors Entablature: same 6px height, same sweep, rises -54 on compression -->
+            <Rectangle x:Name="GroundLine" Width="120" Height="6" Canvas.Left="-10" Canvas.Top="154" Fill="{StaticResource DynamicBrush}">
                 <Rectangle.RenderTransform>
-                    <ScaleTransform x:Name="GroundScale" ScaleX="0" ScaleY="1" CenterX="0" CenterY="1"/>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="GroundScale" ScaleX="0" ScaleY="1" CenterX="0" CenterY="1"/>
+                        <TranslateTransform x:Name="GroundLineTranslate" Y="0"/>
+                    </TransformGroup>
                 </Rectangle.RenderTransform>
             </Rectangle>
 
-            <!-- 4 Corner Pillars -->
-            <Rectangle x:Name="PillarTL" Width="12" Height="60" Canvas.Left="0" Canvas.Top="-48" Fill="{StaticResource PillarBrush}">
-                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTL" ScaleY="0" CenterY="60"/></Rectangle.RenderTransform>
+            <!-- 4 Corner Pillars — Width=28, Height=80 → ScaleY=0.35 compresses to exact 28×28 logo corner blocks -->
+            <Rectangle x:Name="PillarTL" Width="28" Height="80" Canvas.Left="0" Canvas.Top="-52" RadiusX="4" RadiusY="4" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTL" ScaleY="0" CenterY="80"/></Rectangle.RenderTransform>
             </Rectangle>
-            <Rectangle x:Name="PillarTR" Width="12" Height="60" Canvas.Left="88" Canvas.Top="-48" Fill="{StaticResource PillarBrush}">
-                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTR" ScaleY="0" CenterY="60"/></Rectangle.RenderTransform>
+            <Rectangle x:Name="PillarTR" Width="28" Height="80" Canvas.Left="72" Canvas.Top="-52" RadiusX="4" RadiusY="4" Fill="{StaticResource PillarBrush}">
+                <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleTR" ScaleY="0" CenterY="80"/></Rectangle.RenderTransform>
             </Rectangle>
-            <Rectangle x:Name="PillarBL" Width="12" Height="60" Canvas.Left="0" Canvas.Top="88" Fill="{StaticResource PillarBrush}">
+            <Rectangle x:Name="PillarBL" Width="28" Height="80" Canvas.Left="0" Canvas.Top="72" RadiusX="4" RadiusY="4" Fill="{StaticResource PillarBrush}">
                 <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleBL" ScaleY="0" CenterY="0"/></Rectangle.RenderTransform>
             </Rectangle>
-            <Rectangle x:Name="PillarBR" Width="12" Height="60" Canvas.Left="88" Canvas.Top="88" Fill="{StaticResource PillarBrush}">
+            <Rectangle x:Name="PillarBR" Width="28" Height="80" Canvas.Left="72" Canvas.Top="72" RadiusX="4" RadiusY="4" Fill="{StaticResource PillarBrush}">
                 <Rectangle.RenderTransform><ScaleTransform x:Name="ScaleBR" ScaleY="0" CenterY="0"/></Rectangle.RenderTransform>
             </Rectangle>
 
-            <!-- Center Square -->
-            <Path x:Name="CenterSquare" Stroke="{StaticResource DynamicBrush}" StrokeThickness="6" StrokeLineJoin="Miter" Canvas.Left="25" Canvas.Top="25">
+            <!-- Center Square — 36×36 at (32,32), StrokeThickness=5, Perimeter=144 — matches AtriumMarkAnimation exactly -->
+            <Path x:Name="CenterSquare" Stroke="{StaticResource DynamicBrush}" StrokeThickness="5" StrokeLineJoin="Miter" Canvas.Left="32" Canvas.Top="32">
                 <Path.Data>
-                    <RectangleGeometry Rect="0,0,50,50"/>
+                    <RectangleGeometry Rect="0,0,36,36"/>
                 </Path.Data>
                 <Path.StrokeDashArray>
-                    <DoubleCollection>200, 200</DoubleCollection>
+                    <DoubleCollection>144, 144</DoubleCollection>
                 </Path.StrokeDashArray>
-                <Path.StrokeDashOffset>200</Path.StrokeDashOffset>
+                <Path.StrokeDashOffset>144</Path.StrokeDashOffset>
             </Path>
 
             <!-- Entablature (heavy horizontal beam) -->
@@ -157,6 +188,51 @@
                 </Rectangle.RenderTransform>
             </Rectangle>
             
-        </Canvas>
+            </Canvas>
+
+            <!-- ATRIUM Wordmark — Segoe UI Variable Display, SemiBold 18, 4-unit tracking, synchronized with The Breath -->
+            <StackPanel x:Name="WordmarkPanel" Orientation="Horizontal" HorizontalAlignment="Center"
+                        Margin="0,12,0,0" Opacity="0">
+                <StackPanel.RenderTransform>
+                    <TranslateTransform x:Name="WordmarkTranslate" Y="10"/>
+                </StackPanel.RenderTransform>
+                <TextBlock Text="A" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}" Margin="0,0,4,0"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                <TextBlock Text="T" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}" Margin="0,0,4,0"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                <TextBlock Text="R" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}" Margin="0,0,4,0"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                <TextBlock Text="I" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}" Margin="0,0,4,0"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                <TextBlock Text="U" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}" Margin="0,0,4,0"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                <TextBlock Text="M" FontFamily="Segoe UI Variable Display, Segoe UI"
+                           FontWeight="SemiBold" FontSize="18"
+                           Foreground="{StaticResource DynamicBrush}"
+                           TextOptions.TextFormattingMode="Display"
+                           TextOptions.TextRenderingMode="ClearType"
+                           UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+            </StackPanel>
+        </StackPanel>
     </Border>
 </UserControl>

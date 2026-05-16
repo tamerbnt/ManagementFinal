@@ -67,10 +67,10 @@
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter TargetName="RootItem" Property="Background" Value="#F0F9FF"/>
-                                                        <Setter TargetName="RootItem" Property="BorderBrush" Value="#0EA5E9"/>
-                                                        <Setter TargetName="CheckCircle" Property="Background" Value="#0EA5E9"/>
-                                                        <Setter TargetName="CheckCircle" Property="BorderBrush" Value="#0EA5E9"/>
+                                                        <Setter TargetName="RootItem" Property="Background" Value="#F8EFEB"/>
+                                                        <Setter TargetName="RootItem" Property="BorderBrush" Value="#C4785A"/>
+                                                        <Setter TargetName="CheckCircle" Property="Background" Value="#C4785A"/>
+                                                        <Setter TargetName="CheckCircle" Property="BorderBrush" Value="#C4785A"/>
                                                         <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                     <MultiDataTrigger>

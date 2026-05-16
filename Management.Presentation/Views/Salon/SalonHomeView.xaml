@@ -294,47 +294,67 @@
                                             <!-- List & Empty State Container -->
                         <Grid Grid.Row="2">
                             <!-- THE LIST -->
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" 
-                                          Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding ActivityStream}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="16" Padding="14,12" Margin="0,0,0,10">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/> <!-- Avatar -->
-                                                        <ColumnDefinition Width="*"/>    <!-- Content -->
-                                                    </Grid.ColumnDefinitions>
-                                                    
-                                                    <!-- AVATAR / ICON -->
-                                                    <Border Grid.Column="0" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,14,0" VerticalAlignment="Center">
-                                                        <Grid>
-                                                            <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
-                                                            <TextBlock Text="{Binding Icon}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="12" Margin="0,0,-4,-4"/>
-                                                        </Grid>
-                                                    </Border>
-                                                    
-                                                    <!-- 2-LINE GRID CONTENT -->
-                                                    <Grid Grid.Column="1">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/> <!-- Line 1: Name + Time -->
-                                                            <RowDefinition Height="Auto"/> <!-- Line 2: Status + Relative -->
-                                                        </Grid.RowDefinitions>
-                                                        
-                                                        <!-- LINE 1: Identity & Exact Time -->
-                                                        <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="0" Text="{Binding Timestamp, StringFormat=HH:mm}" FontWeight="SemiBold" FontSize="12" Opacity="0.5" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                                        
-                                                        <!-- LINE 2: Action & Relative Time -->
-                                                        <TextBlock Grid.Row="1" Text="{Binding Status}" FontSize="13" Opacity="0.7" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,2,0,0" VerticalAlignment="Center"/>
-                                                        <TextBlock Grid.Row="1" Text="{Binding RelativeTime}" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,0,0"/>
+                            <ListBox ItemsSource="{Binding ActivityStream}" 
+                                     Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                     VirtualizingPanel.IsVirtualizing="True"
+                                     VirtualizingPanel.VirtualizationMode="Recycling"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     Background="Transparent"
+                                     BorderThickness="0">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="0"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <ContentPresenter/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource Brush.Surface.Secondary}" CornerRadius="16" Padding="14,12" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/> <!-- Avatar -->
+                                                    <ColumnDefinition Width="*"/>    <!-- Content -->
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <!-- AVATAR / ICON -->
+                                                <Border Grid.Column="0" Width="42" Height="42" CornerRadius="12" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,14,0" VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding AvatarInitials}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" Opacity="0.8"/>
+                                                        <TextBlock Text="{Binding Icon}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="12" Margin="0,0,-4,-4"/>
                                                     </Grid>
+                                                </Border>
+                                                
+                                                <!-- 2-LINE GRID CONTENT -->
+                                                <Grid Grid.Column="1">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/> <!-- Line 1: Name + Time -->
+                                                        <RowDefinition Height="Auto"/> <!-- Line 2: Status + Relative -->
+                                                    </Grid.RowDefinitions>
+                                                    
+                                                    <!-- LINE 1: Identity & Exact Time -->
+                                                    <TextBlock Grid.Row="0" Text="{Binding Name}" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource Brush.Card.Foreground}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Row="0" Text="{Binding Timestamp, StringFormat=HH:mm}" FontWeight="SemiBold" FontSize="12" Opacity="0.5" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                    
+                                                    <!-- LINE 2: Action & Relative Time -->
+                                                    <TextBlock Grid.Row="1" Text="{Binding Status}" FontSize="13" Opacity="0.7" Foreground="{DynamicResource Brush.Card.Foreground}" Margin="0,2,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Row="1" Text="{Binding RelativeTime}" FontSize="12" Opacity="0.4" Foreground="{DynamicResource Brush.Card.Foreground}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,2,0,0"/>
                                                 </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
 
                             <!-- EMPTY STATE ILLUSTRATION (Absolute centered) -->
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"

@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
@@ -123,10 +124,32 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <Button Content="{DynamicResource Terminology.History.Action.ReportPdf}" 
-                        Command="{Binding ExportPdfCommand}"
-                        Style="{DynamicResource Button.Primary}"
-                        Padding="16,0" Height="36"/>
+                <Button Grid.Column="0" Command="{Binding ExportPdfCommand}"
+                        Height="36" Padding="16,0" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="{DynamicResource Brush.Accent}" CornerRadius="8">
+                                <Grid>
+                                    <TextBlock x:Name="BtnText" Text="{DynamicResource Terminology.History.Action.ReportPdf}" 
+                                               Foreground="White" FontWeight="Bold" Margin="16,0"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="White" 
+                                                                 Width="18" Height="18" Visibility="Collapsed" 
+                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Opacity" Value="0.9"/>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsExporting}" Value="True">
+                                    <Setter TargetName="BtnText" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
 
                 <Button Grid.Column="2" 
                         Content="{DynamicResource Terminology.History.Action.Close}" 

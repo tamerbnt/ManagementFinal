@@ -83,6 +83,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <SolidColorBrush x:Key="Brush.Neutral.White" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="Brush.Status.Success" Color="#10B981"/>
     <SolidColorBrush x:Key="Brush.Error" Color="#EF4444"/>
+    <SolidColorBrush x:Key="Brush.Modal.Backdrop" Color="#000000" Opacity="0.70"/>
 
     <!-- Elevation Shadows (Overridden for Dark Mode) - Disabled for Modern Flat UI -->
     <DropShadowEffect x:Key="Shadow1" BlurRadius="0" ShadowDepth="0" Opacity="0" Color="Transparent"/>

@@ -94,7 +94,7 @@
                                  FontSize="14"
                                  VerticalContentAlignment="Center"
                                  Margin="0,0,12,0"
-                                 CaretBrush="#0EA5E9"
+                                 CaretBrush="#C4785A"
                                  FontFamily="Segoe UI Variable Display, Segoe UI"
                                  Tag="{DynamicResource Strings.Auth.Placeholder.LicenseKey}"/>
                     </Grid>

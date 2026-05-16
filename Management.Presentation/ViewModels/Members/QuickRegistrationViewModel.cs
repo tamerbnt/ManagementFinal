@@ -127,6 +127,14 @@ namespace Management.Presentation.ViewModels.Members
         partial void OnLeadSearchQueryChanged(string value)
         {
             _leadSearchCts?.Cancel();
+            
+            if (string.IsNullOrWhiteSpace(value) || value.Length < 2)
+            {
+                LeadResults.Clear();
+                HasLeadResults = false;
+                return;
+            }
+
             _leadSearchCts = new CancellationTokenSource();
             var token = _leadSearchCts.Token;
 

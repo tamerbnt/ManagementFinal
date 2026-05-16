@@ -65,7 +65,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="Transparent">
-                            <TextBlock Foreground="#0EA5E9" FontSize="13" FontWeight="SemiBold">
+                            <TextBlock Foreground="#C4785A" FontSize="13" FontWeight="SemiBold">
                                 <Run Text="{DynamicResource Strings.Auth.Alreadyhaveanaccount}"/>
                             </TextBlock>
                         </Border>
@@ -90,7 +90,7 @@
                               Data="M16 6V4H8V6M7 6H5C3.89 6 3 6.89 3 8V19C3 20.11 3.89 21 5 21H19C20.11 21 21 20.11 21 19V8C21 6.89 20.11 6 19 6H17M10 4C10 3.45 10.45 3 11 3H13C13.55 3 14 3.45 14 4V6H10V4Z"
                               Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <!-- Text Input -->
-                        <TextBox Grid.Column="1" Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#0EA5E9" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="e.g. Elite Fitness Center"/>
+                        <TextBox Grid.Column="1" Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#C4785A" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="e.g. Elite Fitness Center"/>
                     </Grid>
                 </Border>
             </StackPanel>
@@ -111,7 +111,7 @@
                         <Path Grid.Column="0"
                               Data="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
                               Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Text="{Binding AdminFullName, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#0EA5E9" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="e.g. John Doe"/>
+                        <TextBox Grid.Column="1" Text="{Binding AdminFullName, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#C4785A" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="e.g. John Doe"/>
                     </Grid>
                 </Border>
             </StackPanel>
@@ -132,7 +132,7 @@
                         <Path Grid.Column="0"
                               Data="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"
                               Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" Text="{Binding AdminEmail, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#0EA5E9" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="admin@atrium.com"/>
+                        <TextBox Grid.Column="1" Text="{Binding AdminEmail, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" Margin="0,0,12,0" CaretBrush="#C4785A" FontFamily="Segoe UI Variable Display, Segoe UI" Tag="admin@atrium.com"/>
                     </Grid>
                 </Border>
             </StackPanel>
@@ -159,12 +159,12 @@
                             <PasswordBox x:Name="OnboardingPasswordBox"
                                          Background="Transparent" BorderThickness="0"
                                          Foreground="#111827" FontSize="14" VerticalContentAlignment="Center"
-                                         CaretBrush="#0EA5E9" FontFamily="Segoe UI Variable Display, Segoe UI"
+                                         CaretBrush="#C4785A" FontFamily="Segoe UI Variable Display, Segoe UI"
                                          Tag="Enter a secure password" PasswordChanged="PasswordBox_PasswordChanged"/>
                             <TextBox x:Name="OnboardingPasswordTextBox"
                                      Background="Transparent" BorderThickness="0"
                                      Foreground="#111827" FontSize="14" VerticalContentAlignment="Center"
-                                     CaretBrush="#0EA5E9" FontFamily="Segoe UI Variable Display, Segoe UI"
+                                     CaretBrush="#C4785A" FontFamily="Segoe UI Variable Display, Segoe UI"
                                      Tag="Enter a secure password" Visibility="Collapsed" TextChanged="OnboardingPasswordTextBox_TextChanged"/>
                         </Grid>
 

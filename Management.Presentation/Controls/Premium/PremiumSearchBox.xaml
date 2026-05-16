@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              Height="44">
     <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="24">
@@ -25,10 +26,54 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Search Icon (Geometry Support) -->
-            <Path Grid.Column="0" Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                  Fill="{DynamicResource Brush.Text.Secondary}" Stretch="Uniform" Width="18" Height="18" VerticalAlignment="Center"
-                  Visibility="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringToVisibilityConverter}}"/>
+            <!-- Search Icon Area (Swaps between static loop and animated mark) -->
+            <Grid Grid.Column="0" Width="20" Height="20" VerticalAlignment="Center">
+                <Path x:Name="StaticLoopIcon"
+                      Data="{Binding IconData, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      Stroke="{DynamicResource Brush.Text.Secondary}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      Stretch="Uniform">
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSearchMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
+                
+                <premium:AtriumMarkAnimation x:Name="ScanAnimation"
+                                             AnimationMode="Scan"
+                                             MarkForeground="{DynamicResource FacilityAccentBrush}">
+                    <premium:AtriumMarkAnimation.Style>
+                        <Style TargetType="premium:AtriumMarkAnimation">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSearchMode, RelativeSource={RelativeSource AncestorType=UserControl}}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </premium:AtriumMarkAnimation.Style>
+                </premium:AtriumMarkAnimation>
+            </Grid>
 
             <!-- Input Field -->
             <TextBox x:Name="PART_TextBox" Grid.Column="1" Background="Transparent" BorderThickness="0" VerticalAlignment="Stretch" VerticalContentAlignment="Center" 

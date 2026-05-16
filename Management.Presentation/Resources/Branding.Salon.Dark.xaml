@@ -37,6 +37,8 @@
     <!-- Contrast Tokens -->
     <SolidColorBrush x:Key="OnAccentPrimary" Color="#1A1208"/> <!-- Deep espresso text on Dusty Rose -->
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#261A10"/>
+    <SolidColorBrush x:Key="RowOnAccentPrimary" Color="#1A1208"/>
+    <SolidColorBrush x:Key="RowOnAccentSecondary" Color="#261A10"/>
     
     <!-- Status Backgrounds (Deep/Rich Colors for Dark Mode) -->
     <SolidColorBrush x:Key="StatusErrorBackground" Color="#450A0A" Opacity="0.4"/> <!-- Deep Red -->

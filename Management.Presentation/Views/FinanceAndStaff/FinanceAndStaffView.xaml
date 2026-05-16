@@ -113,30 +113,79 @@
 						
 						<premium:PremiumSearchBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
 												 Placeholder="Search staff..."
-												 IconData="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
 												 Height="44"/>
 					</ContentControl>
 				</StackPanel>
 
 				<!-- Right Actions -->
 				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+					<!-- Secondary Action: Export -->
+					<Button Style="{StaticResource Button.Secondary}" Command="{Binding ExportCommand}" Margin="0,0,12,0" Height="44" Padding="16,0">
+						<Button.Template>
+							<ControlTemplate TargetType="Button">
+								<Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource Corner.LG}" Padding="{TemplateBinding Padding}">
+									<Grid>
+										<StackPanel x:Name="BtnContent" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+											<Path Data="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" 
+												  Stroke="{TemplateBinding Foreground}"
+												  Style="{StaticResource Style.Icon.Small}"
+												  Margin="{StaticResource MarginIconRight}"/>
+											<TextBlock Text="{DynamicResource Terminology.History.Action.Export}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+										</StackPanel>
+										<premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+																	 Width="18" Height="18" Visibility="Collapsed" 
+																	 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Grid>
+								</Border>
+								<ControlTemplate.Triggers>
+									<Trigger Property="IsMouseOver" Value="True">
+										<Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+									</Trigger>
+									<DataTrigger Binding="{Binding IsExporting}" Value="True">
+										<Setter TargetName="BtnContent" Property="Visibility" Value="Collapsed"/>
+										<Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+									</DataTrigger>
+								</ControlTemplate.Triggers>
+							</ControlTemplate>
+						</Button.Template>
+					</Button>
+
 					<!-- Secondary Action: Print -->
-					<Button Style="{StaticResource Button.Pill.Outline}"
-							Command="{Binding PrintStaffListCommand}"
-							Margin="0,0,12,0">
-						<StackPanel Orientation="Horizontal">
-							<Path Data="{StaticResource IconPrinter}" 
-								   Fill="{DynamicResource Brush.Text.Primary}"
-								   Style="{StaticResource Style.Icon.Small}"
-								   Margin="{StaticResource MarginIconRight}"/>
-							<TextBlock Text="{DynamicResource Terminology.Staff.Action.Print}"/>
-						</StackPanel>
+					<Button Style="{StaticResource Button.Secondary}" Command="{Binding PrintStaffListCommand}" Margin="0,0,12,0" Height="44" Padding="16,0">
+						<Button.Template>
+							<ControlTemplate TargetType="Button">
+								<Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource Corner.LG}" Padding="{TemplateBinding Padding}">
+									<Grid>
+										<StackPanel x:Name="BtnContent" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+											<Path Data="{StaticResource IconPrinter}" 
+												  Fill="{TemplateBinding Foreground}"
+												  Style="{StaticResource Style.Icon.Small}"
+												  Margin="{StaticResource MarginIconRight}"/>
+											<TextBlock Text="{DynamicResource Terminology.Staff.Action.Print}" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" FontWeight="SemiBold"/>
+										</StackPanel>
+										<premium:AtriumMarkAnimation x:Name="BusyAnim" AnimationMode="Scan" MarkForeground="{TemplateBinding Foreground}" 
+																	 Width="18" Height="18" Visibility="Collapsed" 
+																	 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Grid>
+								</Border>
+								<ControlTemplate.Triggers>
+									<Trigger Property="IsMouseOver" Value="True">
+										<Setter TargetName="BtnBorder" Property="Background" Value="{DynamicResource Brush.Surface.Hover}"/>
+									</Trigger>
+									<DataTrigger Binding="{Binding IsPrinting}" Value="True">
+										<Setter TargetName="BtnContent" Property="Visibility" Value="Collapsed"/>
+										<Setter TargetName="BusyAnim" Property="Visibility" Value="Visible"/>
+									</DataTrigger>
+								</ControlTemplate.Triggers>
+							</ControlTemplate>
+						</Button.Template>
 					</Button>
 
 					<!-- Primary Action: Add Staff -->
 					<Button Style="{StaticResource Button.Pill.Primary}"
 							Command="{Binding OpenAddStaffCommand}"
-							Margin="0,0,24,0">
+							Margin="0,0,24,0"
+							Height="44">
 						<StackPanel Orientation="Horizontal">
 							<Path Data="{StaticResource IconPlus}" 
 								   Stroke="White"
@@ -240,11 +289,7 @@
 						  HorizontalAlignment="Center"
 						  Visibility="{Binding FilteredStaffMembers.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
 						
-						<Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0">
-							<Ellipse.Effect>
-								<BlurEffect Radius="100"/>
-							</Ellipse.Effect>
-						</Ellipse>
+						<Ellipse Width="240" Height="240" Fill="{DynamicResource FacilityAccentBrush}" Opacity="0.03" Margin="0,-40,0,0" />
 
 						<StackPanel HorizontalAlignment="Center">
 							<Border Width="80" Height="80" 

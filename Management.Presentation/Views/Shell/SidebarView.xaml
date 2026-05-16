@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:Management.Presentation.Views.Shell"
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="260">
     
@@ -86,74 +87,111 @@
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource SidebarNavigationButtonStyle}">
                         <Setter Property="Margin" Value="16,0"/>
+                        <Setter Property="Padding" Value="0,20"/>
                         <Setter Property="HorizontalAlignment" Value="Stretch"/>
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
                                 <Setter Property="Margin" Value="0"/>
+                                <Setter Property="Padding" Value="0,12"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
-                <Grid>
-                    <!-- Expanded State -->
-                    <StackPanel x:Name="ExpandedLogo" Orientation="Vertical" HorizontalAlignment="Center">
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Opacity" Value="1"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                        <Setter Property="Opacity" Value="0"/>
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="LogoRoot" Background="Transparent" MinHeight="80">
+                            <!-- 1. COLLAPSED BACKGROUND -->
+                            <Border x:Name="CollapsedLogoBg" 
+                                    Width="44" Height="44" CornerRadius="22"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Background="{DynamicResource Brush.Sidebar.Hover}"
+                                    Opacity="0"/>
 
-                        <!-- Atrium Logo Container -->
-                        <Border x:Name="ExpandedLogoBorder" Width="48" Height="48" CornerRadius="{DynamicResource Corner.MD}" HorizontalAlignment="Center">
-                            <Border.Effect>
-                                <DynamicResource ResourceKey="ShadowGlow"/>
-                            </Border.Effect>
-                            <Image Source="/Assets/atrium_icon_transparent.png"
-                                   Stretch="Uniform"
-                                   RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Border>
- 
-                         <TextBlock Text="atrium" 
-                                    FontWeight="ExtraBold" 
-                                    Foreground="{DynamicResource Brush.Neutral.White}" 
-                                    FontSize="20"
-                                    HorizontalAlignment="Center" 
-                                    Margin="0,4,0,0"
-                                    FontFamily="Segoe UI Variable Display, Segoe UI"/>
-                    </StackPanel>
- 
-                     <!-- Collapsed State -->
-                     <Border x:Name="CollapsedLogo" 
-                             Width="44" Height="44" CornerRadius="22"
-                             HorizontalAlignment="Center" VerticalAlignment="Center"
-                             Background="{DynamicResource Brush.Sidebar.Hover}">
-                         <Border.Style>
-                             <Style TargetType="Border">
-                                 <Setter Property="Visibility" Value="Collapsed"/>
-                                 <Style.Triggers>
-                                     <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                         <Setter Property="Visibility" Value="Visible"/>
-                                     </DataTrigger>
-                                 </Style.Triggers>
-                             </Style>
-                         </Border.Style>
-                         <Border.Effect>
-                             <DynamicResource ResourceKey="ShadowGlow"/>
-                         </Border.Effect>
-                         <Image Source="/Assets/atrium_icon_transparent.png"
-                                Stretch="Uniform"
-                                Margin="6"
-                                HorizontalAlignment="Center" VerticalAlignment="Center"
-                                RenderOptions.BitmapScalingMode="HighQuality"/>
-                     </Border>
-                </Grid>
+                            <!-- 2. SHARED LOGO INSTANCE -->
+                            <Grid x:Name="LogoTransformContainer" HorizontalAlignment="Center" VerticalAlignment="Center" CacheMode="BitmapCache">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform x:Name="LogoTranslate" Y="-16"/> 
+                                </Grid.RenderTransform>
+                                <Grid.Effect>
+                                    <DynamicResource ResourceKey="ShadowGlow"/>
+                                </Grid.Effect>
+
+                                <premium:AtriumMarkAnimation x:Name="SidebarLogo"
+                                                             Width="32" Height="32"
+                                                             MarkForeground="White"
+                                                             AnimationMode="Static"
+                                                             HorizontalAlignment="Center"
+                                                             VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- 3. EXPANDED TEXT -->
+                            <TextBlock x:Name="AtriumLabel"
+                                       Text="atrium" 
+                                       FontWeight="ExtraBold" 
+                                       Foreground="{DynamicResource Brush.Neutral.White}" 
+                                       FontSize="20"
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,8,0,0"
+                                       Opacity="1"
+                                       FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="CollapsedLogoBg" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.20"/>
+                                            <DoubleAnimation Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="Width" To="28" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="Height" To="28" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="LogoTranslate" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="AtriumLabel" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.10"/>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AtriumLabel" Storyboard.TargetProperty="Visibility">
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0.10" Value="{x:Static Visibility.Collapsed}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="AnimationMode">
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static premium:AtriumAnimationMode.Spin}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0.3" Value="{x:Static premium:AtriumAnimationMode.Static}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="CollapsedLogoBg" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.20"/>
+                                            <DoubleAnimation Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="Width" To="32" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="Height" To="32" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="LogoTranslate" Storyboard.TargetProperty="Y" To="-16" Duration="0:0:0.20">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="AtriumLabel" Storyboard.TargetProperty="Visibility">
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <DoubleAnimation Storyboard.TargetName="AtriumLabel" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.20"/>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="SidebarLogo" Storyboard.TargetProperty="AnimationMode">
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static premium:AtriumAnimationMode.Spin}"/>
+                                                <DiscreteObjectKeyFrame KeyTime="0:0:0.3" Value="{x:Static premium:AtriumAnimationMode.Static}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
             </Button>
 
             <!-- FLOATING TOGGLE (Integrated "Ear" Design) -->

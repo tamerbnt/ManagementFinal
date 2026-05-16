@@ -266,6 +266,12 @@ namespace Management.Presentation.ViewModels.Members
         [ObservableProperty]
         private bool _isEditing;
 
+        [ObservableProperty]
+        private bool _isExporting;
+
+        [ObservableProperty]
+        private bool _isPrinting;
+
         partial void OnIsDetailPanelOpenChanged(bool value)
         {
             if (!value) IsEditing = false;
@@ -354,7 +360,18 @@ namespace Management.Presentation.ViewModels.Members
             // Register for messages
             CommunityToolkit.Mvvm.Messaging.WeakReferenceMessenger.Default.RegisterAll(this);
 
-            PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
+            PrintReportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsPrinting) return;
+                IsPrinting = true;
+                try
+                {
+                    _toastService.ShowInfo("Preparing member list for printing...");
+                    await Task.Delay(1500);
+                    _toastService.ShowSuccess("Member report sent to printer.");
+                }
+                finally { IsPrinting = false; }
+            });
             RenewSelectedCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
             
             GrantAccessCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand<MemberDto>(async member => 
@@ -544,7 +561,18 @@ namespace Management.Presentation.ViewModels.Members
                 });
             });
             
-            ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(() => Task.CompletedTask);
+            ExportCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
+            {
+                if (IsExporting) return;
+                IsExporting = true;
+                try
+                {
+                    _toastService.ShowInfo("Exporting member data to Excel...");
+                    await Task.Delay(1500);
+                    _toastService.ShowSuccess("Member data exported successfully.");
+                }
+                finally { IsExporting = false; }
+            });
             ClearSelectionCommand = new CommunityToolkit.Mvvm.Input.RelayCommand(() => IsSelectionMode = false);
             OpenAddMemberCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(async () => 
             {

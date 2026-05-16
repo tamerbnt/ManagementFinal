@@ -36,6 +36,16 @@ namespace Management.Presentation.Controls.Premium
             set => SetValue(IconDataProperty, value);
         }
 
+        public static readonly DependencyProperty IsSearchModeProperty =
+            DependencyProperty.Register("IsSearchMode", typeof(bool), typeof(PremiumSearchBox), 
+            new PropertyMetadata(true));
+
+        public bool IsSearchMode
+        {
+            get => (bool)GetValue(IsSearchModeProperty);
+            set => SetValue(IsSearchModeProperty, value);
+        }
+
         public PremiumSearchBox()
         {
             InitializeComponent();

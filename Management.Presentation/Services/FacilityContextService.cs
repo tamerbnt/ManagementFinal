@@ -220,23 +220,41 @@ namespace Management.Presentation.Services
             return _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty);
         }
 
+        private readonly System.Threading.SemaphoreSlim _resourceLoadLock = new(1, 1);
+
         public async Task SwitchFacility(FacilityType type)
         {
-            CurrentFacility = type;
-            await LoadFacilityResourcesAsync(type);
-
-            // Persist selection to disk (used by normal facility commit path)
-            SaveConfig();
-
-            // Safety guard: Never fire FacilityChanged with an empty GUID
-            if (CurrentFacilityId == Guid.Empty)
+            // PERFORMANCE GUARD: Prevent redundant re-loads if the facility hasn't changed.
+            // This reduces UI thread pressure during the onboarding transition.
+            if (CurrentFacility == type && _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty) != Guid.Empty)
             {
-                Serilog.Log.Warning("[FacilityContext] GUARD: SwitchFacility({Type}) — CurrentFacilityId is Guid.Empty. FacilityChanged suppressed.", type);
+                Serilog.Log.Debug("[FacilityContext] SwitchFacility({Type}) ignored — already active.", type);
                 return;
             }
 
-            Serilog.Log.Information("[FacilityContext] FacilityChanged firing. CurrentFacility={Facility} CurrentFacilityId={Id}", CurrentFacility, CurrentFacilityId);
-            FacilityChanged?.Invoke(type);
+            await _resourceLoadLock.WaitAsync();
+            try
+            {
+                CurrentFacility = type;
+                await LoadFacilityResourcesAsync(type);
+
+                // Persist selection to disk (used by normal facility commit path)
+                SaveConfig();
+
+                // Safety guard: Never fire FacilityChanged with an empty GUID
+                if (CurrentFacilityId == Guid.Empty)
+                {
+                    Serilog.Log.Warning("[FacilityContext] GUARD: SwitchFacility({Type}) — CurrentFacilityId is Guid.Empty. FacilityChanged suppressed.", type);
+                    return;
+                }
+
+                Serilog.Log.Information("[FacilityContext] FacilityChanged firing. CurrentFacility={Facility} CurrentFacilityId={Id}", CurrentFacility, CurrentFacilityId);
+                FacilityChanged?.Invoke(type);
+            }
+            finally
+            {
+                _resourceLoadLock.Release();
+            }
         }
 
         /// <summary>
@@ -265,6 +283,9 @@ namespace Management.Presentation.Services
         /// </summary>
         private async Task LoadFacilityResourcesAsync(FacilityType type)
         {
+            // PERFORMANCE FIX: Use DispatcherPriority.Background for resource merging.
+            // This ensures that high-priority rendering tasks (like animations) can continue
+            // smoothly while the XAML dictionaries are being parsed and merged.
             await _dispatcher.InvokeAsync(() =>
             {
                 var appResources = System.Windows.Application.Current.Resources;
@@ -284,7 +305,7 @@ namespace Management.Presentation.Services
 
                 foreach (var dict in toRemove)
                 {
-                    Serilog.Log.Information("[FacilityContext] Removing stale resource: {Source}", dict.Source);
+                    Serilog.Log.Debug("[FacilityContext] Removing stale resource: {Source}", dict.Source);
                     appResources.MergedDictionaries.Remove(dict);
                 }
 
@@ -347,7 +368,7 @@ namespace Management.Presentation.Services
                         catch { /* Total failure */ }
                     }
                 }
-            });
+            }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private readonly System.Threading.SemaphoreSlim _configSaveLock = new(1, 1);

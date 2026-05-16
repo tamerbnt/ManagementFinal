@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -170,7 +170,7 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">Confirmer la déconnexion</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">Êtes-vous sûr de vouloir vous déconnecter ?</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">Déconnexion</sys:String>
-    <sys:String x:Key="Terminology.Shell.Exit.Title">Quitter Atrium ?</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">Vous quittez Atrium</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Message">Souhaitez-vous générer un dernier rapport de 'Clôture de journée' avant de quitter ?</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Cancel">Rester dans l'application</sys:String>
     <sys:String x:Key="Terminology.Shell.Exit.Close">Quitter l'espace de travail</sys:String>

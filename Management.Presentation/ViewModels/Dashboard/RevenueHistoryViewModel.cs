@@ -30,6 +30,9 @@ namespace Management.Presentation.ViewModels.Dashboard
         [ObservableProperty]
         private RevenueHistoryDto _data = new();
 
+        [ObservableProperty]
+        private bool _isExporting;
+
         public ObservableCollection<string> AvailablePeriods { get; } = new();
 
         public IAsyncRelayCommand CloseCommand { get; }
@@ -103,20 +106,35 @@ namespace Management.Presentation.ViewModels.Dashboard
 
         private async Task ExecuteExportPdfAsync()
         {
-            await ExecuteLoadingAsync(async () =>
+            if (IsExporting) return;
+            IsExporting = true;
+
+            try
             {
+                var delayTask = Task.Delay(1500); // Animation buffer
                 var pdfBytes = await _reportingService.GenerateRevenueHistoryPdfAsync(Data, CurrentFacility.ToString());
                 
-                // Logic to save/open PDF (simplified for this context)
+                // Logic to save/open PDF
                 var fileName = $"Revenue_History_{CurrentFacility.ToString()}_{DateTime.Now:yyyyMMdd}.pdf";
                 var filePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), fileName);
                 await System.IO.File.WriteAllBytesAsync(filePath, pdfBytes);
                 
+                await delayTask;
+
                 _toastService.ShowSuccess(GetTerm("Terminology.Dashboard.History.ExportSuccess") ?? "Report exported successfully to Documents.");
                 
                 // Open file
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = filePath, UseShellExecute = true });
-            });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to export PDF");
+                _toastService.ShowError("Export failed: " + ex.Message);
+            }
+            finally
+            {
+                IsExporting = false;
+            }
         }
 
         private async Task CloseAsync()

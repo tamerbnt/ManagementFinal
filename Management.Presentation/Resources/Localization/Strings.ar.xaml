@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:sys="clr-namespace:System;assembly=System.Runtime">
@@ -261,6 +261,11 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Terminology.TopBar.Logout.Title">تأكيد الخروج</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Message">هل أنت متأكد أنك تريد تسجيل الخروج؟</sys:String>
     <sys:String x:Key="Terminology.TopBar.Logout.Confirm">تسجيل الخروج</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Title">أنت تغادر Atrium</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Message">هل ترغب في إنشاء تقرير "إغلاق اليوم" النهائي قبل الخروج؟</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Cancel">البقاء في التطبيق</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.Close">مغادرة مساحة العمل</sys:String>
+    <sys:String x:Key="Terminology.Shell.Exit.CloseAndReport">إغلاق اليوم والخروج</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Restored">تمت استعادة الاتصال بالخدمات السحابية.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Connection.Lost">تم فقد الاتصال بالخدمات السحابية. تم إيقاف المزامنة مؤقتًا.</sys:String>
     <sys:String x:Key="Terminology.TopBar.Guest">ضيف</sys:String>
