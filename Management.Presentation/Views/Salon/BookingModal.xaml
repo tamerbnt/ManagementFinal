@@ -65,7 +65,7 @@
 
                 <!-- Premium Segmented Toggle -->
                 <Border Background="{DynamicResource Brush.Surface.Tertiary}" CornerRadius="22" Padding="4" Height="44" Margin="0,0,0,20" HorizontalAlignment="Left" Width="300">
-                    <Grid>
+                    <Grid SizeChanged="SegmentedToggleGrid_SizeChanged">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>

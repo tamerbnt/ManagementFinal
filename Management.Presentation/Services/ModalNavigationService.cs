@@ -463,6 +463,8 @@ namespace Management.Presentation.Services
                 // This guarantees the 'IsDefault="True"' confirm buttons bind correctly to the Enter key.
                 window.Loaded += (s, e) =>
                 {
+                    window.Activate();
+                    window.Focus();
                     if (!window.IsKeyboardFocusWithin)
                     {
                         window.MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.Next));

@@ -22,8 +22,19 @@ namespace Management.Presentation.Views.Salon
             if (_selectionPill != null)
             {
                 _pillTranslate = _selectionPill.RenderTransform as TranslateTransform;
-                // Initial state
-                UpdatePillPosition(true);
+            }
+        }
+
+        private void SegmentedToggleGrid_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (_selectionPill != null && _pillTranslate != null)
+            {
+                bool isExisting = true;
+                if (DataContext is BookingViewModel vm)
+                {
+                    isExisting = vm.IsExistingClientMode;
+                }
+                UpdatePillPosition(isExisting);
             }
         }
 
