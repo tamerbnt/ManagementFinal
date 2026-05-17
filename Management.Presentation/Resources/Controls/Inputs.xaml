@@ -331,6 +331,7 @@
                                           Background="Transparent"
                                           BorderThickness="0"
                                           ClickMode="Press"
+                                          Focusable="False"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
@@ -343,6 +344,7 @@
                         <Popup x:Name="PART_Popup" 
                                Placement="Bottom" 
                                AllowsTransparency="True"
+                               StaysOpen="False"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 
@@ -467,6 +469,7 @@
                                           Background="Transparent"
                                           BorderThickness="0"
                                           ClickMode="Press"
+                                          Focusable="False"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
@@ -479,6 +482,7 @@
                         <Popup x:Name="PART_Popup" 
                                Placement="Bottom" 
                                AllowsTransparency="True"
+                               StaysOpen="False"
                                IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}">
 
                             <Border x:Name="DropDownBorder" 
@@ -488,8 +492,7 @@
                                     MaxHeight="300"
                                     CornerRadius="12"
                                     Margin="0,4,0,0"
-                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
-                                    CacheMode="BitmapCache">
+                                    MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ScrollViewer x:Name="DropDownScrollViewer" 
                                               Margin="4" 
                                               VerticalScrollBarVisibility="Auto">
