@@ -35,12 +35,12 @@
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.2" Duration="0:0:0.3">
                                 <DoubleAnimation.EasingFunction>
-                                    <ElasticEase Oscillations="2" Springiness="3"/>
+                                    <CubicEase EasingMode="EaseOut"/>
                                 </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                             <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.2" Duration="0:0:0.3">
                                 <DoubleAnimation.EasingFunction>
-                                    <ElasticEase Oscillations="2" Springiness="3"/>
+                                    <CubicEase EasingMode="EaseOut"/>
                                 </DoubleAnimation.EasingFunction>
                             </DoubleAnimation>
                         </Storyboard>
@@ -86,7 +86,7 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PanningMode="HorizontalOnly">
         <StackPanel Orientation="Horizontal" Margin="4">
             
             <!-- ====== GYM KPIS ====== -->

@@ -98,7 +98,7 @@
             </TextBox>
 
             <!-- Clear (X) Button (Normally collapsed until text is typed) -->
-            <Button Grid.Column="2" Width="20" Height="20" Background="#E5E7EB" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
+            <Button Grid.Column="2" Width="20" Height="20" Background="{DynamicResource Brush.Surface.Tertiary}" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center"
                     Visibility="{Binding Text, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringToVisibilityConverter}}"
                     Command="{x:Static ApplicationCommands.Stop}">
                 <Button.CommandBindings>
@@ -108,7 +108,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" CornerRadius="10">
                             <Path Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" 
-                                  Fill="#6B7280" Stretch="Uniform" Margin="5"/>
+                                  Fill="{DynamicResource Brush.Text.Secondary}" Stretch="Uniform" Margin="5"/>
                         </Border>
                     </ControlTemplate>
                 </Button.Template>

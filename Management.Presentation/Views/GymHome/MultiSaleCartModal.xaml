@@ -181,7 +181,13 @@
                                             </StackPanel>
                                             <TextBlock Text="{Binding Category}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="14" FontWeight="Bold" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding Price, StringFormat='{}{0:N2} DA'}" 
+                                                   FontSize="14" 
+                                                   FontWeight="Bold" 
+                                                   Foreground="{DynamicResource Brush.Text.Primary}"
+                                                   Margin="0,0,16,0" 
+                                                   VerticalAlignment="Center"/>
                                         
                                         <!-- Row Unselect (VISIBLE ONLY WHEN SELECTED) -->
                                         <Button Grid.Column="2" 
@@ -220,10 +226,10 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14"/>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                             <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.StandardEntry}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0" Foreground="{DynamicResource Brush.Text.Primary}"/>
 
                                         <!-- Row Unselect -->
                                         <Button Grid.Column="2" 
@@ -283,15 +289,7 @@
 
                                                 <ListBox Grid.Row="1" ItemsSource="{Binding SearchedMembers}" 
                                                          Style="{StaticResource ListBox.SearchPopup}"
-                                                         ItemTemplate="{StaticResource MemberSearchResultTemplate}"
-                                                         Visibility="{Binding SearchedMembers.Count, Converter={StaticResource IntToVisibilityConverter}}">
-                                                    <i:Interaction.Triggers>
-                                                        <i:EventTrigger EventName="SelectionChanged">
-                                                            <i:InvokeCommandAction Command="{Binding SelectMemberCommand}" 
-                                                                                    CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
-                                                        </i:EventTrigger>
-                                                    </i:Interaction.Triggers>
-                                                </ListBox>
+                                                         ItemTemplate="{StaticResource MemberSearchResultTemplate}"/>
 
                                                 <!-- No Results State -->
                                                 <TextBlock Grid.Row="1" Text="No members found" 
@@ -321,12 +319,18 @@
                                 <!-- Selected Member Badge -->
                                 <Border Background="{DynamicResource StatusInfoBackground}" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
                                     <Grid>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Path Data="{StaticResource IconMember}" Fill="{DynamicResource FacilityAccentBrush}" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
-                                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center"/>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
+                                            <Path Data="{StaticResource IconMembers}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                            <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
-                                        <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
-                                            <Path Data="{StaticResource IconClose}" Fill="{DynamicResource FacilityAccentBrush}" Stretch="Uniform"/>
+                                        
+                                        <Button Grid.Column="1" Command="{Binding ClearSelectedMemberCommand}" Style="{DynamicResource Button.Ghost}" Width="24" Height="24" Padding="6" VerticalAlignment="Center">
+                                            <Path Data="{StaticResource IconClose}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Stretch="Uniform"/>
                                         </Button>
                                     </Grid>
                                 </Border>
@@ -338,9 +342,14 @@
                                 <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,8"/>
                                 <ComboBox ItemsSource="{Binding AvailableDiscounts}"
                                           SelectedItem="{Binding SelectedDiscount}"
-                                          DisplayMemberPath="Name"
                                           Style="{DynamicResource Input.ComboBox}"
-                                          Height="42"/>
+                                          Height="42">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </StackPanel>
                         </Border>
 
@@ -446,7 +455,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" MaxWidth="110" TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" MaxWidth="110" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                                         <!-- Promo Dot -->
@@ -458,7 +467,7 @@
                                                         </Ellipse>
                                                     </StackPanel>
                                                 </StackPanel>
-                                                <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" Margin="12,0" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" Margin="12,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                                 <Button Grid.Column="2" 
                                                         Command="{Binding DataContext.RemoveProductFromCartCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
@@ -477,10 +486,10 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding SelectedWalkInPlan.Name}" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding SelectedWalkInPlan.Name}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                         <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.StandardEntry}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding WalkInCount, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding WalkInCount, StringFormat='x{0}'}" FontSize="13" FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
@@ -489,16 +498,16 @@
                         <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" BorderBrush="{DynamicResource SeparatorStroke}" BorderThickness="1">
                             <StackPanel>
                                 <Grid Margin="0,0,0,6">
-                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.ProductsTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                                    <TextBlock Text="{Binding ProductsTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.ProductsTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                    <TextBlock Text="{Binding ProductsTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                 </Grid>
                                 <Grid Margin="0,0,0,12">
-                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.EntriesTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
-                                    <TextBlock Text="{Binding WalkInTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Modal.MultiSale.EntriesTotal}" FontSize="11" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                                    <TextBlock Text="{Binding WalkInTotal, StringFormat='{}{0:N2} DA'}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                 </Grid>
                                 <Separator Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,12"/>
                                 <StackPanel>
-                                    <TextBlock Text="{DynamicResource Terminology.Global.Total}" FontSize="14" FontWeight="Bold" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Global.Total}" FontSize="14" FontWeight="Bold" Margin="0,0,0,4" Foreground="{DynamicResource Brush.Text.Primary}"/>
                                     <TextBlock Text="{Binding GrandTotal, StringFormat='{}{0:N2} DA'}" FontSize="20" FontWeight="ExtraBold" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Right"/>
                                 </StackPanel>
                             </StackPanel>

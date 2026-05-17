@@ -26,7 +26,7 @@
                            Foreground="{DynamicResource Brush.Text.Secondary}"
                            Margin="0,0,0,4"/>
                 <TextBox Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource Input.Apple}"
+                         Style="{StaticResource Input.Onboarding}"
                          Tag="{DynamicResource Strings.Onboarding\Steps.XXXXXXXXXXXXXXXX}"/>
             </StackPanel>
 
@@ -62,7 +62,7 @@
             <!-- Action -->
             <Button Content="{DynamicResource Strings.Onboarding\Steps.VerifyLicense}" 
                     Command="{Binding VerifyCommand}"
-                    Style="{StaticResource Button.Primary}"/>
+                    Style="{StaticResource Button.Onboarding.Primary}"/>
         </StackPanel>
     </Grid>
 </UserControl>

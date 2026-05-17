@@ -123,7 +123,10 @@ namespace Management.Presentation.Views.Salon
                 total += SelectedService.BasePrice;
             
             Price = total;
-            ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+            System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
+            {
+                ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+            });
         }
 
         private Guid _selectedStaffId;
@@ -138,7 +141,10 @@ namespace Management.Presentation.Views.Salon
                     {
                         SelectedStaff = QualifiedStaff.FirstOrDefault(s => s.Id == value);
                     }
-                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
+                    {
+                        ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    });
                 }
             }
         }
@@ -174,7 +180,10 @@ namespace Management.Presentation.Views.Salon
                         _selectedClientName = SelectedClient.FullName;
                         OnPropertyChanged(nameof(SelectedClientName));
                     }
-                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
+                    {
+                        ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    });
                 }
             }
         }
@@ -206,7 +215,10 @@ namespace Management.Presentation.Views.Salon
                             OnPropertyChanged(nameof(SelectedClientId));
                         }
                     }
-                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
+                    {
+                        ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    });
                 }
             }
         }
@@ -223,7 +235,10 @@ namespace Management.Presentation.Views.Salon
                     {
                         SelectedService = AvailableServices.FirstOrDefault(s => s.Id == value);
                     }
-                    ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    System.Windows.Application.Current?.Dispatcher.InvokeAsync(() => 
+                    {
+                        ((CommunityToolkit.Mvvm.Input.AsyncRelayCommand)SaveCommand).NotifyCanExecuteChanged();
+                    });
                 }
             }
         }

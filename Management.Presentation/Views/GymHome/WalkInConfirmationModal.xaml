@@ -23,7 +23,7 @@
                         <Border x:Name="ItemBorder" 
                                 CornerRadius="14" 
                                 BorderThickness="1.5" 
-                                BorderBrush="#E5E7EB"
+                                BorderBrush="{DynamicResource SeparatorStroke}"
                                 Background="{DynamicResource Brush.Surface.Glass}"
                                 Padding="16"
                                 Margin="0,0,8,12"
@@ -40,7 +40,7 @@
                                         Width="20" Height="20" 
                                         CornerRadius="10" 
                                         BorderThickness="2" 
-                                        BorderBrush="#D1D5DB"
+                                        BorderBrush="{DynamicResource Brush.Text.Tertiary}"
                                         Margin="0,0,16,0"
                                         VerticalAlignment="Center">
                                     <Ellipse x:Name="CheckMark" 
@@ -67,7 +67,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#F0FDFA"/> <!-- Very light primary tint -->
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
                                 <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
                                 <Setter TargetName="IndicatorBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="PriceText" Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
@@ -86,8 +86,8 @@
         <Style x:Key="StepperButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
-            <Setter Property="Background" Value="#F3F4F6"/>
-            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Background" Value="{DynamicResource SurfaceBgDim}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -97,7 +97,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource SurfaceAccentBg}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="border" Property="Opacity" Value="0.7"/>
@@ -144,7 +144,7 @@
                         CornerRadius="16" 
                         Padding="24"
                         Margin="0,0,0,24"
-                        BorderBrush="#F3F4F6"
+                        BorderBrush="{DynamicResource SeparatorStroke}"
                         BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Quantity}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
@@ -175,7 +175,7 @@
                         CornerRadius="16" 
                         Padding="24"
                         Margin="0,0,0,24"
-                        BorderBrush="#F3F4F6"
+                        BorderBrush="{DynamicResource SeparatorStroke}"
                         BorderThickness="1">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
@@ -183,9 +183,13 @@
                         
                         <ComboBox ItemsSource="{Binding AvailableDiscounts}"
                                   SelectedItem="{Binding SelectedDiscount}"
-                                  DisplayMemberPath="Name"
                                   Style="{DynamicResource Input.ComboBox}"
                                   HorizontalAlignment="Stretch">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                             <ComboBox.ItemContainerStyle>
                                 <Style TargetType="ComboBoxItem">
                                     <Setter Property="Padding" Value="12,8"/>
@@ -223,10 +227,10 @@
                 <Border Background="{DynamicResource Brush.Surface.Glass}" 
                         CornerRadius="16" 
                         Padding="24"
-                        BorderBrush="#F3F4F6"
+                        BorderBrush="{DynamicResource SeparatorStroke}"
                         BorderThickness="1">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Terminology.Global.Summary}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,16"/>
+                        <TextBlock Text="{DynamicResource Terminology.Global.Summary}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,16"/>
                         
                         <!-- Stacked Price Layout to prevent overlap -->
                         <StackPanel Margin="0,0,0,16">
@@ -247,8 +251,8 @@
                                        HorizontalAlignment="Right"/>
                         </Grid>
 
-                        <Border Height="1" Background="#F3F4F6" Margin="0,0,0,20"/>
-                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Ready}" FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" TextWrapping="Wrap" TextAlignment="Center"/>
+                        <Border Height="1" Background="{DynamicResource SeparatorStroke}" Margin="0,0,0,20"/>
+                        <TextBlock Text="{DynamicResource Terminology.GymHome.WalkIn.Ready}" FontSize="12" Foreground="{DynamicResource Brush.Text.Primary}" TextWrapping="Wrap" TextAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

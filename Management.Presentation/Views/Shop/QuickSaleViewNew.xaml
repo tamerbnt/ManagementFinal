@@ -171,19 +171,10 @@
 
                                              <ListBox Grid.Row="1" ItemsSource="{Binding SearchedMembers}" 
                                                       Style="{StaticResource ListBox.SearchPopup}"
-                                                      ItemTemplate="{StaticResource MemberSearchResultTemplate}"
-                                                      Visibility="{Binding SearchedMembers.Count, Converter={StaticResource IntToVisibilityConverter}}">
-                                                 <i:Interaction.Triggers>
-                                                     <i:EventTrigger EventName="SelectionChanged">
-                                                         <i:InvokeCommandAction Command="{Binding SelectMemberCommand}" 
-                                                                                 CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource AncestorType=ListBox}}"/>
-                                                     </i:EventTrigger>
-                                                 </i:Interaction.Triggers>
-                                             </ListBox>
+                                                      ItemTemplate="{StaticResource MemberSearchResultTemplate}"/>
                                              
                                              <!-- No Results State -->
                                              <TextBlock Grid.Row="1" Text="No members found" 
-                                                        Visibility="{Binding IsMemberSearching, Converter={StaticResource BoolToVis}, ConverterParameter=Inverse}"
                                                         HorizontalAlignment="Center" Margin="20" 
                                                         Foreground="{DynamicResource Brush.Text.Tertiary}">
                                                  <TextBlock.Style>
@@ -210,28 +201,38 @@
                             <!-- Selected Member Badge -->
                             <Border Background="{DynamicResource StatusInfoBackground}" CornerRadius="10" Padding="10,6" Visibility="{Binding SelectedMember, Converter={StaticResource NullToVisibilityConverter}}">
                                 <Grid>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Data="{StaticResource IconMember}" Fill="{DynamicResource FacilityAccentBrush}" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
-                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center"/>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
+                                        <Path Data="{StaticResource IconMembers}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.5" Width="14" Height="14" Margin="0,0,8,0" Stretch="Uniform"/>
+                                        <TextBlock Text="{Binding SelectedMember.FullName}" FontWeight="Bold" Foreground="{DynamicResource FacilityAccentBrush}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
-                                    <Button Command="{Binding ClearSelectedMemberCommand}" HorizontalAlignment="Right" Style="{DynamicResource Button.Ghost}" Width="20" Height="20" Padding="5">
-                                        <Path Data="{StaticResource IconClose}" Fill="{DynamicResource FacilityAccentBrush}" Stretch="Uniform"/>
+                                    
+                                    <Button Grid.Column="1" Command="{Binding ClearSelectedMemberCommand}" Style="{DynamicResource Button.Ghost}" Width="24" Height="24" Padding="6" VerticalAlignment="Center">
+                                        <Path Data="{StaticResource IconClose}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="2" Stretch="Uniform"/>
                                     </Button>
                                 </Grid>
                             </Border>
                         </StackPanel>
                     </Border>
                     <!-- 1.5. MANUAL DISCOUNT -->
-                    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">
+                    <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="{DynamicResource Brush.Border.Subtle}" BorderThickness="1">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
                             
                             <ComboBox ItemsSource="{Binding AvailableDiscounts}"
                                       SelectedItem="{Binding SelectedDiscount}"
-                                      DisplayMemberPath="Name"
                                       Style="{DynamicResource Input.ComboBox}"
                                       HorizontalAlignment="Stretch"
                                       Height="42">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
                                 <ComboBox.ItemContainerStyle>
                                     <Style TargetType="ComboBoxItem">
                                         <Setter Property="Padding" Value="12,8"/>
@@ -244,7 +245,7 @@
                     <!-- 2. ACTIVE SALE SUMMARY -->
                     <Border Background="{DynamicResource Brush.Surface.Glass}" CornerRadius="16" Padding="20" Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.ActiveSale}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Tertiary}" Margin="0,0,0,12"/>
+                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickSale.ActiveSale}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,12"/>
                             
                             <Grid Visibility="{Binding SelectedProduct, Converter={StaticResource NullToVisibilityConverter}}">
                                 <StackPanel>
@@ -269,9 +270,9 @@
                                                    VerticalAlignment="Bottom"/>
                                         
                                         <!-- Discount Badge -->
-                                        <Border Background="#D1FAE5" CornerRadius="12" Padding="8,2" Margin="10,0,0,4" VerticalAlignment="Bottom"
+                                        <Border Background="{DynamicResource StatusSuccessBackground}" CornerRadius="12" Padding="8,2" Margin="10,0,0,4" VerticalAlignment="Bottom"
                                                 Visibility="{Binding IsDiscounted, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                                            <TextBlock Text="{Binding AppliedPromotionName}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}"/>
                                         </Border>
                                     </StackPanel>
                                 </StackPanel>

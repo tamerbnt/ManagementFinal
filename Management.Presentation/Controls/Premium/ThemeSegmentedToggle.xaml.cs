@@ -34,6 +34,17 @@ namespace Management.Presentation.Controls.Premium
 
         private void UpdateVisualState(bool animate = true)
         {
+            // Update icon colors based on theme - this works even if ActualWidth is 0
+            var activeBrush = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as Brush;
+            var inactiveBrush = System.Windows.Application.Current.TryFindResource("TextTertiaryBrush") as Brush;
+
+            if (activeBrush != null && inactiveBrush != null)
+            {
+                SunIcon.Stroke = IsDarkTheme ? inactiveBrush : activeBrush;
+                MoonIcon.Fill = IsDarkTheme ? activeBrush : inactiveBrush;
+            }
+
+            // Only proceed with pill translation if the control has been measured
             if (this.ActualWidth == 0) return;
 
             double panelWidth = this.ActualWidth - 4; // Border padding (2 on each side)
@@ -60,13 +71,6 @@ namespace Management.Presentation.Controls.Premium
                 PillTranslate.BeginAnimation(TranslateTransform.XProperty, null);
                 PillTranslate.X = targetTranslate;
             }
-
-            // Update icon colors based on theme
-            var activeBrush = System.Windows.Application.Current.TryFindResource("TextPrimaryBrush") as Brush;
-            var inactiveBrush = System.Windows.Application.Current.TryFindResource("TextTertiaryBrush") as Brush;
-
-            SunIcon.Stroke = IsDarkTheme ? inactiveBrush : activeBrush;
-            MoonIcon.Fill = IsDarkTheme ? activeBrush : inactiveBrush;
         }
 
         private void LightButton_Click(object sender, RoutedEventArgs e) => IsDarkTheme = false;

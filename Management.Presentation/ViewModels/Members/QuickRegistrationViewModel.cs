@@ -171,6 +171,12 @@ namespace Management.Presentation.ViewModels.Members
         }
  
         [RelayCommand]
+        private void SelectMember(MemberDto member)
+        {
+            SelectedLead = member;
+        }
+
+        [RelayCommand]
         private async Task SearchLeadsAsync()
         {
             if (string.IsNullOrWhiteSpace(LeadSearchQuery)) return;

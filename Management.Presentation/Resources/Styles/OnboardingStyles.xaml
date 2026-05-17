@@ -7,7 +7,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!-- Input Style (TextBox/PasswordBox) -->
-    <Style x:Key="Input.Apple" TargetType="TextBox">
+    <Style x:Key="Input.Onboarding" TargetType="TextBox">
         <Setter Property="Background" Value="#FAFAFA" />
         <Setter Property="BorderBrush" Value="#E2E8F0" />
         <Setter Property="BorderThickness" Value="0,0,0,2" />
@@ -161,7 +161,7 @@
     </Style>
 
     <!-- Primary Button Style -->
-    <Style x:Key="Button.Primary" TargetType="Button">
+    <Style x:Key="Button.Onboarding.Primary" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource Brush.Brand.Primary}" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -225,7 +225,7 @@
     </Style>
 
     <!-- PasswordBox Style -->
-    <Style x:Key="Input.Apple.Password" TargetType="PasswordBox">
+    <Style x:Key="Input.Onboarding.Password" TargetType="PasswordBox">
         <Setter Property="Background" Value="#FAFAFA" />
         <Setter Property="BorderBrush" Value="#E2E8F0" />
         <Setter Property="BorderThickness" Value="0,0,0,2" />

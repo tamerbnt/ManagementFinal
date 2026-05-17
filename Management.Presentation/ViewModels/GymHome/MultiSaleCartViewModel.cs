@@ -84,6 +84,7 @@ namespace Management.Presentation.ViewModels.GymHome
         private ObservableRangeCollection<WalkInPlanDto> _filteredWalkInPlans = new();
 
         private WalkInPlanDto? _selectedWalkInPlan;
+
         public WalkInPlanDto? SelectedWalkInPlan
         {
             get => _selectedWalkInPlan;
@@ -91,6 +92,10 @@ namespace Management.Presentation.ViewModels.GymHome
             {
                 if (SetProperty(ref _selectedWalkInPlan, value))
                 {
+                    if (value != null && WalkInCount == 0)
+                    {
+                        WalkInCount = 1;
+                    }
                     _ = RecalculateAllPricesAsync();
                     OnPropertyChanged(nameof(WalkInPrice));
                     OnPropertyChanged(nameof(WalkInTotal));

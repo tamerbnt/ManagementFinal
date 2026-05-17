@@ -39,12 +39,12 @@
                 <!-- Inputs -->
                 <StackPanel Margin="0,0,0,16">
                     <TextBlock Text="{DynamicResource Strings.Auth.BUSINESSNAME}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                    <TextBox Text="{Binding BusinessName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Onboarding}"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,0,16">
                     <TextBlock Text="{DynamicResource Strings.FinanceAndStaff.PhoneNumber}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                    <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Onboarding}"/>
                 </StackPanel>
 
                 <StackPanel Margin="0,0,0,16">
@@ -58,7 +58,7 @@
                 <StackPanel Margin="0,0,0,32">
                     <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.Address}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
                     <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}" 
-                             Style="{StaticResource Input.Apple}" 
+                             Style="{StaticResource Input.Onboarding}" 
                              Height="100" TextWrapping="Wrap" AcceptsReturn="True"
                              VerticalContentAlignment="Top" Padding="12"/>
                 </StackPanel>

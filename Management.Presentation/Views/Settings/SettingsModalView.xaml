@@ -766,11 +766,10 @@
                 <!-- SIDEBAR (Floating Island) -->
                 <Border Grid.Column="0" 
                         Background="{DynamicResource FacilitySidebarBrush}"
-                        CornerRadius="16"
-                        Margin="12,12,0,12"
-                        BorderBrush="{DynamicResource SeparatorStroke}"
-                        BorderThickness="0,0,1,1"
-                        Opacity="0.4">
+                        CornerRadius="18"
+                        Margin="12"
+                        BorderBrush="{DynamicResource Brush.Surface.Glass.Standard}"
+                        BorderThickness="1">
                     <Grid Margin="20,28">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -827,7 +826,8 @@
                                                                     Background="{DynamicResource FacilityAccentBrush}"
                                                                     CornerRadius="2"
                                                                     Margin="-16,0,12,0"
-                                                                    Visibility="Collapsed">
+                                                                    Visibility="Visible"
+                                                                    Opacity="0">
                                                                 <Border.RenderTransform>
                                                                     <TranslateTransform X="-10"/>
                                                                 </Border.RenderTransform>
@@ -874,8 +874,8 @@
                                                                 <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
                                                             </MultiBinding>
                                                         </DataTrigger.Binding>
-                                                        <Setter TargetName="Border" Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
-                                                        <Setter TargetName="ActivePill" Property="Visibility" Value="Collapsed"/>
+                                                        <Setter TargetName="Border" Property="Background" Value="{DynamicResource Brush.Sidebar.Hover}"/>
+                                                        <Setter TargetName="ActivePill" Property="Opacity" Value="1"/>
                                                         <DataTrigger.EnterActions>
                                                             <BeginStoryboard>
                                                                 <Storyboard>
@@ -902,7 +902,7 @@
                                                     <Binding Path="CommandParameter" RelativeSource="{RelativeSource Self}"/>
                                                 </MultiBinding>
                                             </DataTrigger.Binding>
-                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource Brush.Sidebar.Text.Active}"/>
                                             <Setter Property="FontWeight" Value="SemiBold"/>
                                         </DataTrigger>
                                     </Style.Triggers>

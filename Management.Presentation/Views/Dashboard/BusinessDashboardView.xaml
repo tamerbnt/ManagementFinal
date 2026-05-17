@@ -1,0 +1,843 @@
+<UserControl x:Class="Management.Presentation.Views.Dashboard.BusinessDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+             xmlns:data="clr-namespace:Management.Presentation.Components.Data"
+             xmlns:controls="clr-namespace:Management.Presentation.Resources.Controls"
+             xmlns:shell="clr-namespace:Management.Presentation.ViewModels.Shell"
+             xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:dashcomps="clr-namespace:Management.Presentation.Components.Dashboard"
+             xmlns:dash="clr-namespace:Management.Presentation.Views.Dashboard.Components"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <controls:BindingProxy x:Key="Proxy" Data="{Binding}" />
+        <converters:TerminologyConverter x:Key="TerminologyConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:BoolToVisibilityInverseConverter x:Key="BoolToVisibilityInverseConverter"/>
+        <converters:EqualToVisibilityConverter x:Key="EqualToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+
+        <!-- Mini Mode Toggle for Detail/Summary switching in Cards -->
+        <Style x:Key="Style.MiniModeToggle" TargetType="ToggleButton">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Width" Value="80" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Track" Background="{DynamicResource Brush.Surface.Header}" CornerRadius="14" BorderBrush="{DynamicResource Brush.Surface.Border}" BorderThickness="1">
+                            <Grid>
+                                <!-- Icons -->
+                                <Grid Margin="8,0">
+                                    <Path x:Name="GraphIcon" Data="M19,3H5C3.89,3 3,3.9 3,5V19C3,20.1 3.89,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.9 20.1,3 19,3M9,17H7V10H9V17M13,17H11V7H13V17M17,17H15V12H17V17Z" 
+                                          Fill="#94A3B8" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Left" />
+                                    <Path x:Name="ListIcon" Data="M3,4H21V6H3V4M3,9H21V11H3V9M3,14H21V16H3V14M3,19H21V21H3V19Z" 
+                                          Fill="#94A3B8" Width="12" Height="12" Stretch="Uniform" HorizontalAlignment="Right" />
+                                </Grid>
+                                <!-- Thumb -->
+                                <Border x:Name="Thumb" Background="{DynamicResource Brush.Surface.Primary}" Width="36" Height="22" CornerRadius="11" HorizontalAlignment="Left" Margin="2">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="#000000"/>
+                                    </Border.Effect>
+                                    <Border.RenderTransform>
+                                        <TranslateTransform x:Name="ThumbTransform" X="0" />
+                                    </Border.RenderTransform>
+                                </Border>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ThumbTransform" Storyboard.TargetProperty="X" To="38" Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ThumbTransform" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Premium Dashboard Mode Toggle Style -->
+        <Style x:Key="Style.DashboardModeToggle" TargetType="ToggleButton">
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Width" Value="250" /> <!-- Slightly wider to accommodate track arrows -->
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <!-- Outer Track (Grey/Dark Pill) -->
+                            <Border x:Name="Track" 
+                                    Background="{DynamicResource Brush.Surface.Header}" 
+                                    CornerRadius="22" 
+                                    BorderBrush="{DynamicResource Brush.Surface.Border}" 
+                                    BorderThickness="1.5">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusinessMode}" Value="True">
+                                                <Setter Property="Background" Value="#1E293B"/>
+                                                <Setter Property="BorderBrush" Value="#475569"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                            </Border>
+
+                            <!-- Stationary Arrows (In the Track Area) -->
+                            <Grid Margin="16,0">
+                                <!-- Back Arrow (Visible on the left when thumb is on the right) -->
+                                <Path x:Name="BackArrow" 
+                                      Data="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" 
+                                      Fill="White" 
+                                      Width="14" Height="14" Stretch="Uniform" 
+                                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                                      Opacity="0" Visibility="Visible"/>
+                                      
+                                <!-- Forward Arrow (Visible on the right when thumb is on the left) -->
+                                <Path x:Name="ForwardArrow" 
+                                      Data="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" 
+                                      Fill="{DynamicResource FacilityAccentBrush}" 
+                                      Width="14" Height="14" Stretch="Uniform" 
+                                      HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      Opacity="1" Visibility="Visible"/>
+                            </Grid>
+
+                            <!-- Animated Thumb (The Moving Pill) -->
+                            <Border x:Name="Thumb" 
+                                    Background="White" 
+                                    CornerRadius="19" 
+                                    Margin="3" 
+                                    HorizontalAlignment="Left"
+                                    Width="184"
+                                    Effect="{DynamicResource Shadow.Level2}">
+                                <Border.RenderTransform>
+                                    <TranslateTransform x:Name="ThumbTransform" X="0" />
+                                </Border.RenderTransform>
+                                <TextBlock x:Name="ThumbText" 
+                                           Text="{DynamicResource Terminology.Dashboard.View.SwitchToBusiness}" 
+                                           FontWeight="Bold" 
+                                           FontSize="11" 
+                                           Foreground="#1E293B" 
+                                           VerticalAlignment="Center" 
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                 <Setter TargetName="ThumbText" Property="Text" Value="{DynamicResource Terminology.Dashboard.View.SwitchToOperations}" />
+                                 <Setter TargetName="ThumbText" Property="Foreground" Value="White" />
+                                 <Setter TargetName="Thumb" Property="Background" Value="{DynamicResource FacilityAccentBrush}" />
+                                 <Trigger.EnterActions>
+                                     <BeginStoryboard>
+                                         <Storyboard>
+                                             <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                              Storyboard.TargetProperty="X" 
+                                                              To="60" Duration="0:0:0.35">
+                                                 <DoubleAnimation.EasingFunction>
+                                                     <QuarticEase EasingMode="EaseInOut" />
+                                                 </DoubleAnimation.EasingFunction>
+                                             </DoubleAnimation>
+                                             <DoubleAnimation Storyboard.TargetName="ForwardArrow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15" />
+                                             <DoubleAnimation Storyboard.TargetName="BackArrow" Storyboard.TargetProperty="Opacity" To="1" BeginTime="0:0:0.2" Duration="0:0:0.15" />
+                                         </Storyboard>
+                                     </BeginStoryboard>
+                                 </Trigger.EnterActions>
+                                 <Trigger.ExitActions>
+                                     <BeginStoryboard>
+                                         <Storyboard>
+                                             <DoubleAnimation Storyboard.TargetName="ThumbTransform" 
+                                                              Storyboard.TargetProperty="X" 
+                                                              To="0" Duration="0:0:0.35">
+                                                 <DoubleAnimation.EasingFunction>
+                                                     <QuarticEase EasingMode="EaseInOut" />
+                                                 </DoubleAnimation.EasingFunction>
+                                             </DoubleAnimation>
+                                             <DoubleAnimation Storyboard.TargetName="BackArrow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15" />
+                                             <DoubleAnimation Storyboard.TargetName="ForwardArrow" Storyboard.TargetProperty="Opacity" To="1" BeginTime="0:0:0.2" Duration="0:0:0.15" />
+                                         </Storyboard>
+                                     </BeginStoryboard>
+                                 </Trigger.ExitActions>
+                            </Trigger>
+                            
+                            <Trigger Property="IsMouseOver" Value="True">
+                                 <Setter TargetName="Thumb" Property="Effect" Value="{DynamicResource Shadow.Level3}" />
+                            </Trigger>
+
+                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                <Setter Property="IsEnabled" Value="False"/>
+                                <Setter Property="Opacity" Value="0.6"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BounceValueStyle" TargetType="TextBlock">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.1" Duration="0:0:0.3">
+                                <DoubleAnimation.EasingFunction>
+                                    <ElasticEase Oscillations="2" Springiness="3"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.1" Duration="0:0:0.3">
+                                <DoubleAnimation.EasingFunction>
+                                    <ElasticEase Oscillations="2" Springiness="3"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.2"/>
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.2"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+<ScrollViewer Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
+            
+            <Grid Grid.IsSharedSizeScope="True">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsBusinessMode}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" /> <!-- Row 0 -->
+                    <RowDefinition Height="Auto" /> <!-- Row 1 -->
+                    <RowDefinition Height="Auto" /> <!-- Row 2 -->
+                    <RowDefinition Height="Auto" /> <!-- Row 3 -->
+                    <RowDefinition Height="Auto" /> <!-- Row 4 -->
+                </Grid.RowDefinitions>
+            
+            <!-- Top Section: KPI + Financial Cards (Left) & Analytics Chart (Right) -->
+            <!-- Master 2-column layout: Left=Auto (KPI+Cards stacked), Right=* (Chart spanning both rows) -->
+            <Grid Grid.Row="0" Grid.RowSpan="2" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" /> <!-- Left: KPI scoreboard + Financial cards -->
+                    <ColumnDefinition Width="*" />    <!-- Right: Analytics chart filling full height -->
+                </Grid.ColumnDefinitions>
+
+                <!-- LEFT COLUMN: KPI Scoreboard stacked above Financial Cards -->
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+
+                    <!-- KPI Scoreboard -->
+                    <dash:KpiScoreboard Margin="0,0,0,16" />
+
+                    <!-- Financial Cards Row -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*" /> <!-- Net Profit Hero -->
+                            <ColumnDefinition Width="1*" />   <!-- Revenue -->
+                            <ColumnDefinition Width="1*" />   <!-- Expenses -->
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 1. Master Financial Card (Net Profit) -->
+                        <Border Grid.Column="0" Margin="0,0,16,0" CornerRadius="16" Height="130" Background="{DynamicResource FacilitySidebarBrush}">
+                            <Grid Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="White" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.NetProfitToday}" Foreground="White" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding FinancialSummary.NetProfit, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                               Style="{StaticResource BounceValueStyle}"
+                                               Foreground="White" FontSize="36" FontWeight="Bold">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding FinancialSummary.NetProfit, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                </Viewbox>
+                                <Border Grid.Row="2" Background="{Binding FinancialSummary.NetProfitPercentChange, Converter={StaticResource TrendToBrushConverter}, ConverterParameter='NetProfit_Background'}" CornerRadius="12" HorizontalAlignment="Left" Padding="8,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{Binding FinancialSummary.NetProfitPercentChange, Converter={StaticResource TrendToIconConverter}, ConverterParameter='NetProfit_Icon'}" Stroke="White" StrokeThickness="2" Width="10" Height="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding FinancialSummary.NetProfitPercentChange, StringFormat='{}{0:F1}% '}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{DynamicResource Terminology.Dashboard.VsYesterday}" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- 2. Revenue Card -->
+                        <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0" Height="130">
+                            <Border.Effect>
+                                <StaticResource ResourceKey="Shadow.Level2" />
+                            </Border.Effect>
+                            <Grid Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="#A78BFA" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Revenue}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                               Style="{StaticResource BounceValueStyle}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="28" FontWeight="Bold">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding FinancialSummary.Revenue, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                </Viewbox>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FinancialSummary.RevenuePercentChange, StringFormat='{}{0:F1}%'}" Foreground="{Binding FinancialSummary.RevenuePercentChange, Converter={StaticResource TrendToTextBrushConverter}, ConverterParameter='Revenue'}" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.VsYesterday}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- 3. Expenses Card -->
+                        <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="130">
+                            <Border.Effect>
+                                <StaticResource ResourceKey="Shadow.Level2" />
+                            </Border.Effect>
+                            <Grid Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                    <Path Data="{DynamicResource IconFinance}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.Expenses}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding FinancialSummary.Expenses, Converter={StaticResource AbbreviatedCurrencyConverter}}" 
+                                               Style="{StaticResource BounceValueStyle}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}" FontSize="28" FontWeight="Bold">
+                                        <TextBlock.ToolTip>
+                                            <ToolTip Content="{Binding FinancialSummary.Expenses, Converter={StaticResource AbbreviatedCurrencyConverter}, ConverterParameter=Full}" Style="{StaticResource ToolTip.Standard}"/>
+                                        </TextBlock.ToolTip>
+                                    </TextBlock>
+                                </Viewbox>
+                                <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FinancialSummary.ExpensesPercentChange, StringFormat='{}{0:F1}%'}" Foreground="{Binding FinancialSummary.ExpensesPercentChange, Converter={StaticResource TrendToTextBrushConverter}, ConverterParameter='Expenses'}" FontSize="12" FontWeight="Bold"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.VsYesterday}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+
+                <!-- RIGHT COLUMN: Analytics Chart — fills full height of KPI + Financial rows -->
+                <Border Grid.Column="1" Margin="16,0,0,0" CornerRadius="16" Background="{DynamicResource CardBackgroundBrush}" BorderThickness="0">
+                    <Grid Margin="16,12">
+                        <!-- Gym Mode: Source of Acquisition -->
+                        <Grid Visibility="{Binding IsGymMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberSources}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.AcquisitionBI}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                            </StackPanel>
+                            <lvc:PieChart Grid.Column="1" Series="{Binding GymAcquisitionSeries}" InitialRotation="-90" MaxAngle="360" LegendPosition="Right" LegendTextPaint="{DynamicResource TextTertiaryPaint}" LegendTextSize="10" />
+                        </Grid>
+
+                        <!-- Salon Mode: Acquisition Sources (Unified with Gym style) -->
+                        <Grid Visibility="{Binding IsSalonMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.ClientAquisition}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="13"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.SourceDistribution}" Foreground="{DynamicResource TextTertiaryBrush}" FontSize="11"/>
+                            </StackPanel>
+                            <lvc:PieChart Grid.Column="1" Series="{Binding SalonAcquisitionSeries}" InitialRotation="-90" MaxAngle="360" LegendPosition="Right" LegendTextPaint="{DynamicResource TextTertiaryPaint}" LegendTextSize="10" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Row 2: Charts & Lists -->
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" /> <!-- Revenue Trend -->
+                    <RowDefinition Height="Auto" /> <!-- Marketing BI -->
+                    <RowDefinition Height="Auto" /> <!-- Lists/Retention -->
+                </Grid.RowDefinitions>
+
+                <!-- NEW: High-Fidelity Revenue Trend Chart -->
+                <Border Grid.Row="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,24" Height="350">
+                    <Grid Margin="24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RevenueTrend}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" FontSize="16" Opacity="0.8"/>
+                                <TextBlock Text="{Binding FormattedRevenueTrendMonth}" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="ExtraBold" FontSize="22" Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Command="{Binding PreviousRevenueTrendMonthCommand}" Style="{DynamicResource IconButtonStyle}" Margin="0,0,8,0">
+                                    <Path Data="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" Fill="{DynamicResource TextTertiaryBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                                </Button>
+                                <Button Command="{Binding NextRevenueTrendMonthCommand}" Style="{DynamicResource IconButtonStyle}">
+                                    <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" Fill="{DynamicResource TextTertiaryBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                        <lvc:CartesianChart Grid.Row="1" Series="{Binding RevenueSeries}" XAxes="{Binding RevenueXAxes}" YAxes="{Binding RevenueYAxes}" TooltipPosition="Top"/>
+                        <ProgressBar Grid.Row="1" IsIndeterminate="True" Visibility="{Binding IsRevenueTrendLoading, Converter={StaticResource BoolToVisibilityConverter}}" Height="2" VerticalAlignment="Top" Background="Transparent" Foreground="{DynamicResource FacilityAccentBrush}"/>
+                    </Grid>
+                </Border>
+
+                <!-- Row 1: NEW BI MARKETING CHARTS -->
+                <Grid Grid.Row="1" Visibility="{Binding IsGymMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Visit Frequency -->
+                    <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,24" Height="250">
+                        <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.VisitFrequency}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding FrequencySeries}" XAxes="{Binding FrequencyXAxes}" YAxes="{Binding FrequencyYAxes}" TooltipPosition="Top"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Member Growth -->
+                    <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,24" Height="250">
+                        <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.GrowthTrend}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding GrowthSeries}" XAxes="{Binding GrowthXAxes}" YAxes="{Binding GrowthYAxes}" TooltipPosition="Top"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Plan Breakdown -->
+                    <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,24" Height="250">
+                        <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.Chart.MembershipBreakdown}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <lvc:PieChart Grid.Row="1" Series="{Binding PlanBreakdownSeries}" TooltipPosition="Top"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Member Demographics (Age/Gender) -->
+                    <Border Grid.Column="3" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,0,24" Height="250">
+                        <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberDemographics}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}" TooltipPosition="Top"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Row 1 (Alternate): NEW SALON BI CHARTS -->
+                <Grid Grid.Row="1" Visibility="{Binding IsSalonMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" /> <!-- Charts Row 1 -->
+                        <RowDefinition Height="Auto" /> <!-- Charts Row 2 -->
+                    </Grid.RowDefinitions>
+
+
+                    <!-- Row 1: Service Profitability & Demographics -->
+                    <Grid Grid.Row="0" Margin="0,0,0,24">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Service Profitability -->
+                        <Border Grid.Column="0" Margin="0,0,16,0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="350">
+                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                            <Grid Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{DynamicResource Terminology.Salon.BI.ServiceProfitability}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Margin="0,0,0,16"/>
+                                <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonServiceProfitabilitySeries}" XAxes="{Binding SalonServiceProfitabilityXAxes}" YAxes="{Binding SalonServiceProfitabilityYAxes}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Demographics / Sources -->
+                        <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="350">
+                            <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                            <Grid Margin="24">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.MemberDemographics}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                                <lvc:CartesianChart Grid.Row="1" Series="{Binding CombinedDemographicsSeries}" XAxes="{Binding CombinedDemographicsXAxes}" YAxes="{Binding CombinedDemographicsYAxes}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Row 2: Staff BI -->
+                    <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Height="300" Margin="0,0,0,24">
+                        <Border.Effect><StaticResource ResourceKey="Shadow.Level1"/></Border.Effect>
+                        <Grid Margin="24">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Terminology.Salon.BI.StaffPerformance}" Style="{DynamicResource BodyMedium}" FontWeight="Bold" Margin="0,0,0,16"/>
+                            <lvc:CartesianChart Grid.Row="1" Series="{Binding SalonStaffPerformanceSeries}" XAxes="{Binding SalonStaffPerformanceXAxes}" YAxes="{Binding SalonStaffPerformanceYAxes}"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Retention Guardian Card (Replaces Recent Transactions) -->
+                    <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0">
+                         <Border.Effect>
+                            <StaticResource ResourceKey="Shadow.Level1"/>
+                        </Border.Effect>
+                        <Grid Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- HEADER: Icon + Label + Toggle -->
+                            <Grid Grid.Row="0" Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{DynamicResource IconMembers}" Stroke="{DynamicResource StatusErrorBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Stat.RetentionGuardian}" FontWeight="Bold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" Opacity="0.8"/>
+                                </StackPanel>
+                                
+                                <ToggleButton Grid.Column="1" Style="{StaticResource Style.MiniModeToggle}" IsChecked="{Binding IsRetentionDetailVisible, Mode=TwoWay}"/>
+                            </Grid>
+
+                            <!-- Subtitle Info -->
+                            <TextBlock Grid.Row="1" Text="{Binding RetentionSummaryText}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                            
+                            <!-- CONTENT: Hybrid Graph/List -->
+                            <Grid Grid.Row="2">
+                                <!-- GRAPH VIEW (Risk Level Distribution) -->
+                                <Grid Visibility="{Binding IsRetentionDetailVisible, Converter={StaticResource BoolToVisibilityInverseConverter}}">
+                                    <lvc:PieChart Series="{Binding RetentionSeries}" LegendPosition="Right" VisualElements="{Binding RetentionVisualElements}" Height="180"/>
+                                </Grid>
+
+                                <!-- LIST VIEW (Top Churn Risks) -->
+                                <ScrollViewer Height="180" Visibility="{Binding IsRetentionDetailVisible, Converter={StaticResource BoolToVisibilityConverter}}" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding ChurnRisks}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource SurfaceBg}" CornerRadius="12" Margin="0,0,0,8" Padding="12,10">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding MemberName}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                                <Border Background="{DynamicResource StatusErrorBrush}" CornerRadius="4" Padding="4,1" Margin="8,0,0,0" 
+                                                                        Visibility="{Binding RiskLevel, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter='High'}">
+                                                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.Status.HighRisk}" FontSize="8" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </StackPanel>
+                                                            <TextBlock Text="{Binding Status}" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+                                                        
+                                                        <Button Grid.Column="1" Command="{Binding Data.ReEngageMemberCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}"
+                                                                Style="{DynamicResource IconButtonStyle}" ToolTip="Send Re-engagement Email">
+                                                            <Path Data="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,18H4V8L12,13L20,8V18M20,6L12,11L4,6V6H20V6Z" 
+                                                                  Fill="{DynamicResource FacilityAccentBrush}" Width="16" Height="16" Stretch="Uniform"/>
+                                                        </Button>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Top Staff / Performance List -->
+                    <Border Grid.Column="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="16" Margin="0,0,16,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSalonMode}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+                                    <Path Data="{DynamicResource IconRunner}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <TextBlock Text="{DynamicResource Terminology.Dashboard.TopPerformingStaff}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Button Content="{DynamicResource Terminology.Dashboard.Range.Today}" Command="{Binding SetStaffFilterCommand}" CommandParameter="Today" Margin="0,0,6,0" Height="24" Padding="10,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                                <Setter Property="FontSize" Value="11"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedStaffFilter}" Value="Today">
+                                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="{DynamicResource Terminology.Dashboard.Range.ThisWeek}" Command="{Binding SetStaffFilterCommand}" CommandParameter="This Week" Margin="0,0,6,0" Height="24" Padding="10,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                                <Setter Property="FontSize" Value="11"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedStaffFilter}" Value="This Week">
+                                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="{DynamicResource Terminology.Dashboard.Range.ThisMonth}" Command="{Binding SetStaffFilterCommand}" CommandParameter="This Month" Height="24" Padding="10,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceBg}"/>
+                                                <Setter Property="FontSize" Value="11"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedStaffFilter}" Value="This Month">
+                                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentBrush}"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+
+                                <ScrollViewer Grid.Row="2" Margin="0,8,0,0" MaxHeight="200" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding StaffPerformance}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Path Data="{DynamicResource IconRunner}" Stroke="{DynamicResource FacilityAccentBrush}" StrokeThickness="1.8" Fill="Transparent" Width="20" Height="20" Stretch="Uniform" VerticalAlignment="Center"/>
+                                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                                                        <TextBlock Text="{Binding StaffName, Converter={StaticResource TerminologyConverter}}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                        <TextBlock FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}">
+                                                            <Run Text="{Binding AppointmentCount}"/><Run Text=" "/><Run Text="{DynamicResource Terminology.Dashboard.Stat.Appointments}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2" Text="{Binding TotalSales, StringFormat='{}{0:N2} DA'}" FontWeight="Bold" Foreground="{DynamicResource StatusSuccessBrush}" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                 </ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                    <!-- Revenue by Plan (Business Slot) -->
+                    <dashcomps:RevenueByPlanCard Grid.Column="1" Margin="0,0,16,0">
+                        <dashcomps:RevenueByPlanCard.Style>
+                            <Style TargetType="dashcomps:RevenueByPlanCard">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSalonMode}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </dashcomps:RevenueByPlanCard.Style>
+                    </dashcomps:RevenueByPlanCard>
+
+                    <!-- Quick Actions -->
+                     <Border Grid.Column="2" Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="16" VerticalAlignment="Stretch">
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- HEADER: Icon + Label -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,12">
+                                <Path Data="{DynamicResource IconDashboard}" Stroke="White" StrokeThickness="1.8" Fill="Transparent" Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                <TextBlock Text="{DynamicResource Terminology.Dashboard.Business.QuickActions}" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            
+                            <Grid Grid.Row="1" Margin="0,2,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="6"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Button Grid.Row="0" Content="{DynamicResource Terminology.Dashboard.Action.RunPayroll}" 
+                                        Command="{Binding RunPayrollCommand}"
+                                        Style="{DynamicResource Button.Primary}" 
+                                        Height="36" FontSize="11" FontWeight="SemiBold"/>
+                                
+                                <Button Grid.Row="2" Content="{DynamicResource Terminology.Dashboard.Action.RevenueHistory}" 
+                                        Command="{Binding OpenRevenueHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <Button Grid.Row="4" Content="{DynamicResource Terminology.Dashboard.Action.OccupancyHistory}" 
+                                        Command="{Binding OpenOccupancyHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+
+                                <Button Grid.Row="6" Content="{DynamicResource Terminology.Dashboard.Action.InventoryHistory}" 
+                                        Command="{Binding OpenInventoryHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <Button Grid.Row="8" Content="{DynamicResource Terminology.Dashboard.QuickActions.PayrollHistory}" 
+                                        Command="{Binding OpenPayrollHistoryCommand}"
+                                        Style="{DynamicResource Button.Ghost}" Height="36" FontSize="11" FontWeight="SemiBold" Background="#20FFFFFF" Foreground="White" BorderBrush="Transparent"/>
+                                
+                                <!-- Animated Button Start -->
+                                <Button Grid.Row="10" Command="{Binding ExportReportCommand}"
+                                        Height="36" BorderThickness="0" Cursor="Hand" Background="Transparent">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="ExportBtn" Background="#20FFFFFF" CornerRadius="8">
+                                                <Grid>
+                                                    <TextBlock x:Name="btnText" Text="{DynamicResource Terminology.Dashboard.Action.ExportReport}" 
+                                                               Foreground="White" FontSize="11" FontWeight="SemiBold" 
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Scan" MarkForeground="White" 
+                                                                                 Width="18" Height="18" Visibility="Collapsed" 
+                                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ExportBtn" Property="Background" Value="#40FFFFFF"/>
+                                                </Trigger>
+                                                <DataTrigger Binding="{Binding IsExportingReport}" Value="True">
+                                                    <Setter TargetName="btnText" Property="Visibility" Value="Collapsed"/>
+                                                    <Setter TargetName="busyAnim" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+
+</UserControl>
+

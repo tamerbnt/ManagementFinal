@@ -17,21 +17,6 @@
     <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
     <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
     
-    <!-- Background Overrides (Cream) -->
-    <SolidColorBrush x:Key="WindowBg" Color="#FEFCEF" />
-    <SolidColorBrush x:Key="ContentAreaBg" Color="#FEFCEF" />
-    <SolidColorBrush x:Key="Brush.Window.Background" Color="#FEFCEF"/>
-    <SolidColorBrush x:Key="Brush.Content.Background" Color="#FEFCEF"/>
-    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#FEFCEF"/>
-    
-    <!-- Card Overrides (Warm White) -->
-    <SolidColorBrush x:Key="SurfaceBg" Color="#FFFDF5" />
-    <SolidColorBrush x:Key="CardBackgroundBrush" Color="#FFFDF5" />
-    <SolidColorBrush x:Key="Brush.Surface.Primary" Color="#FFFDF5"/>
-    <SolidColorBrush x:Key="Brush.Surface.Card" Color="#FFFDF5"/>
-    <SolidColorBrush x:Key="CardBorderBrush" Color="#EFE6D5"/>
-    <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#FFFDF5" Opacity="0.8"/>
-
     <!-- Contrast Tokens (Safety) -->
     <SolidColorBrush x:Key="OnAccentPrimary" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OnAccentSecondary" Color="#FCE7F3"/> 

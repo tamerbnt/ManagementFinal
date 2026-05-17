@@ -91,6 +91,8 @@ using Management.Presentation.Views.Dashboard;
 using Management.Presentation.Views.Shared;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
+using CommunityToolkit.Mvvm.Messaging;
+using Management.Presentation.Messages;
 
 namespace Management.Presentation
 {
@@ -772,6 +774,10 @@ namespace Management.Presentation
                         // Apply palette first, then theme (SetTheme also calls SetFacility which re-applies palette)
                         Management.Presentation.Services.ThemeManager.SetLightPalette(palette);
                         Management.Presentation.Services.ThemeManager.SetTheme(theme, facilityContextService.CurrentFacility);
+
+                        // Surgical Fix: Force UI sync after startup theme application to resolve desynchronized toggle state
+                        WeakReferenceMessenger.Default.Send(new AppearanceChangedMessage(new AppearanceChangeInfo(
+                            theme == Management.Presentation.Services.AppTheme.Light, palette.ToString(), IsThemeChange: true)));
 
                         Serilog.Log.Information("[INIT] Startup theme applied from local prefs: Theme={Theme}, Palette={Palette}", theme, palette);
                     }

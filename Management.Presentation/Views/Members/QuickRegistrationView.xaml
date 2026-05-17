@@ -40,12 +40,39 @@
                                              IconData="{StaticResource IconSearch}"/>
                     
                     <!-- Search Results (Shown only if query active) -->
-                    <ListBox ItemsSource="{Binding LeadResults}" 
-                             SelectedItem="{Binding SelectedLead}"
-                             Visibility="{Binding LeadResults.Count, Converter={StaticResource IntToVisibilityConverter}}"
-                             MaxHeight="250" Margin="0,12,0,0"
-                             Style="{StaticResource ListBox.SearchPopup}"
-                             ItemTemplate="{StaticResource MemberSearchResultTemplate}"/>
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
+                        <!-- Scanning Animation -->
+                        <StackPanel Visibility="{Binding IsSearchingLeads, Converter={StaticResource BoolToVis}}" 
+                                    Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+                            <premium:AtriumMarkAnimation Width="24" Height="24" IsScanning="True"/>
+                            <TextBlock Text="Searching leads..." Margin="8,0,0,0" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                        </StackPanel>
+
+                        <ListBox ItemsSource="{Binding LeadResults}" 
+                                 MaxHeight="250"
+                                 Style="{StaticResource ListBox.SearchPopup}"
+                                 ItemTemplate="{StaticResource MemberSearchResultTemplate}"
+                                 Visibility="{Binding HasLeadResults, Converter={StaticResource BoolToVis}}"/>
+
+                        <!-- No Results State -->
+                        <TextBlock Text="No matches found" HorizontalAlignment="Center" Margin="20" Foreground="{DynamicResource Brush.Text.Tertiary}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding LeadResults.Count}" Value="0"/>
+                                                <Condition Binding="{Binding IsSearchingLeads}" Value="False"/>
+                                                <Condition Binding="{Binding LeadSearchQuery.Length, Converter={StaticResource IsGreaterThanConverter}, ConverterParameter=1}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
                 </StackPanel>
             </Border>
 
@@ -152,8 +179,12 @@
                         <TextBlock Text="{DynamicResource TerminologyManualDiscountLabel}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
                         <ComboBox ItemsSource="{Binding AvailableDiscounts}" 
                                   SelectedItem="{Binding SelectedDiscount}"
-                                  DisplayMemberPath="Name"
                                   Style="{StaticResource Input.ComboBox}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
                         </ComboBox>
                     </StackPanel>
                 </StackPanel>
@@ -164,7 +195,7 @@
                 <Grid>
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconCart}" Fill="{DynamicResource FacilityAccentBrush}" Width="20" Height="20" Margin="0,0,12,0" Stretch="Uniform"/>
-                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.RegistrationTotal}" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource Brush.Text.Secondary}"/>
+                        <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.RegistrationTotal}" VerticalAlignment="Center" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource Brush.Text.Primary}"/>
                     </StackPanel>
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

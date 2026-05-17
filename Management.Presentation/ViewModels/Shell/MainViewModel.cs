@@ -94,6 +94,9 @@ namespace Management.Presentation.ViewModels.Shell
         private bool _isSidebarCollapsed = false;
 
         [ObservableProperty]
+        private bool _isSidebarAnimating = false;
+
+        [ObservableProperty]
         private bool _isEcoMode;
 
         [ObservableProperty]
@@ -525,9 +528,12 @@ namespace Management.Presentation.ViewModels.Shell
         }
 
         [RelayCommand]
-        private void ToggleSidebar()
+        private async Task ToggleSidebar()
         {
+            IsSidebarAnimating = true;
             IsSidebarCollapsed = !IsSidebarCollapsed;
+            await Task.Delay(300);
+            IsSidebarAnimating = false;
         }
 
         [RelayCommand]

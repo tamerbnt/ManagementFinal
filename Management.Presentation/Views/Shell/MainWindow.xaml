@@ -182,7 +182,7 @@
                 
                 <!-- CONTENT PANEL (Transparent Canvas) -->
                 <Border Grid.Row="2" Background="Transparent">
-                    <ContentControl Content="{Binding CurrentView}" Focusable="False" RenderOptions.CachingHint="Cache"/>
+                    <ContentControl Content="{Binding CurrentView}" Focusable="False"/>
                 </Border>
             </Grid>
         </Grid>

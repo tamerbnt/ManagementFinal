@@ -88,19 +88,133 @@
 
     <!-- Section 6: DatePicker Styles -->
     <Style x:Key="DatePickerField" TargetType="DatePicker">
+        <Style.Resources>
+            <!-- 1. Custom DatePickerTextBox to strip legacy Aero border and background -->
+            <Style TargetType="DatePickerTextBox">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DatePickerTextBox">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" 
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 2. Custom CalendarDayButton for beautiful circular pills -->
+            <Style TargetType="CalendarDayButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="MinWidth" Value="32"/>
+                <Setter Property="MinHeight" Value="32"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CalendarDayButton">
+                            <Grid Margin="1">
+                                <!-- Selected highlight (rose/amber depending on brand) -->
+                                <Border x:Name="SelectedBackground"
+                                        Background="{DynamicResource FacilityAccentBrush}"
+                                        CornerRadius="16"
+                                        Visibility="Collapsed"
+                                        Width="32" Height="32"/>
+                                <!-- Hover highlight -->
+                                <Border x:Name="HoverBackground"
+                                        Background="{DynamicResource Brush.Surface.Hover}"
+                                        CornerRadius="16"
+                                        Visibility="Collapsed"
+                                        Width="32" Height="32"/>
+                                
+                                <ContentPresenter x:Name="NormalText"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Margin="5,1,5,1"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="SelectedBackground" Property="Visibility" Value="Visible"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentPrimary}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="HoverBackground" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                                <Trigger Property="IsInactive" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Tertiary}"/>
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="True"/>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="HoverBackground" Property="Visibility" Value="Collapsed"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 3. Custom CalendarButton for beautiful Month/Year selection pills -->
+            <Style TargetType="CalendarButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="CalendarButton">
+                            <Grid Margin="2">
+                                <Border x:Name="SelectedBackground"
+                                        Background="{DynamicResource FacilityAccentBrush}"
+                                        CornerRadius="8"
+                                        Visibility="Collapsed"/>
+                                <Border x:Name="HoverBackground"
+                                        Background="{DynamicResource Brush.Surface.Hover}"
+                                        CornerRadius="8"
+                                        Visibility="Collapsed"/>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="HasSelectedDays" Value="True">
+                                    <Setter TargetName="SelectedBackground" Property="Visibility" Value="Visible"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentPrimary}"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="HoverBackground" Property="Visibility" Value="Visible"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 4. Modern Calendar background and border -->
+            <Style TargetType="Calendar">
+                <Setter Property="Background" Value="{DynamicResource Brush.Surface.Card}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Brush.Text.Primary}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+            </Style>
+        </Style.Resources>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="#F8FAFC"/>
-        <Setter Property="BorderBrush" Value="#E2E8F0"/>
+        <Setter Property="Background" Value="{DynamicResource Brush.Surface.Card}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border.Subtle}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Padding" Value="12,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Height" Value="44"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="DatePicker">
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="14"
                             Padding="{TemplateBinding Padding}">
                         <Grid x:Name="PART_Root">
                             <Grid.ColumnDefinitions>
@@ -109,23 +223,30 @@
                             </Grid.ColumnDefinitions>
                             <DatePickerTextBox x:Name="PART_TextBox"
                                               Grid.Column="0"
+                                              Background="Transparent"
+                                              BorderThickness="0"
                                               Focusable="{TemplateBinding Focusable}"
                                               HorizontalContentAlignment="Stretch"
-                                              VerticalContentAlignment="Stretch"/>
+                                              VerticalContentAlignment="Center"
+                                              Foreground="{TemplateBinding Foreground}"/>
                             <Button x:Name="PART_Button"
                                     Grid.Column="1"
-                                    Margin="4,0,0,0"
+                                    Margin="8,0,0,0"
                                     Style="{DynamicResource IconButtonStyle}">
-                                <Path Data="{StaticResource IconCalendar}"
-                                      Fill="{DynamicResource TextTertiaryBrush}"
-                                      Style="{StaticResource Style.Icon.Micro}"/>
+                                <Path Data="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"
+                                      Fill="{DynamicResource Brush.Text.Secondary}"
+                                      Width="18" Height="18" Stretch="Uniform"/>
                             </Button>
                             <Popup x:Name="PART_Popup" 
                                    Placement="Bottom" 
                                    PlacementTarget="{Binding ElementName=PART_Root}"
                                    AllowsTransparency="True"
                                    StaysOpen="False">
-                                <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8">
+                                <Border Background="{DynamicResource Brush.Surface.Card}" 
+                                        BorderBrush="{DynamicResource Brush.Border.Subtle}" 
+                                        BorderThickness="1" 
+                                        CornerRadius="12"
+                                        Padding="4">
                                     <Calendar x:Name="PART_Calendar" Margin="4"/>
                                 </Border>
                             </Popup>

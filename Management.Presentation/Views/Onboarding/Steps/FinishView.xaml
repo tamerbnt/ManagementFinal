@@ -59,7 +59,7 @@
             <Button Content="{DynamicResource Strings.Onboarding\Steps.GotoDashboard}" 
                     Command="{Binding FinishCommand}"
                     IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
-                    Style="{StaticResource Button.Primary}"
+                    Style="{StaticResource Button.Onboarding.Primary}"
                     Width="280" HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>

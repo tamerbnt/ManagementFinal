@@ -17,7 +17,7 @@
                 <Border Background="{DynamicResource SurfaceBg}"
                         CornerRadius="24">
                         <Border.BorderBrush>
-                            <SolidColorBrush Color="#E5E7EB" Opacity="0.5"/>
+                            <SolidColorBrush Color="{DynamicResource BorderBrush.Color}" Opacity="0.5"/>
                         </Border.BorderBrush>
 
                     <Grid Margin="0">
@@ -62,7 +62,7 @@
                             <Button Grid.Column="1" 
                                      Command="{TemplateBinding CancelCommand}"
                                      Width="32" Height="32"
-                                     Background="#F3F4F6"
+                                     Background="{DynamicResource Brush.Surface.Tertiary}"
                                      BorderThickness="0"
                                      Cursor="Hand"
                                      VerticalAlignment="Center">
@@ -78,7 +78,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#FEE2E2"/>
+                                                 <Setter Property="Background" Value="{DynamicResource Brush.Accent.Dim}"/>
                                                 <Trigger.EnterActions>
                                                     <BeginStoryboard>
                                                         <Storyboard>

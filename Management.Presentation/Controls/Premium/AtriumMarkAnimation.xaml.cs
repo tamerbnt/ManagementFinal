@@ -46,6 +46,28 @@ namespace Management.Presentation.Controls.Premium
             set => SetValue(ReduceMotionProperty, value);
         }
 
+        public static readonly DependencyProperty IsScanningProperty = DependencyProperty.Register(
+            nameof(IsScanning), typeof(bool), typeof(AtriumMarkAnimation),
+            new PropertyMetadata(false, OnIsScanningChanged));
+
+        public bool IsScanning
+        {
+            get => (bool)GetValue(IsScanningProperty);
+            set => SetValue(IsScanningProperty, value);
+        }
+
+        private static void OnIsScanningChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is AtriumMarkAnimation control && (bool)e.NewValue)
+            {
+                control.AnimationMode = AtriumAnimationMode.Scan;
+            }
+            else if (d is AtriumMarkAnimation ctrl && !(bool)e.NewValue && ctrl.AnimationMode == AtriumAnimationMode.Scan)
+            {
+                ctrl.AnimationMode = AtriumAnimationMode.Static;
+            }
+        }
+
         public static readonly DependencyProperty MarkForegroundProperty = DependencyProperty.Register(
             nameof(MarkForeground), typeof(Brush), typeof(AtriumMarkAnimation),
             new PropertyMetadata(new SolidColorBrush((Color)ColorConverter.ConvertFromString("#8C3D28"))));

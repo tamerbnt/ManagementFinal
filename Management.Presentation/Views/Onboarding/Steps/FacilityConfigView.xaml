@@ -39,7 +39,7 @@
                 <!-- Facility Name -->
                 <StackPanel Margin="0,0,0,24">
                     <TextBlock Text="{DynamicResource Strings.Onboarding\Steps.FacilityName}" FontSize="14" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
-                    <TextBox Text="{Binding FacilityName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Apple}"/>
+                    <TextBox Text="{Binding FacilityName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Input.Onboarding}"/>
                 </StackPanel>
 
                 <!-- Choice -->
