@@ -30,6 +30,7 @@
     <SolidColorBrush x:Key="SurfaceBg" Color="#261A10" />
     <SolidColorBrush x:Key="CardBackgroundBrush" Color="#261A10" />
     <SolidColorBrush x:Key="Brush.Surface.Primary" Color="#261A10"/>
+    <SolidColorBrush x:Key="Brush.Surface.Tertiary" Color="#35281E"/>
     <SolidColorBrush x:Key="Brush.Surface.Card" Color="#261A10"/>
     <SolidColorBrush x:Key="CardBorderBrush" Color="#35281E"/>
     <SolidColorBrush x:Key="Brush.Surface.Glass" Color="#261A10" Opacity="0.8"/>
