@@ -508,8 +508,7 @@ namespace Management.Presentation.Services
                 state.Window.Owner = System.Windows.Application.Current.MainWindow;
                 
                 // Use Show() instead of ShowDialog() to prevent UI thread blocking
-                // Modal behavior is maintained through Owner property and Topmost
-                state.Window.Topmost = true;
+                // Modal behavior is maintained through Owner property
                 state.Window.Show();
                 state.Window.Activate();
                 state.Window.Focus();
@@ -645,9 +644,6 @@ namespace Management.Presentation.Services
             window.ShowInTaskbar = false;
             
             window.Background = System.Windows.Media.Brushes.Transparent;
-
-            // Design System ?33.1: Z-index layering
-            window.Topmost = true;
 
             // Center on owner
             window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
