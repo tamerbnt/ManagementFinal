@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Markup;
 using Management.Domain.Enums;
 
 namespace Management.Presentation.Services
@@ -22,7 +23,9 @@ namespace Management.Presentation.Services
     {
         Default,
         Alternate,
-        Classic
+        Classic,
+        Atrium,
+        NoirBlush
     }
 
     public static class ThemeManager
@@ -205,9 +208,12 @@ namespace Management.Presentation.Services
             {
                 (FacilityType.Salon, LightPalette.Default)   => "Palette.Salon.Blush.xaml",
                 (FacilityType.Salon, LightPalette.Alternate) => "Palette.Salon.Linen.xaml",
+                (FacilityType.Salon, LightPalette.Atrium)    => "Palette.Salon.Atrium.xaml",
+                (FacilityType.Salon, LightPalette.NoirBlush) => "Palette.Salon.NoirBlush.xaml",
                 (FacilityType.Gym,   LightPalette.Default)   => "Palette.Gym.Arctic.xaml",
                 (FacilityType.Gym,   LightPalette.Alternate) => "Palette.Gym.Steel.xaml",
                 (FacilityType.Gym,   LightPalette.Classic)   => "Palette.Gym.Gold.xaml",
+                (FacilityType.Gym,   LightPalette.Atrium)    => "Palette.Gym.Atrium.xaml",
                 _ => string.Empty
             };
         }
@@ -222,16 +228,63 @@ namespace Management.Presentation.Services
                 var source = dictionaries[i].Source?.OriginalString;
                 if (source != null && source.Contains(sourcePart))
                 {
-                    // Found an existing entry with this prefix (e.g., "Branding." or "Palette.")
-                    // Replace it to avoid stacking multiple overlays.
-                    dictionaries[i] = new ResourceDictionary { Source = newResourceUri };
+                    // Found an existing entry with this prefix (e.g., "Branding." or "Palette.").
+                    // Use RemoveAt + Insert with a FRESH dictionary object — not WPF's SharedDictionaryManager
+                    // cache — to guarantee DynamicResource bindings are always fully invalidated and
+                    // re-evaluated by the visual tree on every swap.
+                    dictionaries.RemoveAt(i);
+                    dictionaries.Insert(i, LoadFreshDictionary(newResourceUri));
                     return;
                 }
             }
 
             // Not found — add as a new entry at the end (highest priority wins in WPF).
             System.Windows.Application.Current.Resources.MergedDictionaries.Add(
-                new ResourceDictionary { Source = newResourceUri });
+                LoadFreshDictionary(newResourceUri));
+        }
+
+        /// <summary>
+        /// Loads a ResourceDictionary by parsing its compiled BAML stream directly via
+        /// <see cref="XamlReader.Load"/>, bypassing WPF's internal SharedDictionaryManager cache.
+        /// This guarantees a brand-new object reference on every call so that
+        /// <c>RemoveAt + Insert</c> always triggers a full DynamicResource invalidation —
+        /// even when the same pack URI is applied twice in rapid succession (e.g., the
+        /// startup double-apply that occurs because SetLightPalette + SetTheme both call
+        /// ApplyLightPaletteOverlay, or when cycling back to a previously-loaded palette).
+        /// Falls back to the standard cached load if the BAML stream cannot be obtained.
+        /// </summary>
+        private static ResourceDictionary LoadFreshDictionary(Uri relativeUri)
+        {
+            try
+            {
+                // Build absolute pack URI from the relative resource path.
+                var packUri = new Uri(
+                    $"pack://application:,,,/{relativeUri.OriginalString}",
+                    UriKind.Absolute);
+
+                var streamInfo = System.Windows.Application.GetResourceStream(packUri);
+                if (streamInfo?.Stream != null)
+                {
+                    using var stream = streamInfo.Stream;
+                    var dict = (ResourceDictionary)XamlReader.Load(stream);
+                    // Restore Source so UpdateDictionary's prefix search can find this
+                    // dictionary on future swaps. XamlReader.Load leaves Source=null,
+                    // which would make the slot invisible to the loop and cause Add()
+                    // to accumulate orphaned palette dicts instead of replacing in-place.
+                    dict.Source = relativeUri;
+                    return dict;
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(
+                    ex,
+                    "[ThemeManager] Could not load fresh dictionary for {Uri}. Falling back to cached load.",
+                    relativeUri);
+            }
+
+            // Fallback: standard cached load if the BAML stream is unavailable.
+            return new ResourceDictionary { Source = relativeUri };
         }
 
 

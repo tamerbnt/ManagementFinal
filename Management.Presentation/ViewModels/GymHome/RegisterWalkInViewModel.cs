@@ -16,7 +16,7 @@ namespace Management.Presentation.ViewModels.GymHome
     public partial class RegisterWalkInViewModel : ViewModelBase
     {
         private readonly IGymOperationService _gymService;
-        private readonly Management.Presentation.Services.IModalNavigationService _modalNavigationService;
+        private readonly ModalNavigationStore _modalNavigationStore;
         private readonly IFacilityContextService _facilityContext;
         private readonly IMediator _mediator;
 
@@ -34,14 +34,14 @@ namespace Management.Presentation.ViewModels.GymHome
 
         public RegisterWalkInViewModel(
             IGymOperationService gymService,
-            Management.Presentation.Services.IModalNavigationService modalNavigationService,
+            ModalNavigationStore modalNavigationStore,
             IFacilityContextService facilityContext,
             IMediator mediator,
             ITerminologyService terminologyService,
             Services.Localization.ILocalizationService localizationService)
         {
             _gymService = gymService;
-            _modalNavigationService = modalNavigationService;
+            _modalNavigationStore = modalNavigationStore;
             _facilityContext = facilityContext;
             _mediator = mediator;
             _terminologyService = terminologyService;
@@ -77,7 +77,7 @@ namespace Management.Presentation.ViewModels.GymHome
                         $"New Walk-In Lead registered: {FullName} ({PhoneNumber})",
                         result.MemberId.ToString()));
 
-                    await _modalNavigationService.CloseCurrentModalAsync();
+                    await _modalNavigationStore.CloseAsync(ModalResult.Success(result));
                 }
             }, "Failed to register lead.");
         }
@@ -85,7 +85,7 @@ namespace Management.Presentation.ViewModels.GymHome
         [RelayCommand]
         private async Task CancelAsync()
         {
-            await _modalNavigationService.CloseCurrentModalAsync();
+            await _modalNavigationStore.CloseAsync(ModalResult.Cancel());
         }
 
         private bool CanSave()

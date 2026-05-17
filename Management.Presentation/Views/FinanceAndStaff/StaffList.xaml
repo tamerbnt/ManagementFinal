@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800"
@@ -18,7 +19,8 @@
 
     <Grid>
         <!-- Grid View Layout -->
-        <ListBox ItemsSource="{Binding FilteredStaffMembers}"
+        <ListBox x:Name="StaffGridListBox"
+                 ItemsSource="{Binding FilteredStaffMembers}"
                  Style="{StaticResource ListBox.Modern}"
                  Padding="0,0,12,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -157,7 +159,8 @@
         </ListBox>
 
         <!-- List View Layout (Updated to match MembersView) -->
-        <ListBox ItemsSource="{Binding FilteredStaffMembers}"
+        <ListBox x:Name="StaffListViewListBox"
+                 ItemsSource="{Binding FilteredStaffMembers}"
                  Style="{StaticResource ListBox.Modern}"
                  Padding="0,0,12,0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -324,6 +327,20 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+
+        <premium:ScrollIndicatorButton 
+            TargetScrollViewer="{Binding ElementName=StaffGridListBox}"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Bottom"
+            Margin="0,0,0,24"
+            Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter=Grid}"/>
+
+        <premium:ScrollIndicatorButton 
+            TargetScrollViewer="{Binding ElementName=StaffListViewListBox}"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Bottom"
+            Margin="0,0,0,24"
+            Visibility="{Binding ViewMode, Converter={StaticResource EqualToVisibilityConverter}, ConverterParameter=List}"/>
 
     </Grid>
 </UserControl>

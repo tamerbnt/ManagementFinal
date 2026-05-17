@@ -235,7 +235,8 @@
         </Style>
     </UserControl.Resources>
 
-<ScrollViewer Grid.Row="1" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
+    <Grid Grid.Row="1" Grid.RowSpan="2">
+        <ScrollViewer x:Name="BusinessDashboardScrollViewer" VerticalScrollBarVisibility="Auto">
             
             <Grid Grid.IsSharedSizeScope="True">
                 <Grid.Style>
@@ -838,6 +839,13 @@
             </Grid>
         </Grid>
     </ScrollViewer>
+    
+    <premium:ScrollIndicatorButton 
+        TargetScrollViewer="{Binding ElementName=BusinessDashboardScrollViewer}"
+        HorizontalAlignment="Center" 
+        VerticalAlignment="Bottom"
+        Margin="0,0,0,24"/>
+</Grid>
 
 </UserControl>
 

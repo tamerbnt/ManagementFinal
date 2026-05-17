@@ -165,101 +165,107 @@
         <!-- 3. Content Area (Row 2) -->
         <Grid Grid.Row="2">
             <!-- Website Requests List View (Always Shown) -->
-            <ListBox Grid.Column="0"
-                     ItemsSource="{Binding WebsiteRequests}"
-                     Background="Transparent"
-                     BorderThickness="0"
-                     Padding="0,0,12,0"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                     VirtualizingPanel.IsVirtualizing="True"
-                     VirtualizingPanel.VirtualizationMode="Recycling"
-                     VirtualizingPanel.CacheLength="2,2"
-                     VirtualizingPanel.CacheLengthUnit="Page"
-                     RenderOptions.CachingHint="Cache"
-                     ScrollViewer.CanContentScroll="True">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <ContentPresenter />
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="{DynamicResource CardBackgroundBrush}" 
-                                CornerRadius="12" 
-                                Padding="16,12" 
-                                Margin="0,0,0,8" 
-                                BorderBrush="{DynamicResource BorderBrush}" 
-                                BorderThickness="1">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <!-- 1. User Info -->
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding FullName}" Style="{StaticResource Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,2"/>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding CreatedAt, StringFormat='dd MMM yyyy HH:mm'}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                        <!-- Source Badge -->
-                                        <Border Background="{DynamicResource SurfaceBgElevated}" CornerRadius="4" Padding="4,2" Margin="8,0,0,0">
-                                            <TextBlock Text="Web" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                        </Border>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!-- 2. Contact Info -->
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding PhoneNumber}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding Email}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                </StackPanel>
-                                
-                                <!-- 3. Gender & Facility -->
-                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="{Binding Gender}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,2"/>
-                                    <!-- Facility Slug Badge -->
-                                    <Border Background="{DynamicResource BrandSecondaryBrush}" Opacity="0.1" CornerRadius="4" Padding="4,2" HorizontalAlignment="Left" MinWidth="40">
-                                        <TextBlock Text="{Binding FacilitySlug}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource BrandPrimaryBrush}" TextAlignment="Center"/>
-                                    </Border>
-                                </StackPanel>
-
-                                <!-- 4. Desired Plan -->
-                                <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,16,0">
-                                    <TextBlock Text="Desired Plan" Style="{StaticResource Micro}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,2"/>
-                                    <TextBlock Text="{Binding DesiredPlan}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" MaxHeight="34" TextTrimming="CharacterEllipsis"/>
-                                </StackPanel>
-
-                                <!-- 5. Actions -->
-                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="Confirm" 
-                                            Command="{Binding DataContext.ConfirmWebsiteRequestCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource SuccessButtonStyle}" 
-                                            Margin="0,0,8,0"
-                                            Padding="16,6"/>
-                                    
-                                    <Button Content="Reject" 
-                                            Command="{Binding DataContext.RejectWebsiteRequestCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource DestructiveButtonStyle}"
-                                            Padding="16,6"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+             <ListBox Grid.Column="0"
+                      x:Name="WebsiteRequestsListBox"
+                      ItemsSource="{Binding WebsiteRequests}"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Padding="0,0,12,0"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling"
+                      VirtualizingPanel.CacheLength="2,2"
+                      VirtualizingPanel.CacheLengthUnit="Page"
+                      RenderOptions.CachingHint="Cache"
+                      ScrollViewer.CanContentScroll="True">
+                 <ListBox.ItemContainerStyle>
+                     <Style TargetType="ListBoxItem">
+                         <Setter Property="Padding" Value="0"/>
+                         <Setter Property="Background" Value="Transparent"/>
+                         <Setter Property="BorderThickness" Value="0"/>
+                         <Setter Property="Template">
+                             <Setter.Value>
+                                 <ControlTemplate TargetType="ListBoxItem">
+                                     <ContentPresenter />
+                                 </ControlTemplate>
+                             </Setter.Value>
+                         </Setter>
+                     </Style>
+                 </ListBox.ItemContainerStyle>
+                 <ListBox.ItemTemplate>
+                     <DataTemplate>
+                         <Border Background="{DynamicResource CardBackgroundBrush}" 
+                                 CornerRadius="24" 
+                                 Padding="24,20" 
+                                 Margin="0,0,0,16"
+                                 Effect="{DynamicResource Shadow2}"
+                                 BorderBrush="{DynamicResource BorderBrush}" 
+                                 BorderThickness="1">
+                             <Grid>
+                                 <Grid.ColumnDefinitions>
+                                     <ColumnDefinition Width="2*"/>
+                                     <ColumnDefinition Width="2.2*"/>
+                                     <ColumnDefinition Width="1.8*"/>
+                                     <ColumnDefinition Width="2.5*"/>
+                                     <ColumnDefinition Width="Auto"/>
+                                 </Grid.ColumnDefinitions>
+ 
+                                 <!-- 1. Profile / Info -->
+                                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                                     <Border Width="48" Height="48" CornerRadius="24" Background="{DynamicResource FacilityAccentDimBrush}" Margin="0,0,16,0">
+                                         <TextBlock Text="{Binding AvatarInitials}" Style="{StaticResource Title3}" Foreground="{DynamicResource FacilityAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                     </Border>
+                                     <StackPanel VerticalAlignment="Center">
+                                         <TextBlock Text="{Binding FullName}" Style="{StaticResource Subhead}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                         <TextBlock Text="{Binding Timestamp, StringFormat=d}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
+                                     </StackPanel>
+                                 </StackPanel>
+ 
+                                 <!-- 2. Contact -->
+                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                                     <TextBlock Text="{Binding Email}" Style="{StaticResource Body}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                     <TextBlock Text="{Binding Phone}" Style="{StaticResource Caption}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                 </StackPanel>
+ 
+                                 <!-- 3. Source / Badge -->
+                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,16,0">
+                                     <Border Background="{DynamicResource FacilitySidebarBrush}" CornerRadius="12" Padding="12,6" HorizontalAlignment="Left">
+                                         <TextBlock Text="{Binding Source}" Style="{StaticResource Caption}" FontWeight="SemiBold" Foreground="{DynamicResource FacilityAccentBrush}"/>
+                                     </Border>
+                                 </StackPanel>
+ 
+                                 <!-- 4. Plan -->
+                                 <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,16,0">
+                                     <TextBlock Text="{Binding DesiredPlan}" Style="{StaticResource BodySmall}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" MaxHeight="34" TextTrimming="CharacterEllipsis"/>
+                                 </StackPanel>
+ 
+                                 <!-- 5. Actions -->
+                                 <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                     <Button Content="Confirm" 
+                                             Command="{Binding DataContext.ConfirmWebsiteRequestCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             CommandParameter="{Binding}"
+                                             Style="{StaticResource SuccessButtonStyle}" 
+                                             Margin="0,0,8,0"
+                                             Padding="16,6"/>
+                                     
+                                     <Button Content="Reject" 
+                                             Command="{Binding DataContext.RejectWebsiteRequestCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                             CommandParameter="{Binding}"
+                                             Style="{StaticResource DestructiveButtonStyle}"
+                                             Padding="16,6"/>
+                                 </StackPanel>
+                             </Grid>
+                         </Border>
+                     </DataTemplate>
+                 </ListBox.ItemTemplate>
+             </ListBox>
+ 
+              <premium:ScrollIndicatorButton 
+                  TargetScrollViewer="{Binding ElementName=WebsiteRequestsListBox}"
+                  Grid.Column="0"
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Bottom"
+                  Margin="0,0,0,24"/>
 
             <!-- Empty State Overlay (Z-Order: Top of content) -->
             <Grid Grid.Column="0"

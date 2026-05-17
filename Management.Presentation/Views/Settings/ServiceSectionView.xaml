@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Management.Presentation.Views.Settings"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
@@ -45,7 +46,7 @@
         </Grid>
 
         <!-- Virtualized List -->
-        <ListView Grid.Row="2" 
+        <ListView x:Name="ServiceListView" Grid.Row="2" 
                   ItemsSource="{Binding ItemsSource, RelativeSource={RelativeSource AncestorType={x:Type local:ServiceSectionView}}}"
                   ItemContainerStyle="{StaticResource TitanGridItem}"
                   ItemTemplate="{StaticResource ServiceRowTemplate}"
@@ -57,5 +58,13 @@
                   VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                   ScrollViewer.CanContentScroll="True">
         </ListView>
+
+        <premium:ScrollIndicatorButton 
+            TargetScrollViewer="{Binding ElementName=ServiceListView}"
+            Grid.Row="2"
+            Panel.ZIndex="100"
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Bottom"
+            Margin="0,0,0,16"/>
     </Grid>
 </UserControl>

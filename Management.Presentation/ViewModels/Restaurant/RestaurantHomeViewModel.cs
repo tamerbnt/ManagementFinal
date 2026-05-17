@@ -54,6 +54,12 @@ namespace Management.Presentation.ViewModels.Restaurant
         private readonly ISyncService _syncService;
         private CancellationTokenSource? _refreshDebounceCts;
 
+        private bool _isInitializing;
+        private bool _initialized;
+        private bool _isDirty;
+        private bool _needsRefreshDuringInit;
+        private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
+
         [ObservableProperty] private int _activeTablesCount;
         [ObservableProperty] private decimal _revenueToday;
         [ObservableProperty] private int _openOrdersCount;
@@ -114,7 +120,7 @@ namespace Management.Presentation.ViewModels.Restaurant
             {
                 if (IsDisposed || IsLoading) return;
                 _logger?.LogInformation("[RestaurantHome] Sync debounce passed, refreshing metrics and activity...");
-                await InitializeAsync();
+                await InitializeAsync(silent: true);
             });
         }
 
@@ -125,8 +131,12 @@ namespace Management.Presentation.ViewModels.Restaurant
             await InitializeAsync();
         }
 
-        public async Task InitializeAsync()
+        public Task InitializeAsync() => InitializeAsync(silent: false);
+
+        public async Task InitializeAsync(bool silent)
         {
+            if (_initialized && !_isDirty && !silent) return;
+
             // FIX Step 3.1: Guard against loading before FacilityId is resolved
             if (CurrentFacilityId == Guid.Empty)
             {
@@ -134,19 +144,65 @@ namespace Management.Presentation.ViewModels.Restaurant
                 return;
             }
 
-            // SAFETY: No hardcoded Task.Delay here. Initialization triggered by Loaded event.
+            if (_isInitializing) 
+            {
+                _needsRefreshDuringInit = true;
+                return;
+            }
+
+            _isInitializing = true;
+            try 
+            {
+                do
+                {
+                    _needsRefreshDuringInit = false;
+
+                    if (silent)
+                    {
+                        await ExecuteBackgroundAsync(async () => await PerformInitializationInternalAsync(), _refreshSemaphore);
+                    }
+                    else
+                    {
+                        IsActive = true;
+                        await ExecuteLoadingAsync(async () =>
+                        {
+                            await _refreshSemaphore.WaitAsync();
+                            try 
+                            {
+                                await PerformInitializationInternalAsync();
+                            }
+                            finally 
+                            { 
+                                _refreshSemaphore.Release(); 
+                            }
+                        });
+                    }
+
+                    _initialized = true;
+                    _isDirty = false;
+
+                    if (_needsRefreshDuringInit) silent = true;
+
+                } while (_needsRefreshDuringInit);
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        private async Task PerformInitializationInternalAsync()
+        {
             await Task.WhenAll(
-                LoadMetricsAsync(),
+                LoadMetricsInternalAsync(),
                 LoadRecentActivityAsync()
             );
         }
 
-        private async Task LoadMetricsAsync()
+        private async Task LoadMetricsInternalAsync()
         {
-            await ExecuteLoadingAsync(async () =>
-            {
-                var tables = await _tableService.GetTablesAsync(CurrentFacilityId);
-                var activeTables = tables.Count(t => t.Status != TableStatus.Available);
+            var tables = await _tableService.GetTablesAsync(CurrentFacilityId);
+            var activeTables = tables.Count(t => t.Status != TableStatus.Available);
 
                 var activeOrdersResult = await _orderService.GetActiveOrdersAsync(CurrentFacilityId);
                 
@@ -167,7 +223,6 @@ namespace Management.Presentation.ViewModels.Restaurant
                     OpenOrdersCount = activeOrdersCount;
                     RevenueToday = todayRevenue;
                 });
-            });
         }
 
         private async Task LoadRecentActivityAsync()
@@ -329,7 +384,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                     if (token.IsCancellationRequested || IsDisposed) return;
                     await _dispatcher.InvokeAsync(async () =>
                     {
-                        if (!IsDisposed) await InitializeAsync();
+                        if (!IsDisposed) await InitializeAsync(silent: true);
                     });
                 }
                 catch (TaskCanceledException) { }
@@ -372,7 +427,7 @@ namespace Management.Presentation.ViewModels.Restaurant
                 _dispatcher.InvokeAsync(async () => 
                 {
                     if (IsDisposed) return;
-                    await InitializeAsync();
+                    await InitializeAsync(silent: false);
                 });
             }
         }

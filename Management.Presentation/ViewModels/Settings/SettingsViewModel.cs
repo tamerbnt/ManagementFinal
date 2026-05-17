@@ -524,6 +524,8 @@ namespace Management.Presentation.ViewModels.Settings
             {
                 "Alternate" => LightPalette.Alternate,
                 "Classic"   => LightPalette.Classic,
+                "Atrium"    => LightPalette.Atrium,
+                "NoirBlush" => LightPalette.NoirBlush,
                 _           => LightPalette.Default
             };
             ThemeManager.SetLightPalette(palette);
@@ -756,6 +758,8 @@ namespace Management.Presentation.ViewModels.Settings
                     {
                         "Alternate" => LightPalette.Alternate,
                         "Classic"   => LightPalette.Classic,
+                        "Atrium"    => LightPalette.Atrium,
+                        "NoirBlush" => LightPalette.NoirBlush,
                         _           => LightPalette.Default
                     };
                     ThemeManager.SetLightPalette(palette);

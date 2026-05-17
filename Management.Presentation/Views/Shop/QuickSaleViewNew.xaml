@@ -60,11 +60,11 @@
 
     <premium:ModalShellControl Title="{DynamicResource Terminology.Modal.QuickSale.Title}" 
                              Subtitle="{DynamicResource Terminology.Modal.QuickSale.Subtitle}"
-                             MaxWidth="820" MaxHeight="500"
+                             Width="900" MaxWidth="900"
                              CancelCommand="{Binding CancelCommand}"
                              SaveCommand="{Binding ProcessSaleCommand}"
                              PrimaryActionText="{DynamicResource Terminology.Modal.QuickSale.CompleteSale}">
-        <Grid Margin="24,0">
+        <Grid Margin="24,0" Height="500">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="65*"/>
                 <ColumnDefinition Width="20"/>
@@ -89,8 +89,9 @@
                          ItemContainerStyle="{StaticResource SelectionItemStyle}"
                          Style="{StaticResource PremiumListBox}"
                          Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.CanContentScroll="False"
+                         Height="400"
+                         VirtualizingStackPanel.IsVirtualizing="True"
+                         VirtualizingStackPanel.VirtualizationMode="Recycling"
                          BorderThickness="0">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -114,6 +115,12 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
+                <premium:ScrollIndicatorButton 
+                     Grid.Row="1"
+                     HorizontalAlignment="Center" 
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,24"/>
+
                 <!-- Loading Overlay -->
                 <Border Grid.Row="1" Background="{DynamicResource Brush.Surface.Card}" 
                         Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -126,7 +133,7 @@
             </Grid>
 
             <!-- RIGHT COLUMN: MEMBER & CHECKOUT -->
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Background="Transparent">
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Height="400" Background="Transparent">
                 <StackPanel>
                     <!-- 1. MEMBER SELECTION -->
                     <Border Background="{DynamicResource Brush.Surface.Card}" CornerRadius="16" Padding="20" Margin="0,0,0,16" BorderBrush="#F3F4F6" BorderThickness="1">

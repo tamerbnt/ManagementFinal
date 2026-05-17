@@ -212,6 +212,8 @@ namespace Management.Presentation.ViewModels.Shell
                     {
                         "Alternate" => Management.Presentation.Services.LightPalette.Alternate,
                         "Classic"   => Management.Presentation.Services.LightPalette.Classic,
+                        "Atrium"    => Management.Presentation.Services.LightPalette.Atrium,
+                        "NoirBlush" => Management.Presentation.Services.LightPalette.NoirBlush,
                         _           => Management.Presentation.Services.LightPalette.Default
                     };
                     Management.Presentation.Services.ThemeManager.SetLightPalette(palette);

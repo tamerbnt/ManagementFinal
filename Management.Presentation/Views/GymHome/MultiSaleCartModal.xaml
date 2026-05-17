@@ -112,7 +112,7 @@
 
     <premium:ModalShellControl Title="{Binding Title}"
                                Subtitle="{DynamicResource Terminology.GymHome.MultiSale.Subtitle}"
-                               Width="900" 
+                               Width="900" MaxWidth="900"
                                CancelCommand="{Binding CancelCommand}"
                                SaveCommand="{Binding CheckoutCommand}"
                                PrimaryActionText="{DynamicResource Terminology.GymHome.MultiSale.Summary.Checkout}">
@@ -150,13 +150,19 @@
                 <!-- LEFT COLUMN: INDEPENDENT SCROLLING LIST -->
                 <Grid Grid.Column="0">
                     <!-- Products View -->
-                    <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Products}">
-                        <premium:PremiumSearchBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                    <Grid Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Products}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <premium:PremiumSearchBox Grid.Row="0"
+                                                 Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                  Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchPlaceholder}"
                                                  IconData="{StaticResource IconSearch}"
                                                  Margin="0,0,0,12"/>
                         
-                        <ListBox ItemsSource="{Binding Products}" 
+                        <ListBox Grid.Row="1" ItemsSource="{Binding Products}" 
                                  SelectedItem="{Binding SelectedProduct}"
                                  ItemContainerStyle="{StaticResource SelectionItemStyle}"
                                  Style="{StaticResource PremiumListBox}"
@@ -200,16 +206,28 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                    </StackPanel>
+                        
+                        <premium:ScrollIndicatorButton 
+                            Grid.Row="1"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,24"/>
+                    </Grid>
 
                     <!-- Walk-In View -->
-                    <StackPanel Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=WalkIn}">
-                        <premium:PremiumSearchBox Text="{Binding WalkInSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                    <Grid Visibility="{Binding CurrentTab, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=WalkIn}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <premium:PremiumSearchBox Grid.Row="0"
+                                                 Text="{Binding WalkInSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                  Placeholder="{DynamicResource Terminology.Modal.MultiSale.SearchWalkIn}"
                                                  IconData="{StaticResource IconSearch}"
                                                  Margin="0,0,0,12"/>
 
-                        <ListBox ItemsSource="{Binding FilteredWalkInPlans}" 
+                        <ListBox Grid.Row="1" ItemsSource="{Binding FilteredWalkInPlans}" 
                                  SelectedItem="{Binding SelectedWalkInPlan}"
                                  ItemContainerStyle="{StaticResource SelectionItemStyle}"
                                  Style="{StaticResource PremiumListBox}"
@@ -242,7 +260,13 @@
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
-                    </StackPanel>
+
+                        <premium:ScrollIndicatorButton 
+                            Grid.Row="1"
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,24"/>
+                    </Grid>
                 </Grid>
 
                 <!-- RIGHT COLUMN: INDEPENDENT SCROLLING CONTROLS -->

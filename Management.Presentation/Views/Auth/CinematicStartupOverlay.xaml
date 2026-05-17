@@ -14,14 +14,14 @@
 
     <UserControl.Resources>
         <!-- The temperature-shifting color logic -->
-        <SolidColorBrush x:Key="DynamicBrush" x:Name="DynamicBrush" Color="#C4785A"/>
+        <SolidColorBrush x:Key="DynamicBrush" x:Name="DynamicBrush" Color="#FFFFFF"/>
 
         <!-- Pseudo-3D Pillar Brush -->
         <LinearGradientBrush x:Key="PillarBrush" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#A05A3E" Offset="0.0"/>
+            <GradientStop Color="#E2E8F0" Offset="0.0"/>
             <GradientStop Color="{Binding Color, Source={StaticResource DynamicBrush}}" Offset="0.3"/>
             <GradientStop Color="{Binding Color, Source={StaticResource DynamicBrush}}" Offset="0.7"/>
-            <GradientStop Color="#A05A3E" Offset="1.0"/>
+            <GradientStop Color="#E2E8F0" Offset="1.0"/>
         </LinearGradientBrush>
 
         <Storyboard x:Key="CinematicStartupStoryboard" Completed="OnAnimationCompleted">
@@ -106,7 +106,7 @@
                 <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
             </DoubleAnimation>
 
-            <ColorAnimation Storyboard.TargetName="DynamicBrush" Storyboard.TargetProperty="Color" From="#C4785A" To="#D4856A" Duration="0:0:0.6" BeginTime="0:0:1.2"/>
+            <ColorAnimation Storyboard.TargetName="DynamicBrush" Storyboard.TargetProperty="Color" From="#FFFFFF" To="#F8FAFC" Duration="0:0:0.6" BeginTime="0:0:1.2"/>
 
             <!-- 1200ms: Wordmark Rise — synchronized with The Breath -->
             <DoubleAnimation Storyboard.TargetName="WordmarkPanel" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:1.2">
@@ -134,7 +134,7 @@
         </Storyboard>
     </UserControl.Resources>
 
-    <Border CornerRadius="24" Background="#1A1510" x:Name="BackgroundGrid" ClipToBounds="True">
+    <Border CornerRadius="24" Background="#F87171" x:Name="BackgroundGrid" ClipToBounds="True">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
             <StackPanel.RenderTransform>
                 <ScaleTransform x:Name="MarkScale" ScaleX="1.0" ScaleY="1.0"/>

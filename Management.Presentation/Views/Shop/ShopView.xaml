@@ -248,7 +248,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
-                    <ListBox Grid.Row="0"
+                    <ListBox x:Name="ShopGridListBox" Grid.Row="0"
                              Style="{StaticResource ListBox.Modern}"
                              ItemsSource="{Binding Products}" 
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -296,7 +296,14 @@
                             <local:ProductListItem Margin="0,0,20,20"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                 </ListBox>
+
+                  <premium:ScrollIndicatorButton 
+                      TargetScrollViewer="{Binding ElementName=ShopGridListBox}"
+                      Grid.Row="0"
+                      HorizontalAlignment="Center" 
+                      VerticalAlignment="Bottom"
+                      Margin="0,0,0,24"/>
 
                 <!-- Load More Button (Grid View) -->
                 <Button Grid.Row="1" 
@@ -319,7 +326,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListBox Grid.Row="0"
+                    <ListBox x:Name="ShopListViewListBox" Grid.Row="0"
                              Style="{StaticResource ListBox.Modern}"
                              ItemsSource="{Binding InventoryItems}" 
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -353,7 +360,14 @@
                             <local:InventoryListItem />
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                 </ListBox>
+
+                  <premium:ScrollIndicatorButton 
+                      TargetScrollViewer="{Binding ElementName=ShopListViewListBox}"
+                      Grid.Row="0"
+                      HorizontalAlignment="Center" 
+                      VerticalAlignment="Bottom"
+                      Margin="0,0,0,24"/>
 
                 <!-- Load More Button (List View) -->
                 <Button Grid.Row="1" 

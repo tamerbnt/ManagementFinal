@@ -136,7 +136,7 @@ namespace Management.Presentation.ViewModels.GymHome
         {
             // Close current modal and open registration modal
             await _modalNavigationStore.CloseAsync(ModalResult.Cancel());
-            await _modalNavigationService.OpenModalAsync<RegisterWalkInViewModel>(Management.Presentation.Services.ModalSize.Small);
+            await _modalNavigationStore.OpenAsync<RegisterWalkInViewModel>();
         }
 
         [RelayCommand]

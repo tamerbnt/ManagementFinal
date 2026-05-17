@@ -20,7 +20,7 @@
     </UserControl.Resources>
 
     <premium:ModalShellControl Title="{Binding Title}"
-                               Width="820"
+                               Width="900" MaxWidth="900"
                                CancelCommand="{Binding CancelCommand}"
                                SaveCommand="{Binding RegisterCommand}"
                                PrimaryActionText="{DynamicResource Terminology.Global.Register}">

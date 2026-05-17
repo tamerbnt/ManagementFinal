@@ -12,8 +12,8 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         
-        <!-- Refined Premium Item Style -->
-        <Style x:Key="WalkInPlanItemStyle" TargetType="ListBoxItem">
+        <!-- Selection Highlight Style -->
+        <Style x:Key="SelectionItemStyle" TargetType="ListBoxItem">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
@@ -21,56 +21,19 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border x:Name="ItemBorder" 
-                                CornerRadius="14" 
+                                CornerRadius="12" 
                                 BorderThickness="1.5" 
                                 BorderBrush="{DynamicResource SeparatorStroke}"
                                 Background="{DynamicResource Brush.Surface.Glass}"
-                                Padding="16"
-                                Margin="0,0,8,12"
+                                Padding="12"
+                                Margin="0,0,0,8"
                                 Cursor="Hand">
-                            <Grid Background="Transparent">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Border x:Name="IndicatorBorder"
-                                        Grid.Column="0" 
-                                        Width="20" Height="20" 
-                                        CornerRadius="10" 
-                                        BorderThickness="2" 
-                                        BorderBrush="{DynamicResource Brush.Text.Tertiary}"
-                                        Margin="0,0,16,0"
-                                        VerticalAlignment="Center">
-                                    <Ellipse x:Name="CheckMark" 
-                                             Width="8" Height="8" 
-                                             Fill="{DynamicResource FacilityAccentBrush}"
-                                             Visibility="Collapsed"/>
-                                </Border>
-
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock x:Name="NameText" Text="{Binding Name}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}"/>
-                                    <TextBlock x:Name="DurationText" Text="{Binding DurationDescription}" FontSize="12" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,2,0,0"/>
-                                </StackPanel>
-
-                                <TextBlock x:Name="PriceText" 
-                                           Grid.Column="2" 
-                                           Text="{Binding Price, StringFormat='{}{0:N2} DA'}" 
-                                           FontSize="15"
-                                           FontWeight="ExtraBold" 
-                                           Foreground="{DynamicResource Brush.Text.Primary}"
-                                           VerticalAlignment="Center"/>
-                            </Grid>
+                            <ContentPresenter/>
                         </Border>
-                        
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
                                 <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
-                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
-                                <Setter TargetName="IndicatorBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
-                                <Setter TargetName="PriceText" Property="Foreground" Value="{DynamicResource FacilityAccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
@@ -110,7 +73,7 @@
     </UserControl.Resources>
 
     <premium:ModalShellControl Title="{Binding Title}"
-                               Width="820"
+                               Width="900" MaxWidth="900"
                                CancelCommand="{Binding CancelWalkInCommand}"
                                SaveCommand="{Binding ConfirmWalkInCommand}"
                                PrimaryActionText="{DynamicResource Terminology.GymHome.WalkIn.Action.Confirm}">
@@ -122,7 +85,7 @@
                     HorizontalAlignment="Stretch"/>
         </premium:ModalShellControl.ExtraFooterContent>
 
-        <Grid Height="480" Margin="0,16,0,0">
+        <Grid Height="500" Margin="0,16,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.5*"/>
                 <ColumnDefinition Width="32"/>
@@ -130,15 +93,41 @@
             </Grid.ColumnDefinitions>
 
             <!-- Column 0: Plan List -->
-            <ListBox Grid.Column="0"
-                     ItemsSource="{Binding Plans}" 
-                     SelectedItem="{Binding SelectedPlan}"
-                     ItemContainerStyle="{StaticResource WalkInPlanItemStyle}"
-                     Style="{StaticResource PremiumListBox}"
-                     BorderThickness="0"/>
+            <Grid Grid.Column="0">
+                <ListBox ItemsSource="{Binding Plans}" 
+                         SelectedItem="{Binding SelectedPlan}"
+                         ItemContainerStyle="{StaticResource SelectionItemStyle}"
+                         Style="{StaticResource PremiumListBox}"
+                         BorderThickness="0"
+                         Height="400"
+                         VirtualizingStackPanel.IsVirtualizing="True"
+                         VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource Brush.Text.Primary}"/>
+                                    <TextBlock Text="{Binding DurationDescription}" FontSize="11" Foreground="{DynamicResource Brush.Text.Tertiary}"/>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding Price, StringFormat='{}{0:N2} DA'}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Primary}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                         
+                <premium:ScrollIndicatorButton 
+                     HorizontalAlignment="Center" 
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,24"/>
+            </Grid>
 
             <!-- Column 1: Configuration -->
-            <StackPanel Grid.Column="2">
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" Height="400" Background="Transparent">
+                <StackPanel>
                 <!-- Quantity Card -->
                 <Border Background="{DynamicResource Brush.Surface.Card}" 
                         CornerRadius="16" 
@@ -256,6 +245,7 @@
                     </StackPanel>
                 </Border>
             </StackPanel>
+            </ScrollViewer>
         </Grid>
     </premium:ModalShellControl>
 </UserControl>

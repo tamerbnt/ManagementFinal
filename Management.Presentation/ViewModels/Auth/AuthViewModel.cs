@@ -101,6 +101,15 @@ namespace Management.Presentation.ViewModels
             Slides.Clear();
             Slides.Add(new OnboardingSlide 
             { 
+                EmotionalHeadline = "Reliable. No matter what.", 
+                TechnicalSubtitle = "Stay productive in offline mode with instant cloud-sync when reconnected.",
+                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_sync_v2.png",
+                TitleColor = "#FFFFFF",
+                SubtitleColor = "#0F172A",
+                BackgroundColor = "#F87171"
+            });
+            Slides.Add(new OnboardingSlide 
+            { 
                 EmotionalHeadline = "Your empire, unified.", 
                 TechnicalSubtitle = "Manage multiple branches and diverse business contexts seamlessly from a single, powerful command center.",
                 ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_nexus_v2.png",
@@ -143,15 +152,6 @@ namespace Management.Presentation.ViewModels
                 TitleColor = "#FFFFFF",
                 SubtitleColor = "#0F172A",
                 BackgroundColor = "#F48FB1"
-            });
-            Slides.Add(new OnboardingSlide 
-            { 
-                EmotionalHeadline = "Reliable. No matter what.", 
-                TechnicalSubtitle = "Stay productive in offline mode with instant cloud-sync when reconnected.",
-                ImagePath = "pack://application:,,,/Atrium.Client;component/Resources/Images/onboarding_sync_v2.png",
-                TitleColor = "#FFFFFF",
-                SubtitleColor = "#0F172A",
-                BackgroundColor = "#F87171"
             });
 
             UpdateSlideSelection();

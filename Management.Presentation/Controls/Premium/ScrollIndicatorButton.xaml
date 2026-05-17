@@ -1,0 +1,125 @@
+<UserControl x:Class="Management.Presentation.Controls.Premium.ScrollIndicatorButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Height="44" Width="44">
+    
+    <UserControl.Resources>
+        <!-- Clean hardware-accelerated slide and fade-in visual entry -->
+        <Storyboard x:Key="FadeInAnimation">
+            <DoubleAnimation Storyboard.TargetName="ContainerBorder"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0.9" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="PillTranslate"
+                             Storyboard.TargetProperty="Y"
+                             From="12" To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <!-- Clean fade-out visual exit -->
+        <Storyboard x:Key="FadeOutAnimation">
+            <DoubleAnimation Storyboard.TargetName="ContainerBorder"
+                             Storyboard.TargetProperty="Opacity"
+                             To="0" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseIn"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="PillTranslate"
+                             Storyboard.TargetProperty="Y"
+                             To="12" Duration="0:0:0.25">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseIn"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <!-- Vector-based Theme-Aware Border Container -->
+        <Border x:Name="ContainerBorder"
+                Width="38" Height="38"
+                Background="{DynamicResource SurfaceBgDim}"
+                BorderThickness="1.5"
+                CornerRadius="19"
+                Opacity="0"
+                RenderTransformOrigin="0.5,0.5"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <Border.BorderBrush>
+                <SolidColorBrush Color="{DynamicResource BorderBrush.Color}"/>
+            </Border.BorderBrush>
+            
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="PillScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="PillTranslate" Y="12"/>
+                </TransformGroup>
+            </Border.RenderTransform>
+
+            <Grid>
+                <!-- Transparent Button covering the border for click handling -->
+                <Button x:Name="ScrollBtn" 
+                        Click="ScrollBtn_Click" 
+                        Cursor="Hand"
+                        Focusable="False"
+                        MouseEnter="ScrollBtn_MouseEnter"
+                        MouseLeave="ScrollBtn_MouseLeave"
+                        PreviewMouseLeftButtonDown="ScrollBtn_PreviewMouseLeftButtonDown"
+                        PreviewMouseLeftButtonUp="ScrollBtn_PreviewMouseLeftButtonUp"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="Transparent">
+                                <ContentPresenter/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+
+                <!-- Elegant Minimalist Chevron Icon -->
+                <Path x:Name="ChevronIcon"
+                      IsHitTestVisible="False"
+                      Data="M 0,0 L 5,5 L 10,0" 
+                      Stroke="{DynamicResource TextPrimaryBrush}"
+                      StrokeThickness="2"
+                      StrokeStartLineCap="Round"
+                      StrokeEndLineCap="Round"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="10" Height="6"
+                      Stretch="Uniform"
+                      RenderTransformOrigin="0.5,0.5">
+                    <Path.RenderTransform>
+                        <TranslateTransform x:Name="IconTranslate" Y="0"/>
+                    </Path.RenderTransform>
+                </Path>
+
+                <!-- High-Performance Solid Unread Notification Badge -->
+                <Border x:Name="UnreadBadge"
+                        IsHitTestVisible="False"
+                        Width="8" Height="8"
+                        Background="{DynamicResource FacilityAccentBrush}"
+                        CornerRadius="4"
+                        BorderThickness="1.2"
+                        BorderBrush="{DynamicResource SurfaceBgDim}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        Margin="0,3,3,0"
+                        Visibility="Collapsed" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:converters="clr-namespace:Management.Presentation.Converters"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="400"
@@ -62,7 +63,7 @@
             </Grid>
 
             <!-- 2. CART LIST -->
-            <ListBox Grid.Row="1"
+            <ListBox x:Name="CartListBox" Grid.Row="1"
                      ItemsSource="{Binding CartItems}"
                      Background="Transparent"
                      BorderThickness="0"
@@ -166,6 +167,13 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
+
+            <premium:ScrollIndicatorButton 
+                 TargetScrollViewer="{Binding ElementName=CartListBox}"
+                 Grid.Row="1"
+                 HorizontalAlignment="Center" 
+                 VerticalAlignment="Bottom"
+                 Margin="0,0,0,24"/>
 
             <!-- 3. FINANCIAL FOOTER -->
             <!-- Visible only when items exist -->

@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- SALON — "Noir Blush" Palette -->
+    <!-- Cool gray/white light backgrounds with Restaurant-style dark sidebar -->
+
+    <!-- ── Surfaces ────────────────────────────────────────────── -->
+    <SolidColorBrush x:Key="WindowBg"              Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="ContentAreaBg"          Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="SurfaceBg"              Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceBgDim"           Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="CardBackgroundBrush"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="CardBorderBrush"        Color="#E5E7EB"/>
+    <SolidColorBrush x:Key="SurfaceBgSecondary"     Color="#F8FAFC"/>
+
+    <SolidColorBrush x:Key="Brush.Window.Background"  Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Background" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Primary"    Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Brush.Surface.Header"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Surface.Subtle"     Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Brush.Border.Subtle"      Color="#E5E7EB"/>
+
+    <!-- ── Sidebar Overrides (Restaurant Midnight Dark #1E1E2D) ── -->
+    <Color x:Key="FacilitySidebarBrush.Color">#1E1E2D</Color>
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#1E1E2D"/>
+    <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="#1E1E2D"/>
+
+    <!-- ── Row Contrast Tokens ────────────────────────────────── -->
+    <SolidColorBrush x:Key="RowOnAccentPrimary"    Color="#1A1208"/>
+    <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#4A1524"/>
+
+</ResourceDictionary>

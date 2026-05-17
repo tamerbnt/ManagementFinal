@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:Management.Presentation.ViewModels.Salon"
              xmlns:behaviors="clr-namespace:Management.Presentation.Behaviors"
              xmlns:local="clr-namespace:Management.Presentation.Views.Salon"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1440"
@@ -294,7 +295,7 @@
                                             <!-- List & Empty State Container -->
                         <Grid Grid.Row="2">
                             <!-- THE LIST -->
-                            <ListBox ItemsSource="{Binding ActivityStream}" 
+                            <ListBox x:Name="ActivityStreamListBox" ItemsSource="{Binding ActivityStream}" 
                                      Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                      VirtualizingPanel.IsVirtualizing="True"
                                      VirtualizingPanel.VirtualizationMode="Recycling"
@@ -355,6 +356,12 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+
+                            <premium:ScrollIndicatorButton 
+                                TargetScrollViewer="{Binding ElementName=ActivityStreamListBox}"
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Bottom"
+                                Margin="0,0,0,16"/>
 
                             <!-- EMPTY STATE ILLUSTRATION (Absolute centered) -->
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"

@@ -456,7 +456,6 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                
                 <ListBox x:Name="MembersListBox" Grid.Row="0"
                          Style="{StaticResource ListBox.Modern}"
                          ItemsSource="{Binding FilteredMembers}"
@@ -685,9 +684,16 @@
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-                </ListBox>
+                 </ListBox>
+ 
+                 <premium:ScrollIndicatorButton 
+                     TargetScrollViewer="{Binding ElementName=MembersListBox}"
+                     Grid.Row="0"
+                     HorizontalAlignment="Center" 
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,24"/>
 
-                <!-- Load More Button (List View) -->
+                 <!-- Load More Button (List View) -->
                 <Button Grid.Row="1" 
                         Style="{StaticResource SecondaryButton}"
                         Command="{Binding LoadMoreCommand}"
@@ -708,7 +714,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <ListBox Grid.Row="0"
+                <ListBox x:Name="MembersGridListBox" Grid.Row="0"
                          Style="{StaticResource ListBox.Modern}"
                          ItemsSource="{Binding FilteredMembers}"
                          Padding="0,0,12,0"
@@ -864,7 +870,14 @@
                         </DataTemplate.Triggers>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-                </ListBox>
+                 </ListBox>
+
+                 <premium:ScrollIndicatorButton 
+                     TargetScrollViewer="{Binding ElementName=MembersGridListBox}"
+                     Grid.Row="0"
+                     HorizontalAlignment="Center" 
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,24"/>
 
                 <!-- Load More Button (Grid View) -->
                 <Button Grid.Row="1" 

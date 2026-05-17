@@ -321,6 +321,7 @@
 
             <!-- A. Timeline List (Grouped) -->
             <ListBox Grid.Column="0"
+                     x:Name="HistoryListBox"
                      ItemsSource="{Binding HistoryEventsView}"
                      Background="Transparent"
                      BorderThickness="0"
@@ -361,6 +362,13 @@
                     </GroupStyle>
                 </ListBox.GroupStyle>
             </ListBox>
+
+            <premium:ScrollIndicatorButton 
+                TargetScrollViewer="{Binding ElementName=HistoryListBox}"
+                Grid.Column="0"
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,24"/>
 
             <!-- B. Detail Drawer (Slide-in) -->
             <Border Grid.Column="1" 

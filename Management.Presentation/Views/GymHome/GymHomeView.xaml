@@ -9,6 +9,7 @@
              xmlns:conv="clr-namespace:Management.Presentation.Converters"
              xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
              xmlns:local="clr-namespace:Management.Presentation.Views.GymHome"
+             xmlns:premium="clr-namespace:Management.Presentation.Controls.Premium"
              mc:Ignorable="d" 
              d:DesignHeight="850" d:DesignWidth="1440"
              x:Name="GymHomeControl">
@@ -425,7 +426,7 @@
                             
                             <!-- Top Accent Separator (Inset) - Remove it in favor of card top border -->
                             <!-- <Border Grid.Row="0" Height="2" Background="{DynamicResource FacilityAccentBrush}" VerticalAlignment="Bottom" Margin="10,0,10,0" Opacity="0.4"/> -->
-                            <ListBox Grid.Row="1" ItemsSource="{Binding ActivityStream}" 
+                            <ListBox Grid.Row="1" x:Name="ActivityStreamListBox" ItemsSource="{Binding ActivityStream}" 
                                      Visibility="{Binding IsActivityEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                      VirtualizingPanel.IsVirtualizing="True"
                                      VirtualizingPanel.VirtualizationMode="Recycling"
@@ -487,6 +488,13 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+
+                            <premium:ScrollIndicatorButton 
+                                TargetScrollViewer="{Binding ElementName=ActivityStreamListBox}"
+                                Grid.Row="1"
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Bottom"
+                                Margin="0,0,0,16"/>
 
                             <!-- EMPTY STATE ILLUSTRATION (Absolute centered) -->
                             <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0"

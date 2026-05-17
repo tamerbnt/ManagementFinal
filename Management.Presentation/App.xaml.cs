@@ -572,8 +572,7 @@ namespace Management.Presentation
                 mappingService.Register<ConfirmationModalViewModel, Management.Presentation.Views.Shared.ConfirmationModalWindow>();
                 mappingService.Register<InventoryHistoryViewModel, InventoryHistoryView>();
                 mappingService.Register<LogoutConfirmationViewModel, LogoutConfirmationWindow>();
-                mappingService.Register<RegisterWalkInViewModel, Management.Presentation.Views.GymHome.RegisterWalkInModal>();
-                // LogRestockViewModel, SelectTableViewModel and OpenOrdersViewModel are now UserControls handled via DataTemplates in App.xaml
+                // RegisterWalkInModal is now a UserControl handled via DataTemplates in App.xaml
                 // and displayed in the MainWindow overlay via ModalNavigationStore.
                 // RestaurantOrderingViewModel is a UserControl navigated to via NavigationService, 
                 // so it doesn't need to be registered in the Modal ViewMappingService.
@@ -1452,7 +1451,6 @@ namespace Management.Presentation
             services.AddTransient<InventoryHistoryView>();
             services.AddTransient<LogRestockView>();
             services.AddTransient<LogoutConfirmationWindow>();
-            services.AddTransient<Management.Presentation.Views.GymHome.RegisterWalkInModal>();
         }
 
         private async System.Threading.Tasks.Task InitializeDatabaseAsync(CancellationToken ct = default)

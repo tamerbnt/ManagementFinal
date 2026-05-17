@@ -100,7 +100,17 @@
                 </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border x:Name="BgSlide" Background="{Binding BackgroundColor}" Opacity="0" CornerRadius="24"/>
+                        <Grid x:Name="BgSlide" Opacity="0" CacheMode="BitmapCache">
+                            <Border Background="{Binding BackgroundColor}" CornerRadius="24"/>
+                            <Ellipse Width="1200" Height="1200" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.06">
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush>
+                                        <GradientStop Color="{Binding TitleColor}" Offset="0"/>
+                                        <GradientStop Color="Transparent" Offset="1"/>
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
                         <DataTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <DataTrigger.EnterActions>
@@ -209,9 +219,7 @@
                                 <Grid x:Name="MasterTextGrid" Opacity="0" Visibility="Hidden" HorizontalAlignment="Right" VerticalAlignment="Top" CacheMode="BitmapCache">
                                     <StackPanel>
                                         <!-- Elevated Font to Georgia Italic Light -->
-                                        <TextBlock x:Name="HeadlineText" Text="{Binding EmotionalHeadline}" Foreground="{Binding TitleColor}" FontFamily="Georgia, Playfair Display, Serif" FontStyle="Italic" FontWeight="Light" FontSize="48" LineHeight="52" TextWrapping="Wrap" Margin="0,0,0,12" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
-                                            <TextBlock.RenderTransform><TranslateTransform Y="40"/></TextBlock.RenderTransform>
-                                        </TextBlock>
+                                        <premium:StaggeredTextRevealControl x:Name="HeadlineText" Text="{Binding EmotionalHeadline}" Foreground="{Binding TitleColor}" FontFamily="Georgia, Playfair Display, Serif" FontStyle="Italic" FontWeight="Light" FontSize="48" Margin="0,0,0,12" HorizontalAlignment="Right" IsSelected="{Binding IsSelected}" />
                                         <TextBlock x:Name="SubtitleText" Text="{Binding TechnicalSubtitle}" Foreground="{Binding SubtitleColor}" FontSize="16" FontWeight="Medium" LineHeight="24" MaxWidth="420" TextWrapping="Wrap" HorizontalAlignment="Right" TextAlignment="Right" Opacity="0">
                                             <TextBlock.RenderTransform><TranslateTransform Y="20"/></TextBlock.RenderTransform>
                                         </TextBlock>
@@ -222,15 +230,7 @@
                                         <Setter TargetName="MasterTextGrid" Property="Visibility" Value="Visible"/>
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard><Storyboard>
-                                                <!-- Sub-Second Tension: Fade Grid in -->
                                                 <DoubleAnimation Storyboard.TargetName="MasterTextGrid" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4"/>
-                                                
-                                                <!-- Staggered Headline (Starts at 80ms) + Fluid QuarticEase -->
-                                                <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.08"/>
-                                                <DoubleAnimation Storyboard.TargetName="HeadlineText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="40" To="0" Duration="0:0:0.4" BeginTime="0:0:0.08">
-                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-
                                                 <!-- Staggered Subtitle (Starts at 150ms) -->
                                                 <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.15"/>
                                                 <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" From="20" To="0" Duration="0:0:0.4" BeginTime="0:0:0.15">
@@ -238,6 +238,15 @@
                                                 </DoubleAnimation>
                                             </Storyboard></BeginStoryboard>
                                         </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard><Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="MasterTextGrid" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" BeginTime="0:0:0.22"/>
+                                                <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                                <DoubleAnimation Storyboard.TargetName="SubtitleText" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" To="-16" Duration="0:0:0.2">
+                                                    <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard></BeginStoryboard>
+                                        </DataTrigger.ExitActions>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -250,7 +259,13 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid x:Name="ImgRoot" Opacity="0" Visibility="Hidden" CacheMode="BitmapCache">
-                                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                                    <Grid.RenderTransformOrigin>0.5,0.5</Grid.RenderTransformOrigin>
+                                    <Grid.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Grid.RenderTransform>
                                     
                                     <Image Source="{Binding ImagePath}" Stretch="Uniform" MaxWidth="380" MaxHeight="380" HorizontalAlignment="Right" VerticalAlignment="Center" x:Name="FloatingImage">
                                         <Image.RenderTransform><TranslateTransform/></Image.RenderTransform>
@@ -266,18 +281,30 @@
                                 </Grid>
                                 
                                 <DataTemplate.Triggers>
-                                    <!-- Tensile Swipe Entry Snap -->
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                         <Setter TargetName="ImgRoot" Property="Visibility" Value="Visible"/>
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard><Storyboard>
-                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
-                                                <!-- Extreme fluid entry sliding tension -->
-                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" From="60" To="0" Duration="0:0:0.4">
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.4" BeginTime="0:0:0.1"/>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" From="0.96" To="1" Duration="0:0:0.4" BeginTime="0:0:0.1">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" From="0.96" To="1" Duration="0:0:0.4" BeginTime="0:0:0.1">
                                                     <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
                                                 </DoubleAnimation>
                                             </Storyboard></BeginStoryboard>
                                         </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard><Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.28"/>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" To="1.03" Duration="0:0:0.28">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                                <DoubleAnimation Storyboard.TargetName="ImgRoot" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" To="1.03" Duration="0:0:0.28">
+                                                    <DoubleAnimation.EasingFunction><QuarticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard></BeginStoryboard>
+                                        </DataTrigger.ExitActions>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -319,13 +346,31 @@
                             <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border x:Name="Dot" Width="6" Height="6" CornerRadius="3" Background="#94A3B8" Margin="0,0,12,0" CacheMode="BitmapCache"/>
+                                    <Grid Width="14" Height="5" Margin="0,0,12,0" Background="Transparent" CacheMode="BitmapCache">
+                                        <Border x:Name="Dot" Width="5" Height="5" CornerRadius="2.5" HorizontalAlignment="Left">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="#40FFFFFF"/>
+                                            </Border.Background>
+                                        </Border>
+                                    </Grid>
                                     <DataTemplate.Triggers>
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter TargetName="Dot" Property="Background" Value="{Binding TitleColor}"/> <!-- Active color logic retains absolute high contrast -->
                                             <DataTrigger.EnterActions>
-                                                <BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="24" Duration="0:0:0.3"/></Storyboard></BeginStoryboard>
+                                                <BeginStoryboard><Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="14" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <ColorAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#FFFFFFFF" Duration="0:0:0.2"/>
+                                                </Storyboard></BeginStoryboard>
                                             </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard><Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="Width" To="5" Duration="0:0:0.2">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                    <ColorAnimation Storyboard.TargetName="Dot" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#40FFFFFF" Duration="0:0:0.2"/>
+                                                </Storyboard></BeginStoryboard>
+                                            </DataTrigger.ExitActions>
                                         </DataTrigger>
                                     </DataTemplate.Triggers>
                                 </DataTemplate>

@@ -57,6 +57,12 @@ namespace Management.Presentation.ViewModels.Salon
         private DispatcherTimer? _clockTimer;
         private CancellationTokenSource? _refreshCts;
 
+        private bool _isInitializing;
+        private bool _initialized;
+        private bool _isDirty;
+        private bool _needsRefreshDuringInit;
+        private readonly SemaphoreSlim _refreshSemaphore = new(1, 1);
+
         [ObservableProperty]
         private ObservableCollection<Appointment> _todayAgenda = new();
 
@@ -188,7 +194,7 @@ namespace Management.Presentation.ViewModels.Salon
                     await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
                     {
                         if (IsDisposed || token.IsCancellationRequested) return;
-                        await RefreshDataAsync();
+                        await InitializeAsync(silent: true);
                     });
                 }
                 catch (OperationCanceledException) { }
@@ -202,7 +208,7 @@ namespace Management.Presentation.ViewModels.Salon
             {
                 if (IsDisposed || IsLoading) return;
                 _logger?.LogInformation("[SalonHome] Sync debounce passed, refreshing dashboard data...");
-                await RefreshDataAsync();
+                await InitializeAsync(silent: true);
             });
         }
 
@@ -294,7 +300,6 @@ namespace Management.Presentation.ViewModels.Salon
             _syncService = syncService;
 
             _syncService.SyncCompleted += OnSyncCompleted;
-            _syncService.SyncCompleted += OnSyncCompleted;
 
             _localizationService.LanguageChanged += (s, e) => 
             {
@@ -322,24 +327,76 @@ namespace Management.Presentation.ViewModels.Salon
             // Refresh dashboard data when an appointment status changes (e.g. completed -> revenue update)
             System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
             {
-                if (!IsLoading) await RefreshDataAsync();
+                if (!IsLoading) await InitializeAsync(silent: true);
             });
         }
 
-        public async Task InitializeAsync()
-        {
-            IsActive = true;
-            // Set initial clock values on UI Thread
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
-            {
-                CurrentTime = DateTime.Now.ToString("HH:mm:ss");
-                CurrentDate = DateTime.Now.ToString(_terminologyService.GetTerm("Terminology.Salon.Home.DateFullFormat"), _localizationService.CurrentCulture);
-                UpdateGreeting();
-                StartClock();
-                await PopulateSystemAlertsAsync();
-            }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        public Task InitializeAsync() => InitializeAsync(silent: false);
 
-            await RefreshDataAsync();
+        public async Task InitializeAsync(bool silent)
+        {
+            if (_initialized && !_isDirty && !silent) return;
+
+            if (_isInitializing) 
+            {
+                _needsRefreshDuringInit = true;
+                return;
+            }
+
+            _isInitializing = true;
+            try 
+            {
+                do
+                {
+                    _needsRefreshDuringInit = false;
+
+                    if (silent)
+                    {
+                        await ExecuteBackgroundAsync(async () => await PerformInitializationInternalAsync(), _refreshSemaphore);
+                    }
+                    else
+                    {
+                        IsActive = true;
+                        // Set initial clock values on UI Thread
+                        System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => 
+                        {
+                            CurrentTime = DateTime.Now.ToString("HH:mm:ss");
+                            CurrentDate = DateTime.Now.ToString(_terminologyService.GetTerm("Terminology.Salon.Home.DateFullFormat"), _localizationService.CurrentCulture);
+                            UpdateGreeting();
+                            StartClock();
+                            await PopulateSystemAlertsAsync();
+                        }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+                        await ExecuteLoadingAsync(async () =>
+                        {
+                            await _refreshSemaphore.WaitAsync();
+                            try 
+                            {
+                                await PerformInitializationInternalAsync();
+                            }
+                            finally 
+                            { 
+                                _refreshSemaphore.Release(); 
+                            }
+                        });
+                    }
+
+                    _initialized = true;
+                    _isDirty = false;
+
+                    if (_needsRefreshDuringInit) silent = true;
+
+                } while (_needsRefreshDuringInit);
+            }
+            finally
+            {
+                _isInitializing = false;
+            }
+        }
+
+        private async Task PerformInitializationInternalAsync()
+        {
+            await RefreshDataInternalAsync();
         }
 
         // â”€â”€ Carousel state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -469,12 +526,10 @@ namespace Management.Presentation.ViewModels.Salon
             StartCarouselTimer();
         }
 
-        private async Task RefreshDataAsync()
+        private async Task RefreshDataInternalAsync()
         {
-            await ExecuteLoadingAsync(async () =>
-            {
-                var today = DateTime.Today;
-                var utcStart = today.ToUniversalTime();
+            var today = DateTime.Today;
+            var utcStart = today.ToUniversalTime();
                 var utcEnd = today.AddDays(1).AddTicks(-1).ToUniversalTime();
 
                 var facilityId = _facilityContext.CurrentFacilityId;
@@ -583,7 +638,6 @@ namespace Management.Presentation.ViewModels.Salon
                 {
                     IsActivityEmpty = !ActivityStream.Any();
                 }, System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            });
         }
 
         [RelayCommand]
@@ -679,7 +733,7 @@ namespace Management.Presentation.ViewModels.Salon
             }
             
             ScanInput = string.Empty;
-            await RefreshDataAsync();
+            await InitializeAsync(silent: true);
         }
 
         protected override void Dispose(bool disposing)
