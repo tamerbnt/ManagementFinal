@@ -344,26 +344,57 @@ namespace Management.Presentation.Views.Salon
                 await Task.WhenAll(clientsTask, servicesInitTask, staffTask);
 
                 var clientsResult = await clientsTask;
-                if (clientsResult.IsSuccess)
-                {
-                    Clients.Clear();
-                    foreach (var member in clientsResult.Value.Items) Clients.Add(member);
-                }
-
-                AvailableServices.Clear();
-                foreach (var service in _salonService.Services) 
-                {
-                    AvailableServices.Add(service);
-                }
-
                 var staff = await staffTask;
-                QualifiedStaff.Clear();
-                foreach (var s in staff) QualifiedStaff.Add(s);
-                
-                // Re-sync selected items if IDs were already set (e.g. from SalonBookArgs)
-                if (SelectedStaffId != Guid.Empty && SelectedStaff == null)
+
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher != null)
                 {
-                    SelectedStaff = QualifiedStaff.FirstOrDefault(s => s.Id == SelectedStaffId);
+                    await dispatcher.InvokeAsync(() =>
+                    {
+                        if (clientsResult.IsSuccess)
+                        {
+                            Clients.Clear();
+                            foreach (var member in clientsResult.Value.Items) Clients.Add(member);
+                        }
+
+                        AvailableServices.Clear();
+                        foreach (var service in _salonService.Services) 
+                        {
+                            AvailableServices.Add(service);
+                        }
+
+                        QualifiedStaff.Clear();
+                        foreach (var s in staff) QualifiedStaff.Add(s);
+
+                        // Re-sync selected items if IDs were already set (e.g. from SalonBookArgs)
+                        if (SelectedStaffId != Guid.Empty && SelectedStaff == null)
+                        {
+                            SelectedStaff = QualifiedStaff.FirstOrDefault(s => s.Id == SelectedStaffId);
+                        }
+                    });
+                }
+                else
+                {
+                    if (clientsResult.IsSuccess)
+                    {
+                        Clients.Clear();
+                        foreach (var member in clientsResult.Value.Items) Clients.Add(member);
+                    }
+
+                    AvailableServices.Clear();
+                    foreach (var service in _salonService.Services) 
+                    {
+                        AvailableServices.Add(service);
+                    }
+
+                    QualifiedStaff.Clear();
+                    foreach (var s in staff) QualifiedStaff.Add(s);
+
+                    // Re-sync selected items if IDs were already set (e.g. from SalonBookArgs)
+                    if (SelectedStaffId != Guid.Empty && SelectedStaff == null)
+                    {
+                        SelectedStaff = QualifiedStaff.FirstOrDefault(s => s.Id == SelectedStaffId);
+                    }
                 }
             }
             catch (Exception)
