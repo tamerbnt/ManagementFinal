@@ -1,0 +1,28 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- SALON — "Warm Linen" Palette (Alternate) — DARK MODE OVERRIDE -->
+    <!-- Accent colors only — dark surfaces remain from Theme.Dark.xaml -->
+
+    <!-- Accents (Soft Rose Pink) -->
+    <Color x:Key="FacilityAccentColor">#F48FB1</Color>
+    <Color x:Key="FacilityAccentShadowColor">#C25E80</Color>
+    <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#C25E80" Offset="0"/>
+        <GradientStop Color="#F48FB1" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#F48FB1"/>
+    <Color x:Key="AccentColor">#F48FB1</Color>
+    <Color x:Key="AccentLightColor">#FFF0F5</Color>
+
+    <SolidColorBrush x:Key="Brush.Brand.Primary" Color="#F48FB1"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#F48FB1"/>
+
+    <!-- Row Contrast Tokens -->
+    <SolidColorBrush x:Key="RowOnAccentPrimary"    Color="#1A1208"/>
+    <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#4A1524"/>
+
+</ResourceDictionary>

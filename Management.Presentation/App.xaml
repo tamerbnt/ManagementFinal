@@ -81,6 +81,7 @@
                 <ResourceDictionary Source="Resources/Terminology.Restaurant.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Base.xaml"/>
                 <ResourceDictionary Source="Resources/Terminology.Gym.xaml"/>
+                <ResourceDictionary Source="Resources/Terminology.Salon.xaml"/>
                 <ResourceDictionary Source="Resources/Localization/Strings.en.xaml"/>
 
                 <!-- 7. GLOBAL & SHARED (Aggregate everything) -->

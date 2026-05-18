@@ -180,15 +180,15 @@ namespace Management.Presentation.Services
 
             if (_currentTheme == AppTheme.Dark)
             {
-                // For Gym, we have created .Dark.xaml variants that ONLY contain the accent colors,
-                // allowing us to keep the light-mode accent color in dark mode without overriding dark backgrounds.
-                if (_currentFacility == FacilityType.Gym || _currentFacility == FacilityType.General)
+                // For Gym and Salon, we have created .Dark.xaml variants that ONLY contain the accent colors,
+                // allowing us to keep the selected palette's accent color in dark mode without overriding dark backgrounds.
+                if (_currentFacility == FacilityType.Gym || _currentFacility == FacilityType.Salon || _currentFacility == FacilityType.General)
                 {
                     fileName = fileName.Replace(".xaml", ".Dark.xaml");
                 }
                 else
                 {
-                    // Salon palettes don't have accent overrides, so we just clear them in dark mode.
+                    // Other facilities don't have custom palettes or dark overrides, so we clear.
                     var emptyUri = new Uri("Resources/Palette.Empty.xaml", UriKind.Relative);
                     UpdateDictionary("Palette.", emptyUri);
                     return;

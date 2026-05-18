@@ -26,4 +26,21 @@
     <SolidColorBrush x:Key="RowOnAccentPrimary"    Color="#1A1208"/>
     <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#4A1524"/>
 
+    <!-- Accents (Terracotta) -->
+    <Color x:Key="FacilityAccentColor">#C4785A</Color>
+    <Color x:Key="FacilityAccentShadowColor">#8C3D28</Color>
+    <LinearGradientBrush x:Key="FacilityAccentGradient" StartPoint="0,0.5" EndPoint="1,0.5">
+        <GradientStop Color="#8C3D28" Offset="0"/>
+        <GradientStop Color="#C4785A" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="FacilityAccentBrush" Color="{StaticResource FacilityAccentColor}"/>
+    <SolidColorBrush x:Key="FacilityAccentDimBrush" Color="{StaticResource FacilityAccentColor}" Opacity="0.15"/>
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#C4785A"/>
+    <Color x:Key="AccentColor">#C4785A</Color>
+    <Color x:Key="AccentLightColor">#F5E8E4</Color>
+
+    <SolidColorBrush x:Key="Brush.Brand.Primary" Color="#C4785A"/>
+    <SolidColorBrush x:Key="BrandPrimaryBrush" Color="#C4785A"/>
+
 </ResourceDictionary>
