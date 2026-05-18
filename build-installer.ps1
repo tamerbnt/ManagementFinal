@@ -1,5 +1,5 @@
 param (
-    [string]$Version = "2.0.0"
+    [string]$Version = "3.0.0"
 )
 
 
@@ -32,7 +32,8 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "`n[2/2] Running Velopack (vpk) Pack..."
 # Note: we use our assets folder. Ensure assets/app.ico exists.
 vpk pack `
-    -u AtriumManagement `
+    -u LuxuryaManagement `
+    --packTitle "Atrium Management" `
     -v $Version `
     -p $PublishDir `
     -o "releases" `

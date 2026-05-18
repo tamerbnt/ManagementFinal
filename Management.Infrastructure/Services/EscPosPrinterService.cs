@@ -90,7 +90,7 @@ namespace Management.Infrastructure.Services
                 await Task.Delay(100);
 
                 // Header - BIG ORG
-                var facilityName = _facilityContext?.CurrentFacility.ToString() ?? "Luxurya";
+                var facilityName = _facilityContext?.CurrentFacility.ToString() ?? "Atrium";
                 
                 await WriteAsync(ESC_ALIGN_CENTER);
                 await WriteAsync(ESC_DOUBLE_HEIGHT);
@@ -159,7 +159,7 @@ namespace Management.Infrastructure.Services
                 await Task.Delay(100);
 
                 // Header - Centered, Bold, Double Height
-                var facilityName = _facilityContext?.CurrentFacility.ToString() ?? "Luxurya";
+                var facilityName = _facilityContext?.CurrentFacility.ToString() ?? "Atrium";
                 var headerText = $"ATRIUM {facilityName.ToUpper()}";
 
                 await WriteAsync(ESC_ALIGN_CENTER);

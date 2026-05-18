@@ -227,6 +227,84 @@ namespace Management.Presentation
 
 
 
+        private void MigrateLegacyDirectories()
+        {
+            try
+            {
+                // 1. CommonApplicationData (%ProgramData%)
+                var commonProgramData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                var oldCommonPath = Path.Combine(commonProgramData, "Luxurya");
+                var newCommonPath = Path.Combine(commonProgramData, "Atrium");
+                MigrateDirectory(oldCommonPath, newCommonPath);
+
+                // 2. LocalApplicationData (%LocalAppData%)
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var oldLocalPath = Path.Combine(localAppData, "Luxurya");
+                var newLocalPath = Path.Combine(localAppData, "Atrium");
+                MigrateDirectory(oldLocalPath, newLocalPath);
+
+                // 3. Documents
+                var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var oldDocPath = Path.Combine(myDocuments, "Luxurya");
+                var newDocPath = Path.Combine(myDocuments, "Atrium");
+                MigrateDirectory(oldDocPath, newDocPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Directory migration failed: {ex.Message}");
+            }
+        }
+
+        private void MigrateDirectory(string sourceDir, string destDir)
+        {
+            if (Directory.Exists(sourceDir))
+            {
+                try
+                {
+                    if (!Directory.Exists(destDir))
+                    {
+                        Directory.Move(sourceDir, destDir);
+                    }
+                    else
+                    {
+                        MergeDirectories(sourceDir, destDir);
+                        Directory.Delete(sourceDir, true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error migrating {sourceDir} to {destDir}: {ex.Message}");
+                }
+            }
+        }
+
+        private void MergeDirectories(string source, string target)
+        {
+            foreach (var directory in Directory.GetDirectories(source))
+            {
+                var targetSubDir = Path.Combine(target, Path.GetFileName(directory));
+                if (!Directory.Exists(targetSubDir))
+                {
+                    Directory.CreateDirectory(targetSubDir);
+                }
+                MergeDirectories(directory, targetSubDir);
+            }
+
+            foreach (var file in Directory.GetFiles(source))
+            {
+                var targetFile = Path.Combine(target, Path.GetFileName(file));
+                if (File.Exists(targetFile))
+                {
+                    try { File.Delete(targetFile); } catch { }
+                }
+                try
+                {
+                    File.Move(file, targetFile);
+                }
+                catch { }
+            }
+        }
+
         private void LogTrace(string message)
         {
             try
@@ -238,6 +316,7 @@ namespace Management.Presentation
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            MigrateLegacyDirectories();
             LogTrace("--- APP STARTUP ---");
 
 
@@ -1012,7 +1091,7 @@ namespace Management.Presentation
 
                 if (databaseMode == "LocalFirst")
                 {
-                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
+                    var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium");
                     if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
                     
                     var dbPath = Path.Combine(dbFolder, "GymManagement.db");
@@ -1601,7 +1680,7 @@ namespace Management.Presentation
         {
             try
             {
-                var luxuryaFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Luxurya");
+                var luxuryaFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Atrium");
                 if (!Directory.Exists(luxuryaFolder)) Directory.CreateDirectory(luxuryaFolder);
                 string logPath = Path.Combine(luxuryaFolder, "crash_log.txt");
                 string content = $"\n\n[{DateTime.Now}] FATAL CRASH: {type}\n" +
@@ -1880,7 +1959,7 @@ namespace Management.Presentation
                     {
                         try 
                         {
-                            var configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya", "facility-config.json");
+                            var configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium", "facility-config.json");
                             if (System.IO.File.Exists(configPath))
                             {
                                 var jsonStr = System.IO.File.ReadAllText(configPath);

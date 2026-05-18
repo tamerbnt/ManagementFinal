@@ -128,7 +128,7 @@ namespace Management.Infrastructure.Services
         private string GetOrCreatePersistentGuid()
         {
             var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var luxuryaDir = System.IO.Path.Combine(appDataPath, "Luxurya");
+            var luxuryaDir = System.IO.Path.Combine(appDataPath, "Atrium");
             var deviceIdFile = System.IO.Path.Combine(luxuryaDir, "device.id");
 
             try

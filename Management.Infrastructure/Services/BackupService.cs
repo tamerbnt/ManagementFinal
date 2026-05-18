@@ -25,7 +25,7 @@ namespace Management.Infrastructure.Services
             _context = context;
             
             // Database is in ProgramData
-            var luxuryaDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
+            var luxuryaDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium");
             _dbPath = Path.Combine(luxuryaDataFolder, "GymManagement.db");
 
             // Backups are in ProgramData/Luxurya/backups for better persistence/sync across shift changes

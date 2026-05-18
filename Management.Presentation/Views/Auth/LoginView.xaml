@@ -51,7 +51,7 @@
                 <Image Grid.Column="0" Source="/Assets/atrium_header_logo.png" Height="110" HorizontalAlignment="Left" Margin="-25,0,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
             </Grid>
 
-            <TextBlock Text="Sign in" FontSize="40" FontWeight="ExtraBold" Foreground="#0F172A" Margin="0,0,0,12"/>
+            <TextBlock Text="Login" FontSize="40" FontWeight="ExtraBold" Foreground="#0F172A" Margin="0,0,0,12"/>
 
             <!-- EXPANSION BANNER -->
             <Border Background="#F8EFEB" BorderBrush="#C4785A" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
@@ -184,7 +184,7 @@
                                     <ScaleTransform x:Name="BtnScale" ScaleX="1.0" ScaleY="1.0" CenterX="80" CenterY="23"/>
                                 </Border.RenderTransform>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                    <TextBlock x:Name="btnText" Text="Sign in" Foreground="White" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="btnText" Text="Login" Foreground="White" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                                     <Path x:Name="btnChevron" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" Fill="White" Width="10" Height="10" Stretch="Uniform" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                     <premium:AtriumMarkAnimation x:Name="busyAnim" AnimationMode="Construction" MarkForeground="White" Width="24" Height="24" Visibility="Collapsed" Margin="8,0,0,0"/>
                                 </StackPanel>

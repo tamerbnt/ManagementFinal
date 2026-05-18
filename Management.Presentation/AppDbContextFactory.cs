@@ -20,7 +20,7 @@ namespace Management.Presentation
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
             // Setup local SQLite connection string, mimicking the runtime DefaultConnection
-            var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Luxurya");
+            var dbFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium");
             if (!Directory.Exists(dbFolder)) Directory.CreateDirectory(dbFolder);
             string connectionString = $"Data Source={Path.Combine(dbFolder, "GymManagement.db")}";
             optionsBuilder.UseSqlite(connectionString, b => b.MigrationsAssembly("Management.Infrastructure"));
