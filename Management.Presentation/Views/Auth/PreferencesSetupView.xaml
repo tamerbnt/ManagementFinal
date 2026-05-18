@@ -32,7 +32,7 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="#C4785A"/>
                                     <Setter TargetName="CardBorder" Property="Background" Value="#F9FAFB"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
@@ -119,9 +119,9 @@
                             <Style TargetType="Button" BasedOn="{StaticResource ThemeSelectorCard}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsLightTheme}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="#C4785A"/>
                                         <Setter Property="BorderThickness" Value="2.5"/>
-                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        <Setter Property="Background" Value="#F8EFEB"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -140,9 +140,9 @@
                             <Style TargetType="Button" BasedOn="{StaticResource ThemeSelectorCard}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="#C4785A"/>
                                         <Setter Property="BorderThickness" Value="2.5"/>
-                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        <Setter Property="Background" Value="#F8EFEB"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -179,9 +179,9 @@
                             <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsLanguageEnglish}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="#C4785A"/>
                                         <Setter Property="BorderThickness" Value="2"/>
-                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        <Setter Property="Background" Value="#F8EFEB"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -195,9 +195,9 @@
                             <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsLanguageFrench}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="#C4785A"/>
                                         <Setter Property="BorderThickness" Value="2"/>
-                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        <Setter Property="Background" Value="#F8EFEB"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -211,9 +211,9 @@
                             <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsLanguageArabic}" Value="True">
-                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderBrush" Value="#C4785A"/>
                                         <Setter Property="BorderThickness" Value="2"/>
-                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                        <Setter Property="Background" Value="#F8EFEB"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -227,7 +227,7 @@
             <Button Command="{Binding ContinueCommand}" Height="46" HorizontalAlignment="Stretch">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{DynamicResource FacilityAccentBrush}" CornerRadius="10" RenderTransformOrigin="0.5,0.5">
+                        <Border x:Name="border" Background="#C4785A" CornerRadius="10" RenderTransformOrigin="0.5,0.5">
                             <Border.RenderTransform>
                                 <ScaleTransform x:Name="BtnScale" ScaleX="1" ScaleY="1"/>
                             </Border.RenderTransform>

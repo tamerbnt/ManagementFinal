@@ -92,6 +92,7 @@ namespace Management.Presentation.ViewModels
         public ICommand BackToAccountSetupCommand { get; }
         public ICommand ChangeFacilityCommand { get; }
 
+
         public LoginViewModel(
             IAuthenticationService authService,
             INavigationService navigationService,
@@ -293,5 +294,6 @@ namespace Management.Presentation.ViewModels
                 await _navigationService.NavigateToAsync<OnboardingOwnerViewModel>(Email);
             });
         }
+
     }
 }

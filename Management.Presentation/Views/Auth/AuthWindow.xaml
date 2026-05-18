@@ -40,7 +40,13 @@
                 <auth:SplashOnboardingView/>
             </DataTemplate>
             <DataTemplate DataType="{x:Type sharedVm:ConfirmationModalViewModel}">
-                <sharedView:ConfirmationModal/>
+                <sharedView:ConfirmationModal>
+                    <sharedView:ConfirmationModal.Resources>
+                        <!-- Scope Atrium corporate branding colors specifically to onboarding/auth window dialogs -->
+                        <SolidColorBrush x:Key="FacilityAccentBrush" Color="#C4785A"/>
+                        <SolidColorBrush x:Key="FacilityAccentBrush.Deep" Color="#8C3D28"/>
+                    </sharedView:ConfirmationModal.Resources>
+                </sharedView:ConfirmationModal>
             </DataTemplate>
 
 
