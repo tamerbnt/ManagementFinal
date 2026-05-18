@@ -24,9 +24,11 @@
                                CancelCommand="{Binding CancelCommand}"
                                SaveCommand="{Binding RegisterCommand}"
                                PrimaryActionText="{DynamicResource Terminology.Global.Register}">
-        
-        <StackPanel Margin="0,8,0,0">
-            <!-- 1. LEAD SEARCH (TOP SECTION) -->
+        <Grid>
+            <ScrollViewer Loaded="FormScroll_Loaded"
+                          VerticalScrollBarVisibility="Hidden">
+                <StackPanel Margin="0,8,0,0">
+                    <!-- 1. LEAD SEARCH (TOP SECTION) -->
             <Border Background="{DynamicResource Brush.Surface.Glass}" 
                     CornerRadius="16" 
                     Padding="24" 
@@ -79,55 +81,55 @@
             <!-- 2. MAIN FORM (2 COLUMNS) -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="40"/> <!-- Spacer -->
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="40"/> <!-- Spacer -->
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <!-- Left Column: Personal Data & Gender (New Layout) -->
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.PersonalDetails}" Style="{StaticResource SectionTitle}"/>
-                    
-                    <premium:PremiumSearchBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="{DynamicResource Terminology.Staff.Add.FullName}"
-                                             IconData="{StaticResource IconMembers}"
-                                             IsSearchMode="False"
-                                             Margin="0,0,0,24"/>
+                        <!-- Left Column: Personal Data &amp; Gender -->
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.PersonalDetails}" Style="{StaticResource SectionTitle}"/>
 
-                    <premium:PremiumSearchBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="{DynamicResource Terminology.Staff.Add.Phone}"
-                                             IconData="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-                                             IsSearchMode="False"
-                                             Margin="0,0,0,24"/>
+                            <premium:PremiumSearchBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                                     Placeholder="{DynamicResource Terminology.Staff.Add.FullName}"
+                                                     IconData="{StaticResource IconMembers}"
+                                                     IsSearchMode="False"
+                                                     Margin="0,0,0,24"/>
 
-                    <premium:PremiumSearchBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="{DynamicResource Terminology.Staff.Add.Email}"
-                                             IconData="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6"
-                                             IsSearchMode="False"
-                                             Margin="0,0,0,24"/>
+                            <premium:PremiumSearchBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                                     Placeholder="{DynamicResource Terminology.Staff.Add.Phone}"
+                                                     IconData="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                                                     IsSearchMode="False"
+                                                     Margin="0,0,0,24"/>
 
-                    <premium:PremiumSearchBox Text="{Binding Age, Converter={StaticResource NullableIntToStringConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="{DynamicResource Terminology.Member.Age}"
-                                             IconData="{StaticResource IconCalendar}"
-                                             IsSearchMode="False"
-                                             Margin="0,0,0,24"/>
+                            <premium:PremiumSearchBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                                     Placeholder="{DynamicResource Terminology.Staff.Add.Email}"
+                                                     IconData="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6"
+                                                     IsSearchMode="False"
+                                                     Margin="0,0,0,24"/>
 
-                    <!-- Gender Segmented Toggle (Integrated from Column 2) -->
-                    <StackPanel Margin="0,8,0,0">
-                        <TextBlock Text="{DynamicResource Terminology.Member.Gender}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,12"/>
-                        <premium:SegmentedToggleControl SelectedGender="{Binding Gender, Mode=TwoWay}" Width="250" HorizontalAlignment="Left"/>
-                    </StackPanel>
-                </StackPanel>
+                            <premium:PremiumSearchBox Text="{Binding Age, Converter={StaticResource NullableIntToStringConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                                     Placeholder="{DynamicResource Terminology.Member.Age}"
+                                                     IconData="{StaticResource IconCalendar}"
+                                                     IsSearchMode="False"
+                                                     Margin="0,0,0,24"/>
 
-                <!-- Right Column: Identification & Plan -->
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.Identification}" Style="{StaticResource SectionTitle}"/>
-                    
-                    <premium:PremiumSearchBox Text="{Binding CardId, UpdateSourceTrigger=PropertyChanged}"
-                                             Placeholder="{DynamicResource Terminology.Modal.QuickRegistration.Placeholder.CardId}"
-                                             IconData="{StaticResource IconTag}"
-                                             IsSearchMode="False"
-                                             Margin="0,0,0,24"/>
+                            <!-- Gender Segmented Toggle -->
+                            <StackPanel Margin="0,8,0,0">
+                                <TextBlock Text="{DynamicResource Terminology.Member.Gender}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,12"/>
+                                <premium:SegmentedToggleControl SelectedGender="{Binding Gender, Mode=TwoWay}" Width="250" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Right Column: Identification &amp; Plan -->
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.Identification}" Style="{StaticResource SectionTitle}"/>
+
+                            <premium:PremiumSearchBox Text="{Binding CardId, UpdateSourceTrigger=PropertyChanged}"
+                                                     Placeholder="{DynamicResource Terminology.Modal.QuickRegistration.Placeholder.CardId}"
+                                                     IconData="{StaticResource IconTag}"
+                                                     IsSearchMode="False"
+                                                     Margin="0,0,0,24"/>
 
                     <StackPanel Margin="0,0,0,24">
                         <TextBlock Text="{DynamicResource Terminology.Modal.QuickRegistration.MembershipPlan}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource Brush.Text.Secondary}" Margin="0,0,0,8"/>
@@ -187,8 +189,8 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                     </StackPanel>
-                </StackPanel>
-            </Grid>
+                        </StackPanel>
+                    </Grid>
 
             <!-- 3. PRICING SUMMARY -->
             <Border Background="{DynamicResource SurfaceBgDim}" CornerRadius="12" Padding="20" Margin="0,32,0,0">
@@ -229,6 +231,14 @@
                     </StackPanel>
                 </Grid>
             </Border>
-        </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+            <premium:ScrollIndicatorButton
+                Loaded="FormScrollIndicator_Loaded"
+                Panel.ZIndex="100"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,8"/>
+        </Grid>
     </premium:ModalShellControl>
 </UserControl>

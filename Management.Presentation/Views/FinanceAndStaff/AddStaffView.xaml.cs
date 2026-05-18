@@ -17,6 +17,10 @@ namespace Management.Presentation.Views.FinanceAndStaff
         private Border? _roleSelectionPill;
         private TranslateTransform? _rolePillTranslate;
 
+        // Scroll indicator wiring
+        private ScrollViewer? _formScroll;
+        private Controls.Premium.ScrollIndicatorButton? _formScrollIndicator;
+
         public AddStaffView()
         {
             InitializeComponent();
@@ -25,7 +29,12 @@ namespace Management.Presentation.Views.FinanceAndStaff
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            AnimateRolePill(isOwner: false);
+            // Defer until after the first layout pass so parent.ActualWidth is non-zero.
+            // Without this, the pill gets Width=0 and the white sliver appears while
+            // the first real click is silently a no-op (animates 0→0).
+            Dispatcher.BeginInvoke(
+                System.Windows.Threading.DispatcherPriority.Render,
+                new Action(() => AnimateRolePill(isOwner: false)));
         }
 
         // --- Loaded registrations ---
@@ -42,6 +51,39 @@ namespace Management.Presentation.Views.FinanceAndStaff
         {
             _roleSelectionPill = sender as Border;
             _rolePillTranslate = _roleSelectionPill?.RenderTransform as System.Windows.Media.TranslateTransform;
+        }
+
+        private void FormScroll_Loaded(object sender, RoutedEventArgs e)
+        {
+            _formScroll = sender as ScrollViewer;
+            TryWireForm();
+
+            // Defer the visual tree walk to ensure the UserControl is fully attached to the ModalShellControl's visual tree
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, new System.Action(() =>
+            {
+                DependencyObject parent = _formScroll;
+                while (parent != null)
+                {
+                    parent = System.Windows.Media.VisualTreeHelper.GetParent(parent);
+                    if (parent is ScrollViewer outerSv && outerSv != _formScroll)
+                    {
+                        outerSv.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+                        break;
+                    }
+                }
+            }));
+        }
+
+        private void FormScrollIndicator_Loaded(object sender, RoutedEventArgs e)
+        {
+            _formScrollIndicator = sender as Controls.Premium.ScrollIndicatorButton;
+            TryWireForm();
+        }
+
+        private void TryWireForm()
+        {
+            if (_formScroll != null && _formScrollIndicator != null)
+                _formScrollIndicator.TargetScrollViewer = _formScroll;
         }
 
         // --- Password Reveal ---

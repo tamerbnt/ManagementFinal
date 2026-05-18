@@ -92,11 +92,15 @@ namespace Management.Infrastructure.Services
 
             var dto = new DashboardSummaryDto();
 
-            var tasks = _aggregators
+            var orderedAggregators = _aggregators
                 .Where(a => a.CanHandle(context))
-                .Select(a => RunAggregatorSafeAsync(a, dto, context));
+                .OrderBy(a => a.Priority)
+                .ToList();
 
-            await Task.WhenAll(tasks);
+            foreach (var aggregator in orderedAggregators)
+            {
+                await RunAggregatorSafeAsync(aggregator, dto, context);
+            }
 
             return dto;
         }

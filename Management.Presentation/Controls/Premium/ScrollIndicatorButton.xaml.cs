@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using Management.Presentation.Helpers;
 using Management.Presentation.Behaviors;
 
@@ -119,8 +120,8 @@ namespace Management.Presentation.Controls.Premium
             _resolvedScrollViewer = scrollViewer;
             _resolvedScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
 
-            // Trigger initial evaluation
-            EvaluateScrollState();
+            // Defer initial evaluation until layout is complete (mirrors the role pill fix pattern)
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(EvaluateScrollState));
         }
 
         private void CleanupScrollViewer()

@@ -18,155 +18,165 @@
                                PrimaryActionText="{DynamicResource Terminology.Shop.AddProduct.Action.Save}">
 
         <Grid Margin="0,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/> <!-- Product Details (60%) -->
-                <ColumnDefinition Width="36"/>   <!-- Spacer -->
-                <ColumnDefinition Width="*"/>    <!-- Category &amp; Inventory (40%) -->
-            </Grid.ColumnDefinitions>
+            <ScrollViewer Loaded="FormScroll_Loaded" VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*"/> <!-- Product Details (60%) -->
+                        <ColumnDefinition Width="36"/>   <!-- Spacer -->
+                        <ColumnDefinition Width="*"/>    <!-- Category & Inventory (40%) -->
+                    </Grid.ColumnDefinitions>
 
-            <!-- ===== LEFT COLUMN: Product Details + Pricing ===== -->
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                    <!-- ===== LEFT COLUMN: Product Details + Pricing ===== -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <StackPanel Grid.Row="0">
-                    <TextBlock Text="Product Details"
-                               FontSize="14" FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextTertiaryBrush}"
-                               Margin="0,0,0,24"/>
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="Product Details"
+                                       FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       Margin="0,0,0,24"/>
 
-                    <Border Background="{DynamicResource SurfaceBg}"
-                            CornerRadius="20"
-                            Padding="24"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1">
-                        <StackPanel>
+                            <Border Background="{DynamicResource SurfaceBg}"
+                                    CornerRadius="20"
+                                    Padding="24"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel>
 
-                            <!-- Product Name -->
-                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Name}"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="0,0,0,8"/>
-                            <premium:PremiumSearchBox
-                                Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                Placeholder="{DynamicResource Terminology.Shop.AddProduct.NameHint}"
-                                IconData="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"
-                                IsSearchMode="False"
-                                Margin="0,0,0,20"/>
+                                    <!-- Product Name -->
+                                    <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Name}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,8"/>
+                                    <premium:PremiumSearchBox
+                                        Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                        Placeholder="{DynamicResource Terminology.Shop.AddProduct.NameHint}"
+                                        IconData="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"
+                                        IsSearchMode="False"
+                                        Margin="0,0,0,20"/>
 
-                            <!-- SKU / Barcode -->
-                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Sku}"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="0,0,0,8"/>
-                            <premium:PremiumSearchBox
-                                Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}"
-                                Placeholder="{DynamicResource Terminology.Shop.AddProduct.SkuHint}"
-                                IconData="M3 5h18M3 12h18M3 19h18"
-                                IsSearchMode="False"
-                                Margin="0,0,0,20"/>
+                                    <!-- SKU / Barcode -->
+                                    <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Sku}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,8"/>
+                                    <premium:PremiumSearchBox
+                                        Text="{Binding Sku, UpdateSourceTrigger=PropertyChanged}"
+                                        Placeholder="{DynamicResource Terminology.Shop.AddProduct.SkuHint}"
+                                        IconData="M3 5h18M3 12h18M3 19h18"
+                                        IsSearchMode="False"
+                                        Margin="0,0,0,20"/>
 
-                            <!-- Sale Price -->
-                            <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.SalePrice}"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="0,0,0,8"/>
-                            <premium:PremiumSearchBox
-                                Text="{Binding Price, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
-                                Placeholder="0.00"
-                                IsSearchMode="False"
-                                IconData="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                    <!-- Sale Price -->
+                                    <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.SalePrice}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,8"/>
+                                    <premium:PremiumSearchBox
+                                        Text="{Binding Price, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                        Placeholder="0.00"
+                                        IsSearchMode="False"
+                                        IconData="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
 
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- Delete Button (Edit mode only) -->
-                <Button Grid.Row="1"
-                        Command="{Binding DeleteCommand}"
-                        Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
-                        HorizontalAlignment="Left"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        Margin="0,20,0,0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="Transparent" Padding="{TemplateBinding Padding}">
-                                <ContentPresenter/>
+                                </StackPanel>
                             </Border>
-                        </ControlTemplate>
-                    </Button.Template>
-                    <StackPanel Orientation="Horizontal">
-                        <Path Data="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6"
-                              Stroke="{DynamicResource Brush.Accent.Red}"
-                              StrokeThickness="1.5"
-                              Width="16" Height="16"
-                              Stretch="Uniform"
-                              VerticalAlignment="Center"
-                              Margin="0,0,8,0"/>
-                        <TextBlock Text="Delete Product"
-                                   FontSize="13" FontWeight="Medium"
-                                   Foreground="{DynamicResource Brush.Accent.Red}"
-                                   VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Delete Button (Edit mode only) -->
+                        <Button Grid.Row="1"
+                                Command="{Binding DeleteCommand}"
+                                Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVis}}"
+                                HorizontalAlignment="Left"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Margin="0,20,0,0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6"
+                                      Stroke="{DynamicResource Brush.Accent.Red}"
+                                      StrokeThickness="1.5"
+                                      Width="16" Height="16"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,8,0"/>
+                                <TextBlock Text="Delete Product"
+                                           FontSize="13" FontWeight="Medium"
+                                           Foreground="{DynamicResource Brush.Accent.Red}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- ===== RIGHT COLUMN: Category + Inventory ===== -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Pricing &amp; Inventory"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   Margin="0,0,0,24"/>
+
+                        <!-- Category -->
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Category}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <ComboBox ItemsSource="{x:Static shopvm:AddProductViewModel.AvailableCategories}"
+                                  SelectedItem="{Binding Category, Mode=TwoWay}"
+                                  Style="{StaticResource Input.ComboBox}"
+                                  Margin="0,0,0,24"/>
+
+                        <!-- Unit Cost -->
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.UnitCost}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox
+                            Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                            Placeholder="0.00"
+                            IsSearchMode="False"
+                            IconData="M20 12V22H4V12 M22 7H2v5h20V7z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"
+                            Margin="0,0,0,24"/>
+
+                        <!-- Initial Stock -->
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.InitialStock}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox
+                            Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}"
+                            Placeholder="0"
+                            IsSearchMode="False"
+                            IconData="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                            Margin="0,0,0,24"/>
+
+                        <!-- Low Stock Alert -->
+                        <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.LowStockAlert}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        <premium:PremiumSearchBox
+                            Text="{Binding ReorderLevel, UpdateSourceTrigger=PropertyChanged}"
+                            Placeholder="10"
+                            IsSearchMode="False"
+                            IconData="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0"/>
                     </StackPanel>
-                </Button>
-            </Grid>
-
-            <!-- ===== RIGHT COLUMN: Category + Inventory ===== -->
-            <StackPanel Grid.Column="2">
-                <TextBlock Text="Pricing &amp; Inventory"
-                           FontSize="14" FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           Margin="0,0,0,24"/>
-
-                <!-- Category -->
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.Category}"
-                           FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
-                <ComboBox ItemsSource="{x:Static shopvm:AddProductViewModel.AvailableCategories}"
-                          SelectedItem="{Binding Category, Mode=TwoWay}"
-                          Style="{StaticResource Input.ComboBox}"
-                          Margin="0,0,0,24"/>
-
-                <!-- Unit Cost -->
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.UnitCost}"
-                           FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
-                <premium:PremiumSearchBox
-                    Text="{Binding Cost, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
-                    Placeholder="0.00"
-                    IsSearchMode="False"
-                    IconData="M20 12V22H4V12 M22 7H2v5h20V7z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"
-                    Margin="0,0,0,24"/>
-
-                <!-- Initial Stock -->
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.InitialStock}"
-                           FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
-                <premium:PremiumSearchBox
-                    Text="{Binding StockQuantity, UpdateSourceTrigger=PropertyChanged}"
-                    Placeholder="0"
-                    IsSearchMode="False"
-                    IconData="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                    Margin="0,0,0,24"/>
-
-                <!-- Low Stock Alert -->
-                <TextBlock Text="{DynamicResource Terminology.Shop.AddProduct.LowStockAlert}"
-                           FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           Margin="0,0,0,8"/>
-                <premium:PremiumSearchBox
-                    Text="{Binding ReorderLevel, UpdateSourceTrigger=PropertyChanged}"
-                    Placeholder="10"
-                    IsSearchMode="False"
-                    IconData="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0"/>
-            </StackPanel>
+                </Grid>
+            </ScrollViewer>
+            <premium:ScrollIndicatorButton
+                Loaded="FormScrollIndicator_Loaded"
+                Panel.ZIndex="100"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,8"/>
         </Grid>
     </premium:ModalShellControl>
 </UserControl>

@@ -118,6 +118,27 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN date_of_birth TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN source TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE members ADD COLUMN gender INTEGER DEFAULT 3;", ct); } catch { }
+
+                // Create missing salon_settings table
+                try { await Database.ExecuteSqlRawAsync(@"CREATE TABLE IF NOT EXISTS salon_settings (
+                    id TEXT PRIMARY KEY,
+                    created_at TEXT,
+                    daily_revenue_target NUMERIC,
+                    facility_id TEXT,
+                    is_deleted INTEGER DEFAULT 0,
+                    is_synced INTEGER DEFAULT 0,
+                    operating_hours_json TEXT,
+                    row_version BLOB,
+                    tenant_id TEXT,
+                    total_chairs INTEGER,
+                    updated_at TEXT
+                );", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_salon_settings_facility_id ON salon_settings (facility_id);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_salon_settings_is_deleted ON salon_settings (is_deleted);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_salon_settings_is_synced ON salon_settings (is_synced);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_salon_settings_tenant_id ON salon_settings (tenant_id);", ct); } catch { }
+
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_settings ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE salon_settings ADD COLUMN row_version BLOB;", ct); } catch { }
 

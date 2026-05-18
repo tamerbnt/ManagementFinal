@@ -20,7 +20,7 @@ namespace Management.Infrastructure.Services.Dashboard
             _dbContext = dbContext;
         }
 
-        public override int Priority => 15; // After basic metrics
+        public override int Priority => 25; // After basic metrics
 
         public override bool CanHandle(DashboardContext context)
         {
@@ -94,6 +94,32 @@ namespace Management.Infrastructure.Services.Dashboard
                 dto.SalonRetailAttachRate.ComparisonLabel = "vs today's goal";
                 dto.SalonRetailAttachRate.PeriodLabel = "LIVE";
             }
+            else
+            {
+                dto.SalonRetailAttachRate.Value = 0;
+                dto.SalonRetailAttachRate.ComparisonLabel = "vs today's goal";
+                dto.SalonRetailAttachRate.PeriodLabel = "LIVE";
+            }
+
+            // PT Upsell Rate (Ported from Gym Dashboard)
+            var activeMemberIds = await _dbContext.Members
+                .Where(m => m.FacilityId == facilityId && m.Status == Management.Domain.Enums.MemberStatus.Active && !m.IsDeleted && m.ExpirationDate > context.UtcNow)
+                .Select(m => m.MembershipPlanId)
+                .ToListAsync();
+
+            if (activeMemberIds.Any())
+            {
+                var ptPlanIds = await _dbContext.MembershipPlans
+                    .Where(p => p.FacilityId == facilityId && p.IsPersonalTraining && !p.IsDeleted)
+                    .Select(p => p.Id)
+                    .ToListAsync();
+
+                int ptCount = activeMemberIds.Count(id => id.HasValue && ptPlanIds.Contains(id.Value));
+                dto.PtUpsellRate.Value = (decimal)ptCount / activeMemberIds.Count * 100;
+                dto.PtUpsellRate.PeriodLabel = "CURRENT";
+                dto.PtUpsellRate.ComparisonLabel = "of active members";
+            }
+            dto.PtUpsellRate.IsIncreasePositive = true;
 
             // 5. Chair Utilization
             // Strategy: (Completed Appointments Today * Avg Duration) / (Total Chairs * 8 hours)
@@ -136,9 +162,12 @@ namespace Management.Infrastructure.Services.Dashboard
                 .Take(5)
                 .ToList();
                 
-            dto.SalonAvgTicketValue.Value = completedToday.Any() ? completedToday.Average(a => 50m) : 0; // Simple average
-            dto.SalonAvgTicketValue.PeriodLabel = "LIVE";
-            dto.SalonAvgTicketValue.ComparisonLabel = "avg today";
+            if (dto.SalonAvgTicketValue.Value == 0)
+            {
+                dto.SalonAvgTicketValue.Value = completedToday.Any() ? completedToday.Average(a => 50m) : 0; // Simple average
+                dto.SalonAvgTicketValue.PeriodLabel = "LIVE";
+                dto.SalonAvgTicketValue.ComparisonLabel = "avg today";
+            }
         }
     }
 }

@@ -17,18 +17,21 @@
                                PrimaryActionText="{Binding ActionButtonText}">
         
         <Grid Margin="0,10,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.8*"/> <!-- Identity Section -->
-                <ColumnDefinition Width="40"/>    <!-- Visual Spacer -->
-                <ColumnDefinition Width="*"/>    <!-- Roles & Permissions Section -->
-            </Grid.ColumnDefinitions>
+            <ScrollViewer Loaded="FormScroll_Loaded"
+                          VerticalScrollBarVisibility="Hidden">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.8*"/> <!-- Identity Section -->
+                        <ColumnDefinition Width="40"/>    <!-- Visual Spacer -->
+                        <ColumnDefinition Width="*"/>    <!-- Roles &amp; Permissions Section -->
+                    </Grid.ColumnDefinitions>
 
-            <!-- LEFT COLUMN: Identity & Bio (65%) -->
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Identity &amp; Bio" 
-                           FontSize="14" FontWeight="SemiBold" 
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           Margin="0,0,0,24"/>
+                    <!-- LEFT COLUMN: Identity &amp; Bio (65%) -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Identity &amp; Bio"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   Margin="0,0,0,24"/>
 
                 <!-- Contact Info Card -->
                 <Border Background="{DynamicResource SurfaceBg}" 
@@ -148,10 +151,11 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
-            </StackPanel>
+                    </StackPanel>
 
-            <!-- RIGHT COLUMN: Employment & Permissions (35%) -->
-            <StackPanel Grid.Column="2">
+                    <!-- RIGHT COLUMN: Employment &amp; Permissions (35%) -->
+                    <StackPanel Grid.Column="2">
+
                 <TextBlock Text="Employment" 
                            FontSize="14" FontWeight="SemiBold" 
                            Foreground="{DynamicResource TextTertiaryBrush}"
@@ -174,7 +178,7 @@
                             <!-- Animated selection pill -->
                             <Border Loaded="RoleSelectionPill_Loaded"
                                     Grid.Column="0"
-                                    Background="White"
+                                    Background="{DynamicResource SurfaceBg}"
                                     CornerRadius="10"
                                     HorizontalAlignment="Left"
                                     IsHitTestVisible="False">
@@ -258,6 +262,7 @@
                                 Text="{Binding NewStaff.Salary, UpdateSourceTrigger=PropertyChanged}"
                                 Placeholder="Monthly Base Salary (DA)"
                                 IconData="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"
+                                IsSearchMode="False"
                                 Margin="0,0,0,20"/>
 
                             <!-- Payment Day -->
@@ -268,7 +273,8 @@
                             <premium:PremiumSearchBox
                                 Text="{Binding NewStaff.PaymentDay, UpdateSourceTrigger=PropertyChanged}"
                                 Placeholder="Calendar Day (1-31)"
-                                IconData="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                IconData="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                IsSearchMode="False"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -305,7 +311,15 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+            <premium:ScrollIndicatorButton
+                Loaded="FormScrollIndicator_Loaded"
+                Panel.ZIndex="100"
+                VerticalAlignment="Bottom"
+                HorizontalAlignment="Center"
+                Margin="0,0,0,8"/>
         </Grid>
     </premium:ModalShellControl>
 </UserControl>

@@ -59,45 +59,17 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Search Bar -->
-                    <ContentControl Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <ContentControl.Style>
-                            <Style TargetType="ContentControl">
-                                <Setter Property="Width" Value="300"/>
-                                <Setter Property="HorizontalAlignment" Value="Left"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                        <Trigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="450" Duration="0:0:0.3">
-                                                        <DoubleAnimation.EasingFunction>
-                                                            <CubicEase EasingMode="EaseOut"/>
-                                                        </DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.EnterActions>
-                                        <Trigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation Storyboard.TargetProperty="Width" To="300" Duration="0:0:0.25">
-                                                        <DoubleAnimation.EasingFunction>
-                                                            <CubicEase EasingMode="EaseIn"/>
-                                                        </DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </Trigger.ExitActions>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ContentControl.Style>
-                        <premium:PremiumSearchBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                 Placeholder="Search products..."
-                                                 IconData="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-                                                 Height="44"/>
-                    </ContentControl>
+                    <!-- Search Bar — fixed width, focus highlight handled inside PremiumSearchBox -->
+                    <premium:PremiumSearchBox
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        Width="300"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        Placeholder="Search products..."
+                        IconData="{StaticResource Icon.Search}"
+                        Height="44"/>
 
                     <!-- View Mode Toggle (Standardized Atrium Pattern) -->
                     <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
