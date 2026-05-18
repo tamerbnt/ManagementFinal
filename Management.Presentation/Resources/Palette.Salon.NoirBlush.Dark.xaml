@@ -25,4 +25,9 @@
     <SolidColorBrush x:Key="RowOnAccentPrimary"    Color="#1A1208"/>
     <SolidColorBrush x:Key="RowOnAccentSecondary"  Color="#4A1524"/>
 
+    <!-- ── Sidebar Overrides (Noir Blush / Midnight Dark #1E1E2D) ── -->
+    <Color x:Key="FacilitySidebarBrush.Color">#1E1E2D</Color>
+    <SolidColorBrush x:Key="FacilitySidebarBrush" Color="#1E1E2D"/>
+    <SolidColorBrush x:Key="Brush.Brand.Primary.Deep" Color="#1E1E2D"/>
+
 </ResourceDictionary>
