@@ -868,6 +868,13 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Title.Success">Succès</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">Configuration terminée ! Votre espace de travail a été initialisé.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">L'intégration a échoué : {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesTitle">Personnalisez votre espace de travail</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesSubtitle">Choisissez votre thème et langue préférés pour commencer.</sys:String>
+    <sys:String x:Key="Strings.Auth.ThemeSelection">MODE ESPACE DE TRAVAIL</sys:String>
+    <sys:String x:Key="Strings.Auth.LanguageSelection">LANGUE DE L'INTERFACE</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Light">Mode Clair</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Dark">Mode Sombre</sys:String>
+    <sys:String x:Key="Strings.Auth.Action.ContinueToWorkspace">Continuer vers l'espace de travail</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Warning">Avertissement</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceRegistrationFailed">Compte créé, mais l'enregistrement de l'appareil a échoué : {0}</sys:String>
     <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Entrez votre clé de licence unique pour initialiser votre Luxurya Workspace avec une sécurité de niveau professionnel.</sys:String>

@@ -887,6 +887,13 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Title.Success">تم النجاح</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">اكتمل الإعداد! تم تهيئة مساحة العمل الخاصة بك.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">فشل الإعداد: {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesTitle">تخصيص مساحة العمل الخاصة بك</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesSubtitle">اختر السمة واللغة المفضلة لديك للبدء.</sys:String>
+    <sys:String x:Key="Strings.Auth.ThemeSelection">وضع مساحة العمل</sys:String>
+    <sys:String x:Key="Strings.Auth.LanguageSelection">لغة الواجهة</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Light">الوضع الفاتح</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Dark">الوضع الداكن</sys:String>
+    <sys:String x:Key="Strings.Auth.Action.ContinueToWorkspace">متابعة إلى مساحة العمل</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Warning">تحذير</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceRegistrationFailed">تم إنشاء الحساب، ولكن فشل تسجيل الجهاز: {0}</sys:String>
     <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">أدخل مفتاح الترخيص الفريد الخاص بك لتهيئة مساحة عمل Titan الخاصة بك بأمان احترافي.</sys:String>

@@ -241,6 +241,10 @@
                 <auth:OnboardingOwnerView/>
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type viewmodels:PreferencesSetupViewModel}">
+                <auth:PreferencesSetupView/>
+            </DataTemplate>
+
             <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
                 <auth:LoginView/>
             </DataTemplate>

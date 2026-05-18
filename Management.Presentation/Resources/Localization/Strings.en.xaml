@@ -990,6 +990,13 @@ xmlns:sys="clr-namespace:System;assembly=System.Runtime">
     <sys:String x:Key="Strings.Auth.Title.Success">Success</sys:String>
     <sys:String x:Key="Strings.Auth.Message.OnboardingComplete">Setup complete! Your workspace has been initialized.</sys:String>
     <sys:String x:Key="Strings.Auth.Error.OnboardingFailed">Onboarding failed: {0}</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesTitle">Personalize Your Workspace</sys:String>
+    <sys:String x:Key="Strings.Auth.PreferencesSubtitle">Choose your preferred theme and language to get started.</sys:String>
+    <sys:String x:Key="Strings.Auth.ThemeSelection">WORKSPACE MODE</sys:String>
+    <sys:String x:Key="Strings.Auth.LanguageSelection">INTERFACE LANGUAGE</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Light">Light Mode</sys:String>
+    <sys:String x:Key="Strings.Auth.Theme.Dark">Dark Mode</sys:String>
+    <sys:String x:Key="Strings.Auth.Action.ContinueToWorkspace">Continue to Workspace</sys:String>
     <sys:String x:Key="Strings.Auth.Title.Warning">Warning</sys:String>
     <sys:String x:Key="Strings.Auth.Error.DeviceRegistrationFailed">Account created, but device registration failed: {0}</sys:String>
     <sys:String x:Key="Strings.Auth.Enteryouruniquelicensekey">Enter your unique license key to initialize your Luxurya Workspace with professional-grade security.</sys:String>

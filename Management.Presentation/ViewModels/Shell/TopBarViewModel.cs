@@ -103,6 +103,7 @@ namespace Management.Presentation.ViewModels.Shell
             : "A";
 
         public IEnumerable<NotificationItem> Notifications => _notificationStore.Notifications;
+        public int TotalNotificationCount => System.Linq.Enumerable.Count(_notificationStore.Notifications);
 
         [ObservableProperty]
         private string _searchQuery = string.Empty;
@@ -188,6 +189,7 @@ namespace Management.Presentation.ViewModels.Shell
             {
                 NotificationCount = _notificationStore.UnreadCount;
                 OnPropertyChanged(nameof(Notifications));
+                OnPropertyChanged(nameof(TotalNotificationCount));
             };
             NotificationCount = _notificationStore.UnreadCount;
 

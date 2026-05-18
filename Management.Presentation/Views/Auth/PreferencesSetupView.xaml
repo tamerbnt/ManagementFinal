@@ -1,0 +1,268 @@
+<UserControl x:Class="Management.Presentation.Views.Auth.PreferencesSetupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Management.Presentation.Views.Auth"
+             mc:Ignorable="d" 
+             d:DesignHeight="768" d:DesignWidth="460"
+             SnapsToDevicePixels="True"
+             UseLayoutRounding="True"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <!-- Theme Card Base Style -->
+            <Style x:Key="ThemeSelectorCard" TargetType="Button">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="#E5E7EB"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Height" Value="100"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="CardBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="14"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                    <Setter TargetName="CardBorder" Property="Background" Value="#F9FAFB"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="CardBorder" Property="Opacity" Value="0.85"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Language Pill Base Style -->
+            <Style x:Key="LanguageSegmentButton" TargetType="Button">
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="BorderBrush" Value="#E5E7EB"/>
+                <Setter Property="BorderThickness" Value="1.5"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Height" Value="44"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="BtnBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="BtnBorder" Property="Background" Value="#F9FAFB"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <StackPanel VerticalAlignment="Top" Margin="40,24,40,24">
+
+            <!-- ROW 1 — BRAND LOGO -->
+            <Grid Margin="0,8,0,8">
+                <Image Source="/Assets/atrium_header_logo.png"
+                       Height="110"
+                       HorizontalAlignment="Left"
+                       Margin="-25,0,0,0"
+                       VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Stretch="Uniform"
+                       ToolTip="Atrium Management System"/>
+            </Grid>
+
+            <!-- ROW 2 — TITLE -->
+            <TextBlock Text="{Binding TitleLabel}"
+                       FontSize="32" FontWeight="ExtraBold"
+                       Foreground="#0F172A"
+                       Margin="0,0,0,12"
+                       TextWrapping="Wrap"
+                       FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+            <!-- ROW 3 — SUBTITLE -->
+            <TextBlock Text="{Binding SubtitleLabel}"
+                       FontSize="13" Foreground="#6B7280"
+                       TextWrapping="Wrap" LineHeight="20"
+                       Margin="0,0,0,24"
+                       FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+            <!-- ROW 4 — THEME MODE SECTION -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock Text="{Binding ThemeSectionLabel}"
+                           FontSize="12" FontWeight="Medium"
+                           Foreground="#374151" Margin="0,0,0,8"
+                           FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Light Mode Card -->
+                    <Button Grid.Column="0" Command="{Binding SelectThemeCommand}" CommandParameter="Light">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ThemeSelectorCard}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLightTheme}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2.5"/>
+                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- Sun Path -->
+                            <Path Data="M12 7a5 5 0 1 0 5 5 5.006 5.006 0 0 0-5-5Zm0 8a3 3 0 1 1 3-3 3.003 3.003 0 0 1-3 3Zm0-13a1 1 0 0 0 1-1V1a1 1 0 0 0-2 0v2a1 1 0 0 0 1 1Zm0 16a1 1 0 0 0-1 1v2a1 1 0 0 0 2 0v-2a1 1 0 0 0-1-1Zm10-7h-2a1 1 0 0 0 0 2h2a1 1 0 0 0 0-2ZM4 12a1 1 0 0 0-1-1H1a1 1 0 0 0 0 2h2a1 1 0 0 0 1-1Zm14.22-6.808a1 1 0 0 0-1.414 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414-1.414a1 1 0 0 0 0-1.414ZM7.05 15.536l-1.414 1.414a1 1 0 1 0 1.414 1.414l1.414-1.414a1 1 0 1 0-1.414-1.414Zm11.17 1.414a1 1 0 0 0 0-1.414l-1.414-1.414a1 1 0 1 0-1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 0ZM7.05 8.464a1 1 0 0 0 1.414 0 1 1 0 0 0 0-1.414L7.05 5.636a1 1 0 1 0-1.414 1.414Z"
+                                  Fill="#D97706" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="{Binding LightThemeLabel}" FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Dark Mode Card -->
+                    <Button Grid.Column="2" Command="{Binding SelectThemeCommand}" CommandParameter="Dark">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ThemeSelectorCard}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2.5"/>
+                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- Moon Path -->
+                            <Path Data="M12 3a9 9 0 1 0 9 9 9.006 9.006 0 0 0-9-9Zm0 16a7 7 0 1 1 7-7 7.008 7.008 0 0 1-7 7Z"
+                                  Fill="#6366F1" Width="28" Height="28" Stretch="Uniform" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                            <TextBlock Text="{Binding DarkThemeLabel}" FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" HorizontalAlignment="Center" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+
+            <!-- ROW 5 — LANGUAGE SECTION -->
+            <StackPanel Margin="0,0,0,32">
+                <TextBlock Text="{Binding LanguageSectionLabel}"
+                           FontSize="12" FontWeight="Medium"
+                           Foreground="#374151" Margin="0,0,0,8"
+                           FontFamily="Segoe UI Variable Display, Segoe UI"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- English Pill -->
+                    <Button Grid.Column="0" Command="{Binding SelectLanguageCommand}" CommandParameter="en">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLanguageEnglish}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="English" FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                    </Button>
+
+                    <!-- Français Pill -->
+                    <Button Grid.Column="2" Command="{Binding SelectLanguageCommand}" CommandParameter="fr">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLanguageFrench}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="Français" FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                    </Button>
+
+                    <!-- Arabic Pill -->
+                    <Button Grid.Column="4" Command="{Binding SelectLanguageCommand}" CommandParameter="ar">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource LanguageSegmentButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLanguageArabic}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource FacilityAccentBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                        <Setter Property="Background" Value="{DynamicResource FacilityAccentDimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="العربية" FontSize="13" FontWeight="SemiBold" Foreground="#1E293B" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+
+            <!-- ROW 6 — CONTINUE BUTTON -->
+            <Button Command="{Binding ContinueCommand}" Height="46" HorizontalAlignment="Stretch">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{DynamicResource FacilityAccentBrush}" CornerRadius="10" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="BtnScale" ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding ActionButtonLabel}" FontSize="14" FontWeight="SemiBold" Foreground="White" FontFamily="Segoe UI Variable Display, Segoe UI"/>
+                                <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" Fill="White" Width="10" Height="10" Stretch="Uniform" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BtnScale" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="BtnScale" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="0:0:0.05"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BtnScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="BtnScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

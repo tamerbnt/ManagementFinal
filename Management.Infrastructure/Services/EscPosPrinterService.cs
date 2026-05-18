@@ -160,7 +160,7 @@ namespace Management.Infrastructure.Services
 
                 // Header - Centered, Bold, Double Height
                 var facilityName = _facilityContext?.CurrentFacility.ToString() ?? "Luxurya";
-                var headerText = $"TITAN {facilityName.ToUpper()}";
+                var headerText = $"ATRIUM {facilityName.ToUpper()}";
 
                 await WriteAsync(ESC_ALIGN_CENTER);
                 await WriteAsync(ESC_DOUBLE_HEIGHT);

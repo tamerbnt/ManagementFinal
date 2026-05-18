@@ -201,7 +201,7 @@ namespace Management.Presentation.ViewModels
                 
                 // Final wait for UI to settle
                 await Task.Delay(1000);
-                await _navigationService.NavigateToAsync<SplashOnboardingViewModel>();
+                await _navigationService.NavigateToAsync<PreferencesSetupViewModel>();
             }
             catch (Exception ex)
             {

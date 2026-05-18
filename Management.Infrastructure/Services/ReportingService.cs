@@ -54,7 +54,7 @@ namespace Management.Infrastructure.Services
             var snapshot = new ReportingSnapshotDto
             {
                 Date = date,
-                FacilityName = "Titan Performance", 
+                FacilityName = "Atrium Performance", 
                 TotalRevenue = summary.DailyRevenue,
                 TotalExpenses = summary.DailyExpenses,
                 NetProfit = summary.DailyRevenue - summary.DailyExpenses,
@@ -87,7 +87,7 @@ namespace Management.Infrastructure.Services
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text("TITAN").FontSize(24).ExtraBold().FontColor("#EC4899");
+                            col.Item().Text("ATRIUM").FontSize(24).ExtraBold().FontColor("#EC4899");
                             col.Item().Text("Daily Operations Report").FontSize(12).SemiBold().FontColor(Colors.Grey.Medium);
                         });
 
@@ -182,7 +182,7 @@ namespace Management.Infrastructure.Services
                     {
                         row.RelativeItem().Column(col =>
                         {
-                            col.Item().Text("TITAN").FontSize(24).ExtraBold().FontColor("#EC4899");
+                            col.Item().Text("ATRIUM").FontSize(24).ExtraBold().FontColor("#EC4899");
                             col.Item().Text("Activity History Report").FontSize(12).SemiBold().FontColor(Colors.Grey.Medium);
                         });
 
@@ -259,7 +259,7 @@ namespace Management.Infrastructure.Services
             var ws = workbook.Worksheets.Add("Daily Activity");
 
             // Header
-            ws.Cell(1, 1).Value = "Titan Daily Activity Report";
+            ws.Cell(1, 1).Value = "Atrium Daily Activity Report";
             ws.Cell(1, 1).Style.Font.Bold = true;
             ws.Cell(1, 1).Style.Font.FontSize = 16;
             ws.Cell(2, 1).Value = $"Facility: {snapshot.FacilityName}";
@@ -305,7 +305,7 @@ namespace Management.Infrastructure.Services
             var summary = await _dashboardService.GetSummaryAsync(facilityId);
             return new DailyReportDto
             {
-                FacilityName = "Titan Performance",
+                FacilityName = "Atrium Performance",
                 ReportDate = date,
                 GeneratedAt = DateTime.Now,
                 Revenue = summary.DailyRevenue,

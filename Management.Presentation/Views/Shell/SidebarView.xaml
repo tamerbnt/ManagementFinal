@@ -127,7 +127,7 @@
 
                             <!-- 3. EXPANDED TEXT -->
                             <TextBlock x:Name="AtriumLabel"
-                                       Text="atrium" 
+                                       Text="Atrium" 
                                        FontWeight="ExtraBold" 
                                        Foreground="{DynamicResource Brush.Neutral.White}" 
                                        FontSize="20"

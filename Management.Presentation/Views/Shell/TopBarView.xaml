@@ -391,7 +391,7 @@
                                     </Grid>
                                 </Border>
                                 <Grid Grid.Row="1" MinHeight="200" MaxHeight="400">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" Visibility="{Binding TotalNotificationCount, Converter={StaticResource IntToVisibilityConverter}}">
                                         <ItemsControl ItemsSource="{Binding Notifications}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
@@ -417,6 +417,39 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
+
+                                    <Grid VerticalAlignment="Center" 
+                                          HorizontalAlignment="Center"
+                                          Visibility="{Binding TotalNotificationCount, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=Inverse}">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Border Width="64" Height="64" 
+                                                    Background="{DynamicResource FacilityAccentDimBrush}" 
+                                                    CornerRadius="32" 
+                                                    Margin="0,0,0,16">
+                                                <Path Data="M12,21A2,2 0 0,0 14,19H10A2,2 0 0,0 12,21M18,15V10C18,6.93 16.36,4.36 13.5,3.68V3A1.5,1.5 0 0,0 12,1.5A1.5,1.5 0 0,0 10.5,3V3.68C7.63,4.36 6,6.92 6,10V15L4,17V18H20V17L18,15Z" 
+                                                      Fill="{DynamicResource FacilityAccentBrush}"
+                                                      Width="24" Height="24"
+                                                      Stretch="Uniform"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Opacity="0.8"/>
+                                            </Border>
+
+                                            <TextBlock Text="{DynamicResource Terminology.TopBar.AllCaughtUp}" 
+                                                       FontSize="16" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,0,0,4"/>
+
+                                            <TextBlock Text="{DynamicResource Terminology.TopBar.NoNewAlerts}" 
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       HorizontalAlignment="Center"
+                                                       TextAlignment="Center"
+                                                       MaxWidth="200"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </Border>

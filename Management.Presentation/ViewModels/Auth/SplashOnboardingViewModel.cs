@@ -126,6 +126,20 @@ namespace Management.Presentation.ViewModels.Auth
             {
                 var delayTask = Task.Delay(1500);
 
+                if (SelectedFacility.Type == FacilityType.Restaurant)
+                {
+                    await delayTask; // Preserve the 1.5s visual feedback
+                    if (_dialogService != null)
+                    {
+                        await _dialogService.ShowAlertAsync(
+                            "Coming Soon",
+                            "Restaurant features are currently under construction. Please check back in a future update!",
+                            "Back to Login"
+                        );
+                    }
+                    return;
+                }
+
                 // Persist the choice
                 _facilityContext.SetFacility(SelectedFacility.Type);
                 
@@ -176,20 +190,16 @@ namespace Management.Presentation.ViewModels.Auth
             try
             {
                 var delayTask = Task.Delay(1500);
-
-                // Set global remote mode flag
-                _sessionManager.IsRemoteMode = true;
-                
-                // Persist the choice
-                _facilityContext.SetFacility(SelectedFacility.Type);
-                
                 await delayTask; // Ensure at least 1500ms have passed
 
-                // FORCED LOGIN: We disable auto-login for Remote Mode to ensure explicit authentication 
-                // and role verification for the specific remote workspace.
-                
-                // Not logged in or not Owner: Navigate to Login
-                await _navigationService.NavigateToAsync<LoginViewModel>(SelectedFacility);
+                if (_dialogService != null)
+                {
+                    await _dialogService.ShowAlertAsync(
+                        "Coming Soon",
+                        "Remote View features are currently under construction. Please check back in a future update!",
+                        "Back to Login"
+                    );
+                }
             }
             finally
             {
@@ -257,20 +267,28 @@ namespace Management.Presentation.ViewModels.Auth
                         AvailableFacilities.Add(opt);
                     }
 
-                    // FIX 3: Auto-select most recently updated real facility — never random
-                    var realFacilities = localFacilities
-                        .OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt)
-                        .FirstOrDefault();
-
-                    if (realFacilities != null)
+                    // Pre-select Gym facility if available in discovery options, otherwise fallback to most recently updated real facility
+                    var defaultGym = AvailableFacilities.FirstOrDefault(f => f.Type == FacilityType.Gym);
+                    if (defaultGym != null)
                     {
-                        SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == realFacilities.Id)
-                            ?? AvailableFacilities.FirstOrDefault();
+                        SelectedFacility = defaultGym;
                     }
                     else
                     {
-                        // Fallback mode — no real facility ID, don't pre-select
-                        SelectedFacility = null;
+                        var realFacilities = localFacilities
+                            .OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt)
+                            .FirstOrDefault();
+
+                        if (realFacilities != null)
+                        {
+                            SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == realFacilities.Id)
+                                ?? AvailableFacilities.FirstOrDefault();
+                        }
+                        else
+                        {
+                            // Fallback mode — no real facility ID, don't pre-select
+                            SelectedFacility = null;
+                        }
                     }
                     
                     IsLoading = false;

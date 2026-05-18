@@ -672,7 +672,7 @@ namespace Management.Infrastructure.Services
                         }
 
                         var emailResult = Email.Create(remote.Email);
-                        var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@titan.com").Value;
+                        var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@atrium.com").Value;
                         var phoneResult = PhoneNumber.Create(remote.PhoneNumber);
                         var phone = phoneResult.IsSuccess ? phoneResult.Value : PhoneNumber.None;
 
@@ -825,7 +825,7 @@ namespace Management.Infrastructure.Services
         private StaffMember MapToDomain(SupabaseStaffMember model)
         {
             var emailResult = Email.Create(model.Email);
-            var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@titan.com").Value;
+            var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@atrium.com").Value;
             
             var staff = StaffMember.ForLocalSync(
                 model.Id,
@@ -907,7 +907,7 @@ namespace Management.Infrastructure.Services
 
         private Management.Domain.Models.Registration MapToDomain(SupabaseRegistration model)
         {
-            var emailObj = Email.Create(model.Email ?? "unknown@titan.com").Value;
+            var emailObj = Email.Create(model.Email ?? "unknown@atrium.com").Value;
             var phoneObj = PhoneNumber.Create(model.PhoneNumber ?? "").Value;
 
             var registration = Management.Domain.Models.Registration.Submit(

@@ -99,7 +99,7 @@
                         <Path Grid.Column="0" Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.11,13 12,13A2,2 0 0,0 10,15C10,16.11 10.89,17 12,17M18,8H17V6A5,5 0 0,0 12,1A5,5 0 0,0 7,6V8H6A2,2 0 0,0 4,10V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V10A2,2 0 0,0 18,8M9,6A3,3 0 0,1 12,3A3,3 0 0,1 15,6V8H9V6Z" Fill="#D1D5DB" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <Grid Grid.Column="1">
                             <PasswordBox x:Name="PasswordInput" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#C4785A"/>
-                            <TextBox x:Name="PasswordTextBox" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#C4785A" Visibility="Collapsed"/>
+                            <TextBox x:Name="PasswordTextBox" Background="Transparent" BorderThickness="0" Foreground="#111827" FontSize="14" VerticalContentAlignment="Center" CaretBrush="#C4785A" Visibility="Collapsed" TextChanged="PasswordTextBox_TextChanged"/>
                         </Grid>
                         <Button Grid.Column="2" Click="TogglePasswordVisibility_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Center" Width="32" Height="32" Focusable="False">
                             <Button.Template>

@@ -64,5 +64,13 @@ namespace Management.Presentation.Views.Auth
                 // This hook is available if needed.
             }
         }
+
+        private void PasswordTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                PasswordInput.Password = textBox.Text;
+            }
+        }
     }
 }

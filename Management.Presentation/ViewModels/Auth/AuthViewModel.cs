@@ -205,7 +205,8 @@ namespace Management.Presentation.ViewModels
                    typeName == "FacilityOnboardingViewModel" ||
                    typeName == "OnboardingOwnerViewModel" ||
                    typeName == "OnboardingViewModel" ||
-                   typeName == "LicenseEntryViewModel";
+                   typeName == "LicenseEntryViewModel" ||
+                   typeName == "PreferencesSetupViewModel";
         }
 
         private void OnModalStorePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

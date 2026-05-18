@@ -1337,6 +1337,7 @@ namespace Management.Presentation
             services.AddTransient<LoginViewModel>();
             services.AddTransient<SplashOnboardingViewModel>();
             services.AddTransient<LicenseEntryViewModel>();
+            services.AddTransient<PreferencesSetupViewModel>();
             services.AddTransient<FacilityOnboardingViewModel>();
             services.AddSingleton<OnboardingOwnerViewModel>();
             services.AddSingleton<IStateResettable>(s => s.GetRequiredService<OnboardingOwnerViewModel>());
