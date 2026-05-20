@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Management.Application.DTOs;
 using Management.Domain.Primitives;
+using Management.Domain.Interfaces;
 
 namespace Management.Application.Services
 {
@@ -8,7 +9,7 @@ namespace Management.Application.Services
     /// Defines the contract for user authentication and session management.
     /// Implemented in Infrastructure using a specific provider (e.g. Supabase, Auth0, SQL).
     /// </summary>
-    public interface IAuthenticationService
+    public interface IAuthenticationService : IStateResettable
     {
         /// <summary>
         /// Indicates if the user has explicitly logged out in the current session.
@@ -60,3 +61,4 @@ namespace Management.Application.Services
         Task<bool> TenantHasOwnerAccountAsync(Guid tenantId);
     }
 }
+

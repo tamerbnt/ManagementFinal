@@ -508,6 +508,13 @@ namespace Management.Infrastructure.Services
             return Result.Failure<StaffDto>(new Error("Auth.Error", errorMsg));
         }
 
+        public void ResetState()
+        {
+            _currentUser = null;
+            _isLogoutActive = false;
+            Serilog.Log.Information("[AuthService] State reset: cached user and login guards cleared.");
+        }
+
         public async Task<Result> LogoutAsync()
         {
             _isLogoutActive = true;
@@ -1081,3 +1088,4 @@ namespace Management.Infrastructure.Services
         }
     }
 }
+

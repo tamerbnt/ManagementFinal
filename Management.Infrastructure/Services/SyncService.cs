@@ -842,6 +842,31 @@ namespace Management.Infrastructure.Services
             if (model.CardId != null) staff.SetCardId(model.CardId);
             if (model.SupabaseUserId.HasValue) staff.SetSupabaseUserId(model.SupabaseUserId.Value.ToString());
 
+            if (model.PermissionsJson != null)
+            {
+                try 
+                {
+                    var json = model.PermissionsJson.ToString();
+                    var permissions = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, bool>>(json);
+                    if (permissions != null)
+                    {
+                        foreach (var p in permissions) staff.SetPermission(p.Key, p.Value);
+                    }
+                }
+                catch (Exception ex) { _logger.LogWarning($"[SyncService] Failed to deserialize permissions: {ex.Message}"); }
+            }
+
+            if (model.AllowedModulesJson != null)
+            {
+                try 
+                {
+                    var json = model.AllowedModulesJson.ToString();
+                    var modules = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.List<string>>(json);
+                    if (modules != null) staff.SetAllowedModules(modules);
+                }
+                catch (Exception ex) { _logger.LogWarning($"[SyncService] Failed to deserialize allowed modules: {ex.Message}"); }
+            }
+
             return staff;
         }
 
@@ -1035,3 +1060,5 @@ namespace Management.Infrastructure.Services
         public void ResetSessionStatus() { }
     }
 }
+
+

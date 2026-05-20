@@ -368,6 +368,38 @@ namespace Management.Presentation.ViewModels.Shell
             // Pass the rest of the parts as the parameter
             var entityId = parts.Length > 1 ? string.Join('|', parts.Skip(1)) : null;
 
+            Type? targetViewModelType = null;
+            switch (viewName)
+            {
+                case "DashboardView": targetViewModelType = typeof(Management.Presentation.ViewModels.GymHome.GymHomeViewModel); break;
+                case "MembersView": targetViewModelType = typeof(Management.Presentation.ViewModels.Members.MembersViewModel); break;
+                case "FinanceAndStaffView":
+                case "StaffView": targetViewModelType = typeof(Management.Presentation.ViewModels.Finance.FinanceAndStaffViewModel); break;
+                case "ShopView":
+                case "PosView":
+                case "ProductView": targetViewModelType = typeof(Management.Presentation.ViewModels.Shop.ShopViewModel); break;
+                case "SchedulerView": targetViewModelType = typeof(Management.Presentation.ViewModels.Scheduler.SchedulerViewModel); break;
+                case "MenuManagementView": targetViewModelType = typeof(Management.Presentation.ViewModels.Settings.MenuManagementViewModel); break;
+            }
+
+            if (targetViewModelType != null)
+            {
+                var accountStore = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<Management.Application.Stores.AccountStore>(_serviceProvider);
+                var registry = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<Management.Presentation.Services.Navigation.INavigationRegistry>(_serviceProvider);
+                
+                if (accountStore != null && registry != null)
+                {
+                    var items = registry.GetItems(_facilityContext.CurrentFacility);
+                    var targetItem = System.Linq.Enumerable.FirstOrDefault(items, i => i.TargetViewModelType == targetViewModelType);
+                    if (targetItem != null && !string.IsNullOrEmpty(targetItem.RequiredPermission) && !accountStore.HasPermission(targetItem.RequiredPermission))
+                    {
+                        var toastService = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetService<Management.Application.Interfaces.App.IToastService>(_serviceProvider);
+                        toastService?.ShowError("Access Denied: You do not have permission to view this screen.");
+                        return;
+                    }
+                }
+            }
+
             switch (viewName)
             {
                 case "DashboardView":
@@ -662,3 +694,5 @@ namespace Management.Presentation.ViewModels.Shell
         }
     }
 }
+
+
