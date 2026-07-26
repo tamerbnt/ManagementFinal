@@ -4,7 +4,7 @@ using Management.Domain.Enums;
 
 namespace Management.Domain.Services
 {
-    public interface IFacilityContextService
+    public interface IFacilityContextService : Interfaces.IStateResettable
     {
         string LanguageCode { get; }
         FacilityType CurrentFacility { get; }

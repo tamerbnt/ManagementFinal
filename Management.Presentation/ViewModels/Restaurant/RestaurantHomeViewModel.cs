@@ -320,6 +320,13 @@ namespace Management.Presentation.ViewModels.Restaurant
 
         public void ResetState()
         {
+            // Reset base loading/busy/error state
+            base.ResetState();
+            // Reset lifecycle flags so the next login triggers a fresh full load
+            _initialized = false;
+            _isInitializing = false;
+            _isDirty = true;
+
             IsActive = false;
             ActivityStream.Clear();
             ScanInput = string.Empty;

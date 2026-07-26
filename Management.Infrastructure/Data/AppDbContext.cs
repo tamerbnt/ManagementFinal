@@ -195,6 +195,32 @@ namespace Management.Infrastructure.Data
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN description TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN is_synced INTEGER DEFAULT 0;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE promotions ADD COLUMN row_version BLOB;", ct); } catch { }
+
+                // Schema heal for gym_settings, group_classes, and class_attendances
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE gym_settings ADD COLUMN light_palette TEXT NOT NULL DEFAULT '';", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE group_classes ADD COLUMN is_synced INTEGER NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE group_classes ADD COLUMN row_version BLOB NOT NULL DEFAULT (x'');", ct); } catch { }
+
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE class_attendances ADD COLUMN is_deleted INTEGER NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE class_attendances ADD COLUMN is_synced INTEGER NOT NULL DEFAULT 0;", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE class_attendances ADD COLUMN row_version BLOB NOT NULL DEFAULT (x'');", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE class_attendances ADD COLUMN created_at TEXT NOT NULL DEFAULT '';", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("ALTER TABLE class_attendances ADD COLUMN updated_at TEXT;", ct); } catch { }
+
+                // Indexes for group_classes
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_group_classes_facility_id ON group_classes (facility_id);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_group_classes_is_deleted ON group_classes (is_deleted);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_group_classes_is_synced ON group_classes (is_synced);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_group_classes_tenant_id ON group_classes (tenant_id);", ct); } catch { }
+
+                // Indexes for class_attendances
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_facility_id ON class_attendances (facility_id);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_group_class_id ON class_attendances (group_class_id);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_is_deleted ON class_attendances (is_deleted);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_is_synced ON class_attendances (is_synced);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_member_id ON class_attendances (member_id);", ct); } catch { }
+                try { await Database.ExecuteSqlRawAsync("CREATE INDEX IF NOT EXISTS ix_class_attendances_tenant_id ON class_attendances (tenant_id);", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN applied_promotion_name TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN manual_discount_id TEXT;", ct); } catch { }
                 try { await Database.ExecuteSqlRawAsync("ALTER TABLE sales ADD COLUMN manual_discount_amount__amount NUMERIC;", ct); } catch { }

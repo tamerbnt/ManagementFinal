@@ -77,6 +77,7 @@ namespace Management.Presentation
             public Guid GetFacilityId(Management.Domain.Enums.FacilityType type) => Guid.Empty;
             public void SaveTenantId(Guid tenantId) { }
             public IDisposable Impersonate(Management.Domain.Enums.FacilityType type, Guid facilityId) => new MockDisposable();
+            public void ResetState() { }
         }
     }
 }

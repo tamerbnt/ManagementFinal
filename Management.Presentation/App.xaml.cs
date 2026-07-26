@@ -877,8 +877,9 @@ namespace Management.Presentation
                         oldWindow.Close();
                     }
 
-                    // Navigation is handled by MainViewModel.ResetState() → InitializeInitialView()
-                    // which is called by the IStateResettable loop above. No explicit call needed here.
+                    // Fix 3: Explicitly initialize initial view after main window is shown and navigation store is set
+                    var mainViewModel = ServiceProvider.GetRequiredService<MainViewModel>();
+                    mainViewModel.InitializeInitialView();
                 }
                 catch (Exception ex)
                 {
@@ -904,7 +905,7 @@ namespace Management.Presentation
                     navStore.CurrentViewModel = null;
 
                     // CRITICAL: Clear all in-memory singleton state
-                    ResetApplicationState();
+                    ResetApplicationState(isLogout: true);
 
                     var authVm = ServiceProvider.GetRequiredService<AuthViewModel>();
                     var authWindow = ServiceProvider.GetRequiredService<AuthWindow>();
@@ -936,7 +937,7 @@ namespace Management.Presentation
         // FIX 3: Keep backward-compatible sync entry point
         public void Logout() => _ = LogoutAsync();
 
-        private void ResetApplicationState()
+        private void ResetApplicationState(bool isLogout = false)
         {
             try
             {
@@ -944,15 +945,28 @@ namespace Management.Presentation
                 var resettables = ServiceProvider.GetServices<Management.Domain.Interfaces.IStateResettable>();
                 foreach (var resettable in resettables)
                 {
+                    // Preserve the active FacilityContextService selection during login handoff (isLogout == false).
+                    // Wiping FacilityContextService to General on login breaks themes, settings tab visibility, and EF queries.
+                    if (!isLogout && resettable is Management.Domain.Services.IFacilityContextService)
+                    {
+                        continue;
+                    }
+
                     resettable.ResetState();
                 }
 
                 // Re-synchronize SessionManager after reset (ensures it reflects the currently committed facility context)
-                var facilityContext = ServiceProvider.GetService<Management.Domain.Services.IFacilityContextService>();
-                var sessionManager = ServiceProvider.GetService<Management.Presentation.Services.State.SessionManager>();
-                if (sessionManager != null && facilityContext != null)
+                // BUT ONLY if we are not logging out. During logout, FacilityContextService._globalFacility
+                // is cleared to General, and we want SessionManager to stay General. Re-reading it here 
+                // on logout used to pull stale state if FacilityContext wasn't cleared.
+                if (!isLogout)
                 {
-                    sessionManager.CurrentFacility = facilityContext.CurrentFacility;
+                    var facilityContext = ServiceProvider.GetService<Management.Domain.Services.IFacilityContextService>();
+                    var sessionManager = ServiceProvider.GetService<Management.Presentation.Services.State.SessionManager>();
+                    if (sessionManager != null && facilityContext != null)
+                    {
+                        sessionManager.CurrentFacility = facilityContext.CurrentFacility;
+                    }
                 }
             }
             catch (Exception ex)
@@ -1303,6 +1317,7 @@ namespace Management.Presentation
             services.AddTransient<IBackupService, BackupService>();
             services.AddSingleton<Management.Domain.Services.ISessionStorageService, SessionStorageService>();
             services.AddSingleton<Management.Domain.Services.IFacilityContextService, Management.Presentation.Services.FacilityContextService>();
+            services.AddSingleton<Management.Domain.Interfaces.IStateResettable>(s => (Management.Presentation.Services.FacilityContextService)s.GetRequiredService<Management.Domain.Services.IFacilityContextService>());
             services.AddSingleton<ITerminologyService, TerminologyService>();
             services.AddSingleton<ILocalizationService, LocalizationService>();
             services.AddTransient<ICommandPaletteService, CommandPaletteService>();

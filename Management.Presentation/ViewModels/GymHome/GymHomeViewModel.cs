@@ -1190,6 +1190,13 @@ namespace Management.Presentation.ViewModels.GymHome
         }
         public void ResetState()
         {
+            // Reset base loading/busy/error state
+            base.ResetState();
+            // Reset lifecycle flags so the next login triggers a fresh full load
+            _initialized = false;
+            _isInitializing = false;
+            _isDirty = true;
+
             // Fix 3: Do NOT set IsActive=false here. IsActive reflects whether this screen is
             // currently visible. ResetState only clears transient data; the Singleton ViewModel
             // is immediately re-displayed after login, so IsActive should remain true.

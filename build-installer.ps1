@@ -1,5 +1,5 @@
-param (
-    [string]$Version = "3.0.0"
+﻿param (
+    [string]$Version = "3.0.1"
 )
 
 
@@ -48,3 +48,4 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "`n========================================="
 Write-Host " Success! Installer is ready in 'releases' directory." -ForegroundColor Green
 Write-Host "========================================="
+

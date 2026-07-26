@@ -880,7 +880,9 @@ namespace Management.Presentation.ViewModels.Shell
             // Clear view cache on switch to ensure facility-specific styles/resources are fresh
             _viewCache.Clear();
             InitializeMenu();
-            InitializeInitialView();
+            // Reset the initializing guard so FacilityChanged navigation is suppressed
+            // until InitializeInitialView() is called by the handoff flow.
+            _isInitializing = true;
         }
 
         private object? GetOrCacheView(object? viewModel)

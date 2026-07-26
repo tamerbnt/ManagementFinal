@@ -262,18 +262,11 @@ namespace Management.Presentation.Services
                     $"pack://application:,,,/{relativeUri.OriginalString}",
                     UriKind.Absolute);
 
-                var streamInfo = System.Windows.Application.GetResourceStream(packUri);
-                if (streamInfo?.Stream != null)
-                {
-                    using var stream = streamInfo.Stream;
-                    var dict = (ResourceDictionary)XamlReader.Load(stream);
-                    // Restore Source so UpdateDictionary's prefix search can find this
-                    // dictionary on future swaps. XamlReader.Load leaves Source=null,
-                    // which would make the slot invisible to the loop and cause Add()
-                    // to accumulate orphaned palette dicts instead of replacing in-place.
-                    dict.Source = relativeUri;
-                    return dict;
-                }
+                // Use Application.LoadComponent which goes through WPF's BAML loader
+                // instead of XamlReader.Load which tries to XML-parse the binary stream.
+                var dict = (ResourceDictionary)System.Windows.Application.LoadComponent(packUri);
+                dict.Source = relativeUri;
+                return dict;
             }
             catch (Exception ex)
             {

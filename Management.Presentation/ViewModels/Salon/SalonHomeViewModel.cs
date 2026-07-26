@@ -769,6 +769,13 @@ namespace Management.Presentation.ViewModels.Salon
 
         public void ResetState()
         {
+             // Reset base loading/busy/error state so skeleton never gets stuck
+             base.ResetState();
+             // Reset lifecycle flags so the next login triggers a fresh full load
+             _initialized = false;
+             _isInitializing = false;
+             _isDirty = true;
+
              IsActive = false;
              _logger?.LogInformation("Resetting state for SalonHomeViewModel");
              System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>

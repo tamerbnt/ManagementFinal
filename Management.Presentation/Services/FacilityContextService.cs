@@ -138,6 +138,15 @@ namespace Management.Presentation.Services
             SaveConfig();
         }
 
+        public void ResetState()
+        {
+            // Clear the in-memory facility state, but DO NOT save to disk.
+            // This ensures the next login starts fresh in memory, while 
+            // the device's physical facility association remains in the config file.
+            CurrentFacility = FacilityType.General;
+            Serilog.Log.Information("[FacilityContext] State reset: CurrentFacility cleared to General.");
+        }
+
         public FacilityContextService(IDispatcher dispatcher, ILocalizationService localizationService, IOnboardingStateStore onboardingState)
         {
             _dispatcher = dispatcher;
