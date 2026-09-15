@@ -121,10 +121,19 @@ namespace Management.Infrastructure.Repositories
 
             // Database Guard: Avoid Primary Key collision with concurrent background sync
             // IgnoreQueryFilters is critical here to ensure we see the record even if context is stale
-            var existsInDb = await _dbSet.IgnoreQueryFilters().AnyAsync(s => s.Id == staff.Id);
-            if (existsInDb)
+            var existing = await _dbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == staff.Id);
+            if (existing != null)
             {
-                Serilog.Log.Information($"[StaffRepository] Entity {staff.Id} already exists in database (found via filter-ignore). Skipping Add.");
+                if (existing.Role != staff.Role || existing.FacilityId != staff.FacilityId || existing.TenantId != staff.TenantId)
+                {
+                    existing.UpdateDetails(staff.FullName, staff.Email, staff.PhoneNumber, staff.Role, staff.Salary, staff.PaymentDay, staff.AllowedModules);
+                    await _context.SaveChangesAsync();
+                    Serilog.Log.Information($"[StaffRepository] Healed local staff {staff.Id} ({staff.Email}): Updated Role to {staff.Role}, FacilityId to {staff.FacilityId}.");
+                }
+                else
+                {
+                    Serilog.Log.Information($"[StaffRepository] Entity {staff.Id} already exists in database (found via filter-ignore). Skipping Add.");
+                }
                 return;
             }
 

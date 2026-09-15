@@ -7,6 +7,10 @@ namespace Management.Domain.Services
         Guid? GetTenantId();
         void SetTenantId(Guid tenantId);
         
+        // Phase 2 Bridge Aliasing: TenantId is synonymous with AccountId in Phase 2
+        Guid? GetAccountId() => GetTenantId();
+        void SetAccountId(Guid accountId) => SetTenantId(accountId);
+
         Guid? GetUserId();
         void SetUserId(Guid userId);
         

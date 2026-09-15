@@ -688,8 +688,8 @@ namespace Management.Presentation
                 // Await license result — it has been running in parallel since CommitFacility.
                 Serilog.Log.Information("[App] Awaiting license check result...");
                 ct.ThrowIfCancellationRequested();
-                bool isLicensed = await licenseTask;
-                Serilog.Log.Information("[App] License check resolved: {Result}", isLicensed);
+                StartupLicenseStatus licenseStatus = await licenseTask;
+                Serilog.Log.Information("[App] License check resolved: {Result}", licenseStatus);
 
                 // Navigation Routing
                 await Current.Dispatcher.InvokeAsync(async () => 
@@ -698,56 +698,81 @@ namespace Management.Presentation
                     {
                         var navService = ServiceProvider.GetRequiredService<INavigationService>();
 
-                        if (!isLicensed)
+                        if (licenseStatus == StartupLicenseStatus.Expired)
                         {
-                            Serilog.Log.Information("[App] Device not licensed. Navigating to Activation...");
-                            await navService.NavigateToAsync<LicenseEntryViewModel>();
+                            Serilog.Log.Information("[App] Subscription/14-day evaluation expired. Navigating to TrialExpiredView...");
+                            await navService.NavigateToAsync<TrialExpiredViewModel>();
+                            return;
                         }
-                        else
+
+                        if (licenseStatus == StartupLicenseStatus.Unlicensed)
                         {
-                            var stateStore = ServiceProvider.GetRequiredService<IOnboardingStateStore>();
-                            var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
-                            var tenantService = ServiceProvider.GetRequiredService<ITenantService>();
-                            
-                            // TIER 0: Expansion Flow Bypass
-                            // If we have flagged this as an Expansion Flow (machine verified via license),
-                            // we skip the Cloud Owner verification entirely and move to Facility Selection.
-                            if (stateStore.IsExpansionFlow || (stateStore.TargetTenantId.HasValue && stateStore.TargetTenantId != Guid.Empty))
-                            {
-                                Serilog.Log.Information("[App] Expansion Flow confirmed: Tenant {Id}. Bypassing owner check and routing to Splash Onboarding.", stateStore.TargetTenantId);
-                                await navService.NavigateToSplashAsync();
-                                return;
-                            }
+                            Serilog.Log.Information("[App] Device not licensed. Navigating to Activation Choice...");
+                            await navService.NavigateToAsync<ActivationChoiceViewModel>();
+                            return;
+                        }
 
-                            Guid activeTenantId = tenantService.GetTenantId() ?? Guid.Empty;
-                            bool hasOwner = false;
-                            
-                            if (activeTenantId != Guid.Empty)
-                            {
-                                Serilog.Log.Information("[App] Checking verification for Tenant {Id}...", activeTenantId);
-                                hasOwner = await authService.TenantHasOwnerAccountAsync(activeTenantId);
-                            }
-                            
-                            // TIER 2: If Cloud/Tenant check failed OR was missing (Offline case), check local existence
-                            if (!hasOwner)
-                            {
-                                Serilog.Log.Information("[App] No cloud owner verified or Tenant missing. Performing local data probe...");
-                                // Passing Guid.Empty forces the authentication service to check for ANY local staff (Offline Safety Net)
-                                hasOwner = await authService.TenantHasOwnerAccountAsync(Guid.Empty);
-                            }
+                        var stateStore = ServiceProvider.GetRequiredService<IOnboardingStateStore>();
+                        var authService = ServiceProvider.GetRequiredService<IAuthenticationService>();
+                        var tenantService = ServiceProvider.GetRequiredService<ITenantService>();
+                        var facilityContext = ServiceProvider.GetRequiredService<IFacilityContextService>();
+                        bool hasCategoryConfigured = facilityContext.CurrentFacility != Management.Domain.Enums.FacilityType.General;
 
-                            if (hasOwner)
+                        // TIER 0: Expansion Flow Bypass
+                        // If we have flagged this as an Expansion Flow (machine verified via license),
+                        // we skip the Cloud Owner verification entirely.
+                        if (stateStore.IsExpansionFlow || (stateStore.TargetTenantId.HasValue && stateStore.TargetTenantId != Guid.Empty))
+                        {
+                            Serilog.Log.Information("[App] Expansion Flow confirmed: Tenant {Id}.", stateStore.TargetTenantId);
+                            if (hasCategoryConfigured)
                             {
-                                Serilog.Log.Information("[App] Owner/Staff confirmed. Navigating to Splash Onboarding...");
-                                await navService.NavigateToSplashAsync();
+                                Serilog.Log.Information("[App] Facility already configured ({Facility}). Fast-booting directly to Login.", facilityContext.CurrentFacility);
+                                await navService.NavigateToLoginAsync();
                             }
                             else
                             {
-                                Serilog.Log.Information("[App] No owner found in cloud or local. Navigating to Account Setup...");
-                                await navService.NavigateToAsync<OnboardingOwnerViewModel>();
+                                Serilog.Log.Information("[App] Facility not yet configured. Routing to Splash Onboarding.");
+                                await navService.NavigateToSplashAsync();
                             }
+                            return;
                         }
 
+                        Guid activeTenantId = tenantService.GetTenantId() ?? Guid.Empty;
+                        bool hasOwner = false;
+                        
+                        if (activeTenantId != Guid.Empty)
+                        {
+                            Serilog.Log.Information("[App] Checking verification for Tenant {Id}...", activeTenantId);
+                            hasOwner = await authService.TenantHasOwnerAccountAsync(activeTenantId);
+                        }
+                        
+                        // TIER 2: If Cloud/Tenant check failed OR was missing (Offline case), check local existence
+                        if (!hasOwner)
+                        {
+                            Serilog.Log.Information("[App] No cloud owner verified or Tenant missing. Performing local data probe...");
+                            // Passing Guid.Empty forces the authentication service to check for ANY local staff (Offline Safety Net)
+                            hasOwner = await authService.TenantHasOwnerAccountAsync(Guid.Empty);
+                        }
+
+                        if (hasOwner)
+                        {
+                            Serilog.Log.Information("[App] Owner/Staff confirmed.");
+                            if (hasCategoryConfigured)
+                            {
+                                Serilog.Log.Information("[App] Category already configured on this PC ({Facility}). Fast-booting directly to Login.", facilityContext.CurrentFacility);
+                                await navService.NavigateToLoginAsync();
+                            }
+                            else
+                            {
+                                Serilog.Log.Information("[App] Category not yet configured. Navigating to Splash Onboarding...");
+                                await navService.NavigateToSplashAsync();
+                            }
+                        }
+                        else
+                        {
+                            Serilog.Log.Information("[App] No owner found in cloud or local. Navigating to Account Setup...");
+                            await navService.NavigateToAsync<OnboardingOwnerViewModel>();
+                        }
 
                         Serilog.Log.Information("[App] Navigation routing complete.");
 
@@ -1430,7 +1455,11 @@ namespace Management.Presentation
             services.AddTransient<CommandPaletteViewModel>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<SplashOnboardingViewModel>();
+            services.AddTransient<CategoryDetailModalViewModel>();
             services.AddTransient<LicenseEntryViewModel>();
+            services.AddTransient<ActivationChoiceViewModel>();
+            services.AddTransient<TrialExpiredViewModel>();
+            services.AddTransient<DeviceExpansionViewModel>();
             services.AddTransient<PreferencesSetupViewModel>();
             services.AddTransient<FacilityOnboardingViewModel>();
             services.AddSingleton<OnboardingOwnerViewModel>();
@@ -1928,79 +1957,105 @@ namespace Management.Presentation
                 base.OnExit(e);
             }
         }
-        private async Task<bool> RunStartupSecurityGuard(IServiceProvider services)
+        public enum StartupLicenseStatus
+        {
+            Valid,
+            Unlicensed,
+            Expired
+        }
+
+        private async Task<StartupLicenseStatus> RunStartupSecurityGuard(IServiceProvider services)
         {
             using (var scope = services.CreateScope())
             {
                 var onboardingService = scope.ServiceProvider.GetRequiredService<IOnboardingService>();
+                var licenseService = scope.ServiceProvider.GetRequiredService<ILicenseService>();
                 var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
-                var supabase = scope.ServiceProvider.GetRequiredService<Supabase.Client>();
                 var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+                var hardwareId = hardwareService.GetHardwareId();
 
-                Serilog.Log.Information("Startup Security Guard: Verifying device license...");
+                Serilog.Log.Information("Startup Security Guard: Verifying device license for HardwareId: {HardwareId}...", hardwareId);
 
                 try
                 {
-                    // Use the new hardened verification with offline fallback
-                    // Now returns the TenantId directly if verified via RPC
+                    // 1. Subscription Check (checks online Supabase subscription RPC)
+                    try
+                    {
+                        var subCheck = await licenseService.CheckSubscriptionStatusAsync(hardwareId);
+                        if (subCheck != null && subCheck.Status == "expired")
+                        {
+                            Serilog.Log.Warning("[App] Startup Security Guard: Subscription or 14-day evaluation has EXPIRED.");
+                            return StartupLicenseStatus.Expired;
+                        }
+                    }
+                    catch (Exception subEx)
+                    {
+                        Serilog.Log.Warning(subEx, "[App] Subscription check RPC skipped or errored. Continuing device verification.");
+                    }
+
+                    // 2. Device verification
                     var verificationResult = await onboardingService.VerifyCurrentDeviceAsync();
                     
                     if (verificationResult.IsFailure)
                     {
-                        Serilog.Log.Warning("[App] Device verification failed (Network/System Error). Proceeding to activation.");
-                        return false;
+                        Serilog.Log.Warning("[App] Device verification failed (Network/System Error). Checking offline lease fallback.");
                     }
-
-                    // For online check, we get the TenantId back
-                    if (verificationResult.Value.HasValue)
+                    else if (verificationResult.Value.HasValue)
                     {
                         var tenantId = verificationResult.Value.Value;
                         tenantService.SetTenantId(tenantId);
                         
-                        // Fix: Explicitly flag expansion flow in state store so Router skips the owner check
                         var stateStore = scope.ServiceProvider.GetRequiredService<IOnboardingStateStore>();
                         stateStore.TargetTenantId = tenantId;
                         stateStore.IsExpansionFlow = true;
 
                         Serilog.Log.Information($"[App] Device verified via RPC. Tenant context set to {tenantId}. Expansion Flow flagged.");
-                        return true;
+                        return StartupLicenseStatus.Valid;
                     }
 
-                    // If Value is null, it means either offline lease found it OR no binding exists
-                    var hardwareId = hardwareService.GetHardwareId();
+                    // 3. Offline Lease Fallback Check
                     var lease = await _host!.Services.GetRequiredService<IConfigurationService>().LoadConfigAsync<Management.Domain.Models.LicenseLease>("license.lease");
                     
-                    if (lease != null && lease.IsValid(hardwareId))
+                    if (lease != null && lease.HardwareId == hardwareId)
                     {
-                        try 
+                        if (!lease.IsLifetime && DateTime.UtcNow >= lease.ExpiryDate)
                         {
-                            var configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium", "facility-config.json");
-                            if (System.IO.File.Exists(configPath))
-                            {
-                                var jsonStr = System.IO.File.ReadAllText(configPath);
-                                using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
-                                if (doc.RootElement.TryGetProperty("TenantId", out var tProp) && tProp.TryGetGuid(out var tId))
-                                {
-                                    tenantService.SetTenantId(tId);
-                                    scope.ServiceProvider.GetRequiredService<IOnboardingStateStore>().TargetTenantId = tId;
-                                    Serilog.Log.Information($"[App] Device verified via local lease (Offline). Tenant context set to {tId}");
-                                    return true;
-                                }
-                            }
-                        } catch { }
+                            Serilog.Log.Warning("[App] Startup Security Guard: Local lease is expired ({ExpiryDate}).", lease.ExpiryDate);
+                            return StartupLicenseStatus.Expired;
+                        }
 
-                        // Fallback if TenantId isn't found
-                        Serilog.Log.Information($"[App] Device verified via local lease (Offline), but no TenantId found in config. Using Empty.");
-                        return true;
+                        if (lease.IsValid(hardwareId))
+                        {
+                            try 
+                            {
+                                var configPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Atrium", "facility-config.json");
+                                if (System.IO.File.Exists(configPath))
+                                {
+                                    var jsonStr = System.IO.File.ReadAllText(configPath);
+                                    using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+                                    if (doc.RootElement.TryGetProperty("TenantId", out var tProp) && tProp.TryGetGuid(out var tId))
+                                    {
+                                        tenantService.SetTenantId(tId);
+                                        scope.ServiceProvider.GetRequiredService<IOnboardingStateStore>().TargetTenantId = tId;
+                                        Serilog.Log.Information($"[App] Device verified via local lease (Offline). Tenant context set to {tId}");
+                                        return StartupLicenseStatus.Valid;
+                                    }
+                                }
+                            } catch { }
+
+                            // Fallback if TenantId isn't found
+                            Serilog.Log.Information($"[App] Device verified via local lease (Offline), but no TenantId found in config. Using Empty.");
+                            return StartupLicenseStatus.Valid;
+                        }
                     }
 
                     Serilog.Log.Warning("[App] Device verification failed (No server binding or local lease). Proceeding to activation.");
-                    return false;
+                    return StartupLicenseStatus.Unlicensed;
                 }
                 catch (Exception ex)
                 {
                     Serilog.Log.Error(ex, "Error during Startup Security Guard check");
-                    return false;
+                    return StartupLicenseStatus.Unlicensed;
                 }
             }
         }

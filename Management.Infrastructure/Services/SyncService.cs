@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection; // Added for JIT Repair Logic
 using System.Threading;
@@ -590,6 +590,11 @@ namespace Management.Infrastructure.Services
         }
 
 
+        /// <summary>
+        /// Phase 2 RPC-based staff pull. Replaces legacy _supabase.From&lt;SupabaseStaffMember&gt;() direct
+        /// table query (which broke when Phase 2 renamed staff_members to staff with different column names).
+        /// Uses get_staff_for_sync RPC which returns full profiles + primary_facility_id in one call.
+        /// </summary>
         private async Task PullStaffMembersAsync(AppDbContext context, DateTimeOffset lastSync, Guid facilityId, CancellationToken ct)
         {
             try
@@ -600,33 +605,12 @@ namespace Management.Infrastructure.Services
                 var role = _tenantService.GetRole();
                 bool isOwner = role == Management.Domain.Enums.StaffRole.Owner.ToString();
 
-                // ROLE-AWARE REFINEMENT: Identity-based sync scoping.
-                // 1. Regular staff are strictly siloed (only see their own facility).
-                // 2. Owners are global (pull all tenant staff for management visibility).
-                
-                var query = _supabase.From<SupabaseStaffMember>()
-                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString());
-
-                if (!isOwner)
-                {
-                    query = query.Filter("facility_id", Supabase.Postgrest.Constants.Operator.Equals, facilityId.ToString());
-                    _logger.LogInformation("[Sync] Scoping staff sync to facility: {FacilityId}", facilityId);
-                }
-                else 
-                {
-                    _logger.LogInformation("[Sync] Performing global staff sync for Owner account.");
-                }
-
-                // SELF-REPAIR & MANAGEMENT PROTECTION:
-                // 1. If local staff list is empty for this facility, perform full pull.
-                // 2. If user is an Owner and their OWN profile is missing locally (but we are logged in), the cache is damaged.
-                //    Force a full pull to restore the management layer (Tamer, Luxurya, etc.)
+                // SELF-REPAIR & MANAGEMENT PROTECTION check (same logic as before)
                 var localStaffExists = await context.StaffMembers.IgnoreQueryFilters().AnyAsync(s => s.FacilityId == facilityId && !s.IsDeleted, ct);
                 bool shouldForceFullPull = !localStaffExists;
 
                 if (isOwner && localStaffExists)
                 {
-                    // Check if the current owner is actually in the local DB. If not, the cache was likely purged by a regular staff login.
                     var currentStaffId = _currentUserService.UserId;
                     if (currentStaffId.HasValue && !await context.StaffMembers.IgnoreQueryFilters().AnyAsync(s => s.Id == currentStaffId.Value, ct))
                     {
@@ -634,22 +618,45 @@ namespace Management.Infrastructure.Services
                         shouldForceFullPull = true;
                     }
                 }
-                
-                var remoteQuery = query;
-                if (!shouldForceFullPull)
+
+                // Phase 2: call get_staff_for_sync RPC instead of direct table query
+                // RPC returns JSON array with primary_facility_id and integer role (mapped via CASE)
+                var rpcParams = new Dictionary<string, object>
                 {
-                    remoteQuery = remoteQuery.Where(x => x.UpdatedAt > lastSync.UtcDateTime);
+                    { "p_account_id", tenantId.ToString() },
+                    { "p_updated_after", shouldForceFullPull ? (object)DBNull.Value : lastSync.UtcDateTime.ToString("O") }
+                };
+
+                // For non-owners, also pass facility filter
+                if (!isOwner)
+                {
+                    rpcParams["p_facility_id"] = facilityId.ToString();
+                    _logger.LogInformation("[Sync] Scoping staff sync to facility: {FacilityId}", facilityId);
                 }
                 else
                 {
-                    _logger.LogInformation("[Sync] Cache repair triggered for {FacilityId}. Full pull initiated.", facilityId);
+                    _logger.LogInformation("[Sync] Performing global staff sync via RPC for Owner account.");
                 }
 
-                var remoteData = await remoteQuery.Get();
+                var rpcResponse = await _supabase.Rpc("get_staff_for_sync", rpcParams);
 
-                if (!remoteData.Models.Any()) return;
+                if (rpcResponse == null || string.IsNullOrEmpty(rpcResponse.Content) || rpcResponse.Content == "null" || rpcResponse.Content == "[]")
+                {
+                    _logger.LogInformation("[Sync] get_staff_for_sync returned no staff updates.");
+                    return;
+                }
 
-                var remoteModels = remoteData.Models;
+                var snakeCaseSettings = new Newtonsoft.Json.JsonSerializerSettings
+                {
+                    ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+                    {
+                        NamingStrategy = new Newtonsoft.Json.Serialization.SnakeCaseNamingStrategy()
+                    }
+                };
+
+                var remoteModels = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SupabaseStaffMember>>(rpcResponse.Content, snakeCaseSettings);
+                if (remoteModels == null || !remoteModels.Any()) return;
+
                 var remoteIds = remoteModels.Select(x => x.Id).ToList();
 
                 var existingEntities = await context.StaffMembers
@@ -664,7 +671,7 @@ namespace Management.Infrastructure.Services
                 {
                     if (existingMap.TryGetValue(remote.Id, out var existing))
                     {
-                        // FIX: Only update if remote is actually newer than local
+                        // Only update if remote is actually newer than local
                         if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
                         {
                             _logger.LogDebug("[Sync] Skipping staff update for {Id}: Local is newer or same.", remote.Id);
@@ -673,22 +680,17 @@ namespace Management.Infrastructure.Services
 
                         var emailResult = Email.Create(remote.Email);
                         var email = emailResult.IsSuccess ? emailResult.Value : Email.Create("unknown@atrium.com").Value;
-                        var phoneResult = PhoneNumber.Create(remote.PhoneNumber);
-                        var phone = phoneResult.IsSuccess ? phoneResult.Value : PhoneNumber.None;
 
-                        // Update using the domain model's UpdateDetails method to respect private setters
                         existing.UpdateDetails(
                             remote.FullName ?? string.Empty,
                             email,
-                            phone,
+                            PhoneNumber.None,          // phone not in public.staff Phase 2
                             (StaffRole)remote.Role,
-                            remote.Salary,
-                            remote.PaymentDay
+                            remote.Salary,             // defaults to 0 — not in Phase 2 schema
+                            remote.PaymentDay          // defaults to 1 — not in Phase 2 schema
                         );
 
-                        if (remote.CardId != null) existing.SetCardId(remote.CardId);
                         if (remote.SupabaseUserId.HasValue) existing.SetSupabaseUserId(remote.SupabaseUserId.Value.ToString());
-                        
                         existing.IsSynced = true;
                     }
                     else
@@ -701,10 +703,13 @@ namespace Management.Infrastructure.Services
 
                 if (newEntities.Any()) await context.StaffMembers.AddRangeAsync(newEntities, ct);
                 await context.SaveChangesAsync(ct);
+
+                _logger.LogInformation("[Sync] Staff pull via RPC completed. New: {New}, Updated: {Updated}",
+                    newEntities.Count, remoteModels.Count - newEntities.Count);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error pulling staff members.");
+                _logger.LogError(ex, "Error pulling staff members via RPC.");
                 throw;
             }
         }

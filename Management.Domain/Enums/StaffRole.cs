@@ -6,7 +6,11 @@ namespace Management.Domain.Enums
     public enum StaffRole
     {
         None = 0,
-        Staff = 7,
-        Owner = 8
+        Manager = 1,
+        Cashier = 2,
+        Technician = 3,
+        Waiter = 4,
+        Staff = 7,   // Preserved legacy value
+        Owner = 8    // Preserved legacy value
     }
 }

@@ -17,13 +17,28 @@ namespace Management.Presentation.ViewModels
         private readonly ModalNavigationStore _modalNavigationStore;
         private readonly NavigationStore _navigationStore;
         private readonly INotificationService _notificationService;
+        private readonly INavigationService _navigationService;
+
+        public bool CanNavigateBack => _navigationStore.CanNavigateBack;
+        public ICommand NavigateBackCommand { get; }
 
         private ViewModelBase? _currentView;
         public ViewModelBase? CurrentView
         {
             get => _currentView;
-            set => SetProperty(ref _currentView, value);
+            set
+            {
+                if (SetProperty(ref _currentView, value))
+                {
+                    OnPropertyChanged(nameof(CardScrollVisibility));
+                }
+            }
         }
+
+        public System.Windows.Controls.ScrollBarVisibility CardScrollVisibility => 
+            _currentView is SplashOnboardingViewModel 
+                ? System.Windows.Controls.ScrollBarVisibility.Disabled 
+                : System.Windows.Controls.ScrollBarVisibility.Auto;
         
         private object? _currentModal;
         public object? CurrentModal
@@ -64,13 +79,21 @@ namespace Management.Presentation.ViewModels
 
         public System.Collections.ObjectModel.ObservableCollection<ToastViewModel> ActiveToasts => _notificationService.ActiveToasts;
 
-        public AuthViewModel(ModalNavigationStore modalNavigationStore, NavigationStore navigationStore, INotificationService notificationService)
+        public AuthViewModel(
+            ModalNavigationStore modalNavigationStore, 
+            NavigationStore navigationStore, 
+            INotificationService notificationService,
+            INavigationService navigationService)
         {
             _modalNavigationStore = modalNavigationStore;
             _modalNavigationStore.PropertyChanged += OnModalStorePropertyChanged;
 
             _navigationStore = navigationStore;
             _notificationService = notificationService;
+            _navigationService = navigationService;
+
+            _navigationStore.BackStackChanged += OnBackStackChanged;
+            NavigateBackCommand = new CommunityToolkit.Mvvm.Input.AsyncRelayCommand(ExecuteNavigateBackAsync);
             
             // ARCHITECTURE GUARD: Only allow Auth-related ViewModels in this shell.
             // This prevents the Dashboard from ever "Mashup" rendering inside the Auth card.
@@ -86,6 +109,16 @@ namespace Management.Presentation.ViewModels
             PrevSlideCommand = new Management.Presentation.Extensions.RelayCommand(() => CurrentSlideIndex = (CurrentSlideIndex - 1 + Slides.Count) % Slides.Count);
 
             InitializeSlides();
+        }
+
+        private void OnBackStackChanged()
+        {
+            OnPropertyChanged(nameof(CanNavigateBack));
+        }
+
+        private async Task ExecuteNavigateBackAsync()
+        {
+            await _navigationService.NavigateBackAsync();
         }
 
         private void UpdateSlideSelection()
@@ -164,6 +197,7 @@ namespace Management.Presentation.ViewModels
             Serilog.Log.Information("[AuthViewModel] Handoff initiated. Disconnecting from NavigationStore and clearing view...");
             _isHandoffInProgress = true;
             _navigationStore.CurrentViewModelChanged -= OnCurrentViewModelChanged;
+            _navigationStore.BackStackChanged -= OnBackStackChanged;
             CurrentView = null;
         }
 
@@ -206,6 +240,7 @@ namespace Management.Presentation.ViewModels
                    typeName == "OnboardingOwnerViewModel" ||
                    typeName == "OnboardingViewModel" ||
                    typeName == "LicenseEntryViewModel" ||
+                   typeName == "ActivationChoiceViewModel" ||
                    typeName == "PreferencesSetupViewModel";
         }
 
@@ -225,6 +260,7 @@ namespace Management.Presentation.ViewModels
             if (_navigationStore != null)
             {
                 _navigationStore.CurrentViewModelChanged -= OnCurrentViewModelChanged;
+                _navigationStore.BackStackChanged -= OnBackStackChanged;
             }
         }
     }

@@ -60,6 +60,7 @@ namespace Management.Presentation.ViewModels
         }
 
         public ICommand ActivateCommand { get; }
+        public ICommand BackToActivationCommand { get; }
 
         public LicenseEntryViewModel(
             INavigationService navigationService,
@@ -83,6 +84,7 @@ namespace Management.Presentation.ViewModels
             _onboardingState = onboardingState;
 
             ActivateCommand = new AsyncRelayCommand(ExecuteActivateAsync, () => !string.IsNullOrWhiteSpace(LicenseKey) && !IsBusy);
+            BackToActivationCommand = new AsyncRelayCommand(ExecuteBackToActivationAsync);
         }
 
         private async Task ExecuteActivateAsync()
@@ -98,7 +100,8 @@ namespace Management.Presentation.ViewModels
                 if (result.IsSuccess)
                 {
                     var validation = result.Value;
-                    _onboardingState.LicenseKey = LicenseKey; // Persist for next steps
+                    _onboardingState.LicenseKey = LicenseKey;   // Persist for next steps
+                    _onboardingState.VoucherCode = LicenseKey;  // Carry forward as voucher code
 
                     if (!validation.IsAssigned)
                     {
@@ -110,14 +113,14 @@ namespace Management.Presentation.ViewModels
                     else
                     {
                         // Schema 3: Expansion Flow (PC #2 and PC #3)
-                        Serilog.Log.Information("[LicenseEntryViewModel] Expansion Flow: Already assigned. Moving to Onboarding Slides...");
+                        Serilog.Log.Information("[LicenseEntryViewModel] Expansion Flow: Already assigned. Moving to DeviceExpansionViewModel...");
                         
                         _onboardingState.ExpansionMessage = _localizationService?.GetString("Strings.Auth.Message.LicenseActiveLogin") ?? "This license is active. Let's finish the setup for this new device.";
                         _onboardingState.TargetTenantId = validation.TenantId;
                         _onboardingState.IsExpansionFlow = true;
 
-                        // Instead of a direct login, we show the 5 premium onboarding slides first
-                        await _navigationService.NavigateToAsync<Auth.SplashOnboardingViewModel>();
+                        // Present the expansion choice modal for new machines
+                        await _navigationService.NavigateToAsync<Auth.DeviceExpansionViewModel>();
                     }
 
                 }
@@ -137,6 +140,12 @@ namespace Management.Presentation.ViewModels
                 IsBusy = false;
                 Serilog.Log.Information("[LicenseEntryViewModel] Command completed, IsBusy = false");
             }
+        }
+
+        private async Task ExecuteBackToActivationAsync()
+        {
+            Serilog.Log.Information("[LicenseEntryViewModel] Back to Activation Choice.");
+            await _navigationService.NavigateToAsync<Management.Presentation.ViewModels.Auth.ActivationChoiceViewModel>();
         }
     }
 }

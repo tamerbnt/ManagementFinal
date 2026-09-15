@@ -103,21 +103,33 @@ namespace Management.Presentation.Services
             await NavigateInternalAsync(typeof(SplashOnboardingViewModel));
         }
 
-        private async Task NavigateInternalAsync(Type viewModelType, object? parameter = null)
+        public bool CanNavigateBack => _navigationStore.CanNavigateBack;
+
+        public async Task NavigateBackAsync()
+        {
+            var entry = _navigationStore.PopBackStack();
+            if (entry != null)
+            {
+                await NavigateInternalAsync(entry.ViewModelType, entry.Parameter, isBackNavigation: true);
+            }
+        }
+
+        private async Task NavigateInternalAsync(Type viewModelType, object? parameter = null, bool isBackNavigation = false)
         {
             if (_dispatcher.CheckAccess())
             {
-                await ExecuteNavigation(viewModelType, parameter);
+                await ExecuteNavigation(viewModelType, parameter, isBackNavigation);
             }
             else
             {
-                await _dispatcher.InvokeAsync(async () => await ExecuteNavigation(viewModelType, parameter));
+                await _dispatcher.InvokeAsync(async () => await ExecuteNavigation(viewModelType, parameter, isBackNavigation));
             }
         }
 
         private readonly Dictionary<Type, object> _viewCache = new();
+        private object? _currentParameter;
 
-        private async Task ExecuteNavigation(Type viewModelType, object? parameter)
+        private async Task ExecuteNavigation(Type viewModelType, object? parameter, bool isBackNavigation = false)
         {
             // Yield to the UI thread to allow high-priority rendering (like window corners/chrome) 
             // to process before any potentially heavy ViewModel initialization starts.
@@ -125,8 +137,15 @@ namespace Management.Presentation.Services
 
             try
             {
-                _logger?.LogInformation("Navigating to {ViewModelType} with parameter {Parameter}", viewModelType.Name, parameter);
+                _logger?.LogInformation("Navigating to {ViewModelType} with parameter {Parameter} (IsBack: {IsBack})", viewModelType.Name, parameter, isBackNavigation);
                 
+                // Track back stack for forward navigations
+                if (!isBackNavigation && _navigationStore.CurrentViewModel != null && _navigationStore.CurrentViewModel.GetType() != viewModelType)
+                {
+                    _navigationStore.PushBackStack(new NavigationEntry(_navigationStore.CurrentViewModel.GetType(), _currentParameter));
+                }
+                _currentParameter = parameter;
+
                 // 1. Phased Construction
                 _navigationStore.IsNavigating = true;
                 var viewModel = _viewModelFactory(viewModelType);

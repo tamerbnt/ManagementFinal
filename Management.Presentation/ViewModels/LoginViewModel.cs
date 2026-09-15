@@ -40,7 +40,13 @@ namespace Management.Presentation.ViewModels
         public string Email
         {
             get => _email;
-            set => SetProperty(ref _email, value?.Trim() ?? string.Empty);
+            set
+            {
+                if (SetProperty(ref _email, value?.Trim() ?? string.Empty))
+                {
+                    LoginCommand.NotifyCanExecuteChanged();
+                }
+            }
         }
 
         public string? ExpansionMessage => _onboardingState.ExpansionMessage;
@@ -90,7 +96,6 @@ namespace Management.Presentation.ViewModels
 
         public AsyncRelayCommand<object> LoginCommand { get; }
         public ICommand BackToAccountSetupCommand { get; }
-        public ICommand ChangeFacilityCommand { get; }
 
 
         public LoginViewModel(
@@ -122,9 +127,15 @@ namespace Management.Presentation.ViewModels
 
             _isInitializingApp = false;
 
+            // Pre-seed SelectedFacility from persisted context so Login button and UI are immediately active
+            var defaultType = _facilityContext.CurrentFacility != FacilityType.General
+                ? _facilityContext.CurrentFacility
+                : (_facilityContext.ConfiguredFacility != FacilityType.General ? _facilityContext.ConfiguredFacility : FacilityType.MembershipAndSession);
+            var defaultId = _facilityContext.GetFacilityId(defaultType);
+            _selectedFacility = FacilityTypeOption.Create(defaultType, defaultId);
+
             LoginCommand = new AsyncRelayCommand<object>(ExecuteLogin, CanExecuteLogin);
             BackToAccountSetupCommand = new AsyncRelayCommand(ExecuteBackToAccountSetupAsync);
-            ChangeFacilityCommand = new AsyncRelayCommand(() => _navigationService.NavigateToSplashAsync());
         }
 
         public Task SetParameterAsync(object parameter)
@@ -139,6 +150,7 @@ namespace Management.Presentation.ViewModels
                 {
                     _facilityContext.UpdateFacilityId(option.Type, option.Id);
                 }
+                _facilityContext.PersistFacilityChoice(option.Type);
             }
             return Task.CompletedTask;
         }
@@ -199,8 +211,14 @@ namespace Management.Presentation.ViewModels
                     {
                         _facilityContext.UpdateFacilityId(SelectedFacility.Type, SelectedFacility.Id);
                     }
+                    else if (loggedInFacilityId != Guid.Empty)
+                    {
+                        SelectedFacility.Id = loggedInFacilityId;
+                        _facilityContext.UpdateFacilityId(SelectedFacility.Type, loggedInFacilityId);
+                    }
 
                     await RefreshFacilityDiscoveryAsync();
+                    _facilityContext.PersistFacilityChoice(SelectedFacility.Type);
                     _facilityContext.SetFacility(SelectedFacility.Type);
 
                     if (IsExpansionMode && _onboardingState.TargetTenantId.HasValue)
@@ -279,11 +297,82 @@ namespace Management.Presentation.ViewModels
             return rawError;
         }
 
-        public Task InitializeAsync() => Task.CompletedTask;
+        public async Task InitializeAsync()
+        {
+            await EnsureFacilitySelectedAsync();
+        }
 
         public async Task OnNavigatedToAsync(object? parameter)
         {
-            if (parameter != null) await SetParameterAsync(parameter);
+            if (parameter != null)
+            {
+                await SetParameterAsync(parameter);
+            }
+            else
+            {
+                await EnsureFacilitySelectedAsync();
+            }
+        }
+
+        private async Task EnsureFacilitySelectedAsync()
+        {
+            var facilityType = _facilityContext.CurrentFacility;
+            if (facilityType == FacilityType.General)
+            {
+                facilityType = _facilityContext.ConfiguredFacility;
+            }
+
+            Guid facilityId = _facilityContext.GetFacilityId(facilityType);
+            string? facilityName = null;
+
+            try
+            {
+                var localFacilities = await _dbContext.Facilities
+                    .AsNoTracking()
+                    .IgnoreQueryFilters()
+                    .Where(f => !f.IsDeleted)
+                    .ToListAsync();
+
+                if (localFacilities.Any())
+                {
+                    var matched = facilityType != FacilityType.General
+                        ? localFacilities.FirstOrDefault(f => f.Type == facilityType)
+                        : null;
+
+                    matched ??= localFacilities
+                        .OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt)
+                        .FirstOrDefault();
+
+                    if (matched != null)
+                    {
+                        facilityType = matched.Type;
+                        facilityId = matched.Id;
+                        facilityName = matched.Name;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Warning(ex, "[Login] Failed to query local facilities in EnsureFacilitySelectedAsync.");
+            }
+
+            if (facilityType == FacilityType.General)
+            {
+                facilityType = FacilityType.MembershipAndSession;
+            }
+
+            if (SelectedFacility == null || SelectedFacility.Type != facilityType || (SelectedFacility.Id == Guid.Empty && facilityId != Guid.Empty))
+            {
+                SelectedFacility = FacilityTypeOption.Create(facilityType, facilityId, facilityName);
+                Serilog.Log.Information("[Login] Facility context ensured: {FacilityName} ({FacilityId}, Type={Type})",
+                    SelectedFacility.Name, SelectedFacility.Id, SelectedFacility.Type);
+            }
+
+            if (facilityId != Guid.Empty)
+            {
+                _facilityContext.UpdateFacilityId(facilityType, facilityId);
+            }
+            _facilityContext.PersistFacilityChoice(facilityType);
         }
 
         private async Task ExecuteBackToAccountSetupAsync()

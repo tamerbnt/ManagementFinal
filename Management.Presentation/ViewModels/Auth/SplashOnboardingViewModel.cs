@@ -26,6 +26,8 @@ namespace Management.Presentation.ViewModels.Auth
         private readonly IDispatcher _dispatcher;
         private readonly Management.Application.Services.IAuthenticationService _authService;
         private readonly Management.Presentation.Services.State.SessionManager _sessionManager;
+        private readonly Management.Presentation.Stores.ModalNavigationStore _modalNavigationStore;
+        private readonly IServiceProvider _serviceProvider;
 
         private bool _isLoading = true;
         public bool IsLoading
@@ -79,6 +81,7 @@ namespace Management.Presentation.ViewModels.Auth
         public AsyncRelayCommand EnterWorkspaceCommand { get; }
         public AsyncRelayCommand EnterRemoteWorkspaceCommand { get; }
         public ICommand SelectFacilityCommand { get; }
+        public ICommand OpenCategoryDetailCommand { get; }
 
         public SplashOnboardingViewModel(
             INavigationService navigationService,
@@ -93,7 +96,9 @@ namespace Management.Presentation.ViewModels.Auth
             Management.Application.Services.IDiagnosticService diagnosticService,
             IDispatcher dispatcher,
             Management.Application.Services.IAuthenticationService authService,
-            Management.Presentation.Services.State.SessionManager sessionManager)
+            Management.Presentation.Services.State.SessionManager sessionManager,
+            Management.Presentation.Stores.ModalNavigationStore modalNavigationStore,
+            IServiceProvider serviceProvider)
             : base(terminologyService, facilityContext, logger, diagnosticService, toastService, localizationService, dialogService)
         {
             _navigationService = navigationService;
@@ -102,24 +107,49 @@ namespace Management.Presentation.ViewModels.Auth
             _dispatcher = dispatcher;
             _authService = authService;
             _sessionManager = sessionManager;
+            _modalNavigationStore = modalNavigationStore;
+            _serviceProvider = serviceProvider;
 
             EnterWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterWorkspace, CanExecuteEnterWorkspace);
             EnterRemoteWorkspaceCommand = new AsyncRelayCommand(ExecuteEnterRemoteWorkspace, CanExecuteEnterWorkspace);
-            SelectFacilityCommand = new RelayCommand<FacilityTypeOption>(f => SelectedFacility = f);
+            SelectFacilityCommand = new RelayCommand<FacilityTypeOption>(f => { if (f?.IsAvailable == true) SelectedFacility = f; });
+            OpenCategoryDetailCommand = new RelayCommand<FacilityTypeOption>(ExecuteOpenCategoryDetail);
 
             // FIX: Force data execution instantly on instantiation.
             // Bypasses the Navigation pipeline which is intentionally skipped natively by App.xaml.cs startup routing.
             _ = LoadFacilitiesFromLocalAsync();
         }
 
+        private void ExecuteOpenCategoryDetail(FacilityTypeOption? option)
+        {
+            if (option == null) return;
+            var modalVm = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<CategoryDetailModalViewModel>(_serviceProvider);
+            modalVm.Configure(option, confirmed =>
+            {
+                SelectedFacility = confirmed;
+            });
+            _ = _modalNavigationStore.OpenAsync(modalVm);
+        }
+
         private bool CanExecuteEnterWorkspace()
         {
-            return SelectedFacility != null && _initTracker.IsComplete;
+            return SelectedFacility != null && SelectedFacility.IsAvailable && _initTracker.IsComplete;
         }
 
         private async Task ExecuteEnterWorkspace()
         {
-            if (SelectedFacility == null) return;
+            if (SelectedFacility == null || !SelectedFacility.IsAvailable) return;
+            
+            if (_dialogService != null)
+            {
+                bool confirmed = await _dialogService.ShowConfirmationAsync(
+                    "Confirm Workspace Archetype",
+                    $"You are entering your workspace configured for:\n\n• {SelectedFacility.Name}\n{SelectedFacility.Description}\n\nWould you like to lock in this selection?",
+                    "Launch Workspace",
+                    "Change Category");
+
+                if (!confirmed) return;
+            }
             
             IsEnteringWorkspace = true;
             try
@@ -240,7 +270,9 @@ namespace Management.Presentation.ViewModels.Auth
                             Description = GetDescription(f.Type),
                             GradientStart = GetGradient(f.Type, true),
                             GradientEnd = GetGradient(f.Type, false),
-                            IconKey = GetIcon(f.Type)
+                            IconKey = GetIcon(f.Type),
+                            IsAvailable = f.Type != FacilityType.ProjectAndMilestone && f.Type != FacilityType.RentalAndBooking && f.Type != FacilityType.EducationAndCohort,
+                            BadgeText = (f.Type == FacilityType.ProjectAndMilestone || f.Type == FacilityType.RentalAndBooking || f.Type == FacilityType.EducationAndCohort) ? "COMING SOON" : string.Empty
                         })
                         .ToList();
 
@@ -253,9 +285,12 @@ namespace Management.Presentation.ViewModels.Auth
                     Serilog.Log.Warning("[Splash] No facilities found in local SQLite — showing fallback options");
                     options = new List<FacilityTypeOption>
                     {
-                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Gym, Name = "Titan Gym", Description = GetDescription(FacilityType.Gym), GradientStart = GetGradient(FacilityType.Gym, true), GradientEnd = GetGradient(FacilityType.Gym, false), IconKey = GetIcon(FacilityType.Gym) },
-                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Salon, Name = "Titan Salon", Description = GetDescription(FacilityType.Salon), GradientStart = GetGradient(FacilityType.Salon, true), GradientEnd = GetGradient(FacilityType.Salon, false), IconKey = GetIcon(FacilityType.Salon) },
-                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.Restaurant, Name = "Titan Restaurant", Description = GetDescription(FacilityType.Restaurant), GradientStart = GetGradient(FacilityType.Restaurant, true), GradientEnd = GetGradient(FacilityType.Restaurant, false), IconKey = GetIcon(FacilityType.Restaurant) }
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.PosAndInventory,       Name = "POS & Order/Inventory",     Description = GetDescription(FacilityType.PosAndInventory),       GradientStart = GetGradient(FacilityType.PosAndInventory, true),       GradientEnd = GetGradient(FacilityType.PosAndInventory, false),       IconKey = GetIcon(FacilityType.PosAndInventory), IsAvailable = true },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.AppointmentAndService, Name = "Appointment & Service",     Description = GetDescription(FacilityType.AppointmentAndService), GradientStart = GetGradient(FacilityType.AppointmentAndService, true), GradientEnd = GetGradient(FacilityType.AppointmentAndService, false), IconKey = GetIcon(FacilityType.AppointmentAndService), IsAvailable = true },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.MembershipAndSession,  Name = "Membership & Session",      Description = GetDescription(FacilityType.MembershipAndSession),  GradientStart = GetGradient(FacilityType.MembershipAndSession, true),  GradientEnd = GetGradient(FacilityType.MembershipAndSession, false),  IconKey = GetIcon(FacilityType.MembershipAndSession), IsAvailable = true },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.ProjectAndMilestone,  Name = "Project & Milestone",       Description = GetDescription(FacilityType.ProjectAndMilestone),   GradientStart = GetGradient(FacilityType.ProjectAndMilestone, true),   GradientEnd = GetGradient(FacilityType.ProjectAndMilestone, false),   IconKey = GetIcon(FacilityType.ProjectAndMilestone), IsAvailable = false, BadgeText = "COMING SOON" },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.RentalAndBooking,      Name = "Rental & Booking",          Description = GetDescription(FacilityType.RentalAndBooking),      GradientStart = GetGradient(FacilityType.RentalAndBooking, true),      GradientEnd = GetGradient(FacilityType.RentalAndBooking, false),      IconKey = GetIcon(FacilityType.RentalAndBooking), IsAvailable = false, BadgeText = "COMING SOON" },
+                        new FacilityTypeOption { Id = Guid.Empty, Type = FacilityType.EducationAndCohort,   Name = "Education & Cohort",        Description = GetDescription(FacilityType.EducationAndCohort),    GradientStart = GetGradient(FacilityType.EducationAndCohort, true),    GradientEnd = GetGradient(FacilityType.EducationAndCohort, false),    IconKey = GetIcon(FacilityType.EducationAndCohort), IsAvailable = false, BadgeText = "COMING SOON" },
                     };
                 }
 
@@ -267,27 +302,27 @@ namespace Management.Presentation.ViewModels.Auth
                         AvailableFacilities.Add(opt);
                     }
 
-                    // Pre-select Gym facility if available in discovery options, otherwise fallback to most recently updated real facility
-                    var defaultGym = AvailableFacilities.FirstOrDefault(f => f.Type == FacilityType.Gym);
-                    if (defaultGym != null)
+                    // Pre-select Gym/Membership facility if available, otherwise fallback to first available option
+                    var defaultFacility = AvailableFacilities.FirstOrDefault(f => f.IsAvailable && (f.Type == FacilityType.Gym || f.Type == FacilityType.MembershipAndSession));
+                    if (defaultFacility != null)
                     {
-                        SelectedFacility = defaultGym;
+                        SelectedFacility = defaultFacility;
                     }
                     else
                     {
-                        var realFacilities = localFacilities
+                        var realAvailable = localFacilities
+                            .Where(f => f.Type != FacilityType.ProjectAndMilestone && f.Type != FacilityType.RentalAndBooking && f.Type != FacilityType.EducationAndCohort)
                             .OrderByDescending(f => f.LastModifiedAt ?? f.CreatedAt)
                             .FirstOrDefault();
 
-                        if (realFacilities != null)
+                        if (realAvailable != null)
                         {
-                            SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == realFacilities.Id)
-                                ?? AvailableFacilities.FirstOrDefault();
+                            SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.Id == realAvailable.Id && f.IsAvailable)
+                                ?? AvailableFacilities.FirstOrDefault(f => f.IsAvailable);
                         }
                         else
                         {
-                            // Fallback mode — no real facility ID, don't pre-select
-                            SelectedFacility = null;
+                            SelectedFacility = AvailableFacilities.FirstOrDefault(f => f.IsAvailable);
                         }
                     }
                     
@@ -305,10 +340,18 @@ namespace Management.Presentation.ViewModels.Auth
         {
             return type switch
             {
-                FacilityType.Gym => "Fitness & Wellness Analytics",
-                FacilityType.Salon => "Beauty & Spa Operations",
+                // Legacy types
+                FacilityType.Gym        => "Fitness & Wellness Analytics",
+                FacilityType.Salon      => "Beauty & Spa Operations",
                 FacilityType.Restaurant => "Fine Dining Control",
-                _ => "Titan Managed Workspace"
+                // Phase 2 archetypes
+                FacilityType.PosAndInventory       => "Retail, Wholesale, Supermarkets, Food & Beverage",
+                FacilityType.AppointmentAndService => "Salons, Spas, Barbershops, Beauty Clinics",
+                FacilityType.MembershipAndSession  => "Gyms, Fitness Studios, Martial Arts, Sports Clubs",
+                FacilityType.ProjectAndMilestone   => "Architecture, Law Firms, Creative Agencies",
+                FacilityType.RentalAndBooking      => "Coworking Spaces, Event Venues, Equipment Rental",
+                FacilityType.EducationAndCohort    => "Training Centers, Academies, Bootcamps, Institutes",
+                _                                  => "Titan Managed Workspace"
             };
         }
 
@@ -316,10 +359,18 @@ namespace Management.Presentation.ViewModels.Auth
         {
             return type switch
             {
-                FacilityType.Gym => start ? "#0EA5E9" : "#2563EB",
-                FacilityType.Salon => start ? "#F43F5E" : "#E11D48",
+                // Legacy types
+                FacilityType.Gym        => start ? "#0EA5E9" : "#2563EB",
+                FacilityType.Salon      => start ? "#F43F5E" : "#E11D48",
                 FacilityType.Restaurant => start ? "#F59E0B" : "#D97706",
-                _ => start ? "#64748B" : "#475569"
+                // Phase 2 archetypes — distinct palette
+                FacilityType.PosAndInventory       => start ? "#6366F1" : "#4338CA",  // Indigo
+                FacilityType.AppointmentAndService => start ? "#EC4899" : "#BE185D",  // Pink
+                FacilityType.MembershipAndSession  => start ? "#0EA5E9" : "#0284C7",  // Sky
+                FacilityType.ProjectAndMilestone   => start ? "#F59E0B" : "#B45309",  // Amber
+                FacilityType.RentalAndBooking      => start ? "#10B981" : "#059669",  // Emerald
+                FacilityType.EducationAndCohort    => start ? "#8B5CF6" : "#6D28D9",  // Violet
+                _                                  => start ? "#64748B" : "#475569"
             };
         }
 
@@ -327,10 +378,18 @@ namespace Management.Presentation.ViewModels.Auth
         {
             return type switch
             {
-                FacilityType.Gym => FacilityTypeOption.icon_gym,
-                FacilityType.Salon => FacilityTypeOption.icon_salon,
+                // Legacy types
+                FacilityType.Gym        => FacilityTypeOption.icon_gym,
+                FacilityType.Salon      => FacilityTypeOption.icon_salon,
                 FacilityType.Restaurant => FacilityTypeOption.icon_restaurant,
-                _ => FacilityTypeOption.icon_gym
+                // Phase 2 archetypes
+                FacilityType.PosAndInventory       => FacilityTypeOption.icon_pos,
+                FacilityType.AppointmentAndService => FacilityTypeOption.icon_appointment,
+                FacilityType.MembershipAndSession  => FacilityTypeOption.icon_membership,
+                FacilityType.ProjectAndMilestone   => FacilityTypeOption.icon_project,
+                FacilityType.RentalAndBooking      => FacilityTypeOption.icon_rental,
+                FacilityType.EducationAndCohort    => FacilityTypeOption.icon_education,
+                _                                  => FacilityTypeOption.icon_gym
             };
         }
     }

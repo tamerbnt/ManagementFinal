@@ -78,6 +78,32 @@ namespace Management.Presentation.ViewModels
             }
         }
 
+        private string _phone = string.Empty;
+        public string Phone
+        {
+            get => _phone;
+            set 
+            {
+                if (SetProperty(ref _phone, value))
+                {
+                    ((AsyncRelayCommand)CompleteOnboardingCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private string _address = string.Empty;
+        public string Address
+        {
+            get => _address;
+            set 
+            {
+                if (SetProperty(ref _address, value))
+                {
+                    ((AsyncRelayCommand)CompleteOnboardingCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
         private bool _isBusy;
         public bool IsBusy
         {
@@ -136,11 +162,13 @@ namespace Management.Presentation.ViewModels
 
         private async Task ExecuteSkipToSlidesAsync()
         {
-            await ExecuteSafeAsync(async () =>
-            {
-                Serilog.Log.Information("[OnboardingOwnerViewModel] User skipped account setup (expansion flow)");
-                await _navigationService.NavigateToAsync<SplashOnboardingViewModel>();
-            });
+            // Direct navigation — no ExecuteSafeAsync wrapper needed here.
+            // ExecuteSafeAsync uses ViewModelBase.IsBusy which is shadowed by this class's
+            // own IsBusy property (CS0108), causing the lock to become permanently stuck
+            // after CompleteOnboardingCommand sets IsBusy = true. Simple navigation does
+            // not need a busy-lock; the AsyncRelayCommand already prevents double-clicks.
+            Serilog.Log.Information("[OnboardingOwnerViewModel] User chose 'Already have an account' — navigating to Login.");
+            await _navigationService.NavigateToAsync<LoginViewModel>();
         }
 
         private async Task ExecuteCompleteOnboardingAsync()
@@ -149,9 +177,12 @@ namespace Management.Presentation.ViewModels
             IsBusy = true;
             try
             {
-                // Use the persisted license key (Genesis Flow)
-                var licenseKey = _onboardingState.LicenseKey ?? "TEMP-LICENSE";
-                Serilog.Log.Information($"[OnboardingOwnerViewModel] Using License Key: {licenseKey}");
+                // Use the persisted license key/voucher (Genesis Flow) or null for a free trial.
+                // IMPORTANT: Do NOT fall back to a sentinel string like "TRIAL" — the RPC
+                // treats any non-null p_voucher_code as a real voucher lookup, which causes
+                // INVALID_VOUCHER_CODE for free-trial users who have no real code.
+                var licenseKey = _onboardingState.VoucherCode ?? _onboardingState.LicenseKey;
+                Serilog.Log.Information($"[OnboardingOwnerViewModel] Using License Key / Voucher: {licenseKey ?? "<FREE TRIAL — no voucher>"}");
 
                 // 1. Create Account and Onboard Tenant
                 var state = new Management.Application.DTOs.OnboardingState
@@ -160,7 +191,9 @@ namespace Management.Presentation.ViewModels
                     AdminPassword = Password,
                     LicenseKey = licenseKey,
                     BusinessName = BusinessName,
-                    AdminFullName = AdminFullName
+                    AdminFullName = AdminFullName,
+                    Phone = Phone,
+                    Address = Address
                 };
                 
                 System.Diagnostics.Debug.WriteLine($"[ONBOARDING] Facility provisioning starting for {BusinessName} {DateTime.Now:HH:mm:ss.fff}");
@@ -197,11 +230,12 @@ namespace Management.Presentation.ViewModels
                 Serilog.Log.Information("[OnboardingOwnerViewModel] Triggering service re-initialization...");
                 await ((App)System.Windows.Application.Current).ReinitializeOperationalServicesAsync();
 
-                await _dialogService.ShowAlertAsync(_localizationService?.GetString("Strings.Auth.Title.Success") ?? "Success", _localizationService?.GetString("Strings.Auth.Message.OnboardingComplete") ?? "Setup complete! Your workspace has been initialized.", isSuccess: true);
+                await _dialogService.ShowAlertAsync(_localizationService?.GetString("Strings.Auth.Title.Success") ?? "Success", _localizationService?.GetString("Strings.Auth.Message.OnboardingComplete") ?? "Account created! Now choose your operating engine.", isSuccess: true);
                 
                 // Final wait for UI to settle
-                await Task.Delay(1000);
-                await _navigationService.NavigateToAsync<PreferencesSetupViewModel>();
+                await Task.Delay(800);
+                // Navigate to facility/engine selection (Step 4 of activation flow)
+                await _navigationService.NavigateToAsync<SplashOnboardingViewModel>();
             }
             catch (Exception ex)
             {

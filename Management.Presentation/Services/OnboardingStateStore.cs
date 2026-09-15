@@ -8,6 +8,7 @@ namespace Management.Presentation.Services
         Guid? TargetTenantId { get; set; }
         string? LicenseKey { get; set; }
         Guid? LicenseId { get; set; }
+        string? VoucherCode { get; set; }
         string? BusinessName { get; set; }
         string? AdminFullName { get; set; }
         string? AdminEmail { get; set; }
@@ -25,6 +26,7 @@ namespace Management.Presentation.Services
         public Guid? TargetTenantId { get; set; }
         public string? LicenseKey { get; set; }
         public Guid? LicenseId { get; set; }
+        public string? VoucherCode { get; set; }
         public string? BusinessName { get; set; }
         public string? AdminFullName { get; set; }
         public string? AdminEmail { get; set; }
@@ -36,6 +38,7 @@ namespace Management.Presentation.Services
             TargetTenantId = null;
             LicenseKey = null;
             LicenseId = null;
+            VoucherCode = null;
             BusinessName = null;
             AdminFullName = null;
             AdminEmail = null;

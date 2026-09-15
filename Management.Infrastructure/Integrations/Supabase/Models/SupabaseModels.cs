@@ -267,16 +267,23 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         public decimal TaxAmount { get; set; }
     }
 
-    [Table("staff_members")]
+    // Phase 2: targets public.staff (renamed from staff_members in Phase 1)
+    // PUSH (outbox upsert): [Column] attributes drive REST payload to public.staff
+    // PULL (RPC): get_staff_for_sync RPC JSON deserialized via [JsonProperty]
+    [Table("staff")]
     public class SupabaseStaffMember : SupabaseBaseModel
     {
         [PrimaryKey("id", false)]
         public Guid Id { get; set; }
 
-        [Column("tenant_id")]
+        // Phase 2: column is account_id; JsonProperty maps RPC field "tenant_id"
+        [Column("account_id")]
+        [Newtonsoft.Json.JsonProperty("tenant_id")]
         public Guid TenantId { get; set; }
 
-        [Column("facility_id")]
+        // facility_id NOT a column on public.staff — populated from RPC JSON only
+        [Newtonsoft.Json.JsonIgnore]
+        [Newtonsoft.Json.JsonProperty("primary_facility_id")]
         public Guid FacilityId { get; set; }
 
         [Column("full_name")]
@@ -287,40 +294,46 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         [Newtonsoft.Json.JsonProperty("email")]
         public string? Email { get; set; }
 
+        // Pull: RPC returns integer; Push: RoleText converts back to Supabase text
+        [Newtonsoft.Json.JsonIgnore]
+        [Newtonsoft.Json.JsonProperty("role")]
+        public int Role { get; set; } = 7;
+
         [Column("role")]
-        public int Role { get; set; } = 7; // Default to Staff
+        [Newtonsoft.Json.JsonIgnore]
+        public string RoleText => Role switch { 8 => "owner", 1 => "manager", 2 => "cashier", 3 => "technician", 4 => "waiter", _ => "staff" };
 
         [Column("is_active")]
+        [Newtonsoft.Json.JsonProperty("is_active")]
         public bool IsActive { get; set; } = true;
 
         [Column("created_at")]
+        [Newtonsoft.Json.JsonProperty("created_at")]
         public DateTime CreatedAt { get; set; }
 
         [Column("updated_at")]
+        [Newtonsoft.Json.JsonProperty("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        [Column("is_owner")]
+        // Derived from role — not a DB column; from RPC JSON only
+        [Newtonsoft.Json.JsonIgnore]
+        [Newtonsoft.Json.JsonProperty("is_owner")]
         public bool IsOwner { get; set; }
 
-        [Column("phone_number")]
-        public string? PhoneNumber { get; set; }
+        // Not in public.staff (Phase 2) — local SQLite only
+        [Newtonsoft.Json.JsonIgnore] public string? PhoneNumber { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public decimal Salary { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public int PaymentDay { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public string? CardId { get; set; }
+        [Newtonsoft.Json.JsonIgnore] public JToken? AllowedModulesJson { get; set; }
 
-        [Column("salary")]
-        public decimal Salary { get; set; }
-
-        [Column("payment_day")]
-        public int PaymentDay { get; set; }
-
-        [Column("rfid_tag")]
-        public string? CardId { get; set; }
-
-        [Column("permissions")]
+        // Not in public.staff (Phase 2) — from RPC JSON only
+        [Newtonsoft.Json.JsonProperty("permissions")]
         public JToken? PermissionsJson { get; set; }
 
-        [Column("allowed_modules")]
-        public JToken? AllowedModulesJson { get; set; }
-
-        [Column("supabase_user_id")]
+        // Phase 2: auth_user_id (was supabase_user_id in Phase 1)
+        [Column("auth_user_id")]
+        [Newtonsoft.Json.JsonProperty("auth_user_id")]
         public Guid? SupabaseUserId { get; set; }
     }
 
@@ -740,4 +753,409 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         [Column("last_updated_at")]
         public DateTime LastUpdatedAt { get; set; }
     }
+
+    // =============================================================================
+    // PHASE 2 SUPABASE POSTGREST MODELS (MAPPED TO POSTGRESQL SCHEMA)
+    // =============================================================================
+
+    [Table("subscription_plans")]
+    public class SupabaseSubscriptionPlan : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [Column("tier_rank")]
+        public int TierRank { get; set; }
+
+        [Column("max_businesses")]
+        public int MaxBusinesses { get; set; } = 1;
+
+        [Column("max_branches")]
+        public int MaxBranches { get; set; } = 1;
+
+        [Column("max_devices")]
+        public int MaxDevices { get; set; } = 1;
+
+        [Column("max_staff")]
+        public int MaxStaff { get; set; } = 2;
+
+        [Column("cross_branch_reports")]
+        public bool CrossBranchReports { get; set; }
+
+        [Column("shared_members")]
+        public bool SharedMembers { get; set; }
+
+        [Column("is_free_tier")]
+        public bool IsFreeTier { get; set; }
+
+        [Column("trial_days")]
+        public int TrialDays { get; set; }
+
+        [Column("price_label")]
+        public string PriceLabel { get; set; } = "One-Time Cash";
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+    }
+
+    [Table("modules")]
+    public class SupabaseModule : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("key")]
+        public string Key { get; set; } = string.Empty;
+
+        [Column("display_name")]
+        public string DisplayName { get; set; } = string.Empty;
+
+        [Column("icon")]
+        public string Icon { get; set; } = "ðŸ“¦";
+
+        [Column("description")]
+        public string? Description { get; set; }
+
+        [Column("is_core")]
+        public bool IsCore { get; set; }
+
+        [Column("sort_order")]
+        public int SortOrder { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+    }
+
+    [Table("accounts")]
+    public class SupabaseAccount : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("full_name")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Column("email")]
+        public string Email { get; set; } = string.Empty;
+
+        [Column("phone_number")]
+        public string? PhoneNumber { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("account_subscriptions")]
+    public class SupabaseAccountSubscription : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("plan_id")]
+        public Guid PlanId { get; set; }
+
+        [Column("status")]
+        public string Status { get; set; } = "trialing";
+
+        [Column("is_lifetime")]
+        public bool IsLifetime { get; set; }
+
+        [Column("trial_ends_at")]
+        public DateTime? TrialEndsAt { get; set; }
+
+        [Column("current_period_end")]
+        public DateTime? CurrentPeriodEnd { get; set; }
+
+        [Column("grace_ends_at")]
+        public DateTime? GraceEndsAt { get; set; }
+
+        [Column("activated_by_voucher")]
+        public Guid? ActivatedByVoucher { get; set; }
+
+        [Column("notes")]
+        public string? Notes { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("businesses")]
+    public class SupabaseBusiness : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("category")]
+        public string Category { get; set; } = "pos_inventory";
+
+        [Column("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [Column("display_name")]
+        public string? DisplayName { get; set; }
+
+        [Column("address")]
+        public string? Address { get; set; }
+
+        [Column("phone")]
+        public string? Phone { get; set; }
+
+        [Column("logo_url")]
+        public string? LogoUrl { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("branches")]
+    public class SupabaseBranch : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("business_id")]
+        public Guid BusinessId { get; set; }
+
+        [Column("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [Column("address")]
+        public string? Address { get; set; }
+
+        [Column("phone")]
+        public string? Phone { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("is_main_branch")]
+        public bool IsMainBranch { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("devices")]
+    public class SupabaseDeviceRecord : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("branch_id")]
+        public Guid? BranchId { get; set; }
+
+        [Column("hardware_id")]
+        public string HardwareId { get; set; } = string.Empty;
+
+        [Column("label")]
+        public string Label { get; set; } = "Main PC";
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("last_seen_at")]
+        public DateTime? LastSeenAt { get; set; }
+
+        [Column("registered_at")]
+        public DateTime RegisteredAt { get; set; }
+    }
+
+    [Table("license_vouchers")]
+    public class SupabaseLicenseVoucher : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("code")]
+        public string Code { get; set; } = string.Empty;
+
+        [Column("plan_id")]
+        public Guid PlanId { get; set; }
+
+        [Column("duration_months")]
+        public int DurationMonths { get; set; } = -1; // -1 = lifetime
+
+        [Column("is_redeemed")]
+        public bool IsRedeemed { get; set; }
+
+        [Column("redeemed_by")]
+        public Guid? RedeemedBy { get; set; }
+
+        [Column("redeemed_at")]
+        public DateTime? RedeemedAt { get; set; }
+
+        [Column("created_by_note")]
+        public string? CreatedByNote { get; set; }
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+    }
+
+    [Table("staff")]
+    public class SupabaseStaff : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("auth_user_id")]
+        public Guid? AuthUserId { get; set; }
+
+        [Column("full_name")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Column("email")]
+        public string? Email { get; set; }
+
+        [Column("pin")]
+        public string? Pin { get; set; }
+
+        [Column("role")]
+        public string Role { get; set; } = "staff";
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("staff_branch_assignments")]
+    public class SupabaseStaffBranchAssignment : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("staff_id")]
+        public Guid StaffId { get; set; }
+
+        [Column("branch_id")]
+        public Guid BranchId { get; set; }
+
+        [Column("assigned_at")]
+        public DateTime AssignedAt { get; set; }
+    }
+
+    [Table("branch_modules")]
+    public class SupabaseBranchModule : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("branch_id")]
+        public Guid BranchId { get; set; }
+
+        [Column("module_id")]
+        public Guid ModuleId { get; set; }
+
+        [Column("is_enabled")]
+        public bool IsEnabled { get; set; } = true;
+
+        [Column("enabled_at")]
+        public DateTime EnabledAt { get; set; }
+    }
+
+    [Table("staff_module_permissions")]
+    public class SupabaseStaffModulePermission : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("staff_id")]
+        public Guid StaffId { get; set; }
+
+        [Column("branch_id")]
+        public Guid BranchId { get; set; }
+
+        [Column("module_id")]
+        public Guid ModuleId { get; set; }
+
+        [Column("can_view")]
+        public bool CanView { get; set; }
+
+        [Column("can_edit")]
+        public bool CanEdit { get; set; }
+
+        [Column("can_delete")]
+        public bool CanDelete { get; set; }
+
+        [Column("can_export")]
+        public bool CanExport { get; set; }
+
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
+    }
+
+    [Table("members_directory")]
+    public class SupabaseMemberDirectory : SupabaseBaseModel
+    {
+        [PrimaryKey("id", false)]
+        public Guid Id { get; set; }
+
+        [Column("account_id")]
+        public Guid AccountId { get; set; }
+
+        [Column("branch_id")]
+        public Guid BranchId { get; set; }
+
+        [Column("local_member_id")]
+        public string LocalMemberId { get; set; } = string.Empty;
+
+        [Column("full_name")]
+        public string FullName { get; set; } = string.Empty;
+
+        [Column("rfid_tag")]
+        public string? RfidTag { get; set; }
+
+        [Column("barcode")]
+        public string? Barcode { get; set; }
+
+        [Column("phone")]
+        public string? Phone { get; set; }
+
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        [Column("synced_at")]
+        public DateTime SyncedAt { get; set; }
+    }
+
 }

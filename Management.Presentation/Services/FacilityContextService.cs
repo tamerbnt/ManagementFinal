@@ -22,7 +22,7 @@ namespace Management.Presentation.Services
         public Dictionary<FacilityType, Guid>? FacilityIds { get; set; }
     }
 
-    public class FacilityContextService : Management.Domain.Services.IFacilityContextService
+    public class FacilityContextService : Management.Domain.Services.IFacilityContextService, Management.Domain.Interfaces.IStateResettable
     {
         private readonly IDispatcher _dispatcher;
         private readonly ILocalizationService _localizationService;
@@ -44,6 +44,8 @@ namespace Management.Presentation.Services
             get => _overrideFacility.Value ?? _globalFacility; 
             private set => _globalFacility = value; 
         }
+
+        public FacilityType ConfiguredFacility { get; private set; } = FacilityType.General;
 
         public Guid CurrentFacilityId => _overrideFacilityId.Value ?? _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
         public string LanguageCode { get; private set; } = "en";
@@ -95,6 +97,7 @@ namespace Management.Presentation.Services
         /// </summary>
         public void PersistFacilityChoice(FacilityType type)
         {
+            ConfiguredFacility = type;
             CurrentFacility = type;
             Serilog.Log.Information("[FacilityContext] PersistFacilityChoice({Type}) — writing to disk.", type);
             SaveConfig();
@@ -178,7 +181,8 @@ namespace Management.Presentation.Services
                     var json = File.ReadAllText(_configPath);
                     var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
                     var config = JsonSerializer.Deserialize<FacilityConfig>(json, options);
-                    CurrentFacility = config?.InitialFacility ?? FacilityType.General;
+                    ConfiguredFacility = config?.InitialFacility ?? FacilityType.General;
+                    CurrentFacility = ConfiguredFacility;
                     LanguageCode = config?.LanguageCode ?? "en";
                     PublicSlug = config?.PublicSlug ?? string.Empty;
                     
@@ -199,6 +203,7 @@ namespace Management.Presentation.Services
                 }
                 else
                 {
+                    ConfiguredFacility = FacilityType.General;
                     CurrentFacility = FacilityType.General;
                     Serilog.Log.Information("[FacilityContext] No config file found. Initializing with General type. Pending CommitFacility.");
                 }
@@ -206,6 +211,7 @@ namespace Management.Presentation.Services
             catch (Exception ex)
             {
                 Serilog.Log.Warning(ex, "[FacilityContext] Failed to load config. Using General default.");
+                ConfiguredFacility = FacilityType.General;
                 CurrentFacility = FacilityType.General;
             }
 
@@ -244,6 +250,7 @@ namespace Management.Presentation.Services
             await _resourceLoadLock.WaitAsync();
             try
             {
+                ConfiguredFacility = type;
                 CurrentFacility = type;
                 await LoadFacilityResourcesAsync(type);
 
@@ -388,9 +395,13 @@ namespace Management.Presentation.Services
             if (!_configSaveLock.Wait(0)) return; // Skip if a save is already in progress
             try
             {
+                var facilityToSave = CurrentFacility != FacilityType.General 
+                    ? CurrentFacility 
+                    : (ConfiguredFacility != FacilityType.General ? ConfiguredFacility : FacilityType.General);
+
                 var config = new FacilityConfig 
                 { 
-                    InitialFacility = CurrentFacility,
+                    InitialFacility = facilityToSave,
                     LanguageCode = LanguageCode,
                     PublicSlug = PublicSlug,
                     TenantId = _onboardingState.TargetTenantId,

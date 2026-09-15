@@ -8,6 +8,7 @@ namespace Management.Domain.Services
     {
         string LanguageCode { get; }
         FacilityType CurrentFacility { get; }
+        FacilityType ConfiguredFacility { get; }
         Guid CurrentFacilityId { get; }
         string PublicSlug { get; }
         event Action<FacilityType> FacilityChanged;

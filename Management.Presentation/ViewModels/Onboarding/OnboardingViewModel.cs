@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,7 +34,10 @@ namespace Management.Presentation.ViewModels.Onboarding
         private readonly IOnboardingService _onboardingService;
         private readonly IConfigurationService _configService;
 
+        public bool CanNavigateBack => CurrentStep > OnboardingStep.LicenseActivation;
+
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanNavigateBack))]
         private OnboardingStep _currentStep = OnboardingStep.LicenseActivation;
 
         [ObservableProperty]
@@ -204,7 +207,7 @@ namespace Management.Presentation.ViewModels.Onboarding
         }
 
         [RelayCommand]
-        private void NavigateToNextStep()
+        private async Task NavigateToNextStep()
         {
             // Generic Next Logic
             if (CurrentStep == OnboardingStep.BusinessProfile)
@@ -218,12 +221,32 @@ namespace Management.Presentation.ViewModels.Onboarding
             }
             else if (CurrentStep == OnboardingStep.FacilityConfig)
             {
-                 // Validate Facility VM
-                 if(FacilityConfigViewModel != null && FacilityConfigViewModel.Validate())
+                 // Validate Facility VM with confirmation modal
+                 if(FacilityConfigViewModel != null && await FacilityConfigViewModel.ValidateAsync())
                  {
                      CurrentStep = OnboardingStep.Complete;
                      InitializeFinishViewModel();
                  }
+            }
+        }
+
+        [RelayCommand]
+        private void NavigateToPreviousStep()
+        {
+            switch (CurrentStep)
+            {
+                case OnboardingStep.Complete:
+                    CurrentStep = OnboardingStep.FacilityConfig;
+                    break;
+                case OnboardingStep.FacilityConfig:
+                    CurrentStep = OnboardingStep.BusinessProfile;
+                    break;
+                case OnboardingStep.BusinessProfile:
+                    CurrentStep = OnboardingStep.OwnerRegistration;
+                    break;
+                case OnboardingStep.OwnerRegistration:
+                    CurrentStep = OnboardingStep.LicenseActivation;
+                    break;
             }
         }
     }

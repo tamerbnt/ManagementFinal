@@ -49,6 +49,33 @@ namespace Management.Infrastructure.Services
 
     public class OnboardingService : IOnboardingService
     {
+        public static string CategoryToSlug(string? category)
+        {
+            if (string.IsNullOrWhiteSpace(category)) return "pos_inventory";
+            var clean = category.Trim().ToLowerInvariant().Replace(" ", "_").Replace("-", "_");
+            return clean switch
+            {
+                "posinventory" or "pos_inventory" or "pos" or "order_inventory" => "pos_inventory",
+                "appointmentservice" or "appointment_service" or "service" or "salon" => "appointment_service",
+                "membershipsession" or "membership_session" or "gym" or "membership" => "membership_session",
+                "projectmilestone" or "project_milestone" or "project" or "milestone" => "project_milestone",
+                "rentalbooking" or "rental_booking" or "rental" or "booking" => "rental_booking",
+                "educationcohort" or "education_cohort" or "education" or "school" => "education_cohort",
+                _ => clean
+            };
+        }
+
+        public static string CategoryToSlug(BusinessCategory category) => category switch
+        {
+            BusinessCategory.PosInventory => "pos_inventory",
+            BusinessCategory.AppointmentService => "appointment_service",
+            BusinessCategory.MembershipSession => "membership_session",
+            BusinessCategory.ProjectMilestone => "project_milestone",
+            BusinessCategory.RentalBooking => "rental_booking",
+            BusinessCategory.EducationCohort => "education_cohort",
+            _ => "pos_inventory"
+        };
+
         private readonly Supabase.Client _supabase;
         private readonly ITenantService _tenantService;
         private readonly IConfigurationService _configService;
@@ -280,24 +307,112 @@ namespace Management.Infrastructure.Services
             }
 
             var ownerId = signUpResult.Value;
-            var tenantSlug = state.BusinessName?.ToLower().Replace(" ", "-") ?? "tenant";
+            var hardwareId = _tenantService.GetHardwareId();
+            var rawCategory = !string.IsNullOrWhiteSpace(state.Category) ? state.Category : state.FacilityType;
+            var categorySlug = CategoryToSlug(rawCategory);
+            state.Category = categorySlug;
+            var branchName = !string.IsNullOrWhiteSpace(state.BranchName) ? state.BranchName.Trim() : "Main Branch";
+            var voucher = !string.IsNullOrWhiteSpace(state.VoucherCode) ? state.VoucherCode.Trim().ToUpper() : (!string.IsNullOrWhiteSpace(state.LicenseKey) ? state.LicenseKey.Trim().ToUpper() : null);
+            // Safety-net: "TRIAL" is a local sentinel, never a real voucher code.
+            // Discard it so the RPC takes the free-trial path (no p_voucher_code sent).
+            if (voucher == "TRIAL") voucher = null;
 
-            // Map string FacilityType to int for RPC
-            int typeId = 0; // Default Gym (1) - but 0 triggers default logic if needed, but let's be explicit if possible. 
-            // Actually, based on my SQL, 1=Gym, 5=Salon, 6=Restaurant. 
-            // The SQL default is 0, which falls back to Gym. 
-            // Let's send the correct IDs.
-            if (state.FacilityType == "Salon") typeId = 5;
-            else if (state.FacilityType == "Restaurant") typeId = 6;
-            else typeId = 1; // Explicit Gym
+            Serilog.Log.Information($"[OnboardingService] Phase 2 Genesis: Calling onboard_owner_account for Owner {ownerId}, Category: {categorySlug}, Voucher: {voucher ?? "<NONE>"}");
 
-            var registerBusinessResult = await RegisterBusinessAsync(ownerId, state.AdminFullName, state.AdminEmail, state.LicenseKey, state.BusinessName, tenantSlug, typeId);
-            if (registerBusinessResult.IsFailure)
+            try
             {
-                return Result.Failure<Guid>(registerBusinessResult.Error);
-            }
+                var parameters = new Dictionary<string, object>
+                {
+                    { "p_owner_id", ownerId },
+                    { "p_full_name", state.AdminFullName ?? "Owner" },
+                    { "p_email", state.AdminEmail.Trim().ToLowerInvariant() },
+                    { "p_business_name", state.BusinessName ?? "My Business" },
+                    { "p_branch_name", branchName },
+                    { "p_category", categorySlug },
+                    { "p_hardware_id", hardwareId },
+                    { "p_device_label", Environment.MachineName }
+                };
 
-            return Result.Success(registerBusinessResult.Value);
+                if (!string.IsNullOrWhiteSpace(state.Address))
+                {
+                    parameters["p_address"] = state.Address.Trim();
+                }
+
+                if (!string.IsNullOrWhiteSpace(state.Phone))
+                {
+                    parameters["p_phone"] = state.Phone.Trim();
+                }
+
+                if (!string.IsNullOrWhiteSpace(voucher))
+                {
+                    parameters["p_voucher_code"] = voucher;
+                }
+
+                var rpcTask = _supabase.Rpc("onboard_owner_account", parameters);
+                var rpcResponse = await rpcTask.WaitAsync(TimeSpan.FromSeconds(NetworkTimeoutSeconds));
+
+                if (rpcResponse == null || string.IsNullOrWhiteSpace(rpcResponse.Content) || rpcResponse.Content == "null")
+                {
+                    return Result.Failure<Guid>(new Error("Onboarding.RpcFailed", "No response from account onboarding service."));
+                }
+
+                using var doc = System.Text.Json.JsonDocument.Parse(rpcResponse.Content);
+                var root = doc.RootElement;
+
+                bool success = root.TryGetProperty("success", out var sc) && sc.GetBoolean();
+                if (!success)
+                {
+                    string err = root.TryGetProperty("error", out var ep) ? (ep.GetString() ?? "Onboarding failed") : "Onboarding failed";
+                    string friendly = err switch
+                    {
+                        "ACCOUNT_ALREADY_EXISTS" => "An account with this owner ID already exists.",
+                        "INVALID_VOUCHER_CODE" => "The provided voucher code is invalid.",
+                        "VOUCHER_ALREADY_USED" => "The provided voucher code has already been redeemed.",
+                        _ => $"Onboarding rejected: {err}"
+                    };
+                    return Result.Failure<Guid>(new Error("Onboarding.Rejected", friendly));
+                }
+
+                Guid? branchId = root.TryGetProperty("branch_id", out var bp) && Guid.TryParse(bp.GetString(), out var bId) ? bId : null;
+                bool isLifetime = root.TryGetProperty("is_lifetime", out var lp) && lp.GetBoolean();
+                string planStatus = root.TryGetProperty("plan_status", out var pp) ? (pp.GetString() ?? "trialing") : "trialing";
+
+                _tenantService.SetAccountId(ownerId);
+
+                try
+                {
+                    var lease = new Management.Domain.Models.LicenseLease
+                    {
+                        HardwareId = hardwareId,
+                        AccountId = ownerId,
+                        BranchId = branchId,
+                        IsLifetime = isLifetime,
+                        PlanName = isLifetime ? "Lifetime" : "Evaluation Trial",
+                        ExpiryDate = isLifetime ? DateTime.UtcNow.AddYears(100) : DateTime.UtcNow.AddDays(14),
+                        Signature = "SIGNED-" + hardwareId
+                    };
+                    await _configService.SaveConfigAsync(lease, "license.lease");
+                    Serilog.Log.Information("[OnboardingService] Phase 2 license lease saved locally.");
+                }
+                catch (Exception leaseEx)
+                {
+                    Serilog.Log.Warning(leaseEx, "[OnboardingService] Failed to save license lease.");
+                }
+
+                try
+                {
+                    await Task.Delay(1000);
+                    await _supabase.Auth.RefreshSession();
+                }
+                catch { }
+
+                return Result.Success(ownerId);
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "[OnboardingService] CompleteOnboardingAsync exception.");
+                return Result.Failure<Guid>(new Error("Onboarding.Exception", ex.Message));
+            }
         }
 
         public async Task<Result<Guid>> SignUpOnlyAsync(string email, string password)
@@ -386,104 +501,15 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result<Guid>> RegisterBusinessAsync(Guid ownerId, string ownerName, string email, string licenseKey, string tenantName, string tenantSlug, int facilityType = 0)
         {
-            email = email?.Trim().ToLowerInvariant() ?? string.Empty;
-            try
+            var state = new OnboardingState
             {
-                Serilog.Log.Information($"[OnboardingService] REGISTER BUSINESS Phase for {ownerId} ({tenantName}) Type: {facilityType}");
-
-                Guid? tenantId = null;
-
-                // 1. Register Business via RPC
-                int maxRetries = 5;
-                
-                string lastErrorMessage = string.Empty;
-                for (int i = 0; i < maxRetries; i++)
-                {
-                    if (tenantId.HasValue) break;
-
-                    try 
-                    {
-                        Serilog.Log.Information($"[OnboardingService] RPC Attempt {i+1}/{maxRetries} for business: {tenantName}");
-                        var parameters = new Dictionary<string, object>
-                        {
-                            { "p_owner_id", ownerId },
-                            { "p_owner_name", ownerName },
-                            { "p_email", email },
-                            { "p_license_key", licenseKey },
-                            { "p_tenant_name", tenantName },
-                            { "p_tenant_slug", tenantSlug },
-                            { "p_facility_type", facilityType } // NEW: Pass type to the cloner
-                        };
-
-                        var rpcTask = _supabase.Rpc("onboard_new_tenant", parameters);
-                        var rpcResponse = await rpcTask.WaitAsync(TimeSpan.FromSeconds(NetworkTimeoutSeconds));
-                        
-                        if (!string.IsNullOrEmpty(rpcResponse.Content) && rpcResponse.Content != "null")
-                        {
-                            tenantId = Guid.Parse(rpcResponse.Content.Trim('"'));
-                            Serilog.Log.Information($"[OnboardingService] Business Registration Successful via Idempotent RPC. TenantId: {tenantId}");
-                            break; 
-                        }
-                    }
-                    catch (Supabase.Postgrest.Exceptions.PostgrestException ex) 
-                    {
-                        lastErrorMessage = ex.Message;
-                        Serilog.Log.Error(ex, $"[OnboardingService] RPC Registration Failure: {ex.Message}");
-                    }
-
-                    await Task.Delay(2000 * (i + 1));
-                }
-
-                // --- Guard: Abort if RPC never returned a valid tenantId ---
-                if (!tenantId.HasValue)
-                {
-                    string rpcFailDetail = string.IsNullOrEmpty(lastErrorMessage) 
-                        ? "Check your Supabase logs or ensures the 'onboard_new_tenant' function exists."
-                        : $"Database Error: {lastErrorMessage}";
-
-                    string rpcFailMsg = $"Registration RPC failed after all retries. Detail: {rpcFailDetail}\n\n" +
-                        "Note: Ensure the 'profiles' table in Supabase has an 'updated_at' column if syncing issues persist.";
-                    
-                    Serilog.Log.Error("[OnboardingService] " + rpcFailMsg);
-                    return Result.Failure<Guid>(new Error("Onboarding.RpcFailed", rpcFailMsg));
-                }
-
-
-                // --- Phase 2 C# Fix: Eager Provisioning ---
-                // We MUST eagerly provision the standard 3 facilities immediately upon Tenant creation.
-                // This guarantees that when PC 2 and PC 3 boot up and connect to this Tenant,
-                // the Facility UUIDs already exist and Supabase RLS won't throw 0-row errors.
-                try
-                {
-                    Serilog.Log.Information($"[OnboardingService] Tenant Registered ({tenantId}). Beginning eager provisioning of Gym, Salon, and Restaurant.");
-                    await ProvisionFacilityAsync(tenantId.Value, ownerId, email, ownerName, 1, "Main Gym");
-                    await ProvisionFacilityAsync(tenantId.Value, ownerId, email, ownerName, 5, "Main Salon");
-                    await ProvisionFacilityAsync(tenantId.Value, ownerId, email, ownerName, 6, "Main Restaurant");
-                    Serilog.Log.Information("[OnboardingService] Eager provisioning completed successfully.");
-                }
-                catch (Exception ex)
-                {
-                    Serilog.Log.Error(ex, "[OnboardingService] Non-fatal error during eager facility provisioning.");
-                }
-
-                // 3. Link current device
-                await RegisterCurrentDeviceAsync(tenantId.Value, $"{Environment.MachineName} (Owner)", licenseKey);
-
-                // 4. Refresh Session for RLS
-                try
-                {
-                    await Task.Delay(1000);
-                    await _supabase.Auth.RefreshSession();
-                }
-                catch { /* Ignore non-critical refresh error */ }
-
-                return Result.Success(tenantId.Value);
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error(ex, $"[OnboardingService] RegisterBusinessAsync Total Failure: {ex.Message}");
-                return Result.Failure<Guid>(new Error("Onboarding.RegisterError", ex.Message));
-            }
+                AdminFullName = ownerName,
+                AdminEmail = email,
+                BusinessName = tenantName,
+                LicenseKey = licenseKey,
+                VoucherCode = licenseKey
+            };
+            return await CompleteOnboardingAsync(state);
         }
 
         public async Task<Result> UpdateTenantIndustryAsync(Guid tenantId, string industry)
@@ -511,47 +537,53 @@ namespace Management.Infrastructure.Services
 
         public async Task<Result> RegisterCurrentDeviceAsync(Guid tenantId, string label, string licenseKey)
         {
+            // NOTE (Phase 2): The old verify_license_key RPC no longer exists.
+            // For first-time onboarding the device is already registered atomically inside
+            // onboard_owner_account. This method now verifies the device is active via
+            // check_device_registration and saves the local lease — no re-registration needed.
             try
             {
                 var hardwareId = _tenantService.GetHardwareId();
-                Serilog.Log.Information($"[OnboardingService] Registering device: {label} (HW: {hardwareId}) for Tenant: {tenantId} using License Key: {licenseKey}");
+                Serilog.Log.Information($"[OnboardingService] Verifying device registration: {label} (HW: {hardwareId}) for Tenant: {tenantId}");
 
                 var parameters = new Dictionary<string, object>
                 {
-                    { "p_lookup_key", licenseKey },
-                    { "p_hardware_id", hardwareId },
-                    { "p_label", label }
+                    { "p_hardware_id", hardwareId }
                 };
 
-                var response = await _supabase.Rpc("verify_license_key", parameters);
-                
-                if (response == null || string.IsNullOrEmpty(response.Content))
+                var response = await _supabase.Rpc("check_device_registration", parameters);
+
+                if (response == null || string.IsNullOrEmpty(response.Content) || response.Content == "null")
                 {
-                    return Result.Failure(new Error("Onboarding.DeviceError", "Device registration failed: No response from server."));
+                    // Device may not be committed yet — save lease optimistically and succeed.
+                    Serilog.Log.Warning("[OnboardingService] check_device_registration returned no content. Saving lease optimistically.");
+                    await SaveLicenseLeaseAsync(hardwareId);
+                    return Result.Success();
                 }
 
-                // Parse standard RPC JSON response
-                var data = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(response.Content);
-                bool valid = data?.valid ?? false;
-                string message = data?.message ?? "Unknown error";
+                using var doc = System.Text.Json.JsonDocument.Parse(response.Content);
+                var root = doc.RootElement;
+                bool isRegistered = root.TryGetProperty("is_registered", out var rp) && rp.GetBoolean();
+                bool isActive     = !root.TryGetProperty("is_active", out var ap) || ap.GetBoolean();
 
-                if (!valid)
+                if (isRegistered && !isActive)
                 {
-                    Serilog.Log.Error($"[OnboardingService] Device registration failed (RPC): {message}");
-                    return Result.Failure(new Error("Onboarding.LicenseInvalid", message));
+                    Serilog.Log.Error("[OnboardingService] Device is registered but marked inactive.");
+                    return Result.Failure(new Error("Onboarding.DeviceInactive", "This device has been deactivated. Contact your administrator."));
                 }
 
-                Serilog.Log.Information($"[OnboardingService] Device registration successful: {message}");
-                
-                // SUCCESS: Save local lease for offline access
+                // Registered & active (or brand-new — onboard_owner_account already inserted it)
+                Serilog.Log.Information("[OnboardingService] Device verified successfully.");
                 await SaveLicenseLeaseAsync(hardwareId);
-                
                 return Result.Success();
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, $"[OnboardingService] Device registration exception for tenant {tenantId}");
-                return Result.Failure(new Error("Onboarding.DeviceException", $"Registration failed: {ex.Message}"));
+                Serilog.Log.Error(ex, $"[OnboardingService] Device verification exception for tenant {tenantId}");
+                // Non-fatal for onboarding: device was already registered by onboard_owner_account.
+                // Save the lease and succeed so the user is not blocked.
+                try { await SaveLicenseLeaseAsync(_tenantService.GetHardwareId()); } catch { }
+                return Result.Success();
             }
         }
 
@@ -623,27 +655,28 @@ namespace Management.Infrastructure.Services
 
             try
             {
-                // 1. Try server check first (RPC to bypass RLS)
                 var parameters = new Dictionary<string, object>
                 {
                     { "p_hardware_id", hardwareId }
                 };
 
-                var response = await _supabase.Rpc("check_device_activation", parameters);
+                var response = await _supabase.Rpc("check_device_registration", parameters);
                 
                 if (response != null && !string.IsNullOrEmpty(response.Content) && response.Content != "null")
                 {
-                    var data = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(response.Content);
-                    bool active = data?.active ?? false;
+                    using var doc = System.Text.Json.JsonDocument.Parse(response.Content);
+                    var root = doc.RootElement;
+                    bool isRegistered = root.TryGetProperty("is_registered", out var rp) && rp.GetBoolean();
                     
-                    if (active)
+                    if (isRegistered)
                     {
-                        var tenantIdStr = (string)data?.tenant_id;
-                        if (Guid.TryParse(tenantIdStr, out var tenantId))
+                        bool isActive = !root.TryGetProperty("is_active", out var ap) || ap.GetBoolean();
+                        bool accountIsActive = !root.TryGetProperty("account_is_active", out var aap) || aap.GetBoolean();
+                        
+                        if (isActive && accountIsActive && root.TryGetProperty("account_id", out var accProp) && Guid.TryParse(accProp.GetString(), out var accountId))
                         {
-                            // Update local lease upon successful server check
                             await SaveLicenseLeaseAsync(hardwareId);
-                            return Result.Success<Guid?>(tenantId);
+                            return Result.Success<Guid?>(accountId);
                         }
                     }
                 }
@@ -653,14 +686,10 @@ namespace Management.Infrastructure.Services
                 Serilog.Log.Warning($"[OnboardingService] Server activation check failed (RPC): {ex.Message}. Falling back to offline lease.");
             }
 
-            // 2. Fallback to local lease (Offline Mode)
             var lease = await LoadValidLeaseAsync(hardwareId);
             if (lease != null)
             {
-                // Note: We don't have the TenantId in the local lease model currently.
-                // If this is a blocker, we should update the LicenseLease model.
-                // For now, return success but NULL ID if offline, which might trigger Login or activation depending on App.xaml.cs
-                return Result.Success<Guid?>(null); 
+                return Result.Success<Guid?>(lease.AccountId); 
             }
 
             return Result.Success<Guid?>(null);
@@ -720,10 +749,16 @@ namespace Management.Infrastructure.Services
         {
             try
             {
+                var existing = await _configService.LoadConfigAsync<Management.Domain.Models.LicenseLease>("license.lease");
                 var lease = new Management.Domain.Models.LicenseLease
                 {
                     HardwareId = hardwareId,
-                    ExpiryDate = DateTime.UtcNow.AddDays(30),
+                    AccountId = existing?.AccountId,
+                    BranchId = existing?.BranchId,
+                    PlanRank = existing?.PlanRank ?? 0,
+                    PlanName = existing?.PlanName ?? "Evaluation Trial",
+                    IsLifetime = existing?.IsLifetime ?? false,
+                    ExpiryDate = existing?.ExpiryDate ?? DateTime.UtcNow.AddDays(14),
                     Signature = "SIGNED-" + hardwareId
                 };
 

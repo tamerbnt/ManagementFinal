@@ -22,5 +22,9 @@ namespace Management.Presentation.Services
         
         // Splash/Onboarding
         Task NavigateToSplashAsync();
+
+        // Back Navigation
+        Task NavigateBackAsync();
+        bool CanNavigateBack { get; }
     }
 }

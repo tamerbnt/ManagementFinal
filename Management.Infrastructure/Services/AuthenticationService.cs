@@ -230,7 +230,18 @@ namespace Management.Infrastructure.Services
                 staffEntity = await _staffRepository.GetByEmailAsync(email, null);
             }
 
-            if (staffEntity != null) return Result.Success(staffEntity);
+            if (staffEntity != null)
+            {
+                if (staffEntity.Role != StaffRole.Owner && (!facilityId.HasValue || facilityId.Value == Guid.Empty))
+                {
+                    Serilog.Log.Information($"[AuthService] Local profile for {email} has role {staffEntity.Role} on unconfigured PC. Verifying cloud recovery for owner permissions...");
+                    staffEntity = null;
+                }
+                else
+                {
+                    return Result.Success(staffEntity);
+                }
+            }
 
             // 2. Cloud Recovery (RPC)
             Serilog.Log.Information($"[AuthService] Attempting Cloud Recovery for {email}");
@@ -799,16 +810,29 @@ namespace Management.Infrastructure.Services
                 Serilog.Log.Warning(ex, "[AccountCheck] Local check failed — proceeding to cloud");
             }
 
-            // TIER 2 — Supabase (only when local says no owner)
+            // TIER 2 — Supabase (Phase 2 Staff check)
             bool cloudOwnerExists = false;
             try
             {
-                var result = await _supabase.From<SupabaseStaffMember>()
-                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
-                    .Filter("role", Supabase.Postgrest.Constants.Operator.Equals, (int)StaffRole.Owner)
+                var staffResult = await _supabase.From<SupabaseStaff>()
+                    .Filter("account_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
+                    .Filter("role", Supabase.Postgrest.Constants.Operator.Equals, "owner")
                     .Get();
 
-                cloudOwnerExists = result.Models.Any();
+                if (staffResult.Models.Any())
+                {
+                    cloudOwnerExists = true;
+                }
+                else
+                {
+                    var result = await _supabase.From<SupabaseStaffMember>()
+                        .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
+                        .Filter("role", Supabase.Postgrest.Constants.Operator.Equals, (int)StaffRole.Owner)
+                        .Get();
+
+                    cloudOwnerExists = result.Models.Any();
+                }
+
                 Serilog.Log.Information("[AccountCheck] Cloud check result: {Exists}", cloudOwnerExists);
 
                 if (cloudOwnerExists)
@@ -1046,7 +1070,23 @@ namespace Management.Infrastructure.Services
                 throw new InvalidOperationException($"Cloud profile for {remote.Id} is corrupt. Missing email address. (Found '{remote.FullName}' in name field). Please run the recovery script.");
             }
 
-            var role = Enum.IsDefined(typeof(StaffRole), remote.Role) ? (StaffRole)remote.Role : StaffRole.Staff;
+            StaffRole role;
+            if (remote.IsOwner || remote.Role == 8 || remote.Role == 10)
+            {
+                role = StaffRole.Owner;
+            }
+            else if (remote.Role == 1 || remote.Role == 5)
+            {
+                role = StaffRole.Manager;
+            }
+            else if (Enum.IsDefined(typeof(StaffRole), remote.Role))
+            {
+                role = (StaffRole)remote.Role;
+            }
+            else
+            {
+                role = StaffRole.Staff;
+            }
 
             var staffEntity = StaffMember.ForLocalSync(
                 remote.Id,

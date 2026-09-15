@@ -4,14 +4,45 @@ using Management.Domain.Interfaces;
 
 namespace Management.Application.Stores
 {
+    public record NavigationEntry(Type ViewModelType, object? Parameter = null);
+
     /// <summary>
     /// The Single Source of Truth for the application's main navigation state.
     /// This store is held as a Singleton in the DI container.
     /// </summary>
     public class NavigationStore : IStateResettable
     {
+        private readonly System.Collections.Generic.Stack<NavigationEntry> _backStack = new();
+
+        public bool CanNavigateBack => _backStack.Count > 0;
+        public event Action? BackStackChanged;
+
+        public void PushBackStack(NavigationEntry entry)
+        {
+            _backStack.Push(entry);
+            BackStackChanged?.Invoke();
+        }
+
+        public NavigationEntry? PopBackStack()
+        {
+            if (_backStack.Count == 0) return null;
+            var entry = _backStack.Pop();
+            BackStackChanged?.Invoke();
+            return entry;
+        }
+
+        public void ClearBackStack()
+        {
+            if (_backStack.Count > 0)
+            {
+                _backStack.Clear();
+                BackStackChanged?.Invoke();
+            }
+        }
+
         public void ResetState()
         {
+            ClearBackStack();
             // Clear current view on reset
             CurrentViewModel = null;
         }
