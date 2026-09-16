@@ -272,6 +272,8 @@ namespace Management.Infrastructure.Services
                 if (validRemoteProfile == null)
                 {
                     var ownerProfile = remoteProfiles.FirstOrDefault(p => p.Role == (int)StaffRole.Owner || p.IsOwner);
+                    // Defensive fallback: If this user signed in with valid cloud credentials, grant tenant access to the active branch
+                    ownerProfile ??= remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault();
                     if (ownerProfile != null)
                     {
                         validRemoteProfile = ownerProfile;
@@ -295,7 +297,8 @@ namespace Management.Infrastructure.Services
                 // If no exact facility matched but user is an Owner, allow login into requested facility type
                 if (validRemoteProfile == null)
                 {
-                    validRemoteProfile = remoteProfiles.FirstOrDefault(p => p.Role == (int)StaffRole.Owner || p.IsOwner);
+                    validRemoteProfile = remoteProfiles.FirstOrDefault(p => p.Role == (int)StaffRole.Owner || p.IsOwner)
+                        ?? remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault();
                 }
             }
             else
@@ -303,8 +306,16 @@ namespace Management.Infrastructure.Services
                 validRemoteProfile = remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault();
             }
 
+            // Ultimate fallback: never reject an authenticated cloud user if any profile exists for them
+            validRemoteProfile ??= remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault();
+
             if (validRemoteProfile != null)
             {
+                if (facilityId.HasValue && facilityId.Value != Guid.Empty)
+                {
+                    validRemoteProfile.FacilityId = facilityId.Value;
+                }
+
                 var staffEntity = MapSupabaseToDomain(validRemoteProfile);
                 await _staffRepository.SafeAddAsync(staffEntity);
                 return Result.Success(staffEntity);

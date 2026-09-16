@@ -282,9 +282,14 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         public Guid TenantId { get; set; }
 
         // facility_id NOT a column on public.staff — populated from RPC JSON only
-        [Newtonsoft.Json.JsonIgnore]
-        [Newtonsoft.Json.JsonProperty("primary_facility_id")]
+        [Newtonsoft.Json.JsonProperty("facility_id")]
         public Guid FacilityId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("primary_facility_id")]
+        public Guid PrimaryFacilityId { set => FacilityId = value; }
+
+        public bool ShouldSerializeFacilityId() => false;
+        public bool ShouldSerializePrimaryFacilityId() => false;
 
         [Column("full_name")]
         [Newtonsoft.Json.JsonProperty("full_name")]
@@ -295,13 +300,13 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         public string? Email { get; set; }
 
         // Pull: RPC returns integer; Push: RoleText converts back to Supabase text
-        [Newtonsoft.Json.JsonIgnore]
         [Newtonsoft.Json.JsonProperty("role")]
         public int Role { get; set; } = 7;
 
         [Column("role")]
-        [Newtonsoft.Json.JsonIgnore]
         public string RoleText => Role switch { 8 => "owner", 1 => "manager", 2 => "cashier", 3 => "technician", 4 => "waiter", _ => "staff" };
+
+        public bool ShouldSerializeRole() => false;
 
         [Column("is_active")]
         [Newtonsoft.Json.JsonProperty("is_active")]
@@ -316,9 +321,10 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         public DateTime UpdatedAt { get; set; }
 
         // Derived from role — not a DB column; from RPC JSON only
-        [Newtonsoft.Json.JsonIgnore]
         [Newtonsoft.Json.JsonProperty("is_owner")]
         public bool IsOwner { get; set; }
+
+        public bool ShouldSerializeIsOwner() => false;
 
         // Not in public.staff (Phase 2) — local SQLite only
         [Newtonsoft.Json.JsonIgnore] public string? PhoneNumber { get; set; }
@@ -335,6 +341,11 @@ namespace Management.Infrastructure.Integrations.Supabase.Models
         [Column("auth_user_id")]
         [Newtonsoft.Json.JsonProperty("auth_user_id")]
         public Guid? SupabaseUserId { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("supabase_user_id")]
+        public Guid? SupabaseUserIdLegacy { set => SupabaseUserId = value; }
+
+        public bool ShouldSerializeSupabaseUserIdLegacy() => false;
     }
 
     [Table("membership_plans")]
