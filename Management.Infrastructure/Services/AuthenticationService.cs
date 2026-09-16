@@ -208,39 +208,32 @@ namespace Management.Infrastructure.Services
             // This ensures Owners can perform initial discovery on unconfigured PCs.
             
             // 1. Local Lookup
-            StaffMember? staffEntity = null;
+            StaffMember? localStaff = null;
             if (facilityId.HasValue && facilityId.Value != Guid.Empty)
             {
-                staffEntity = await _staffRepository.GetByEmailAsync(email, facilityId.Value);
+                localStaff = await _staffRepository.GetByEmailAsync(email, facilityId.Value);
                 
-                if (staffEntity != null && staffEntity.FacilityId != facilityId.Value)
+                if (localStaff != null && localStaff.FacilityId != facilityId.Value)
                 {
-                    Serilog.Log.Information($"[AuthService] Local profile for {email} belongs to different facility {staffEntity.FacilityId}. Forcing cloud recovery.");
-                    staffEntity = null;
+                    Serilog.Log.Information($"[AuthService] Local profile for {email} belongs to different facility {localStaff.FacilityId}. Forcing cloud recovery.");
+                    localStaff = null;
                 }
             }
             else if (targetType.HasValue)
             {
-                staffEntity = await _staffRepository.GetByEmailAndFacilityTypeAsync(email, targetType.Value);
+                localStaff = await _staffRepository.GetByEmailAndFacilityTypeAsync(email, targetType.Value);
             }
             else
             {
-                // Unconfigured PC path (Discovery): Lookup by email only to identify the user's home facility.
-                // Security boundary: The result of this lookup is ONLY allowed if the user is an Owner (verified in LoginAsync).
-                staffEntity = await _staffRepository.GetByEmailAsync(email, null);
+                localStaff = await _staffRepository.GetByEmailAsync(email, null);
             }
 
-            if (staffEntity != null)
+            // Only trust local profile immediately if it is already confirmed as an Owner.
+            // If local role is Staff/Manager, always verify with Supabase cloud recovery
+            // to ensure a user who was granted or restored to Owner is not stuck as Staff.
+            if (localStaff != null && localStaff.Role == StaffRole.Owner)
             {
-                if (staffEntity.Role != StaffRole.Owner && (!facilityId.HasValue || facilityId.Value == Guid.Empty))
-                {
-                    Serilog.Log.Information($"[AuthService] Local profile for {email} has role {staffEntity.Role} on unconfigured PC. Verifying cloud recovery for owner permissions...");
-                    staffEntity = null;
-                }
-                else
-                {
-                    return Result.Success(staffEntity);
-                }
+                return Result.Success(localStaff);
             }
 
             // 2. Cloud Recovery (RPC)
@@ -249,6 +242,7 @@ namespace Management.Infrastructure.Services
             
             if (rpcResponse == null || string.IsNullOrEmpty(rpcResponse.Content) || rpcResponse.Content == "null")
             {
+                if (localStaff != null) return Result.Success(localStaff);
                 return Result.Failure<StaffMember>(new Error("Auth.NoProfile", "You are not authorized for this facility context."));
             }
 
@@ -260,6 +254,7 @@ namespace Management.Infrastructure.Services
             var remoteProfiles = Newtonsoft.Json.JsonConvert.DeserializeObject<List<SupabaseStaffMember>>(rpcResponse.Content, _snakeCaseSettings);
             if (remoteProfiles == null || !remoteProfiles.Any())
             {
+                if (localStaff != null) return Result.Success(localStaff);
                 return Result.Failure<StaffMember>(new Error("Auth.NoProfile", "No profiles found."));
             }
 
@@ -273,6 +268,16 @@ namespace Management.Infrastructure.Services
             if (facilityId.HasValue && facilityId.Value != Guid.Empty)
             {
                 validRemoteProfile = remoteProfiles.OrderByDescending(p => p.Role).FirstOrDefault(p => p.FacilityId == facilityId.Value);
+                // An owner has authority across all facilities in their tenant
+                if (validRemoteProfile == null)
+                {
+                    var ownerProfile = remoteProfiles.FirstOrDefault(p => p.Role == (int)StaffRole.Owner || p.IsOwner);
+                    if (ownerProfile != null)
+                    {
+                        validRemoteProfile = ownerProfile;
+                        validRemoteProfile.FacilityId = facilityId.Value;
+                    }
+                }
             }
             else if (targetType.HasValue)
             {
@@ -286,6 +291,12 @@ namespace Management.Infrastructure.Services
                         break;
                     }
                 }
+
+                // If no exact facility matched but user is an Owner, allow login into requested facility type
+                if (validRemoteProfile == null)
+                {
+                    validRemoteProfile = remoteProfiles.FirstOrDefault(p => p.Role == (int)StaffRole.Owner || p.IsOwner);
+                }
             }
             else
             {
@@ -294,7 +305,7 @@ namespace Management.Infrastructure.Services
 
             if (validRemoteProfile != null)
             {
-                staffEntity = MapSupabaseToDomain(validRemoteProfile);
+                var staffEntity = MapSupabaseToDomain(validRemoteProfile);
                 await _staffRepository.SafeAddAsync(staffEntity);
                 return Result.Success(staffEntity);
             }
@@ -943,7 +954,16 @@ namespace Management.Infrastructure.Services
 
                 foreach (var supaFacility in supaFacilities)
                 {
-                    if (!System.Enum.IsDefined(typeof(FacilityType), supaFacility.Type)) continue;
+                    var rawType = (FacilityType)supaFacility.Type;
+                    var normalizedType = rawType switch
+                    {
+                        FacilityType.MembershipAndSession => FacilityType.Gym,
+                        FacilityType.AppointmentAndService => FacilityType.Salon,
+                        FacilityType.PosAndInventory => FacilityType.Restaurant,
+                        _ => rawType
+                    };
+
+                    if (!System.Enum.IsDefined(typeof(FacilityType), normalizedType)) continue;
 
                     var existingFacility = await appContext.Facilities
                         .AsNoTracking()
@@ -956,7 +976,7 @@ namespace Management.Infrastructure.Services
                             Id = supaFacility.Id,
                             TenantId = supaFacility.TenantId,
                             Name = supaFacility.Name,
-                            Type = (FacilityType)supaFacility.Type,
+                            Type = normalizedType,
                             IsActive = supaFacility.IsActive,
                             IsSynced = true,
                         });
@@ -968,7 +988,7 @@ namespace Management.Infrastructure.Services
                             ?? appContext.Facilities.FirstOrDefault(f => f.Id == supaFacility.Id);
                         if (trackedFacility != null)
                         {
-                            trackedFacility.Type = (FacilityType)supaFacility.Type;
+                            trackedFacility.Type = normalizedType;
                             trackedFacility.Name = supaFacility.Name;
                             trackedFacility.IsActive = supaFacility.IsActive;
                         }

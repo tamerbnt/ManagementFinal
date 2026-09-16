@@ -31,9 +31,18 @@ namespace Management.Presentation.Services.Navigation
             }
         }
 
+        private static FacilityType Normalize(FacilityType type) => type switch
+        {
+            FacilityType.MembershipAndSession => FacilityType.Gym,
+            FacilityType.AppointmentAndService => FacilityType.Salon,
+            FacilityType.PosAndInventory => FacilityType.Restaurant,
+            _ => type
+        };
+
         public IEnumerable<NavigationItemMetadata> GetItems(FacilityType facilityType)
         {
-            if (_registry.TryGetValue(facilityType, out var items))
+            var normalized = Normalize(facilityType);
+            if (_registry.TryGetValue(normalized, out var items) || _registry.TryGetValue(facilityType, out items))
             {
                 lock (items)
                 {
@@ -50,11 +59,16 @@ namespace Management.Presentation.Services.Navigation
 
         public Type GetHomeViewType(FacilityType facilityType)
         {
-            if (_homeViewRegistry.TryGetValue(facilityType, out var type))
+            var normalized = Normalize(facilityType);
+            if (_homeViewRegistry.TryGetValue(normalized, out var type) || _homeViewRegistry.TryGetValue(facilityType, out type))
             {
                 return type;
             }
-            // Fallback for safety, though registration should happen at startup
+            // Fallback for safety to Gym, though registration should happen at startup
+            if (_homeViewRegistry.TryGetValue(FacilityType.Gym, out var gymType))
+            {
+                return gymType;
+            }
             throw new InvalidOperationException($"No home view registered for facility type: {facilityType}. Ensure registry is populated in App.xaml.cs.");
         }
 

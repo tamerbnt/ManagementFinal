@@ -45,9 +45,17 @@ namespace Management.Presentation.Services
             private set => _globalFacility = value; 
         }
 
-        public FacilityType ConfiguredFacility { get; private set; } = FacilityType.General;
+        public FacilityType ConfiguredFacility { get; private set; } = FacilityType.Gym;
 
-        public Guid CurrentFacilityId => _overrideFacilityId.Value ?? _dynamicFacilityIds.GetValueOrDefault(CurrentFacility, Guid.Empty);
+        public static FacilityType NormalizeFacilityType(FacilityType type) => type switch
+        {
+            FacilityType.MembershipAndSession => FacilityType.Gym,
+            FacilityType.AppointmentAndService => FacilityType.Salon,
+            FacilityType.PosAndInventory => FacilityType.Restaurant,
+            _ => type
+        };
+
+        public Guid CurrentFacilityId => _overrideFacilityId.Value ?? _dynamicFacilityIds.GetValueOrDefault(NormalizeFacilityType(CurrentFacility), Guid.Empty);
         public string LanguageCode { get; private set; } = "en";
         public string PublicSlug { get; private set; } = string.Empty;
         public event Action<FacilityType>? FacilityChanged;
@@ -57,7 +65,7 @@ namespace Management.Presentation.Services
             var prevType = _overrideFacility.Value;
             var prevId = _overrideFacilityId.Value;
             
-            _overrideFacility.Value = type;
+            _overrideFacility.Value = NormalizeFacilityType(type);
             _overrideFacilityId.Value = facilityId;
             
             return new ContextRestorer(() => 
@@ -76,6 +84,7 @@ namespace Management.Presentation.Services
 
         public async void SetFacility(FacilityType type)
         {
+            type = NormalizeFacilityType(type);
             Serilog.Log.Information("[FacilityContext] SetFacility({Type}) called. CurrentFacilityId at this moment: {Id}", type, _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty));
             await SwitchFacility(type);
         }
@@ -87,6 +96,7 @@ namespace Management.Presentation.Services
         /// </summary>
         public async Task SetActiveFacility(FacilityType type)
         {
+            type = NormalizeFacilityType(type);
             Serilog.Log.Information("[FacilityContext] SetActiveFacility({Type}) — in-memory switch, no disk write.", type);
             await SwitchFacilityInMemory(type);
         }
@@ -97,6 +107,7 @@ namespace Management.Presentation.Services
         /// </summary>
         public void PersistFacilityChoice(FacilityType type)
         {
+            type = NormalizeFacilityType(type);
             ConfiguredFacility = type;
             CurrentFacility = type;
             Serilog.Log.Information("[FacilityContext] PersistFacilityChoice({Type}) — writing to disk.", type);
@@ -120,14 +131,16 @@ namespace Management.Presentation.Services
 
             foreach (var mapping in facilityMappings)
             {
-                _dynamicFacilityIds.AddOrUpdate(mapping.Key, mapping.Value, (k, v) => mapping.Value);
-                Serilog.Log.Information($"[FacilityContext] Updated {mapping.Key} to {mapping.Value}");
+                var normKey = NormalizeFacilityType(mapping.Key);
+                _dynamicFacilityIds.AddOrUpdate(normKey, mapping.Value, (k, v) => mapping.Value);
+                Serilog.Log.Information($"[FacilityContext] Updated {normKey} to {mapping.Value}");
             }
             SaveConfig();
         }
 
         public void UpdateFacilityId(FacilityType type, Guid actualId)
         {
+            type = NormalizeFacilityType(type);
             _dynamicFacilityIds.AddOrUpdate(type, actualId, (k, v) => actualId);
             Serilog.Log.Warning("[DIAG][FacilityContext] UpdateFacilityId({Type}, {Id}) called. Map now has {Count} entries.", type, actualId, _dynamicFacilityIds.Count);
             Serilog.Log.Information($"[FacilityContext] [RUNTIME DISCOVERY] Resolved Facility ID for {type}: {actualId}. This should be persisted to facility-config.json.");
@@ -181,7 +194,8 @@ namespace Management.Presentation.Services
                     var json = File.ReadAllText(_configPath);
                     var options = new JsonSerializerOptions { Converters = { new JsonStringEnumConverter() } };
                     var config = JsonSerializer.Deserialize<FacilityConfig>(json, options);
-                    ConfiguredFacility = config?.InitialFacility ?? FacilityType.General;
+                    var rawFacility = config?.InitialFacility ?? FacilityType.Gym;
+                    ConfiguredFacility = NormalizeFacilityType(rawFacility == FacilityType.General ? FacilityType.Gym : rawFacility);
                     CurrentFacility = ConfiguredFacility;
                     LanguageCode = config?.LanguageCode ?? "en";
                     PublicSlug = config?.PublicSlug ?? string.Empty;
@@ -196,23 +210,24 @@ namespace Management.Presentation.Services
                     {
                         foreach (var mapping in config.FacilityIds)
                         {
-                            _dynamicFacilityIds.TryAdd(mapping.Key, mapping.Value);
+                            var normKey = NormalizeFacilityType(mapping.Key);
+                            _dynamicFacilityIds.TryAdd(normKey, mapping.Value);
                         }
                         Serilog.Log.Information("[FacilityContext] Loaded persisted facility-ID mappings. Pending CommitFacility.");
                     }
                 }
                 else
                 {
-                    ConfiguredFacility = FacilityType.General;
-                    CurrentFacility = FacilityType.General;
-                    Serilog.Log.Information("[FacilityContext] No config file found. Initializing with General type. Pending CommitFacility.");
+                    ConfiguredFacility = FacilityType.Gym;
+                    CurrentFacility = FacilityType.Gym;
+                    Serilog.Log.Information("[FacilityContext] No config file found. Initializing with Gym type. Pending CommitFacility.");
                 }
             }
             catch (Exception ex)
             {
-                Serilog.Log.Warning(ex, "[FacilityContext] Failed to load config. Using General default.");
-                ConfiguredFacility = FacilityType.General;
-                CurrentFacility = FacilityType.General;
+                Serilog.Log.Warning(ex, "[FacilityContext] Failed to load config. Using Gym default.");
+                ConfiguredFacility = FacilityType.Gym;
+                CurrentFacility = FacilityType.Gym;
             }
 
             // NOTE: SwitchFacility is intentionally NOT called here.
@@ -232,13 +247,16 @@ namespace Management.Presentation.Services
 
         public Guid GetFacilityId(FacilityType type)
         {
-            return _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty);
+            return _dynamicFacilityIds.GetValueOrDefault(NormalizeFacilityType(type), Guid.Empty);
         }
 
         private readonly System.Threading.SemaphoreSlim _resourceLoadLock = new(1, 1);
 
         public async Task SwitchFacility(FacilityType type)
         {
+            type = NormalizeFacilityType(type);
+            if (type == FacilityType.General) type = FacilityType.Gym;
+
             // PERFORMANCE GUARD: Prevent redundant re-loads if the facility hasn't changed.
             // This reduces UI thread pressure during the onboarding transition.
             if (CurrentFacility == type && _dynamicFacilityIds.GetValueOrDefault(type, Guid.Empty) != Guid.Empty)
@@ -279,6 +297,9 @@ namespace Management.Presentation.Services
         /// </summary>
         private async Task SwitchFacilityInMemory(FacilityType type)
         {
+            type = NormalizeFacilityType(type);
+            if (type == FacilityType.General) type = FacilityType.Gym;
+
             CurrentFacility = type;
             await LoadFacilityResourcesAsync(type);
 

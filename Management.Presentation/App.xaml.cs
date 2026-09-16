@@ -2064,8 +2064,11 @@ namespace Management.Presentation
         {
             // --- GLOBAL HOME VIEWS ---
             registry.RegisterHomeView<GymHomeViewModel>(Domain.Enums.FacilityType.Gym);
+            registry.RegisterHomeView<GymHomeViewModel>(Domain.Enums.FacilityType.MembershipAndSession);
             registry.RegisterHomeView<SalonHomeViewModel>(Domain.Enums.FacilityType.Salon);
+            registry.RegisterHomeView<SalonHomeViewModel>(Domain.Enums.FacilityType.AppointmentAndService);
             registry.RegisterHomeView<RestaurantHomeViewModel>(Domain.Enums.FacilityType.Restaurant);
+            registry.RegisterHomeView<RestaurantHomeViewModel>(Domain.Enums.FacilityType.PosAndInventory);
 
             // --- GYM ---
             registry.Register(Domain.Enums.FacilityType.Gym, new NavigationItemMetadata("Home", "Terminology.Sidebar.Home", "Icon.Home", typeof(GymHomeViewModel), 0));

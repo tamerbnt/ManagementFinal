@@ -130,7 +130,7 @@ namespace Management.Presentation.ViewModels
             // Pre-seed SelectedFacility from persisted context so Login button and UI are immediately active
             var defaultType = _facilityContext.CurrentFacility != FacilityType.General
                 ? _facilityContext.CurrentFacility
-                : (_facilityContext.ConfiguredFacility != FacilityType.General ? _facilityContext.ConfiguredFacility : FacilityType.MembershipAndSession);
+                : (_facilityContext.ConfiguredFacility != FacilityType.General ? _facilityContext.ConfiguredFacility : FacilityType.Gym);
             var defaultId = _facilityContext.GetFacilityId(defaultType);
             _selectedFacility = FacilityTypeOption.Create(defaultType, defaultId);
 
@@ -358,8 +358,16 @@ namespace Management.Presentation.ViewModels
 
             if (facilityType == FacilityType.General)
             {
-                facilityType = FacilityType.MembershipAndSession;
+                facilityType = FacilityType.Gym;
             }
+
+            facilityType = facilityType switch
+            {
+                FacilityType.MembershipAndSession => FacilityType.Gym,
+                FacilityType.AppointmentAndService => FacilityType.Salon,
+                FacilityType.PosAndInventory => FacilityType.Restaurant,
+                _ => facilityType
+            };
 
             if (SelectedFacility == null || SelectedFacility.Type != facilityType || (SelectedFacility.Id == Guid.Empty && facilityId != Guid.Empty))
             {

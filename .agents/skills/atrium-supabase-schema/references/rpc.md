@@ -90,7 +90,10 @@ All RPC functions run with SECURITY DEFINER and SET search_path = public, pg_tem
 | `created_at` | `branches.created_at` | |
 
 - **Category → FacilityType integer mapping**:
-  - `'pos_inventory'` → 10, `'appointment_service'`/`'salon'` → 11, `'membership_session'`/`'gym'` → 12, `'restaurant'` → 6, `'project_milestone'` → 13, `'rental_booking'` → 14, `'education_cohort'` → 15, fallback → 12
+  - `'membership_session'` / `'gym'` → 1 (FacilityType.Gym)
+  - `'appointment_service'` / `'salon'` → 5 (FacilityType.Salon)
+  - `'pos_inventory'` / `'restaurant'` → 6 (FacilityType.Restaurant)
+  - fallback → 1 (FacilityType.Gym)
 - **GRANT**: `authenticated`, `anon`, `service_role`
 
 ---

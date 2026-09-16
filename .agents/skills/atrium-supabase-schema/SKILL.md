@@ -66,7 +66,7 @@ All business transactions, quota checks, and device handshakes are encapsulated 
 10. create_business(p_account_id, p_name, p_category, p_address, p_phone) - Enforces max_businesses quota.
 11. create_branch(p_account_id, p_business_id, p_name, p_address, p_phone) - Enforces max_branches quota.
 12. get_staff_profiles(p_email text) - **[PATCH v1.2]** Cloud Recovery RPC. Returns a jsonb array of all staff rows matching p_email (active only). Used by AuthenticationService.ResolveStaffProfileAsync to seed local SQLite on new devices. Role integers match C# StaffRole enum (Owner=8, Manager=1, Cashier=2, Technician=3, Waiter=4, Staff=7).
-13. get_tenant_facilities(p_tenant_id uuid) - **[PATCH v1.2]** Returns a jsonb array of active branches joined with their business category, mapped to C# FacilityType integers. Used by AuthenticationService.SeedLocalFacilitiesFromSupabaseAsync to populate local SQLite Facilities table on cloud recovery.
+13. get_tenant_facilities(p_tenant_id uuid) - **[PATCH v1.2]** Returns a jsonb array of active branches joined with their business category, mapped to active C# FacilityType integers (Membership/Gym=1, Appointment/Salon=5, POS/Restaurant=6). Used by AuthenticationService.SeedLocalFacilitiesFromSupabaseAsync to populate local SQLite Facilities table on cloud recovery.
 14. get_staff_for_sync(p_account_id uuid, p_updated_after timestamptz, p_facility_id uuid) - **[PATCH v1.3]** Synchronization RPC. Replaces legacy direct queries on non-existent Phase 1 staff_members table. Pulls staff records directly from public.staff and staff_branch_assignments with proper integer role mapping and facility scopes.
 
 Detailed RPC specifications: [references/rpc.md](./references/rpc.md)
