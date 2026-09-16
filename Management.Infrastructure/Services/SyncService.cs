@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection; // Added for JIT Repair Logic
 using System.Threading;
@@ -271,9 +271,9 @@ namespace Management.Infrastructure.Services
                         }
                         
                         return staffSuccess;
-                    // LOCAL-ONLY: MembershipPlan and MembershipPlanFacility cases removed
+                    // LOCAL-ONLY: MembershipPlan, MembershipPlanFacility, and Registration cases are local-only in Phase 2
                     case "Registration":
-                        return await SyncSnapshotAsync<SupabaseRegistration>(message, MapToSupabaseRegistration, ct);
+                        return true;
                     default:
                         // Delegate to facility-specific strategies
                         var currentFacilityType = _facilityContext.CurrentFacility;
@@ -559,7 +559,8 @@ namespace Management.Infrastructure.Services
                 // LOCAL-FIRST: Members and Products are managed locally, but we pull updates for cross-device visibility.
                 
                 await PullStaffMembersAsync(context, lastSync, targetFacilityId, ct);
-                await PullRegistrationsAsync(context, lastSync, ct);
+                // In Phase 2 Local-First architecture, lead registrations are local-only;
+                // online registrations are fetched directly via WebsiteRegistrationService from registration_requests.
 
                 // Pull Facility-Specific Data via Strategies
                 var currentFacilityType = _facilityContext.CurrentFacility;
@@ -875,64 +876,11 @@ namespace Management.Infrastructure.Services
             return staff;
         }
 
-        private async Task PullRegistrationsAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
+        private Task PullRegistrationsAsync(AppDbContext context, DateTimeOffset lastSync, CancellationToken ct)
         {
-            try
-            {
-                var tenantId = _tenantService.GetTenantId();
-                if (tenantId == null || tenantId == Guid.Empty) return;
-
-                var remoteData = await _supabase.From<SupabaseRegistration>()
-                    .Filter("tenant_id", Supabase.Postgrest.Constants.Operator.Equals, tenantId.ToString())
-                    .Where(x => x.UpdatedAt > lastSync.UtcDateTime)
-                    .Get();
-
-                if (!remoteData.Models.Any()) return;
-
-                var remoteModels = remoteData.Models;
-                var remoteIds = remoteModels.Select(x => x.Id).ToList();
-
-                var existingEntities = await context.Registrations
-                    .IgnoreQueryFilters()
-                    .Where(x => remoteIds.Contains(x.Id))
-                    .ToListAsync(ct);
-
-                var existingMap = existingEntities.ToDictionary(x => x.Id);
-                var newEntities = new List<Registration>();
-
-                foreach (var remote in remoteModels)
-                {
-                    if (existingMap.TryGetValue(remote.Id, out var existing))
-                    {
-                        // FIX: Only update if remote is actually newer than local
-                        if (remote.UpdatedAt <= (existing.UpdatedAt ?? existing.CreatedAt))
-                        {
-                            _logger.LogDebug("[Sync] Skipping registration update for {Id}: Local is newer or same.", remote.Id);
-                            continue;
-                        }
-
-                        // Simplified update for lead capture data
-                        var updated = MapToDomain(remote);
-                        context.Entry(existing).CurrentValues.SetValues(updated);
-                        existing.IsSynced = true;
-                    }
-                    else
-                    {
-                        var registration = MapToDomain(remote);
-                        registration.IsSynced = true;
-                        newEntities.Add(registration);
-                    }
-                }
-
-                if (newEntities.Any()) await context.Registrations.AddRangeAsync(newEntities, ct);
-                await context.SaveChangesAsync(ct);
-                _logger.LogInformation($"[Sync] Pulled {newEntities.Count} new registrations from Supabase.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error pulling registrations.");
-                throw;
-            }
+            // In Phase 2 Local-First architecture, lead registrations are local-only.
+            // Self-service web registrations are fetched on demand via WebsiteRegistrationService from registration_requests.
+            return Task.CompletedTask;
         }
 
         private Management.Domain.Models.Registration MapToDomain(SupabaseRegistration model)

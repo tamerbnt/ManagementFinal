@@ -125,4 +125,6 @@ The C# `StaffRole` enum uses integer values. The RPC `get_staff_profiles` bridge
 | 2026-09-15 | `get_staff_profiles` returned `role=10` for owners; C# had no mapping for 10, so owners were silently downgraded to `StaffRole.Staff(7)`, triggering "PC not configured" error | Fixed CASE statement to return 8 for 'owner'; added defensive `remote.Role == 10` guard in `MapSupabaseToDomain` |
 | 2026-09-15 | `get_tenant_facilities` did not exist; `SeedLocalFacilitiesFromSupabaseAsync` threw PGRST202, leaving local Facilities table empty; SelectedFacility.Id = Guid.Empty | Created the RPC joining `branches` + `businesses` |
 | 2026-09-15 | `SyncService.PullStaffMembersAsync` targeted non-existent `staff_members` table (PGRST205) and selecting `s.permissions` failed (42703) | Created `get_staff_for_sync` RPC (Option B), removed `[Column("permissions")]` on C# `SupabaseStaffMember`, and set `'permissions'` to `'{}'::jsonb` in the RPC |
+| 2026-09-16 | `SyncService.PullRegistrationsAsync` queried `registrations` table with Phase 1 columns (`tenant_id`, `facility_id`...) causing 42703 | In Phase 2, `registrations` is operational admissions and lead capture is local-only (web requests in `registration_requests`). Removed pull & marked `Registration` as local-only in SyncService |
+
 
